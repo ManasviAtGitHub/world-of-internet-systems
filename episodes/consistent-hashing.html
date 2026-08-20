@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Consistent Hashing — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* ============ tokens (series design system) ============ */
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  canvas.chart{display:block;width:100%;background:var(--panel);border-top:1px solid var(--panel-line)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .legend{display:flex;gap:16px;padding:8px 16px 0;font-size:10.5px;color:var(--panel-muted);letter-spacing:.06em}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+  @media (max-width:620px){ .exp-controls{gap:12px} input[type=range]{width:110px} }
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · Internet Plumbing · Episode 02</p>
+  <h1>The Hash Ring</h1>
+  <p class="dek">A cache fleet has a strange constitution: every client must know which server
+  holds every key, nobody is allowed to keep a directory, and servers die without notice.
+  The obvious answer — <em>hash the key, take it mod N</em> — works perfectly, right up until
+  the moment N changes. Then it destroys almost everything you cached, all at once.</p>
+  <p class="marginal">Every dot below is one cached key. Amber pulse = served from cache.
+  Red pulse = cache miss — the database behind the cache pays for it. The simulations are
+  honest: ownership comes from real hash arithmetic, not a script.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">A consistent-hash ring serving lookups — six servers, 120 keys</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="hero-kill">KILL A SERVER</button>
+      <button class="btn" data-act="hero-revive">REVIVE</button>
+      <button class="btn" data-run="hero">PAUSE</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:320px" role="img" aria-label="Live ring: 120 key dots around a circle, six server marks, lookups pulsing"></canvas>
+  <div class="exp-metrics">
+    <span>LOOKUPS<b data-m="hero.done">0</b></span>
+    <span>HIT RATE ·4s<b data-m="hero.hit">–</b></span>
+    <span>LAST CHANGE MOVED<b data-m="hero.remap">–</b></span>
+  </div>
+  <figcaption class="exp-note">Press <em>KILL A SERVER</em>. Only the dead server's own arc of
+  keys goes red and slides to its clockwise neighbor — everyone else keeps serving from warm
+  cache as if nothing happened. That calm is the whole invention. To see what it replaced,
+  run the experiment below.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The rule everyone can compute alone</h2>
+  <p>The problem consistent hashing solves is coordination-free agreement. A memcached client
+  in one datacenter and another client on the other side of the fleet must both compute, in
+  microseconds, the same answer to "which server owns <code>user:8123</code>?" — without asking
+  a directory service that would itself become the bottleneck.</p>
+  <p><strong>hash(key) mod N</strong> is the obvious rule: deterministic, perfectly balanced,
+  one line of code. Its flaw is arithmetic, not implementation. Change N from 6 to 5 and
+  <code>hash mod 6</code> and <code>hash mod 5</code> agree only about one time in five —
+  so losing <em>one</em> server reassigns roughly <em>four out of five keys</em> fleet-wide.
+  Every reassigned key is a cache miss, and every miss lands on the database the cache was
+  built to protect. The industry name for what happens next is a <strong>cache stampede</strong>.</p>
+  <p>In 1997, Karger and colleagues published the fix — invented for early web caching, a
+  decade before Amazon's Dynamo made it famous <span class="cite">(Karger et al., STOC 1997)</span>.
+  Hash servers and keys onto the same circle; each key belongs to the next server clockwise.
+  Now a dead server's keys slide to its neighbor, and <em>nothing else moves</em>. Below, the
+  same 120 keys live in both worlds. One button kills the same server in each. Watch who
+  panics.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">One failure, two worlds — hash mod N (left) vs the ring (right)</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e1-kill">KILL NEXT SERVER</button>
+      <button class="btn" data-act="e1-add">ADD A SERVER</button>
+      <button class="btn" data-act="e1-restore">RESTORE ALL</button>
+      <button class="btn" data-run="e1">PAUSE</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-e1" style="height:340px" role="img" aria-label="Split view: keys in columns under servers on the left, keys around a ring on the right, database meters below each"></canvas>
+  <div class="legend">
+    <span><i style="background:var(--series-b)"></i>MOD-N HIT RATE</span>
+    <span><i style="background:var(--series-a)"></i>RING HIT RATE</span>
+  </div>
+  <canvas class="chart" id="ch-e1" style="height:120px"></canvas>
+  <div class="exp-metrics">
+    <span>LAST CHANGE — MOD-N MOVED<b class="bad" data-m="e1.mremap">–</b></span>
+    <span>RING MOVED<b data-m="e1.rremap">–</b></span>
+    <span>DB LOAD — MOD-N<b data-m="e1.mdb">0/s</b></span>
+    <span>RING<b data-m="e1.rdb">0/s</b></span>
+  </div>
+  <figcaption class="exp-note">Kill a server: mod-N scrambles <em>~83%</em> of keys and its
+  database meter spikes red, while the ring moves <em>~17%</em> — exactly the dead server's
+  share, which is the provable minimum (you cannot lose a server without moving its own keys).
+  Now try <em>ADD A SERVER</em>: in mod-N world, adding capacity — the thing you do when
+  traffic is spiking — destroys the cache at the worst possible moment. On the ring, the
+  newcomer politely takes one slice.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The endurance test: rolling restarts</h2>
+  <p>One failure is survivable in any design. Real fleets churn <em>constantly</em> — deploys,
+  kernel patches, autoscaling, spot instances reclaimed. A rolling restart cycles through every
+  server, one at a time. Below, both worlds endure one: a server goes down, comes back, and the
+  next goes down, every five seconds, forever. Averages tell the story.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Rolling restart, forever — one server cycles every 5 seconds</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-e2" style="height:340px" role="img" aria-label="Same split view as EXP-01, with servers automatically dying and reviving in rotation"></canvas>
+  <div class="legend">
+    <span><i style="background:var(--series-b)"></i>MOD-N HIT RATE</span>
+    <span><i style="background:var(--series-a)"></i>RING HIT RATE</span>
+  </div>
+  <canvas class="chart" id="ch-e2" style="height:120px"></canvas>
+  <div class="exp-metrics">
+    <span>AVG HIT — MOD-N ·30s<b class="bad" data-m="e2.mavg">–</b></span>
+    <span>AVG HIT — RING ·30s<b data-m="e2.ravg">–</b></span>
+    <span>DB MISSES — MOD-N<b data-m="e2.mdb">0</b></span>
+    <span>RING<b data-m="e2.rdb">0</b></span>
+  </div>
+  <figcaption class="exp-note">Mod-N's cache never gets a chance to warm — each restart
+  re-scrambles the map before the last stampede has drained. The ring pays a small,
+  <em>bounded</em> tax per restart and stays warm. This gap is why the ring won: churn is not
+  an incident at scale, it's the weather.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The catch: the ring is lumpy</h2>
+  <p>Random points on a circle are not evenly spaced. With one point per server, some server
+  always wins a huge arc and some server starves — the ring balances <em>eventually, on
+  average</em>, which is no comfort to the one machine holding 30% of your keys. Amazon's
+  Dynamo popularized the fix <span class="cite">(DeCandia et al., SOSP 2007)</span>:
+  give each server not one position but <em>V</em> — <strong>virtual nodes</strong> — so its
+  territory becomes many small slivers scattered around the circle, and the law of large
+  numbers grinds the lumps flat. Bonus: a machine with twice the hardware simply gets twice
+  the virtual nodes, and proportional load falls out for free.</p>
+</div>
+
+<figure class="exp" id="p-v">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">The lumpy ring — watch virtual nodes grind territory flat</span>
+    <span class="exp-run"><button class="btn" data-act="v-shuffle">RESHUFFLE</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-vn">Virtual nodes / server</label>
+      <input type="range" id="r-vn" min="0" max="6" value="0" step="1">
+      <output data-m="v.vn">1</output></span>
+    <label class="toggle"><input type="checkbox" id="t-w2"> S2 has 2× the hardware</label>
+  </div>
+  <canvas class="sim" id="c-v" style="height:300px" role="img" aria-label="A ring with server territories on the left and a bar chart of each server's share on the right"></canvas>
+  <div class="exp-metrics">
+    <span>WORST SERVER HOLDS<b data-m="v.worst">–</b></span>
+    <span>VS ITS FAIR SHARE<b data-m="v.imb">–</b></span>
+    <span>S4'S TERRITORY, IN PIECES<b data-m="v.frag">1</b></span>
+  </div>
+  <figcaption class="exp-note">At V = 1, watch <em>S4's highlighted territory</em>: one fat,
+  unfair arc. Slide V up and it shatters into slivers that total almost exactly a fair share —
+  every server's bar converges on the dashed line. Then give S2 double hardware: its bar
+  settles at twice everyone else's, with no code anywhere that "assigns" it more. Notion's
+  480 logical shards on 32 hosts is this same trick wearing a database costume.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Where you've already met the ring</h2>
+  <p>Ketama brought the ring to memcached clients in 2007 and it became the default answer for
+  cache fleets. Dynamo built a whole database on it, and its descendants — Cassandra, Riak,
+  DynamoDB — still route by ring, virtual nodes and all. CDNs use it to keep each URL cached
+  at a consistent edge machine. Envoy offers ring hashing for session-sticky service routing.
+  And when Google needed per-packet routing at line rate, Maglev traded the ring for a
+  precomputed 65,537-slot lookup table — accepting slightly <em>more</em> disruption on
+  membership change in exchange for near-perfect balance and O(1) lookups
+  <span class="cite">(Eisenbud et al., NSDI 2016)</span> — proof that even the classics are
+  a point on a trade-off curve, not the end of it.</p>
+  <p>The deeper pattern to keep: <strong>decouple the name from the place.</strong> Mod-N welds
+  a key's identity to the current shape of the fleet, so the fleet can't change shape without
+  breaking every promise. The ring — like Notion's logical shards, like Maglev's table — puts
+  a stable layer of indirection in between, so machines can come and go while the names stay
+  put. You will meet this move again in almost every episode of this series.</p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>D. Karger et al. — <a href="https://dl.acm.org/doi/10.1145/258533.258660">Consistent Hashing and Random Trees</a>, STOC 1997. The original ring, invented for distributed web caching.</li>
+    <li>G. DeCandia et al. (Amazon) — <a href="https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf">Dynamo: Amazon's Highly Available Key-value Store</a>, SOSP 2007. Virtual nodes; heterogeneous shares; the ring as database backbone.</li>
+    <li>D. Eisenbud et al. (Google) — <a href="https://www.usenix.org/sites/default/files/nsdi16-paper-eisenbud-update.pdf">Maglev: A Fast and Reliable Software Network Load Balancer</a>, NSDI 2016. Maglev hashing: the 65,537-slot table and its balance/disruption trade.</li>
+    <li>Last.fm / R. Jones — <a href="https://github.com/RJ/ketama">libketama — consistent hashing for memcached</a>, 2007. The implementation that made the ring an industry default.</li>
+    <li>Notion — <a href="https://www.notion.com/blog/sharding-postgres-at-notion">Herding elephants: sharding Postgres at Notion</a>, 2021. 480 logical shards on 32 hosts — the same indirection trick at the database layer.</li>
+    <li>Envoy documentation — <a href="https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/load_balancing/load_balancing">Load balancing: ring hash</a>.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>Twitter's timeline: the fan-out problem</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- utilities ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = {
+  panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E'
+};
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const fmtPct = x => isFinite(x) ? Math.round(x*100)+'%' : '–';
+
+/* ---------- hash world: keys, servers, two ownership rules ---------- */
+const VN = 12;               // virtual nodes per server in hero/EXP-01/EXP-02
+const MAXS = 9;
+
+class HashLab {
+  /* cfg: canvas, mode:'ring'|'both', nKeys, nServers, lookupRate, churnEvery(optional), seed */
+  constructor(cfg){
+    this.cfg = cfg;
+    this.cv = document.getElementById(cfg.canvas);
+    this.reset();
+  }
+  reset(){
+    const c = this.cfg;
+    const rng = mulberry32(c.seed);
+    this.rng = mulberry32(c.seed+1);
+    this.t = 0; this.nextLookup = 0.2; this.done = 0;
+    this.dbM = []; this.dbR = [];                 // miss timestamps (windowed)
+    this.hits = [];                                // {t, world(0=modn,1=ring), hit}
+    this.spark = []; this.lastSample = 0;
+    this.missTotalM = 0; this.missTotalR = 0;
+    this.lastRemapM = NaN; this.lastRemapR = NaN;
+    this.churnAt = 5; this.churnIdx = 0; this.churnDownSid = -1;
+    this.pulses = [];
+    // servers: fixed vnode positions per server id (deterministic)
+    this.servers = [];
+    for(let s=0;s<MAXS;s++){
+      const vr = mulberry32(9000 + s*131);
+      this.servers.push({sid:s, alive:s < c.nServers, vn:Array.from({length:VN},()=>vr())});
+    }
+    // keys
+    this.keys = Array.from({length:c.nKeys},(_,i)=>({
+      id:i, h:rng(), hi:Math.floor(rng()*2147483647),
+      ownM:-1, ownR:-1, warmM:-1, warmR:-1,        // warm* = owner the key is cached at (-1 cold)
+      x:0, y:0, tx:0, ty:0, fly:0
+    }));
+    this.retarget(true);
+  }
+  aliveIds(){ return this.servers.filter(s=>s.alive).map(s=>s.sid); }
+  buildRing(){
+    const pts = [];
+    for(const s of this.servers) if(s.alive) for(const p of s.vn) pts.push({p, sid:s.sid});
+    pts.sort((a,b)=>a.p-b.p);
+    return pts;
+  }
+  ringOwner(h, ring){
+    let lo=0, hi=ring.length;
+    while(lo<hi){ const m=(lo+hi)>>1; if(ring[m].p < h) lo=m+1; else hi=m; }
+    return ring[lo % ring.length].sid;
+  }
+  retarget(initial){
+    const alive = this.aliveIds(), ring = this.buildRing();
+    this.ring = ring;
+    let movedM = 0, movedR = 0;
+    for(const k of this.keys){
+      const m = alive[k.hi % alive.length];
+      const r = this.ringOwner(k.h, ring);
+      if(!initial && m !== k.ownM) movedM++;
+      if(!initial && r !== k.ownR) movedR++;
+      k.ownM = m; k.ownR = r;
+      if(initial){ k.warmM = -1; k.warmR = -1; }
+    }
+    if(!initial){
+      this.lastRemapM = movedM/this.keys.length;
+      this.lastRemapR = movedR/this.keys.length;
+    }
+    this.layoutKeys(!initial);
+    return {movedM, movedR};
+  }
+  kill(sid){
+    if(sid===undefined){ const a=this.aliveIds(); if(a.length<=2) return; sid=a[Math.floor(this.rng()*a.length)]; }
+    const s=this.servers[sid]; if(!s || !s.alive) return;
+    if(this.aliveIds().length<=2) return;
+    s.alive=false; this.retarget(false); this.updateReadouts();
+  }
+  revive(sid){
+    if(sid===undefined){ const d=this.servers.filter(s=>!s.alive && s.sid<this.cfg.nServers); if(!d.length) return; sid=d[0].sid; }
+    const s=this.servers[sid]; if(!s || s.alive) return;
+    s.alive=true; this.retarget(false); this.updateReadouts();
+  }
+  addServer(){
+    const d=this.servers.find(s=>!s.alive && s.sid>=this.cfg.nServers);
+    if(!d) return;
+    d.alive=true; this.retarget(false); this.updateReadouts();
+  }
+  restore(){
+    for(const s of this.servers) s.alive = s.sid < this.cfg.nServers;
+    this.retarget(false); this.updateReadouts();
+  }
+  killNext(){  // kill lowest alive original server
+    const a=this.aliveIds().filter(sid=>sid<this.cfg.nServers);
+    if(a.length<=2) return;
+    this.kill(a[0]);
+  }
+  /* geometry */
+  layout(){
+    const {W,H} = fitCanvas(this.cv);
+    const both = this.cfg.mode==='both';
+    this.geo = {
+      W,H,
+      ringC: both ? {x:W*0.74, y:(H-36)/2+8, r:Math.min((H-90)/2, W*0.20)}
+                  : {x:W*0.5,  y:(H-30)/2+6, r:Math.min((H-84)/2, W*0.30)},
+      colsX0: 14, colsX1: W*0.47, colsTop: 34, colsBot: H-64
+    };
+    return this.geo;
+  }
+  shownCols(){
+    const maxSid = Math.max(5, ...this.aliveIds());
+    return this.servers.slice(0, maxSid+1);
+  }
+  layoutKeys(animate){
+    const g = this.geo || this.layout();
+    if(this.cfg.mode==='both'){
+      // group keys by mod-N owner into columns (dead servers keep an empty column)
+      const shown = this.shownCols();
+      const cw = (g.colsX1-g.colsX0)/shown.length;
+      const per = {};
+      for(const k of this.keys){ (per[k.ownM] ??= []).push(k); }
+      shown.forEach((s,ci)=>{
+        const list = per[s.sid]||[];
+        list.forEach((k,j)=>{
+          const col2 = j%2, row = Math.floor(j/2);
+          const tx = g.colsX0 + ci*cw + cw/2 - 5 + col2*10;
+          const ty = g.colsTop + 22 + row*10.5;
+          if(animate && (Math.abs(tx-k.x)>1 || Math.abs(ty-k.y)>1)){ k.tx=tx; k.ty=ty; k.fly=0.0001; }
+          else if(!k.fly){ k.x=tx; k.y=ty; k.tx=tx; k.ty=ty; }
+        });
+      });
+    }
+  }
+  /* simulation step */
+  update(dt){
+    this.t += dt;
+    const c = this.cfg;
+    // churn (EXP-02)
+    if(c.churnEvery && this.t >= this.churnAt){
+      this.churnAt += c.churnEvery/2;   // half-cycle: down for 2.5s, then back up
+      if(this.churnDownSid>=0){ this.revive(this.churnDownSid); this.churnDownSid=-1; }
+      else { this.churnDownSid = this.churnIdx % c.nServers; this.churnIdx++; this.kill(this.churnDownSid); }
+    }
+    // lookups
+    while(this.t >= this.nextLookup){
+      this.doLookup(this.nextLookup);
+      this.nextLookup += expRand(this.rng, 1/c.lookupRate);
+    }
+    // key flight animation
+    for(const k of this.keys){
+      if(k.fly>0){ k.fly += dt/0.7; if(k.fly>=1){ k.fly=0; k.x=k.tx; k.y=k.ty; }
+        else { const e=k.fly*k.fly*(3-2*k.fly); k.x += (k.tx-k.x)*e*0.35; k.y += (k.ty-k.y)*e*0.35; } }
+    }
+    this.pulses = this.pulses.filter(p => (p.u += dt/0.5) < 1);
+    // windows
+    const cut = this.t-4;
+    while(this.hits.length && this.hits[0].t < cut) this.hits.shift();
+    while(this.dbM.length && this.dbM[0] < this.t-2) this.dbM.shift();
+    while(this.dbR.length && this.dbR[0] < this.t-2) this.dbR.shift();
+    if(this.t - this.lastSample > 0.25){
+      this.lastSample = this.t;
+      const hm = this.hits.filter(h=>h.w===0), hr = this.hits.filter(h=>h.w===1);
+      const rm = hm.length ? hm.filter(h=>h.hit).length/hm.length : NaN;
+      const rr = hr.length ? hr.filter(h=>h.hit).length/hr.length : NaN;
+      this.spark.push({t:this.t, m:rm, r:rr});
+      while(this.spark.length && this.spark[0].t < this.t-60) this.spark.shift();
+      this.updateReadouts(rm, rr);
+    }
+  }
+  doLookup(t0){
+    const k = this.keys[Math.floor(this.rng()*this.keys.length)];
+    this.done++;
+    // ring world
+    const hitR = k.warmR === k.ownR;
+    if(!hitR){ k.warmR = k.ownR; this.dbR.push(t0); this.missTotalR++; }
+    this.hits.push({t:t0, w:1, hit:hitR});
+    const g = this.geo || this.layout();
+    const ang = k.h*Math.PI*2 - Math.PI/2;
+    this.pulses.push({x:g.ringC.x+Math.cos(ang)*(g.ringC.r+12), y:g.ringC.y+Math.sin(ang)*(g.ringC.r+12), u:0, hit:hitR});
+    // mod-N world
+    if(this.cfg.mode==='both'){
+      const hitM = k.warmM === k.ownM;
+      if(!hitM){ k.warmM = k.ownM; this.dbM.push(t0); this.missTotalM++; }
+      this.hits.push({t:t0, w:0, hit:hitM});
+      this.pulses.push({x:k.x, y:k.y, u:0, hit:hitM});
+    }
+  }
+  updateReadouts(rm, rr){
+    const p = this.cfg.prefix;
+    if(p==='hero'){
+      setM('hero.done', this.done);
+      setM('hero.hit', fmtPct(rr));
+      setM('hero.remap', fmtPct(this.lastRemapR));
+    } else if(p==='e1'){
+      setM('e1.mremap', fmtPct(this.lastRemapM));
+      setM('e1.rremap', fmtPct(this.lastRemapR));
+      setM('e1.mdb', (this.dbM.length/2).toFixed(1)+'/s');
+      setM('e1.rdb', (this.dbR.length/2).toFixed(1)+'/s');
+    } else if(p==='e2'){
+      const s30 = this.spark.filter(s=>s.t>this.t-30);
+      const avg = key => { const v=s30.map(s=>s[key]).filter(isFinite); return v.length? v.reduce((a,b)=>a+b,0)/v.length : NaN; };
+      setM('e2.mavg', fmtPct(avg('m')));
+      setM('e2.ravg', fmtPct(avg('r')));
+      setM('e2.mdb', this.missTotalM);
+      setM('e2.rdb', this.missTotalR);
+    }
+  }
+  /* drawing */
+  draw(){
+    const {ctx,W,H} = fitCanvas(this.cv);
+    const g = this.layout();
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    if(this.cfg.mode==='both'){
+      this.drawCols(ctx,g);
+      ctx.strokeStyle=CSS.line;
+      ctx.beginPath(); ctx.moveTo(W*0.5,14); ctx.lineTo(W*0.5,H-14); ctx.stroke();
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText('HASH(KEY) MOD N', (g.colsX0+g.colsX1)/2, 18);
+      ctx.fillText('THE RING', g.ringC.x, 18);
+    }
+    this.drawRing(ctx,g);
+    // pulses
+    for(const p of this.pulses){
+      ctx.globalAlpha = 1-p.u;
+      ctx.strokeStyle = p.hit ? CSS.traffic : CSS.fault;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 3+p.u*9, 0, 7); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  }
+  drawCols(ctx,g){
+    const shown = this.shownCols();
+    const cw = (g.colsX1-g.colsX0)/shown.length;
+    shown.forEach((s,ci)=>{
+      const x = g.colsX0+ci*cw;
+      ctx.strokeStyle = s.alive ? CSS.line : '#1A2836';
+      ctx.strokeRect(x+3, g.colsTop, cw-6, 14);
+      ctx.fillStyle = s.alive ? CSS.muted : '#3A4A5C';
+      ctx.textAlign='center';
+      ctx.fillText('S'+(s.sid+1)+(s.alive?'':' ✕'), x+cw/2, g.colsTop+11);
+    });
+    // keys
+    for(const k of this.keys){
+      ctx.fillStyle = k.fly>0 ? CSS.fault : (k.warmM===k.ownM ? CSS.traffic : CSS.muted);
+      ctx.globalAlpha = k.fly>0 ? 0.95 : 0.8;
+      ctx.beginPath(); ctx.arc(k.x, k.y, 2.6, 0, 7); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    // DB meter
+    const mps = this.dbM.length/2;
+    this.drawDB(ctx, g.colsX0+40, g.H-30, 'DB', mps);
+  }
+  drawDB(ctx, x, y, label, perSec){
+    const w=120, frac=Math.min(1, perSec/20);
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(x, y-8, w, 10);
+    ctx.fillStyle = perSec>10 ? CSS.fault : CSS.b;
+    ctx.fillRect(x+1, y-7, (w-2)*frac, 8);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+    ctx.fillText(label+' '+perSec.toFixed(1)+' miss/s', x-8, y+1);
+  }
+  drawRing(ctx,g){
+    const {x:cx,y:cy,r} = g.ringC;
+    // arcs of ownership: draw ring segments between consecutive vnodes
+    const ring = this.ring;
+    ctx.lineWidth = 5;
+    for(let i=0;i<ring.length;i++){
+      const a0 = ring[(i-1+ring.length)%ring.length].p, a1 = ring[i].p;
+      const sid = ring[i].sid;
+      ctx.strokeStyle = sid%2 ? CSS.b : CSS.a;
+      ctx.globalAlpha = 0.55;
+      ctx.beginPath();
+      const s0=(i===0? a0-1 : a0)*Math.PI*2-Math.PI/2, s1=a1*Math.PI*2-Math.PI/2;
+      ctx.arc(cx, cy, r, s0, s1);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    ctx.lineWidth = 1;
+    // vnode ticks
+    for(const v of ring){
+      const a=v.p*Math.PI*2-Math.PI/2;
+      ctx.strokeStyle=CSS.ink;
+      ctx.beginPath();
+      ctx.moveTo(cx+Math.cos(a)*(r-5), cy+Math.sin(a)*(r-5));
+      ctx.lineTo(cx+Math.cos(a)*(r+5), cy+Math.sin(a)*(r+5));
+      ctx.stroke();
+    }
+    // keys on perimeter
+    for(const k of this.keys){
+      const a=k.h*Math.PI*2-Math.PI/2;
+      ctx.fillStyle = k.warmR===k.ownR ? CSS.traffic : CSS.muted;
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath(); ctx.arc(cx+Math.cos(a)*(r+12), cy+Math.sin(a)*(r+12), 2.4, 0, 7); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    // server legend around ring: dots at centroid of first vnode
+    ctx.textAlign='center';
+    for(const s of this.servers){
+      if(s.sid>=MAXS) continue;
+      if(!s.alive) continue;
+      const a=s.vn[0]*Math.PI*2-Math.PI/2;
+      ctx.fillStyle=CSS.ink;
+      ctx.fillText('S'+(s.sid+1), cx+Math.cos(a)*(r+28), cy+Math.sin(a)*(r+28)+3);
+    }
+    // dead servers listed below
+    const dead=this.servers.filter(s=>!s.alive && s.sid<this.cfg.nServers);
+    if(dead.length){
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('DOWN: '+dead.map(s=>'S'+(s.sid+1)).join(' '), cx, cy+r+34);
+    }
+    // DB meter for ring world
+    if(this.cfg.mode==='both') this.drawDB(ctx, g.ringC.x-20, g.H-30, 'DB', this.dbR.length/2);
+  }
+}
+
+/* ---------- EXP-03: vnode share explorer ---------- */
+class VnodeRing {
+  constructor(cfg){ this.cfg=cfg; this.cv=document.getElementById(cfg.canvas); this.seed=42; this.V=1; this.w2=false; this.dirty=true; }
+  shares(){
+    const pts=[];
+    for(let s=0;s<6;s++){
+      const count = this.V * (this.w2 && s===1 ? 2 : 1);
+      const vr = mulberry32(this.seed + s*131);
+      for(let i=0;i<count;i++) pts.push({p:vr(), sid:s});
+    }
+    pts.sort((a,b)=>a.p-b.p);
+    const share = Array(6).fill(0);
+    let frag4=0;
+    for(let i=0;i<pts.length;i++){
+      const prev = pts[(i-1+pts.length)%pts.length].p;
+      let arc = pts[i].p - prev; if(arc<0) arc += 1;
+      share[pts[i].sid] += arc;
+      if(pts[i].sid===3) frag4++;
+    }
+    return {pts, share, frag4};
+  }
+  draw(){
+    const {ctx,W,H} = fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const {pts, share, frag4} = this.shares();
+    const cx=W*0.27, cy=H/2, r=Math.min(H/2-34, W*0.19);
+    // arcs — S4 highlighted
+    ctx.lineWidth=6;
+    for(let i=0;i<pts.length;i++){
+      const a0=pts[(i-1+pts.length)%pts.length].p, a1=pts[i].p, sid=pts[i].sid;
+      ctx.strokeStyle = sid===3 ? CSS.traffic : (sid%2 ? CSS.b : CSS.a);
+      ctx.globalAlpha = sid===3 ? 0.95 : 0.28;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, (i===0?a0-1:a0)*Math.PI*2-Math.PI/2, a1*Math.PI*2-Math.PI/2);
+      ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+    ctx.lineWidth=1;
+    for(const v of pts){
+      const a=v.p*Math.PI*2-Math.PI/2;
+      ctx.strokeStyle=CSS.panel;
+      ctx.lineWidth=2;
+      ctx.beginPath();
+      ctx.moveTo(cx+Math.cos(a)*(r-6), cy+Math.sin(a)*(r-6));
+      ctx.lineTo(cx+Math.cos(a)*(r+6), cy+Math.sin(a)*(r+6));
+      ctx.stroke();
+      ctx.lineWidth=1;
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('S4 IN AMBER', cx, cy+r+24);
+    // bars
+    const bx=W*0.52, bw=W*0.40, rowH=(H-70)/6, top=36;
+    const totalW = this.w2 ? 7 : 6;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SHARE OF KEYSPACE', bx, 20);
+    let worst=0, worstImb=0;
+    for(let s=0;s<6;s++){
+      const y=top+s*rowH;
+      const target=(this.w2 && s===1 ? 2 : 1)/totalW;
+      const imb=share[s]/target;
+      if(share[s]>share[worst]) worst=s;
+      worstImb=Math.max(worstImb, imb);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('S'+(s+1)+(this.w2&&s===1?' ×2':''), bx, y+rowH/2+3);
+      const w=Math.min(bw, bw*share[s]*2.2);
+      ctx.fillStyle = s===3 ? CSS.traffic : (s%2 ? CSS.b : CSS.a);
+      ctx.globalAlpha = s===3 ? 0.95 : 0.55;
+      ctx.fillRect(bx+34, y+rowH/2-5, Math.max(2,w), 9);
+      ctx.globalAlpha=1;
+      // target marker
+      const txp=bx+34+bw*target*2.2;
+      ctx.strokeStyle=CSS.ink; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(txp, y+rowH/2-8); ctx.lineTo(txp, y+rowH/2+7); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText(Math.round(share[s]*100)+'%', bx+40+Math.max(2,w), y+rowH/2+3);
+    }
+    setM('v.vn', this.V);
+    setM('v.worst', 'S'+(worst+1)+' · '+Math.round(share[worst]*100)+'%');
+    setM('v.imb', worstImb.toFixed(2)+'×');
+    setM('v.frag', frag4+' arc'+(frag4>1?'s':''));
+  }
+}
+
+/* ---------- wiring ---------- */
+const sims = {}, running = {}, visible = {};
+function register(name, sim, panelId){
+  sims[name]=sim; running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(e=>visible[name]=e.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sim.reset());
+}
+function act(name, fn){ document.querySelector(`[data-act="${name}"]`).addEventListener('click', fn); }
+
+const hero = new HashLab({canvas:'c-hero', prefix:'hero', mode:'ring', nKeys:120, nServers:6, lookupRate:26, seed:31});
+register('hero', hero, 'p-hero');
+act('hero-kill', ()=>hero.kill());
+act('hero-revive', ()=>hero.revive());
+
+const e1 = new HashLab({canvas:'c-e1', prefix:'e1', mode:'both', nKeys:120, nServers:6, lookupRate:30, seed:47});
+register('e1', e1, 'p-e1');
+act('e1-kill', ()=>e1.killNext());
+act('e1-add', ()=>e1.addServer());
+act('e1-restore', ()=>e1.restore());
+
+const e2 = new HashLab({canvas:'c-e2', prefix:'e2', mode:'both', nKeys:120, nServers:6, lookupRate:30, churnEvery:5, seed:83});
+register('e2', e2, 'p-e2');
+
+const vring = new VnodeRing({canvas:'c-v'});
+register('v', vring, 'p-v');
+const rVn = document.getElementById('r-vn');
+const VSTEPS=[1,2,4,8,16,32,64];
+rVn.addEventListener('input', ()=>{ vring.V=VSTEPS[+rVn.value]; vring.draw(); });
+document.getElementById('t-w2').addEventListener('change', e=>{ vring.w2=e.target.checked; vring.draw(); });
+act('v-shuffle', ()=>{ vring.seed=Math.floor(vring.seed*16807%2147483647)+1; vring.draw(); });
+
+/* two-series hit-rate chart */
+function drawHitChart(cvId, samples){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  if(samples.length<2) return;
+  const L=46,R=14,T=10,B=8, pw=W-L-R, ph=H-T-B;
+  const t1=samples[samples.length-1].t, t0=t1-60;
+  const X=t=>L+pw*Math.max(0,(t-t0))/60, Y=v=>T+ph*(1-v);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=0.5;
+  [0,0.5,1].forEach(v=>{ ctx.beginPath(); ctx.moveTo(L,Y(v)); ctx.lineTo(W-R,Y(v)); ctx.stroke(); });
+  ctx.globalAlpha=1;
+  ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  ctx.fillText('100%', L-6, Y(1)+4); ctx.fillText('50%', L-6, Y(0.5)+3); ctx.fillText('0', L-6, Y(0)+3);
+  const line=(key,col)=>{
+    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); let on=false;
+    for(const s of samples){ const v=s[key]; if(!isFinite(v)){on=false;continue;}
+      if(!on){ctx.moveTo(X(s.t),Y(v));on=true;} else ctx.lineTo(X(s.t),Y(v)); }
+    ctx.stroke(); ctx.lineWidth=1;
+    const last=[...samples].reverse().find(s=>isFinite(s[key]));
+    if(last){ ctx.fillStyle=col; ctx.beginPath(); ctx.arc(X(last.t),Y(last[key]),3,0,7); ctx.fill(); }
+  };
+  line('m',CSS.b); line('r',CSS.a);
+}
+
+/* ---------- main loop ---------- */
+let last=performance.now(), acc=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  acc+=dt;
+  if(acc>0.12){
+    acc=0;
+    if(visible.e1) drawHitChart('ch-e1', e1.spark);
+    if(visible.e2) drawHitChart('ch-e2', e2.spark);
+    if(visible.v) vring.draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){
+  hero.geo=null; e1.geo=null; e2.geo=null;
+  e1.layoutKeys(false); e2.layoutKeys(false);
+  hero.draw(); e1.draw(); e2.draw(); vring.draw();
+}
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

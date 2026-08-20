@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Load Balancing — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* ============ tokens ============ */
+  :root{
+    /* reading layer — light (paper) */
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    /* instrument layer — invariant in both themes */
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;      /* live particles */
+    --series-a:#C48224;     /* validated data amber */
+    --series-b:#3B9EBD;     /* validated data cyan */
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018;
+      --bg-dot:#1A2530;
+      --ink:#D9E2EC;
+      --ink-2:#9AAABC;
+      --ink-3:#74869A;
+      --rule:#243244;
+      --card:#101823;
+      --accent-text:#E0A23E;
+      --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018;
+    --bg-dot:#1A2530;
+    --ink:#D9E2EC;
+    --ink-2:#9AAABC;
+    --ink-3:#74869A;
+    --rule:#243244;
+    --card:#101823;
+    --accent-text:#E0A23E;
+    --link:#6FB5D6;
+  }
+
+  /* ============ base ============ */
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  strong{font-weight:700}
+  .eyebrow{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;
+    color:var(--accent-text);text-transform:uppercase;margin-top:64px;
+  }
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule, .foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  /* ============ instrument panels ============ */
+  .exp{
+    margin:34px 0 40px;
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:6px;
+    color:var(--panel-ink);
+    font-family:var(--mono);
+    overflow:hidden;
+  }
+  .exp-head{
+    display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+    padding:12px 16px;border-bottom:1px solid var(--panel-line);
+  }
+  .exp-id{
+    font-size:11px;letter-spacing:.16em;color:var(--traffic);
+    border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px;
+  }
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px}
+  .btn{
+    font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+    background:transparent;color:var(--panel-ink);
+    border:1px solid var(--panel-line);border-radius:3px;
+    padding:5px 12px;cursor:pointer;
+  }
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible, .seg button:focus-visible, input[type=range]:focus-visible, .toggle input:focus-visible{
+    outline:2px solid var(--traffic);outline-offset:2px;
+  }
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .exp-controls{
+    display:flex;gap:18px;align-items:center;flex-wrap:wrap;
+    padding:10px 16px;border-bottom:1px solid var(--panel-line);
+    background:var(--panel-2);font-size:11.5px;color:var(--panel-muted);
+  }
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:52px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .seg{display:flex;border:1px solid var(--panel-line);border-radius:3px;overflow:hidden}
+  .seg button{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;
+    background:transparent;color:var(--panel-muted);border:0;padding:6px 10px;cursor:pointer;
+  }
+  .seg button + button{border-left:1px solid var(--panel-line)}
+  .seg button[aria-pressed="true"]{background:var(--traffic);color:#0C1622;font-weight:700}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--fault);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  canvas.chart{display:block;width:100%;background:var(--panel);border-top:1px solid var(--panel-line)}
+  .exp-metrics{
+    display:flex;gap:22px;flex-wrap:wrap;
+    padding:10px 16px;border-top:1px solid var(--panel-line);
+    font-size:11px;color:var(--panel-muted);letter-spacing:.06em;
+  }
+  .exp-metrics b{
+    color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px;
+  }
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{
+    padding:11px 16px;border-top:1px solid var(--panel-line);
+    font-size:12px;color:var(--panel-muted);line-height:1.55;letter-spacing:.01em;
+  }
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .legend{display:flex;gap:16px;padding:8px 16px 0;font-size:10.5px;color:var(--panel-muted);letter-spacing:.06em}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+  .legend .dotk{width:7px;height:7px;border-radius:50%}
+
+  /* sources */
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{
+    font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-3);
+  }
+  .next b{color:var(--accent-text);font-weight:400}
+  @media (max-width:620px){ .exp-controls{gap:12px} input[type=range]{width:110px} }
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · Internet Plumbing · Episode 01</p>
+  <h1>The Load Balancer</h1>
+  <p class="dek">Every big site is thousands of ordinary computers pretending to be one.
+  The pretence is maintained by machines that answer a single question, millions of times a
+  second: <em>which server should take this request?</em> Choose badly and the site drowns.
+  This page doesn't just tell you the good answer — it runs the experiments in front of you.</p>
+  <p class="marginal">Every dot below is one request. Time is slowed enormously — real requests
+  finish in milliseconds — and each simulation is honest: the queues, waits, and failures emerge
+  from the same mathematics that governs real datacenters, not from a script.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">Traffic flowing through a balancer — six servers, "power of two choices" routing</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:280px" role="img" aria-label="Live simulation: request dots flow from users through a balancer to six servers"></canvas>
+  <div class="exp-metrics">
+    <span>COMPLETED<b data-m="hero.done">0</b></span>
+    <span>MEDIAN WAIT<b data-m="hero.p50">–</b></span>
+    <span>P99 WAIT<b data-m="hero.p99">–</b></span>
+    <span>DROPPED<b data-m="hero.drop">0</b></span>
+  </div>
+</figure>
+
+<div class="col">
+  <h2>First, watch one server die</h2>
+  <p>Before any balancing, understand the enemy: <strong>the queue</strong>. A server is a worker
+  at a desk. Requests arrive at random moments; each takes a random amount of effort. As long as
+  work arrives more slowly than the desk clears it, all is calm. But push the arrival rate toward
+  the desk's capacity and something vicious happens — waiting time doesn't rise gradually.
+  It bends upward and explodes <em>before</em> you reach 100% utilization.</p>
+  <p>Queueing theory predicts the exact shape of that explosion: for random arrivals and random
+  job sizes, time-in-system grows like <strong>1/(1−ρ)</strong>, where ρ is utilization. At 50%
+  load a request takes 2× its ideal time. At 90% — 10×. At 99% — 100×. The simulation below
+  doesn't know that formula. Drag the slider and watch its measured dots land on the theory
+  curve anyway.</p>
+</div>
+
+<figure class="exp" id="p-one">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">One server vs rising load — the 1/(1−ρ) wall</span>
+    <span class="exp-run"><button class="btn" data-run="one">PAUSE</button><button class="btn" data-reset="one">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-one">Arrival rate</label>
+      <input type="range" id="r-one" min="10" max="108" value="50">
+      <output data-m="one.rho">ρ 0.50</output></span>
+    <span>UTILIZATION ρ = arrivals ÷ capacity</span>
+  </div>
+  <canvas class="sim" id="c-one" style="height:170px" role="img" aria-label="Simulation: one server with a visible queue, arrival rate set by the slider"></canvas>
+  <div class="legend">
+    <span><i class="dotk" style="background:var(--series-a)"></i>MEASURED LATENCY</span>
+    <span><i style="background:var(--series-b)"></i>M/M/1 THEORY · 1/(1−ρ)</span>
+  </div>
+  <canvas class="chart" id="ch-one" style="height:220px"></canvas>
+  <div class="exp-metrics">
+    <span>COMPLETED<b data-m="one.done">0</b></span>
+    <span>QUEUE NOW<b data-m="one.q">0</b></span>
+    <span>AVG LATENCY<b data-m="one.avg">–</b></span>
+  </div>
+  <figcaption class="exp-note">Try: park the slider at <em>ρ ≈ 0.95</em> and watch the queue
+  breathe — long calm spells, then sudden pile-ups. That's not a bug; variance near saturation
+  IS the phenomenon. Near ρ = 1 the measured dots first land <em>below</em> the dashed curve:
+  a queue this loaded takes a long time to reach its terrible steady state, and that slow burn
+  is exactly why overload sneaks up on real systems. Past ρ = 1.0 it never drains again.</figcaption>
+</figure>
+
+<div class="col">
+  <p>This curve is the reason load balancing exists. You can never run servers near full
+  utilization and keep latency — so you buy many servers and spread the work. Now everything
+  depends on <em>how</em> you spread it.</p>
+
+  <h2>Round robin, and its betrayal</h2>
+  <p>The obvious algorithm is <strong>round robin</strong>: deal requests like playing cards —
+  server 1, 2, 3, … and around again. Perfectly fair in count. NGINX has shipped it as the
+  default for two decades, and under one assumption it's fine: <em>that servers and requests
+  are identical</em>.</p>
+  <p>They never are. A server gets a slow disk, a noisy neighbor, a garbage-collection pause.
+  Below, eight servers run under round robin. Flip the switch to make server 5 quietly run at
+  one-third speed — the balancer has no idea. Watch what fairness-in-count does to it. Then
+  switch the algorithm to <strong>least-connections</strong> (send to whoever holds the fewest
+  open requests) or <strong>two random choices</strong>, and watch the same overload drain away.</p>
+</div>
+
+<figure class="exp" id="p-fleet">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Eight servers, one secretly slow — algorithm is the only variable</span>
+    <span class="exp-run"><button class="btn" data-run="fleet">PAUSE</button><button class="btn" data-reset="fleet">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="seg" role="group" aria-label="Routing algorithm" id="seg-fleet">
+      <button aria-pressed="true"  data-algo="rr">ROUND ROBIN</button>
+      <button aria-pressed="false" data-algo="lc">LEAST-CONN</button>
+      <button aria-pressed="false" data-algo="p2c">TWO CHOICES</button>
+    </span>
+    <label class="toggle"><input type="checkbox" id="t-slow"> server 5 → ⅓ speed</label>
+    <span class="ctl"><label for="r-fleet">Load</label>
+      <input type="range" id="r-fleet" min="30" max="100" value="72">
+      <output data-m="fleet.rho">ρ 0.72</output></span>
+  </div>
+  <canvas class="sim" id="c-fleet" style="height:330px" role="img" aria-label="Simulation: eight servers behind a balancer; server five can be made three times slower"></canvas>
+  <div class="legend">
+    <span><i style="background:var(--series-a)"></i>P99 WAIT</span>
+    <span><i style="background:var(--series-b)"></i>MEDIAN WAIT</span>
+  </div>
+  <canvas class="chart" id="ch-fleet" style="height:120px"></canvas>
+  <div class="exp-metrics">
+    <span>MEDIAN<b data-m="fleet.p50">–</b></span>
+    <span>P99<b data-m="fleet.p99">–</b></span>
+    <span>COMPLETED<b data-m="fleet.done">0</b></span>
+    <span>DROPPED<b class="bad" data-m="fleet.drop">0</b></span>
+  </div>
+  <figcaption class="exp-note">Try: slow server 5 under <em>ROUND ROBIN</em> and watch its queue
+  grow without bound while seven healthy servers idle — the p99 line records the whole disaster.
+  Then hit <em>TWO CHOICES</em>. Nothing else changes — but new traffic immediately steers
+  around the sick server, its backlog drains, and the p99 line falls back to earth. Any
+  algorithm that looks at load, even a glance at just two servers, routes around sickness
+  automatically.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>So just pick the least-loaded server? The herd says no</h2>
+  <p>Least-connections looks like the endgame — always send to the emptiest desk. But it hides
+  an assumption at least as dangerous as round robin's: <em>that your load information is
+  current</em>. At scale it never is. Real sites run many independent balancer machines, each
+  seeing a fraction of traffic, sharing load stats with a delay.</p>
+  <p>Now the failure is spectacular. Every balancer reads the same slightly-stale report —
+  "server 7 is idle" — and every one of them sends its next burst to server 7. The mob crushes
+  it, the next report crowns a new idlest server, and the mob moves there. Marc Brooker
+  (AWS) showed in simulation that with delayed information, <strong>picking the global best is
+  actually worse than picking randomly</strong> <span class="cite">(Brooker, 2012)</span>.
+  Below, routing decisions use a load snapshot that refreshes only every two seconds.</p>
+</div>
+
+<figure class="exp" id="p-herd">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">Stale load reports — "pick the best" becomes a stampede</span>
+    <span class="exp-run"><button class="btn" data-run="herd">PAUSE</button><button class="btn" data-reset="herd">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="seg" role="group" aria-label="Routing with stale data" id="seg-herd">
+      <button aria-pressed="true"  data-algo="stale_best">SEND TO "BEST"</button>
+      <button aria-pressed="false" data-algo="stale_p2c">TWO RANDOM, PICK LESS LOADED</button>
+    </span>
+    <span>SNAPSHOT AGE<b style="color:var(--panel-ink);margin-left:8px;font-variant-numeric:tabular-nums" data-m="herd.age">0.0s</b></span>
+  </div>
+  <canvas class="sim" id="c-herd" style="height:300px" role="img" aria-label="Simulation: twelve servers routed using a load snapshot that refreshes every two seconds"></canvas>
+  <div class="exp-metrics">
+    <span>P99<b data-m="herd.p99">–</b></span>
+    <span>PEAK QUEUE ·10s<b data-m="herd.max">0</b></span>
+    <span>COMPLETED<b data-m="herd.done">0</b></span>
+    <span>DROPPED<b class="bad" data-m="herd.drop">0</b></span>
+  </div>
+  <figcaption class="exp-note">Under <em>SEND TO "BEST"</em>, watch the wave: one server floods,
+  reddens, and the flood hops to the next victim on each snapshot refresh. Switch to
+  <em>TWO RANDOM</em> — same stale data, but randomness breaks the mob's agreement, and the
+  stampede dissolves into an even shimmer.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The absurdly good compromise: two random choices</h2>
+  <p>Which brings us to one of the prettiest results in computer science. In 1996, Michael
+  Mitzenmacher's PhD thesis analyzed a family of strategies for throwing n balls into n bins.
+  Throw purely at random and the fullest bin ends up holding about <strong>log n / log log n</strong>
+  balls. But peek at just <em>two</em> random bins and drop into the emptier one, and the fullest
+  bin holds about <strong>log log n</strong> — an <em>exponential</em> improvement, from one extra
+  glance <span class="cite">(Mitzenmacher, 1996)</span>. A third glance barely helps at all.
+  Two is the magic number.</p>
+  <p>Both panels below receive the identical arrival stream. Left throws blind; right peeks twice.
+  Watch the tallest stacks separate.</p>
+</div>
+
+<figure class="exp" id="p-race">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-04</span>
+    <span class="exp-title">Balls into bins — random vs power of two choices, identical arrivals</span>
+    <span class="exp-run"><button class="btn" data-run="race">PAUSE</button><button class="btn" data-reset="race">RESET</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-race" style="height:300px" role="img" aria-label="Race: identical arrivals fill fourteen bins by random choice on the left and best-of-two-random on the right"></canvas>
+  <div class="exp-metrics">
+    <span>TALLEST — RANDOM<b data-m="race.maxA">0</b></span>
+    <span>TALLEST — TWO CHOICES<b data-m="race.maxB">0</b></span>
+    <span>AVG WAIT — RANDOM<b data-m="race.avgA">–</b></span>
+    <span>AVG WAIT — TWO CHOICES<b data-m="race.avgB">–</b></span>
+  </div>
+  <figcaption class="exp-note">The left side isn't broken — it's genuinely random and fair
+  on average. Averages are exactly what users don't feel. Tail latency lives in the tallest
+  stack, and <em>that</em> is what the second glance destroys.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>This is not a toy result</h2>
+  <p>Power of two choices is what the industry actually converged on. NGINX shipped it as
+  "Random with Two Choices" in 2018, recommending it precisely for fleets of independent
+  balancers where load data is stale. Envoy — the proxy inside most service meshes — uses P2C
+  as its default least-request policy. Behind them sits the heavier machinery our next episodes
+  cover: Google's <strong>Maglev</strong> has balanced every packet to Google since 2008, one
+  commodity machine saturating a 10&nbsp;Gbps link, using consistent hashing so that any Maglev
+  can handle any packet of any flow. Cloudflare runs <em>no</em> dedicated balancer boxes at
+  all — every edge server balances via anycast plus an in-kernel program costing under 1% CPU.
+  GitHub's GLB stretches one IP across a fleet with rendezvous hashing.</p>
+  <p>Different scales, same lesson the experiments just proved: <strong>never trust one number
+  you believe, when you can compare two you doubt.</strong> Fairness in count ignores reality;
+  chasing the global best amplifies your own staleness; two random glances get you within sight
+  of optimal, with no coordination at all.</p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>M. Mitzenmacher — <a href="https://www.eecs.harvard.edu/~michaelm/postscripts/mythesis.pdf">The Power of Two Choices in Randomized Load Balancing</a>, PhD thesis, 1996.</li>
+    <li>M. Brooker (AWS) — <a href="https://brooker.co.za/blog/2012/01/17/two-random.html">The power of two random choices</a>, 2012. Stale-information simulations; the herd effect.</li>
+    <li>D. Eisenbud et al. (Google) — <a href="https://www.usenix.org/sites/default/files/nsdi16-paper-eisenbud-update.pdf">Maglev: A Fast and Reliable Software Network Load Balancer</a>, NSDI 2016.</li>
+    <li>O. Garrett (NGINX) — <a href="https://www.f5.com/company/blog/nginx/nginx-power-of-two-choices-load-balancing-algorithm">NGINX and the "Power of Two Choices" Load-Balancing Algorithm</a>, 2018.</li>
+    <li>Envoy documentation — <a href="https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/load_balancing/load_balancing">Load balancing (P2C least-request default)</a>.</li>
+    <li>Cloudflare — <a href="https://blog.cloudflare.com/unimog-cloudflares-edge-load-balancer/">Unimog — Cloudflare's edge load balancer</a>, 2020; <a href="https://blog.cloudflare.com/cloudflares-architecture-eliminating-single-p/">Load Balancing without Load Balancers</a>, 2013.</li>
+    <li>GitHub — <a href="https://github.blog/engineering/infrastructure/glb-director-open-source-load-balancer/">GLB: GitHub's open source load balancer</a>, 2018.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>Consistent hashing: kill a server, keep the cache</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- utilities ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function pct(sorted, p){
+  if(!sorted.length) return NaN;
+  const i = Math.min(sorted.length-1, Math.floor(p*sorted.length));
+  return sorted[i];
+}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = {
+  panel:'#0C1622', panel2:'#121F30', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E'
+};
+const M = {}; // metric elements
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k, v){ if(M[k]) M[k].textContent = v; }
+const fmtS = s => !isFinite(s) ? '–' : (s < 9.95 ? s.toFixed(1)+'s' : Math.round(s)+'s');
+
+/* ---------- flow simulation (source → balancer → servers) ---------- */
+class FlowSim {
+  constructor(cfg){
+    this.cfg = cfg;
+    this.cv = document.getElementById(cfg.canvas);
+    this.rng = mulberry32(cfg.seed || 7);
+    this.reset();
+  }
+  reset(){
+    const c = this.cfg;
+    this.t = 0; this.nextArrival = 0.3;
+    this.parts = []; this.done = 0; this.drops = 0;
+    this.lat = []; this.latSorted = [];
+    this.servers = Array.from({length:c.n}, () => ({ q:[], busy:null, endsAt:0, startAt:0, committed:0 }));
+    this.rrIdx = 0;
+    this.snapshot = this.servers.map(()=>0); this.snapAt = 0;
+    this.chartPts = []; this.spark = [];
+    this.lastSample = 0;
+  }
+  rate(){ return this.cfg.rate(); }
+  algo(){ return this.cfg.algo ? this.cfg.algo() : 'p2c'; }
+  route(){
+    const s = this.servers, n = s.length, a = this.algo(), r = this.rng;
+    if(a==='rr'){ const i = this.rrIdx; this.rrIdx = (this.rrIdx+1)%n; return i; }
+    if(a==='lc'){ let best=0; for(let i=1;i<n;i++) if(s[i].committed < s[best].committed || (s[i].committed===s[best].committed && r()<0.5)) best=i; return best; }
+    if(a==='p2c'){ const i=Math.floor(r()*n); let j=Math.floor(r()*(n-1)); if(j>=i)j++; return s[i].committed<=s[j].committed?i:j; }
+    if(a==='stale_best'){ const v=this.snapshot; let best=0; for(let i=1;i<n;i++) if(v[i]<v[best] || (v[i]===v[best] && r()<0.5)) best=i; return best; }
+    if(a==='stale_p2c'){ const v=this.snapshot; const i=Math.floor(r()*n); let j=Math.floor(r()*(n-1)); if(j>=i)j++; return v[i]<=v[j]?i:j; }
+    return Math.floor(r()*n);
+  }
+  update(dt){
+    const c = this.cfg;
+    this.t += dt;
+    if(c.staleMs && this.t - this.snapAt > c.staleMs/1000){
+      this.snapshot = this.servers.map(sv=>sv.committed); this.snapAt = this.t;
+    }
+    // arrivals
+    while(this.t >= this.nextArrival){
+      this.spawnAt(this.nextArrival);
+      this.nextArrival += expRand(this.rng, 1/this.rate());
+    }
+    // particle motion + service
+    const geo = this.geo || this.layout();
+    for(const p of this.parts){
+      if(p.state==='travel'){
+        p.u += dt/p.dur;
+        if(p.u>=1){
+          if(p.leg===0 && !c.noLB){ this.assign(p); }
+          else if(p.leg===0 && c.noLB){ p.state='queued'; }
+          else { p.state='queued'; }
+        }
+      } else if(p.state==='drop'){
+        p.vy += 700*dt; p.y += p.vy*dt; p.x += 40*dt; p.a -= dt*1.2;
+      } else if(p.state==='exit'){
+        p.x += 260*dt; p.a -= dt*1.6;
+      }
+    }
+    // start service / finish service
+    this.servers.forEach((sv,i)=>{
+      if(sv.busy && this.t >= sv.endsAt){
+        const p = sv.busy; sv.busy = null; sv.committed--;
+        p.state='exit'; p.a=1;
+        const g = geo.servers[i]; p.x = g.x + g.w + 6; p.y = g.y + g.h/2;
+        this.done++;
+        const L = this.t - p.born;
+        this.lat.push({t:this.t, v:L}); if(this.lat.length>600) this.lat.shift();
+      }
+      if(!sv.busy){
+        const head = sv.q.find(p=>p.state==='queued');
+        if(head){
+          sv.q.splice(sv.q.indexOf(head),1);
+          sv.busy = head; head.state='serving';
+          sv.startAt = this.t;
+          sv.endsAt = this.t + expRand(this.rng, this.cfg.service) * (this.cfg.slow && this.cfg.slow(i) ? 3 : 1);
+        }
+      }
+    });
+    this.parts = this.parts.filter(p => p.a===undefined || p.a>0);
+    // periodic metric sample
+    if(this.t - this.lastSample > 0.25){
+      this.lastSample = this.t;
+      while(this.lat.length && this.lat[0].t < this.t - 15) this.lat.shift();
+      this.latSorted = this.lat.map(e=>e.v).sort((x,y)=>x-y);
+      const p50 = pct(this.latSorted,0.5), p99 = pct(this.latSorted,0.99);
+      this.spark.push({t:this.t, p50, p99});
+      while(this.spark.length && this.spark[0].t < this.t-60) this.spark.shift();
+      if(c.onSample) c.onSample(this, p50, p99);
+    }
+  }
+  spawnAt(t0){
+    const geo = this.geo || this.layout();
+    const p = { born:t0, a:undefined, leg:0, u:0, state:'travel' };
+    p.x0 = geo.src.x; p.y0 = geo.src.y + (this.rng()-0.5)*36;
+    if(this.cfg.noLB){
+      const i = 0, sv = this.servers[0];
+      if(sv.committed >= this.cfg.cap){ this.dropAt(p, geo.src.x+30, p.y0); return; }
+      sv.committed++; sv.q.push(p); p.srv=0;
+      const g = geo.servers[0];
+      p.x1 = g.x-14; p.y1 = g.y+g.h/2; p.dur = 0.5;
+    } else {
+      p.x1 = geo.lb.x; p.y1 = geo.lb.y; p.dur = 0.45;
+    }
+    this.parts.push(p);
+  }
+  assign(p){
+    const geo = this.geo, i = this.route(), sv = this.servers[i];
+    if(sv.committed >= this.cfg.cap){ this.drops++; p.state='drop'; p.x=geo.lb.x; p.y=geo.lb.y; p.vy=60; p.a=1; return; }
+    sv.committed++; sv.q.push(p);
+    p.srv=i; p.leg=1; p.u=0; p.state='travel';
+    p.x0=geo.lb.x; p.y0=geo.lb.y;
+    const g = geo.servers[i];
+    p.x1 = g.x-14; p.y1 = g.y+g.h/2; p.dur = 0.4;
+  }
+  dropAt(p,x,y){ this.drops++; p.state='drop'; p.x=x; p.y=y; p.vy=60; p.a=1; this.parts.push(p); }
+  layout(){
+    const {W,H} = fitCanvas(this.cv);
+    const n = this.cfg.n;
+    const sh = Math.min(30, (H-30)/n - 6), sw = Math.min(120, W*0.16);
+    const x = W*0.72, total = n*(sh+8)-8, y0 = (H-total)/2;
+    this.geo = {
+      W,H,
+      src:{x:W*0.06, y:H/2},
+      lb:{x:W*0.34, y:H/2},
+      servers: Array.from({length:n},(_,i)=>({x, y:y0+i*(sh+8), w:sw, h:sh}))
+    };
+    return this.geo;
+  }
+  draw(){
+    const {ctx,W,H} = fitCanvas(this.cv);
+    const geo = this.layout(), c = this.cfg;
+    ctx.clearRect(0,0,W,H);
+    ctx.font = '10px ui-monospace, Menlo, monospace';
+    // source
+    ctx.strokeStyle = CSS.line; ctx.fillStyle = CSS.muted;
+    ctx.beginPath(); ctx.arc(geo.src.x, geo.src.y, 16, 0, 7); ctx.stroke();
+    ctx.textAlign='center';
+    ctx.fillText('USERS', geo.src.x, geo.src.y+32);
+    // balancer
+    if(!c.noLB){
+      const {x,y} = geo.lb;
+      ctx.strokeStyle = CSS.traffic;
+      ctx.beginPath(); ctx.moveTo(x,y-15); ctx.lineTo(x+15,y); ctx.lineTo(x,y+15); ctx.lineTo(x-15,y); ctx.closePath(); ctx.stroke();
+      ctx.fillStyle = CSS.muted; ctx.fillText('BALANCER', x, y+32);
+    }
+    // servers
+    this.servers.forEach((sv,i)=>{
+      const g = geo.servers[i];
+      const slow = c.slow && c.slow(i);
+      const over = sv.committed >= c.cap*0.8;
+      ctx.strokeStyle = over ? CSS.fault : (slow ? CSS.traffic : CSS.line);
+      ctx.setLineDash(slow ? [4,3] : []);
+      ctx.strokeRect(g.x, g.y, g.w, g.h);
+      ctx.setLineDash([]);
+      // service progress
+      if(sv.busy){
+        const dur = sv.endsAt - sv.startAt || 1;
+        const u = Math.max(0, Math.min(1, (this.t - sv.startAt)/dur));
+        ctx.fillStyle = 'rgba(242,169,59,0.22)';
+        ctx.fillRect(g.x+1, g.y+1, (g.w-2)*u, g.h-2);
+        ctx.fillStyle = CSS.traffic;
+        ctx.beginPath(); ctx.arc(g.x+10, g.y+g.h/2, 4, 0, 7); ctx.fill();
+      }
+      // queue dots
+      const q = sv.q.filter(p=>p.state==='queued').length;
+      const show = Math.min(q, 14);
+      ctx.fillStyle = CSS.traffic;
+      for(let k=0;k<show;k++){
+        ctx.beginPath(); ctx.arc(g.x-16-k*9, g.y+g.h/2, 3.4, 0, 7); ctx.fill();
+      }
+      ctx.textAlign='left';
+      ctx.fillStyle = over ? CSS.fault : CSS.muted;
+      ctx.fillText('S'+(i+1)+(slow?' ×3 SLOW':'')+'  q'+sv.committed, g.x+g.w+8, g.y+g.h/2+3.5);
+      if(q>show){ ctx.textAlign='right'; ctx.fillStyle=CSS.muted; ctx.fillText('+'+(q-show), g.x-16-show*9, g.y+g.h/2+3.5); }
+    });
+    // particles in motion
+    for(const p of this.parts){
+      let x, y, alpha = 1, col = CSS.traffic;
+      if(p.state==='travel'){
+        const u = Math.min(1,p.u), e = u*u*(3-2*u);
+        x = p.x0 + (p.x1-p.x0)*e; y = p.y0 + (p.y1-p.y0)*e;
+      } else if(p.state==='drop'){ x=p.x; y=p.y; alpha=Math.max(0,p.a); col=CSS.fault; }
+      else if(p.state==='exit'){ x=p.x; y=p.y; alpha=Math.max(0,p.a); }
+      else continue;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(x,y,3.6,0,7); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    if(c.staleMs){
+      ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+      const age = (this.t - this.snapAt).toFixed(1);
+      ctx.fillText('LOAD SNAPSHOT AGE '+age+'s', 14, H-12);
+    }
+  }
+}
+
+/* ---------- bins simulation (EXP-04, two racing halves) ---------- */
+class BinsSim {
+  constructor(cfg){ this.cfg=cfg; this.cv=document.getElementById(cfg.canvas); this.reset(); }
+  reset(){
+    this.t=0; this.nextArrival=0.3;
+    this.arr = mulberry32(11); this.rA = mulberry32(21); this.rB = mulberry32(33);
+    const n=this.cfg.n;
+    this.A = Array.from({length:n},()=>({q:[],endsAt:0}));
+    this.B = Array.from({length:n},()=>({q:[],endsAt:0}));
+    this.balls=[]; this.doneA=0; this.doneB=0; this.waitA=0; this.waitB=0;
+    this.maxA=0; this.maxB=0;
+  }
+  place(bins, rng, p2c){
+    const n=bins.length;
+    if(!p2c) return Math.floor(rng()*n);
+    const i=Math.floor(rng()*n); let j=Math.floor(rng()*(n-1)); if(j>=i)j++;
+    return bins[i].q.length<=bins[j].q.length?i:j;
+  }
+  update(dt){
+    this.t+=dt;
+    const svc=this.cfg.service;
+    while(this.t>=this.nextArrival){
+      const iA=this.place(this.A,this.rA,false), iB=this.place(this.B,this.rB,true);
+      this.A[iA].q.push(this.nextArrival); this.B[iB].q.push(this.nextArrival);
+      this.balls.push({side:0,bin:iA,u:0},{side:1,bin:iB,u:0});
+      this.nextArrival += expRand(this.arr, 1/this.cfg.rate);
+    }
+    this.balls.forEach(b=>b.u+=dt*3.2);
+    this.balls=this.balls.filter(b=>b.u<1);
+    const step=(bins,side)=>{
+      bins.forEach((b)=>{
+        if(b.q.length>0 && this.t>=b.endsAt){
+          if(b.endsAt!==0){
+            const arrived=b.q.shift();
+            if(side===0){this.doneA++;this.waitA+=this.t-arrived;}
+            else {this.doneB++;this.waitB+=this.t-arrived;}
+          }
+          if(b.q.length>0) b.endsAt=this.t+expRand(side===0?this.rA:this.rB,svc);
+          else b.endsAt=0;
+        }
+      });
+    };
+    step(this.A,0); step(this.B,1);
+    this.maxA=Math.max(this.maxA,...this.A.map(b=>b.q.length));
+    this.maxB=Math.max(this.maxB,...this.B.map(b=>b.q.length));
+  }
+  drawHalf(ctx,bins,x0,w,H,label,col,curMaxRef){
+    const n=bins.length, bw=Math.min(20,(w-30)/n-5), gap=5;
+    const total=n*(bw+gap)-gap, left=x0+(w-total)/2, base=H-34;
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText(label, x0+w/2, 20);
+    const cur=Math.max(...bins.map(b=>b.q.length));
+    bins.forEach((b,i)=>{
+      const bx=left+i*(bw+gap);
+      ctx.strokeStyle=CSS.line; ctx.beginPath();
+      ctx.moveTo(bx,base-120); ctx.lineTo(bx,base); ctx.lineTo(bx+bw,base); ctx.lineTo(bx+bw,base-120); ctx.stroke();
+      const hmax=17;
+      const show=Math.min(b.q.length,hmax);
+      ctx.fillStyle=col;
+      for(let k=0;k<show;k++){
+        ctx.fillRect(bx+2, base-6-(k*7), bw-4, 5);
+      }
+      if(b.q.length>hmax){ ctx.fillStyle=CSS.ink; ctx.fillText('+'+(b.q.length-hmax), bx+bw/2, base-6-hmax*7-4); }
+    });
+    if(cur>0){
+      const y=base-6-Math.min(cur,17)*7+2;
+      ctx.strokeStyle=CSS.muted; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(left-8,y); ctx.lineTo(left+total+8,y); ctx.stroke(); ctx.setLineDash([]);
+      ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+      ctx.fillText('max '+cur, left+total+11, y+3);
+    }
+    return {left,total,base,bw,gap};
+  }
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    const gA=this.drawHalf(ctx,this.A,0,W/2-10,H,'RANDOM BIN',CSS.muted);
+    const gB=this.drawHalf(ctx,this.B,W/2+10,W/2-10,H,'BEST OF TWO RANDOM',CSS.traffic);
+    // falling balls
+    for(const b of this.balls){
+      const g=b.side===0?gA:gB;
+      const bx=g.left+b.bin*(g.bw+g.gap)+g.bw/2;
+      const y=26+(g.base-160)*Math.min(1,b.u);
+      ctx.fillStyle=b.side===0?CSS.muted:CSS.traffic;
+      ctx.beginPath(); ctx.arc(bx,y,3.2,0,7); ctx.fill();
+    }
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2,14); ctx.lineTo(W/2,H-14); ctx.stroke();
+  }
+}
+
+/* ---------- charts ---------- */
+function drawHockey(cvId, pts, curRho){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  const L=46,R=18,T=14,B=30, pw=W-L-R, ph=H-T-B;
+  const xmax=1.1, ymax=22;
+  const X=v=>L+pw*(v/xmax), Y=v=>T+ph*(1-Math.min(v,ymax)/ymax);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  // grid + axes
+  ctx.strokeStyle=CSS.line; ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  [1,5,10,15,20].forEach(v=>{
+    ctx.globalAlpha=0.5; ctx.beginPath(); ctx.moveTo(L,Y(v)); ctx.lineTo(W-R,Y(v)); ctx.stroke(); ctx.globalAlpha=1;
+    ctx.fillText(v+'×', L-7, Y(v)+3);
+  });
+  ctx.textAlign='center';
+  [0,0.25,0.5,0.75,1.0].forEach(v=>ctx.fillText('ρ '+v.toFixed(2), X(v), H-10));
+  // saturation line
+  ctx.strokeStyle=CSS.fault; ctx.globalAlpha=0.6;
+  ctx.beginPath(); ctx.moveTo(X(1),T); ctx.lineTo(X(1),T+ph); ctx.stroke(); ctx.globalAlpha=1;
+  ctx.fillStyle=CSS.fault; ctx.fillText('ρ=1', X(1), T-3);
+  // theory
+  ctx.strokeStyle=CSS.b; ctx.setLineDash([5,4]); ctx.lineWidth=2; ctx.beginPath();
+  let started=false;
+  for(let r=0;r<=0.955;r+=0.005){
+    const y=1/(1-r); if(y>ymax) break;
+    if(!started){ctx.moveTo(X(r),Y(y));started=true;} else ctx.lineTo(X(r),Y(y));
+  }
+  ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth=1;
+  // measured
+  ctx.fillStyle=CSS.a;
+  for(const p of pts){ ctx.globalAlpha=0.85; ctx.beginPath(); ctx.arc(X(p.x),Y(p.y),2.6,0,7); ctx.fill(); }
+  ctx.globalAlpha=1;
+  // current rho marker
+  ctx.strokeStyle=CSS.traffic; ctx.globalAlpha=0.7;
+  ctx.beginPath(); ctx.moveTo(X(curRho),T); ctx.lineTo(X(curRho),T+ph); ctx.stroke(); ctx.globalAlpha=1;
+  ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+  ctx.save(); ctx.translate(13,T+ph/2); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+  ctx.fillText('LATENCY (× SERVICE TIME)',0,0); ctx.restore();
+}
+function drawSpark(cvId, samples){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  if(samples.length<2) return;
+  const L=46,R=14,T=10,B=8, pw=W-L-R, ph=H-T-B;
+  const t1=samples[samples.length-1].t, t0=t1-60;
+  const vmax=Math.max(2, ...samples.map(s=>isFinite(s.p99)?s.p99:0))*1.15;
+  const X=t=>L+pw*Math.max(0,(t-t0))/60, Y=v=>T+ph*(1-v/vmax);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=0.5;
+  ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(W-R,Y(0)); ctx.stroke(); ctx.globalAlpha=1;
+  const line=(key,col)=>{
+    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); let on=false;
+    for(const s of samples){ const v=s[key]; if(!isFinite(v)){on=false;continue;}
+      if(!on){ctx.moveTo(X(s.t),Y(v));on=true;} else ctx.lineTo(X(s.t),Y(v)); }
+    ctx.stroke(); ctx.lineWidth=1;
+    const last=[...samples].reverse().find(s=>isFinite(s[key]));
+    if(last){ ctx.fillStyle=col; ctx.beginPath(); ctx.arc(X(last.t),Y(last[key]),3,0,7); ctx.fill(); }
+  };
+  line('p50',CSS.b); line('p99',CSS.a);
+  ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  ctx.fillText(fmtS(vmax/1.15), L-6, T+8);
+  ctx.fillText('0', L-6, Y(0)+3);
+}
+
+/* ---------- wiring ---------- */
+const sims = {};
+const running = {};
+const visible = {};
+function register(name, sim, panelId){
+  sims[name]=sim; running[name]=!REDUCED; visible[name]=false;
+  const panel=document.getElementById(panelId);
+  new IntersectionObserver(es=>es.forEach(e=>visible[name]=e.isIntersecting),{rootMargin:'80px'}).observe(panel);
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{
+    running[name]=!running[name];
+    btn.textContent=running[name]?'PAUSE':'RUN';
+  });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>{ sim.reset(); });
+}
+
+/* hero */
+const hero = new FlowSim({
+  canvas:'c-hero', n:6, seed:5, service:0.9, cap:16,
+  rate:()=>4.6, algo:()=>'p2c',
+  onSample:(s,p50,p99)=>{ setM('hero.done',s.done); setM('hero.p50',fmtS(p50)); setM('hero.p99',fmtS(p99)); setM('hero.drop',s.drops); }
+});
+register('hero', hero, 'p-hero');
+
+/* EXP-01: single server */
+const rOne=document.getElementById('r-one');
+const one = new FlowSim({
+  canvas:'c-one', n:1, seed:9, service:0.8, cap:60, noLB:true,
+  rate:()=>(+rOne.value/100)*(1/0.8),
+  onSample:(s,p50,p99)=>{
+    const rho=+rOne.value/100;
+    setM('one.rho','ρ '+rho.toFixed(2));
+    setM('one.done',s.done);
+    setM('one.q',s.servers[0].committed);
+    const w=s.lat.slice(-30).map(e=>e.v);
+    const avg=w.length>=5?w.reduce((a,b)=>a+b,0)/w.length:NaN;
+    setM('one.avg',fmtS(avg));
+    if(isFinite(avg) && s.done>10){
+      s.chartPts.push({x:rho,y:avg/0.8});
+      if(s.chartPts.length>500) s.chartPts.shift();
+    }
+  }
+});
+rOne.addEventListener('input',()=>setM('one.rho','ρ '+(+rOne.value/100).toFixed(2)));
+register('one', one, 'p-one');
+
+/* EXP-02: fleet with slow server */
+let fleetAlgo='rr';
+const segF=document.getElementById('seg-fleet');
+segF.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  fleetAlgo=b.dataset.algo;
+  segF.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+});
+const tSlow=document.getElementById('t-slow');
+const rFleet=document.getElementById('r-fleet');
+const fleet = new FlowSim({
+  canvas:'c-fleet', n:8, seed:13, service:0.9, cap:14,
+  rate:()=>{
+    const rho=+rFleet.value/100;
+    return rho*8/0.9;
+  },
+  algo:()=>fleetAlgo,
+  slow:i=>i===4&&tSlow.checked,
+  onSample:(s,p50,p99)=>{
+    setM('fleet.rho','ρ '+(+rFleet.value/100).toFixed(2));
+    setM('fleet.p50',fmtS(p50)); setM('fleet.p99',fmtS(p99));
+    setM('fleet.done',s.done); setM('fleet.drop',s.drops);
+  }
+});
+rFleet.addEventListener('input',()=>setM('fleet.rho','ρ '+(+rFleet.value/100).toFixed(2)));
+register('fleet', fleet, 'p-fleet');
+
+/* EXP-03: herd with stale snapshots */
+let herdAlgo='stale_best';
+const segH=document.getElementById('seg-herd');
+segH.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  herdAlgo=b.dataset.algo;
+  segH.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+});
+const herd = new FlowSim({
+  canvas:'c-herd', n:12, seed:17, service:0.55, cap:18, staleMs:2000,
+  rate:()=>0.8*12/0.55,
+  algo:()=>herdAlgo,
+  onSample:(s,p50,p99)=>{
+    const cur=Math.max(...s.servers.map(sv=>sv.committed));
+    s.peakBuf = s.peakBuf || [];
+    if(s.peakBuf.length && s.peakBuf[s.peakBuf.length-1].t > s.t) s.peakBuf = [];
+    s.peakBuf.push({t:s.t, v:cur});
+    while(s.peakBuf.length && s.peakBuf[0].t < s.t-10) s.peakBuf.shift();
+    setM('herd.p99',fmtS(p99));
+    setM('herd.max',Math.max(...s.peakBuf.map(e=>e.v)));
+    setM('herd.done',s.done); setM('herd.drop',s.drops);
+  }
+});
+register('herd', herd, 'p-herd');
+
+/* EXP-04: bins race */
+const race = new BinsSim({ canvas:'c-race', n:14, rate:11.5, service:1.05 });
+register('race', race, 'p-race');
+
+/* ---------- main loop ---------- */
+let last=performance.now();
+let acc=0;
+function frame(now){
+  let dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k in sims){
+    if(!visible[k]||!running[k]) continue;
+    const s=sims[k];
+    s.update(dt);
+    s.draw();
+  }
+  acc+=dt;
+  if(acc>0.12){
+    acc=0;
+    if(visible.one) drawHockey('ch-one', one.chartPts, +rOne.value/100);
+    if(visible.fleet) drawSpark('ch-fleet', fleet.spark);
+    if(visible.herd) setM('herd.age',(herd.t-herd.snapAt).toFixed(1)+'s');
+    if(visible.race){
+      setM('race.maxA',race.maxA); setM('race.maxB',race.maxB);
+      setM('race.avgA',race.doneA?fmtS(race.waitA/race.doneA):'–');
+      setM('race.avgB',race.doneB?fmtS(race.waitB/race.doneB):'–');
+    }
+  }
+  requestAnimationFrame(frame);
+}
+// initial static draw so paused (reduced-motion) users see the apparatus;
+// ResizeObserver re-draws when the artifact wrapper lays out late (canvas was 0x0 at load)
+function relayout(){
+  for(const k in sims){ sims[k].geo=null; sims[k].draw(); }
+  drawHockey('ch-one', one.chartPts, +rOne.value/100);
+}
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Timeline — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* ============ tokens (series design system) ============ */
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:60px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  canvas.chart{display:block;width:100%;background:var(--panel);border-top:1px solid var(--panel-line)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .legend{display:flex;gap:16px;padding:8px 16px 0;font-size:10.5px;color:var(--panel-muted);letter-spacing:.06em}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+  @media (max-width:620px){ .exp-controls{gap:12px} input[type=range]{width:110px} }
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Flagships · Episode 03</p>
+  <h1>The Timeline</h1>
+  <p class="dek">In 2013 Twitter published its arithmetic: about 5,700 tweets written per
+  second, and 300,000 home timelines read per second — call it <em>sixty reads for every
+  write</em>. Every feed you've ever scrolled — Twitter, Instagram, LinkedIn — is built on one
+  decision about that asymmetry: do you assemble the timeline when someone <em>opens</em> it,
+  or when someone <em>posts</em> to it? Both answers are wrong. The interesting part is why,
+  and what survives.</p>
+  <p class="marginal">Amber = writes (tweets, fan-out inserts). Cyan = reads (timeline
+  fetches). The datastores below are honest fluid queues: work arrives, capacity drains it,
+  backlog is the difference. Capacities are scaled down ~1,000× so you can watch.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">Fan-out on write — every tweet sparks into its followers' timelines</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:260px" role="img" aria-label="A grid of user timelines; when a user tweets, amber sparks fly to a set of follower cells"></canvas>
+  <div class="exp-metrics">
+    <span>TWEETS<b data-m="hero.tw">0</b></span>
+    <span>TIMELINE INSERTS<b data-m="hero.ins">0</b></span>
+    <span>AMPLIFICATION<b data-m="hero.amp">–</b></span>
+  </div>
+</figure>
+
+<div class="col">
+  <h2>Pull or push: the only two ways to build a feed</h2>
+  <p><strong>Pull</strong> (fan-out-on-read) is what you'd write first: store each user's
+  tweets once; when a reader opens the app, fetch recent tweets from everyone they follow
+  and merge. Writes are cheap — one insert. Reads cost one fetch <em>per followed account</em>.</p>
+  <p><strong>Push</strong> (fan-out-on-write) inverts it: when a tweet is posted, insert its
+  ID into a precomputed timeline for every follower — Twitter kept these as Redis lists,
+  capped at roughly 800 entries per user. Reads become one cheap fetch (1ms median, 4ms p99
+  in 2013); writes are amplified by follower count.</p>
+  <p>Same total work, shuffled between the two sides of the ledger. The experiment below runs
+  both against the same traffic. Drag the read rate up to Twitter-like asymmetry and watch
+  which ledger goes bankrupt.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Pull vs push under the same traffic — reads are the flood</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-reads">Timeline reads /s</label>
+      <input type="range" id="r-reads" min="20" max="320" value="40">
+      <output data-m="e1.rr">40/s</output></span>
+    <span>TWEETS FIXED AT 4/s · AVG 20 FOLLOWS · EACH STORE DRAINS 1,200 OPS/s</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:270px" role="img" aria-label="Two datastores side by side: pull on the left where reads cost 20 fetches, push on the right where reads cost one"></canvas>
+  <div class="legend">
+    <span><i style="background:var(--series-b)"></i>PULL READ P99</span>
+    <span><i style="background:var(--series-a)"></i>PUSH READ P99</span>
+  </div>
+  <canvas class="chart" id="ch-e1" style="height:120px"></canvas>
+  <div class="exp-metrics">
+    <span>PULL READ P99<b data-m="e1.pullp99">–</b></span>
+    <span>PUSH READ P99<b data-m="e1.pushp99">–</b></span>
+    <span>READS TIMED OUT (PULL)<b class="bad" data-m="e1.shed">0</b></span>
+  </div>
+  <figcaption class="exp-note">At 40 reads/s both are fine — this is why pull survives every
+  startup's first year. Drag toward <em>300/s</em>: pull's ledger is 300 × 20 fetches =
+  6,000 ops/s against a 1,200 ops/s store. The backlog grows without bound, reads start
+  timing out red, and no tuning fixes arithmetic. Push at the same load: 300 × 1 + 4 × 20 =
+  380 ops/s. Reads outnumber writes, so <em>put the amplification on the writes</em>.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The monster inside push</h2>
+  <p>Push won at Twitter, and the machinery was lovely: a fanout service walked each new
+  tweet's follower list in batches of about 4,000, inserting the tweet ID into follower
+  timelines, targeting delivery to every follower within about five seconds
+  <span class="cite">(Krikorian, "Timelines at Scale", 2013)</span>.</p>
+  <p>Then Lady Gaga arrives with <strong>31 million followers</strong>. One tap of hers is
+  31 million inserts — minutes of work for the fanout fleet, in real life, at real Twitter.
+  And because the fanout queue is shared, everyone <em>behind</em> her waits: your friend's
+  lunch tweet sits in line while the machine grinds through a celebrity's fan-out.
+  Below is that machine. Press the button. Then flip the switch that saved the design:
+  <strong>don't fan out celebrities at all</strong> — readers merge celebrity tweets in at
+  read time, a pull-shaped island inside a push system.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">The celebrity tweet — one tap vs the fanout queue</span>
+    <span class="exp-run">
+      <button class="btn primary" data-act="e2-tweet">CELEBRITY TWEETS</button>
+      <button class="btn" data-act="e2-purge">PURGE QUEUE</button>
+      <button class="btn" data-run="e2">PAUSE</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-cel">Celebrity followers</label>
+      <input type="range" id="r-cel" min="0" max="6" value="3" step="1">
+      <output data-m="e2.cf">300K</output></span>
+    <label class="toggle"><input type="checkbox" id="t-hybrid"> hybrid: celebrities merge at read</label>
+    <span>NORMAL TWEETS 3/s × 120 FOLLOWERS · FANOUT DRAINS 3,000 INSERTS/s</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:250px" role="img" aria-label="A fanout service with a backlog bar; normal tweets drip in; the celebrity button dumps a mountain of inserts"></canvas>
+  <div class="legend">
+    <span><i style="background:var(--series-a)"></i>BACKLOG, SECONDS OF WORK</span>
+    <span><i style="background:var(--fault);height:2px"></i>5s DELIVERY TARGET</span>
+  </div>
+  <canvas class="chart" id="ch-e2" style="height:120px"></canvas>
+  <div class="exp-metrics">
+    <span>BACKLOG<b data-m="e2.backlog">0.0s</b></span>
+    <span>NORMAL TWEET DELIVERY P99<b data-m="e2.np99">–</b></span>
+    <span>READ COST<b data-m="e2.readcost">1 fetch</b></span>
+    <span>CELEBRITY DELIVERED IN<b data-m="e2.cel">–</b></span>
+  </div>
+  <figcaption class="exp-note">With hybrid <em>off</em>, one 300K-follower tweet is 100
+  seconds of backlog — and every normal tweet posted behind it inherits the delay. That's
+  head-of-line blocking, and it's why "just add a queue" is never the whole answer. Flip
+  hybrid <em>on</em>, purge, and press again: zero inserts, backlog flat, and the price
+  appears in the read-cost readout instead — one extra merge per timeline read, for the
+  handful of celebrities you follow. Cheap, because reads were the abundant resource all
+  along.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>So where exactly is the line?</h2>
+  <p>Hybrid needs a rule for who counts as a celebrity — a follower threshold. Here is the
+  genuine surprise: <strong>you cannot derive that threshold from operation counts.</strong>
+  Follow the ledger for one follow edge. Push charges the author's tweet rate — one insert
+  per tweet. Pull charges the follower's read rate — one merge check per timeline load.
+  Follower count multiplies <em>both</em> sides equally, then cancels out of the comparison.
+  Efficiency arithmetic alone never draws a celebrity line. (We know because we tried: the
+  first version of this panel was a cost-minimum curve, and the math flatly refused to
+  produce one.)</p>
+  <p>What actually draws the line is a <em>promise</em>: every follower sees your tweet
+  within about five seconds. A fanout job is one indivisible lump — followers × one insert —
+  and while it grinds, everything behind it waits, as EXP-02 just showed. So the real rule is
+  simple: <strong>no single tweet may occupy the pipe for longer than the delivery
+  promise.</strong> That turns the celebrity line into arithmetic you can draw.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-id-holder exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">The five-second rule — the celebrity line is a latency promise</span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-cap">Fanout capacity</label>
+      <input type="range" id="r-cap" min="0" max="4" value="2" step="1">
+      <output data-m="e3.cap">–</output></span>
+    <span>DELIVERY PROMISE: 5 SECONDS · ONE TWEET'S FAN-OUT TIME = FOLLOWERS ÷ CAPACITY</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:300px" role="img" aria-label="Log-log chart: fan-out time rises with follower count; where it crosses the five-second promise line is the celebrity threshold"></canvas>
+  <div class="exp-metrics">
+    <span>CELEBRITY LINE = 5s × CAPACITY<b data-m="e3.line">–</b></span>
+    <span>LADY GAGA 2013 (31M) WOULD TAKE<b class="bad" data-m="e3.gaga">–</b></span>
+  </div>
+  <figcaption class="exp-note">Slide the capacity. At our toy 3K inserts/s, anyone past
+  <em>15K followers</em> breaks the promise. Scale the fanout fleet up and the celebrity
+  line marches right — at 30M inserts/s nearly nobody needs celebrity treatment. That's the
+  real nature of the threshold: <em>an engineering budget, not a law of nature</em>. Twitter
+  drew it where their fleet's five seconds ran out — and accounts beyond it, they simply
+  refused to fan out.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What the timeline taught everyone else</h2>
+  <p>The 2013 architecture carried Twitter through its record 143,199 tweets-per-second
+  moment without a visible blip. Its ideas became the standard kit: Instagram, LinkedIn, and
+  effectively every feed since runs some flavor of push-with-exceptions. The mirror image is
+  worth keeping too: Twitter's own search index, Earlybird, made the <em>opposite</em> bet —
+  index once (cheap write), scatter-gather across all partitions per query (expensive read) —
+  because search queries were rare compared to tweets. Same ledger, opposite asymmetry,
+  opposite answer. The design rule underneath both: <strong>amplify on the rare side of your
+  traffic, never the abundant one.</strong></p>
+  <p>Since 2016 the timeline's contents have been chosen by ranking rather than pure
+  recency — a candidate funnel Twitter open-sourced in 2023: roughly 1,500 candidate tweets
+  per refresh, half from your network and half discovered, pruned by a light model, scored by
+  a ~48-million-parameter heavy ranker. But that funnel <em>sits on top of</em> the delivery
+  machinery you just watched; fan-out still decides what's in the pool. Plumbing first,
+  intelligence second.</p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>R. Krikorian (Twitter) — <a href="https://highscalability.com/the-architecture-twitter-uses-to-deal-with-150m-active-users/">Timelines at Scale</a>, QCon 2013, via HighScalability. The 300K reads/s vs ~6K writes/s ledger, Redis timelines, 4K-batch fanout, the ~5s target, the celebrity problem and hybrid plan.</li>
+    <li>Twitter Engineering — <a href="https://blog.twitter.com/engineering/en_us/a/2013/new-tweets-per-second-record-and-how">New Tweets per second record, and how!</a>, 2013. The 143,199 TPS moment and the JVM re-architecture behind it.</li>
+    <li>Twitter Engineering — <a href="https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake">Announcing Snowflake</a>, 2010. The coordination-free time-ordered IDs every tweet carries through the pipeline.</li>
+    <li>HighScalability — <a href="https://highscalability.com/how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins/">How Twitter Uses Redis to Scale</a>, 2014. The timeline cache fleet: 105TB of RAM, 39M QPS.</li>
+    <li>Twitter Engineering — <a href="https://blog.twitter.com/engineering/en_us/topics/open-source/2023/twitter-recommendation-algorithm">Twitter's Recommendation Algorithm</a>, 2023, and <a href="https://github.com/twitter/the-algorithm">the-algorithm</a> (code). The ranking funnel that now sits on top of fan-out.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>The log: Kafka, and why queues turn failure into delay</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- utilities ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function pct(sorted,p){ if(!sorted.length) return NaN; return sorted[Math.min(sorted.length-1, Math.floor(p*sorted.length))]; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const fmtS = s => !isFinite(s) ? '–' : (s < 9.95 ? s.toFixed(1)+'s' : Math.round(s)+'s');
+const fmtOps = v => v>=1e6 ? (v/1e6).toFixed(1)+'M' : v>=1e3 ? (v/1e3).toFixed(1)+'K' : Math.round(v);
+
+/* ---------- fluid op-queue ---------- */
+class OpQueue {
+  constructor(cap, maxSec){ this.cap=cap; this.maxPending=cap*maxSec; this.reset(); }
+  reset(){ this.jobs=[]; this.pending=0; this.done=[]; this.shed=0; }
+  add(t, size, kind, priority){
+    if(!priority && this.pending + size > this.maxPending){ this.shed++; return false; }
+    this.jobs.push({t0:t, size, left:size, kind});
+    this.pending += size;
+    return true;
+  }
+  step(dt, t){
+    let budget = this.cap*dt;
+    while(budget>0 && this.jobs.length){
+      const j = this.jobs[0];
+      const take = Math.min(budget, j.left);
+      j.left -= take; this.pending -= take; budget -= take;
+      if(j.left <= 1e-9){ this.jobs.shift(); this.done.push({t0:j.t0, t1:t, kind:j.kind}); }
+      else break;
+    }
+    const cut = t-12;
+    while(this.done.length && this.done[0].t1 < cut) this.done.shift();
+  }
+  p99(kind){
+    const v = this.done.filter(d=>d.kind===kind).map(d=>d.t1-d.t0).sort((a,b)=>a-b);
+    return pct(v, 0.99);
+  }
+  backlogSec(){ return this.pending/this.cap; }
+}
+
+/* ---------- shared spark/particle bag ---------- */
+function makeSparks(){ return {list:[], add(x,y,tx,ty,col){ this.list.push({x,y,tx,ty,u:0,col}); if(this.list.length>260) this.list.shift(); },
+  step(dt){ this.list=this.list.filter(s=>(s.u+=dt/0.55)<1); },
+  draw(ctx){ for(const s of this.list){ const e=s.u*s.u*(3-2*s.u);
+    ctx.globalAlpha=1-s.u*0.6; ctx.fillStyle=s.col;
+    ctx.beginPath(); ctx.arc(s.x+(s.tx-s.x)*e, s.y+(s.ty-s.y)*e, 2.6, 0, 7); ctx.fill(); ctx.globalAlpha=1; } } }; }
+
+/* ================= HERO: fanout sparks over a timeline grid ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(7), t:0, nextTweet:0.5, tweets:0, inserts:0,
+  sparks: makeSparks(), cells:[], flash:{},
+  reset(){ this.t=0; this.nextTweet=0.5; this.tweets=0; this.inserts=0; this.sparks.list=[]; this.flash={}; },
+  grid(){ const {W,H}=fitCanvas(this.cv);
+    const cols=16, rows=5, gw=Math.min(46,(W-60)/cols), gh=Math.min(34,(H-70)/rows);
+    const x0=(W-cols*gw)/2, y0=42;
+    return {W,H,cols,rows,gw,gh,x0,y0}; },
+  update(dt){
+    this.t+=dt; this.sparks.step(dt);
+    const g=this.grid();
+    while(this.t>=this.nextTweet){
+      this.nextTweet += expRand(this.rng, 0.55);
+      const n=g.cols*g.rows;
+      const author=Math.floor(this.rng()*n);
+      const nf = this.rng()<0.06 ? 22 : 4+Math.floor(this.rng()*6);
+      const ax=g.x0+(author%g.cols)*g.gw+g.gw/2, ay=g.y0+Math.floor(author/g.cols)*g.gh+g.gh/2;
+      this.tweets++;
+      for(let k=0;k<nf;k++){
+        const f=Math.floor(this.rng()*n);
+        const fx=g.x0+(f%g.cols)*g.gw+g.gw/2, fy=g.y0+Math.floor(f/g.cols)*g.gh+g.gh/2;
+        this.sparks.add(ax,ay,fx,fy,CSS.traffic);
+        this.flash[f]=this.t;
+        this.inserts++;
+      }
+    }
+    setM('hero.tw', this.tweets); setM('hero.ins', this.inserts);
+    setM('hero.amp', this.tweets? '×'+(this.inserts/this.tweets).toFixed(1) : '–');
+  },
+  draw(){
+    const {ctx}=fitCanvas(this.cv); const g=this.grid();
+    ctx.clearRect(0,0,g.W,g.H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('EACH CELL = ONE FOLLOWER\'S HOME TIMELINE (A REDIS LIST, ~800 ENTRIES)', g.W/2, 22);
+    for(let i=0;i<g.cols*g.rows;i++){
+      const x=g.x0+(i%g.cols)*g.gw, y=g.y0+Math.floor(i/g.cols)*g.gh;
+      const since=this.t-(this.flash[i]??-9);
+      ctx.strokeStyle = CSS.line;
+      ctx.strokeRect(x+2,y+2,g.gw-4,g.gh-4);
+      if(since<0.9){ ctx.globalAlpha=(1-since/0.9)*0.55; ctx.fillStyle=CSS.traffic;
+        ctx.fillRect(x+3,y+3,g.gw-6,g.gh-6); ctx.globalAlpha=1; }
+    }
+    this.sparks.draw(ctx);
+  }
+};
+
+/* ================= EXP-01: pull vs push fluid stores ================= */
+const rReads = document.getElementById('r-reads');
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(19), t:0, nextTweet:0.3, nextRead:0.2,
+  pull: new OpQueue(1200, 6), push: new OpQueue(1200, 6),
+  sparks: makeSparks(), spark:[], lastSample:0,
+  F:20, tweetRate:4,
+  reset(){ this.t=0; this.nextTweet=0.3; this.nextRead=0.2; this.pull.reset(); this.push.reset();
+    this.sparks.list=[]; this.spark=[]; this.lastSample=0; },
+  readRate(){ return +rReads.value; },
+  geo(){ const {W,H}=fitCanvas(this.cv);
+    return {W,H, pull:{x:W*0.25,y:H*0.42}, push:{x:W*0.75,y:H*0.42}, bw:Math.min(210,W*0.32)}; },
+  update(dt){
+    this.t+=dt; this.sparks.step(dt);
+    const g=this.geo();
+    while(this.t>=this.nextTweet){
+      this.nextTweet += expRand(this.rng, 1/this.tweetRate);
+      this.pull.add(this.t, 1, 't', true);
+      this.push.add(this.t, this.F, 't', true);
+      this.sparks.add(20, g.pull.y-40+this.rng()*80, g.pull.x, g.pull.y, CSS.traffic);
+      this.sparks.add(g.W/2+20, g.push.y-40+this.rng()*80, g.push.x, g.push.y, CSS.traffic);
+    }
+    while(this.t>=this.nextRead){
+      this.nextRead += expRand(this.rng, 1/this.readRate());
+      this.pull.add(this.t, this.F, 'r', false);
+      this.push.add(this.t, 1, 'r', false);
+      if(this.rng()<0.35){
+        this.sparks.add(g.W/2-20, g.pull.y-40+this.rng()*80, g.pull.x, g.pull.y, CSS.b);
+        this.sparks.add(g.W-20, g.push.y-40+this.rng()*80, g.push.x, g.push.y, CSS.b);
+      }
+    }
+    this.pull.step(dt, this.t); this.push.step(dt, this.t);
+    if(this.t-this.lastSample>0.25){
+      this.lastSample=this.t;
+      const a=this.pull.p99('r'), b=this.push.p99('r');
+      this.spark.push({t:this.t, m:a, r:b});
+      while(this.spark.length && this.spark[0].t<this.t-60) this.spark.shift();
+      setM('e1.rr', this.readRate()+'/s');
+      setM('e1.pullp99', fmtS(a)); setM('e1.pushp99', fmtS(b));
+      setM('e1.shed', this.pull.shed);
+    }
+  },
+  drawStore(ctx, q, cx, cy, bw, name, costR, costW){
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(cx-32, cy-22, 64, 44);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText(name, cx, cy-32);
+    ctx.fillText('READ = '+costR+'  ·  TWEET = '+costW, cx, cy+66);
+    // backlog bar (seconds of work)
+    const sec=q.backlogSec(), frac=Math.min(1, sec/6);
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(cx-bw/2, cy+34, bw, 10);
+    ctx.fillStyle = sec>3 ? CSS.fault : CSS.a;
+    ctx.fillRect(cx-bw/2+1, cy+35, (bw-2)*frac, 8);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText(sec.toFixed(1)+'s of work queued', cx-bw/2, cy+30);
+    if(q.pending>q.maxPending*0.9){ ctx.fillStyle=CSS.fault; ctx.textAlign='center';
+      ctx.fillText('SHEDDING READS', cx, cy+2); }
+  },
+  draw(){
+    const {ctx}=fitCanvas(this.cv); const g=this.geo();
+    ctx.clearRect(0,0,g.W,g.H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(g.W/2,14); ctx.lineTo(g.W/2,g.H-14); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('PULL — ASSEMBLE ON READ', g.W*0.25, 22);
+    ctx.fillText('PUSH — ASSEMBLE ON WRITE', g.W*0.75, 22);
+    this.drawStore(ctx, this.pull, g.pull.x, g.pull.y, g.bw, 'TWEET STORE', this.F+' FETCHES', '1 INSERT');
+    this.drawStore(ctx, this.push, g.push.x, g.push.y, g.bw, 'TIMELINE STORE', '1 FETCH', this.F+' INSERTS');
+    this.sparks.draw(ctx);
+  }
+};
+
+/* ================= EXP-02: the fanout queue and the celebrity ================= */
+const rCel = document.getElementById('r-cel');
+const tHybrid = document.getElementById('t-hybrid');
+const CELS = [50e3, 100e3, 200e3, 300e3, 500e3, 750e3, 1e6];
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  rng: mulberry32(29), t:0, nextTweet:0.4,
+  q: new OpQueue(3000, 1e9),      // effectively unbounded; purge button instead
+  sparks: makeSparks(), spark:[], lastSample:0, celInfo:'–',
+  reset(){ this.t=0; this.nextTweet=0.4; this.q.reset(); this.sparks.list=[]; this.spark=[];
+    this.lastSample=0; this.celInfo='–'; },
+  celFollowers(){ return CELS[+rCel.value]; },
+  update(dt){
+    this.t+=dt; this.sparks.step(dt);
+    const g=this.geo();
+    while(this.t>=this.nextTweet){
+      this.nextTweet += expRand(this.rng, 1/3);
+      this.q.add(this.t, 120, 'n', true);
+      this.sparks.add(24, g.qy-30+this.rng()*60, g.qx, g.qy, CSS.traffic);
+    }
+    this.q.step(dt, this.t);
+    if(this.t-this.lastSample>0.25){
+      this.lastSample=this.t;
+      const sec=this.q.backlogSec();
+      this.spark.push({t:this.t, m:NaN, r:sec});
+      while(this.spark.length && this.spark[0].t<this.t-60) this.spark.shift();
+      setM('e2.backlog', fmtS(sec));
+      setM('e2.np99', fmtS(this.q.p99('n')));
+      setM('e2.cf', fmtOps(this.celFollowers()));
+      setM('e2.readcost', tHybrid.checked ? '1 + celeb merges' : '1 fetch');
+      setM('e2.cel', this.celInfo);
+      const c=this.q.done.filter(d=>d.kind==='c').pop();
+      if(c) this.celInfo = fmtS(c.t1-c.t0);
+    }
+  },
+  celebrityTweet(){
+    const f=this.celFollowers();
+    if(tHybrid.checked){
+      this.celInfo='0 inserts (merged at read)';
+    } else {
+      this.q.add(this.t, f, 'c', true);
+      this.celInfo='fanning out…';
+    }
+  },
+  purge(){ this.q.reset(); this.celInfo='–'; },
+  geo(){ const {W,H}=fitCanvas(this.cv); return {W,H,qx:W*0.32,qy:H*0.44,bw:Math.min(460,W*0.6)}; },
+  draw(){
+    const {ctx}=fitCanvas(this.cv); const g=this.geo();
+    ctx.clearRect(0,0,g.W,g.H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(g.qx-36, g.qy-24, 72, 48);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('FANOUT SERVICE', g.qx, g.qy-34);
+    ctx.fillText('3,000 INSERTS/s · BATCHES OF ~4,000 IN REAL LIFE', g.qx, g.qy+40);
+    // backlog mountain: seconds of work, log-ish
+    const sec=this.q.backlogSec();
+    const bx=g.qx+70, bw=g.bw, maxSec=120;
+    const frac=Math.min(1, Math.log10(1+sec)/Math.log10(1+maxSec));
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(bx, g.qy-12, bw, 24);
+    ctx.fillStyle = sec>5 ? CSS.fault : CSS.a;
+    ctx.fillRect(bx+1, g.qy-11, (bw-2)*frac, 22);
+    // 5s target tick on the log scale
+    const t5=Math.log10(6)/Math.log10(1+maxSec);
+    ctx.strokeStyle=CSS.ink; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(bx+bw*t5, g.qy-18); ctx.lineTo(bx+bw*t5, g.qy+18); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('BACKLOG '+fmtS(sec)+' (5s target marked · log scale)', bx, g.qy-20);
+    if(tHybrid.checked){
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='center';
+      ctx.fillText('HYBRID ON — CELEBRITY TWEETS SKIP THIS QUEUE ENTIRELY', g.W/2, g.H-18);
+    }
+    this.sparks.draw(ctx);
+  }
+};
+
+/* ================= EXP-03: the five-second rule (computed) ================= */
+const rCap = document.getElementById('r-cap');
+const CAPS = [3e3, 30e3, 300e3, 3e6, 30e6];
+const SLA = 5, GAGA = 31e6;
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  cap(){ return CAPS[+rCap.value]; },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const L=56,R=18,T=18,B=34, pw=W-L-R, ph=H-T-B;
+    const xmin=3, xmax=Math.log10(5e7);        // followers 1e3 .. 5e7 (log)
+    const ymin=-2, ymax=4;                     // seconds 0.01 .. 10,000 (log)
+    const X=f=>L+pw*(Math.log10(f)-xmin)/(xmax-xmin);
+    const Y=s=>{ const u=(Math.log10(Math.max(1e-3,s))-ymin)/(ymax-ymin);
+      return T+ph*(1-Math.max(0,Math.min(1,u))); };
+    // gridlines
+    ctx.strokeStyle=CSS.line; ctx.fillStyle=CSS.muted;
+    [0.01,1,100,10000].forEach(s=>{ ctx.globalAlpha=0.5;
+      ctx.beginPath(); ctx.moveTo(L,Y(s)); ctx.lineTo(W-R,Y(s)); ctx.stroke(); ctx.globalAlpha=1;
+      ctx.textAlign='right'; ctx.fillText(s>=1? s+'s' : s+'s', L-6, Y(s)+3); });
+    ctx.textAlign='center';
+    [1e3,1e4,1e5,1e6,1e7].forEach(f=>ctx.fillText(fmtOps(f), X(f), H-16));
+    ctx.fillText('FOLLOWERS OF THE TWEETING ACCOUNT', L+pw/2, H-4);
+    // SLA line
+    ctx.strokeStyle=CSS.fault; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(L,Y(SLA)); ctx.lineTo(W-R,Y(SLA)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=CSS.fault; ctx.textAlign='left';
+    ctx.fillText('THE PROMISE: 5s', L+6, Y(SLA)-6);
+    // fan-out time line: t = f / cap
+    const cap=this.cap();
+    ctx.strokeStyle=CSS.a; ctx.lineWidth=2; ctx.beginPath();
+    let started=false;
+    for(let i=0;i<=100;i++){
+      const f=Math.pow(10, xmin+i*(xmax-xmin)/100);
+      const x=X(f), y=Y(f/cap);
+      if(!started){ ctx.moveTo(x,y); started=true; } else ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.lineWidth=1;
+    ctx.fillStyle=CSS.a;
+    ctx.fillText('FAN-OUT TIME AT '+fmtOps(cap)+' INSERTS/s', L+6, Y(1e3/cap)-10);
+    // crossing = celebrity line
+    const fstar=SLA*cap;
+    if(fstar<=5e7){
+      ctx.strokeStyle=CSS.traffic; ctx.globalAlpha=0.7;
+      ctx.beginPath(); ctx.moveTo(X(fstar), Y(SLA)); ctx.lineTo(X(fstar), T+ph); ctx.stroke();
+      ctx.globalAlpha=1;
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(X(fstar), Y(SLA), 4.5, 0, 7); ctx.fill();
+      ctx.textAlign='center';
+      ctx.fillText('CELEBRITY LINE '+fmtOps(fstar), X(fstar), T+ph-8);
+      // shade the forbidden side
+      ctx.fillStyle=CSS.fault; ctx.globalAlpha=0.08;
+      ctx.fillRect(X(fstar), T, L+pw-X(fstar), ph); ctx.globalAlpha=1;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      if(X(fstar)<L+pw-90) ctx.fillText('DO NOT FAN OUT', (X(fstar)+L+pw)/2, T+14);
+    }
+    // Gaga marker
+    ctx.fillStyle=CSS.b;
+    ctx.beginPath(); ctx.arc(X(GAGA), Y(GAGA/cap), 4, 0, 7); ctx.fill();
+    ctx.textAlign='right';
+    ctx.fillText('GAGA 31M → '+fmtS(GAGA/cap), X(GAGA)-8, Y(GAGA/cap)-8);
+    setM('e3.cap', fmtOps(cap)+' inserts/s');
+    setM('e3.line', fmtOps(fstar)+' followers');
+    setM('e3.gaga', fmtS(GAGA/cap)+(GAGA/cap>SLA?' — promise broken':' — fine'));
+  }
+};
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2');
+visible.e3=false;
+new IntersectionObserver(es=>es.forEach(x=>visible.e3=x.isIntersecting),{rootMargin:'80px'})
+  .observe(document.getElementById('p-e3'));
+document.querySelector('[data-act="e2-tweet"]').addEventListener('click',()=>e2.celebrityTweet());
+document.querySelector('[data-act="e2-purge"]').addEventListener('click',()=>e2.purge());
+rCap.addEventListener('input',()=>e3.draw());
+rReads.addEventListener('input',()=>setM('e1.rr', rReads.value+'/s'));
+rCel.addEventListener('input',()=>setM('e2.cf', fmtOps(CELS[+rCel.value])));
+
+/* two-series seconds chart (auto-scaled), used by EXP-01 and EXP-02 */
+function drawSecChart(cvId, samples, targetSec){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  if(samples.length<2) return;
+  const L=46,R=14,T=10,B=8, pw=W-L-R, ph=H-T-B;
+  const t1=samples[samples.length-1].t, t0=t1-60;
+  const vals=samples.flatMap(s=>[s.m,s.r]).filter(isFinite);
+  const vmax=Math.max(targetSec?targetSec*1.6:2, ...vals)*1.1;
+  const X=t=>L+pw*Math.max(0,(t-t0))/60, Y=v=>T+ph*(1-Math.min(v,vmax)/vmax);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=0.5;
+  ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(W-R,Y(0)); ctx.stroke(); ctx.globalAlpha=1;
+  if(targetSec){
+    ctx.strokeStyle=CSS.fault; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(L,Y(targetSec)); ctx.lineTo(W-R,Y(targetSec)); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  const line=(key,col)=>{ ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath(); let on=false;
+    for(const s of samples){ const v=s[key]; if(!isFinite(v)){on=false;continue;}
+      if(!on){ctx.moveTo(X(s.t),Y(v));on=true;} else ctx.lineTo(X(s.t),Y(v)); }
+    ctx.stroke(); ctx.lineWidth=1;
+    const lastPt=[...samples].reverse().find(s=>isFinite(s[key]));
+    if(lastPt){ ctx.fillStyle=col; ctx.beginPath(); ctx.arc(X(lastPt.t),Y(lastPt[key]),3,0,7); ctx.fill(); } };
+  line('m',CSS.b); line('r',CSS.a);
+  ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  ctx.fillText(fmtS(vmax/1.1), L-6, T+8); ctx.fillText('0', L-6, Y(0)+3);
+}
+
+/* ---------- main loop ---------- */
+let last=performance.now(), acc=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  acc+=dt;
+  if(acc>0.12){
+    acc=0;
+    if(visible.e1) drawSecChart('ch-e1', e1.spark, null);
+    if(visible.e2) drawSecChart('ch-e2', e2.spark, 5);
+    if(visible.e3) e3.draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ hero.draw(); e1.draw(); e2.draw(); e3.draw(); }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>
