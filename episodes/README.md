@@ -1,7 +1,16 @@
 # World of Internet Systems — Episodes
 
 Interactive simulation episodes. Each is one self-contained HTML file (no dependencies,
-no network) publishable as a Claude artifact. Research base: `../research/`.
+no network). Research base: `../research/`.
+
+**Live site (GitHub Pages, canonical):** https://manasviatgithub.github.io/world-of-internet-systems/
+— served from the `gh-pages` branch. **Deploy = push both branches:**
+`git push origin main && git push origin main:gh-pages`
+
+Episodes are now full HTML documents (doctype + html/head/body). NOTE: the Claude
+Artifact publisher wraps files in its own skeleton and expects fragments WITHOUT
+doctype/html/head/body — if an episode is ever republished as an artifact, strip the
+outer shell first. The artifact URLs below predate this change and still work.
 
 ## Published
 
