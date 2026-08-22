@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Name — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:56px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  canvas.chart{display:block;width:100%;background:var(--panel);border-top:1px solid var(--panel-line)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .legend{display:flex;gap:16px;padding:8px 16px 0;font-size:10.5px;color:var(--panel-muted);letter-spacing:.06em}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+  @media (max-width:620px){ .exp-controls{gap:12px} input[type=range]{width:110px} }
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · Internet Plumbing · Episode 05</p>
+  <h1>The Name</h1>
+  <p class="dek">Before any page loads, a quieter machine must turn the name you typed into a
+  number routers can use. DNS does this with a hierarchy so nobody has to know everything,
+  and caching so aggressive that almost no query ever travels the full path. Thirteen root
+  addresses — answered by more than two thousand servers — sit at the top, and when the
+  system fails, the internet doesn't slow down. It <em>vanishes</em>.</p>
+  <p class="marginal">Time is slowed ~30×: a full uncached lookup takes 20–120 ms in real
+  life and a few watchable seconds here. TTLs are compressed the same way. Green pulse =
+  successful resolution, red = failure or a stale answer.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The resolution walk — one query's treasure hunt</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:290px" role="img" aria-label="A query dot travels laptop to resolver, then bounces off root, TLD and authoritative servers before returning with the answer"></canvas>
+  <div class="exp-metrics">
+    <span>LOOKUPS<b data-m="hero.n">0</b></span>
+    <span>CACHE HITS<b data-m="hero.hits">0</b></span>
+    <span>LAST LOOKUP<b data-m="hero.last">–</b></span>
+  </div>
+  <figcaption class="exp-note">Watch the referrals: the root doesn't know where
+  <em>netflix.com</em> lives — only where <em>.com</em> lives. Each level answers with a
+  referral, not an answer; only the authoritative server at the end holds the record. And
+  notice how often the dot never leaves the resolver at all: an answer seen recently is
+  served from cache in under a millisecond.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The real DNS is the cache</h2>
+  <p>The full walk — root, TLD, authoritative — is the <em>rare</em> path. Every answer
+  carries a TTL: "you may believe this for N seconds," the internet's most successful
+  eventual-consistency contract. Resolvers hold answers for that long, so the overwhelming
+  majority of the world's DNS queries die in a cache within a few milliseconds and the
+  upstream hierarchy never hears about them.</p>
+  <p>The experiment below is the counterfactual the designers of 1987 got right in advance.
+  Forty lookups a second flow against fifty domains. Turn caching off and every single one
+  walks the full tree — watch the root and TLD meters melt. Turn it on and the hierarchy
+  drops to a trickle, because a cache absorbs exactly the repetition that popularity
+  creates.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Caching on, caching off — who has to answer?</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-ttl1">Record TTL</label>
+      <input type="range" id="r-ttl1" min="0" max="4" value="2" step="1">
+      <output data-m="e1.ttl">60s</output></span>
+    <span>40 LOOKUPS/s · 50 DOMAINS, POPULARITY IS ZIPF-SHAPED · TTL 0 = NO CACHING</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:240px" role="img" aria-label="Users feed a resolver; meters show query rates reaching root, TLD and authoritative servers"></canvas>
+  <div class="exp-metrics">
+    <span>RESOLVER HIT RATE<b data-m="e1.hit">–</b></span>
+    <span>ROOT SEES<b data-m="e1.root">0/s</b></span>
+    <span>TLD SEES<b data-m="e1.tld">0/s</b></span>
+    <span>AUTHORITATIVE SEES<b data-m="e1.auth">0/s</b></span>
+    <span>LATENCY P50<b data-m="e1.p50">–</b></span>
+  </div>
+  <figcaption class="exp-note">At TTL 0 the root sees all 40 queries a second — scale that by
+  the real internet and the thirteen root identities would need to be the size of the
+  internet itself. At TTL 60 the hit rate settles near <em>98%</em>, upstream traffic drops
+  ~50-fold, and median latency collapses from a full walk to under a millisecond. Caching
+  isn't an optimization of DNS; it <em>is</em> DNS.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The TTL contract cuts both ways</h2>
+  <p>So make every TTL a week and go home? No — because the same contract that grants
+  resilience also <em>forbids fast change</em>. Move your site to a new address and every
+  resolver on Earth is entitled to keep serving the old one until its copy of your promise
+  expires. Below, a site fails over to a new IP. The stale answers don't stop when you flip
+  the switch — they stop when the TTL says so. Shorten the TTL and recovery is quick, but
+  your authoritative server answers queries all day. This dial has no free setting.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">The failover — stale answers outlive the switch</span>
+    <span class="exp-run">
+      <button class="btn primary" data-act="e2-move">MOVE THE SITE TO A NEW IP</button>
+      <button class="btn" data-run="e2">PAUSE</button>
+      <button class="btn" data-reset="e2">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-ttl2">Record TTL</label>
+      <input type="range" id="r-ttl2" min="0" max="2" value="1" step="1">
+      <output data-m="e2.ttl">30s</output></span>
+    <span>12 VISITORS/s CONNECTING TO shop.example</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:230px" role="img" aria-label="A cached DNS record with a draining TTL hourglass; visitors connect green to the live address or red to the stale one"></canvas>
+  <div class="legend"><span><i style="background:var(--fault)"></i>FAILED CONNECTIONS /s (STALE ADDRESS)</span></div>
+  <canvas class="chart" id="ch-e2" style="height:110px"></canvas>
+  <div class="exp-metrics">
+    <span>STALE FAILURES<b class="bad" data-m="e2.stale">0</b></span>
+    <span>OUTAGE AFTER THE MOVE<b data-m="e2.rec">–</b></span>
+    <span>AUTHORITATIVE LOAD<b data-m="e2.qpm">–</b></span>
+  </div>
+  <figcaption class="exp-note">Press the move at TTL 120: visitors keep slamming into the
+  dead address for <em>up to two minutes</em> — the outage's length is written inside the
+  record itself. At TTL 5 the pain lasts seconds, but the authoritative load meter runs
+  ~25× hotter forever. Real migrations thread this needle: drop the TTL <em>days before</em>
+  the move, switch, then raise it again.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>October 21, 2016 — the day the names went out</h2>
+  <p>Now aim the failure at the other side of the system. Dyn was the <em>authoritative</em>
+  provider for a huge slice of famous sites. That morning, the Mirai botnet — tens of
+  millions of hijacked cameras and DVRs conscripted through roughly sixty default passwords —
+  fired attack waves reported near 1.2 Tbps at Dyn's servers. Twitter, Spotify, GitHub,
+  Netflix, PayPal "went down" for hours. <strong>Their servers were fine.</strong> Nobody
+  could resolve their names.</p>
+  <p>Except — not everyone, and not all at once. Every resolver with a still-fresh cached
+  answer kept working, oblivious. The outage rolled across the internet <em>in TTL
+  order</em>: each site survived exactly as long as the caches' remaining promises. Run it
+  yourself.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">The Dyn replay — five sites, one authoritative provider, 45 seconds of attack</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e3-attack">UNLEASH THE BOTNET</button>
+      <button class="btn" data-run="e3">PAUSE</button>
+      <button class="btn" data-reset="e3">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-e3" style="height:300px" role="img" aria-label="Five domain rows with TTL hourglasses depend on one authoritative box; a botnet swarm takes it down and rows fail as their caches expire"></canvas>
+  <div class="legend"><span><i style="background:var(--series-a)"></i>SITES STILL RESOLVING (OF 5)</span></div>
+  <canvas class="chart" id="ch-e3" style="height:110px"></canvas>
+  <div class="exp-metrics">
+    <span>ATTACK<b data-m="e3.status">–</b></span>
+    <span>SITES UP<b data-m="e3.up">5/5</b></span>
+    <span>FAILED LOOKUPS<b class="bad" data-m="e3.fails">0</b></span>
+  </div>
+  <figcaption class="exp-note">The short-TTL sites die within seconds — their caches expire
+  into a void. The long-TTL sites <em>coast through the entire attack</em> on stale-but-fine
+  answers, exactly as some did in 2016. Two lessons the industry took home: a TTL is a
+  survival rating as much as an agility setting, and outsourcing your name to a single
+  provider means sharing its fate — which is why the majors all added a second DNS provider
+  within months.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What to keep</h2>
+  <p><strong>Thirteen addresses is a costume, not a capacity.</strong> Each root identity is
+  anycast — announced from hundreds of places at once, so "asking F-root" means asking
+  whichever of its 366 instances is nearest. As of 2026 the thirteen addresses resolve to
+  <strong>2,004 servers</strong> run by twelve independent operators; the roots have shrugged
+  off multi-million-queries-per-second attacks that users never noticed.</p>
+  <p><strong>DNS is a dependency amplifier.</strong> It sits before everything, so its
+  failure impersonates the failure of everything behind it — and failing clients retry in a
+  loop. When Facebook's routes vanished in 2021, resolvers that had nothing to do with
+  Facebook ate a <em>30× query storm</em> from retrying apps. Design accordingly: the
+  phone book gets called hardest exactly when it has nothing to say.</p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Root server system — <a href="https://root-servers.org/">root-servers.org</a>, live instance counts (2,004 across 13 identities / 12 operators, 2026).</li>
+    <li>Cloudflare — <a href="https://www.cloudflare.com/learning/dns/what-is-dns/">What is DNS?</a> (lookup walk, 20–120 ms figure); <a href="https://blog.cloudflare.com/announcing-1111/">Announcing 1.1.1.1</a>, 2018 (resolver performance and privacy).</li>
+    <li>ThousandEyes — <a href="https://www.thousandeyes.com/blog/dyn-dns-ddos-attack">The DDoS Attack on Dyn's DNS Infrastructure</a>, 2016; and the aggregated record at <a href="https://en.wikipedia.org/wiki/DDoS_attacks_on_Dyn">Wikipedia: DDoS attacks on Dyn</a>.</li>
+    <li>Cloudflare — <a href="https://blog.cloudflare.com/october-2021-facebook-outage/">October 2021 Facebook outage</a>: the 30× retry storm seen from 1.1.1.1.</li>
+    <li>P. Mockapetris — <a href="https://datatracker.ietf.org/doc/html/rfc1034">RFC 1034: Domain Names — Concepts and Facilities</a>, 1987. Still readable, still the design.</li>
+    <li>IETF — <a href="https://datatracker.ietf.org/doc/html/rfc8484">RFC 8484: DNS over HTTPS</a>, 2018.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>Press Play: Netflix and the CDN inside your ISP</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const fmtS = s => !isFinite(s) ? '–' : (s < 9.95 ? s.toFixed(1)+'s' : Math.round(s)+'s');
+
+/* ================= HERO: the resolution walk ================= */
+const HERO_DOMAINS=['netflix.com','wikipedia.org','github.com','uber.com','spotify.com','stripe.com','reddit.com','zoom.us'];
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(3),
+  reset(){ this.t=0; this.n=0; this.hits=0; this.cache={}; this.job=null; this.wait=0.5; },
+  nodes(W,H){
+    return {
+      laptop:  {x:W*0.09, y:H*0.5,  label:'YOU'},
+      resolver:{x:W*0.38, y:H*0.5,  label:'RESOLVER (1.1.1.1)'},
+      root:    {x:W*0.80, y:H*0.18, label:'ROOT · "ask .com"'},
+      tld:     {x:W*0.80, y:H*0.5,  label:'.COM TLD · "ask their NS"'},
+      auth:    {x:W*0.80, y:H*0.82, label:'AUTHORITATIVE · the record'},
+    };
+  },
+  startJob(){
+    const dom=HERO_DOMAINS[Math.floor(this.rng()*HERO_DOMAINS.length)];
+    const cached=this.cache[dom]!==undefined && this.t<this.cache[dom];
+    let legs;
+    if(cached){
+      legs=[['laptop','resolver'],['resolver','laptop']];
+      this.hits++;
+    } else {
+      legs=[['laptop','resolver'],['resolver','root'],['root','resolver'],
+            ['resolver','tld'],['tld','resolver'],['resolver','auth'],
+            ['auth','resolver'],['resolver','laptop']];
+      this.cache[dom]=this.t+25;
+    }
+    this.n++;
+    this.job={dom, cached, legs, leg:0, u:0, ms:0};
+  },
+  update(dt){
+    this.t+=dt;
+    if(!this.job){
+      this.wait-=dt;
+      if(this.wait<=0) this.startJob();
+      return;
+    }
+    const j=this.job;
+    j.u += dt/(j.cached?0.38:0.55);
+    j.ms += dt*(j.cached?2:21);          // display-ms accumulate
+    if(j.u>=1){
+      j.u=0; j.leg++;
+      if(j.leg>=j.legs.length){
+        setM('hero.last', j.dom+' · '+(j.cached?'CACHE HIT · ':'FULL WALK · ')+Math.round(j.ms)+'ms');
+        setM('hero.n', this.n); setM('hero.hits', this.hits);
+        this.job=null; this.wait=0.7;
+      }
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const N=this.nodes(W,H);
+    // edges
+    ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+    [['laptop','resolver'],['resolver','root'],['resolver','tld'],['resolver','auth']].forEach(([a,b])=>{
+      ctx.beginPath(); ctx.moveTo(N[a].x,N[a].y); ctx.lineTo(N[b].x,N[b].y); ctx.stroke();
+    });
+    ctx.globalAlpha=1;
+    // nodes
+    for(const k in N){
+      const n=N[k];
+      ctx.strokeStyle = k==='resolver'?CSS.traffic:CSS.line;
+      ctx.strokeRect(n.x-30, n.y-14, 60, 28);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText(n.label, n.x, n.y+30);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('CACHE: '+Object.keys(this.cache).filter(d=>this.t<this.cache[d]).length+' NAMES WARM', N.resolver.x, N.resolver.y-24);
+    // the query dot
+    if(this.job){
+      const j=this.job, [a,b]=j.legs[j.leg];
+      const e=j.u*j.u*(3-2*j.u);
+      const x=N[a].x+(N[b].x-N[a].x)*e, y=N[a].y+(N[b].y-N[a].y)*e;
+      ctx.fillStyle = j.cached?CSS.b:CSS.traffic;
+      ctx.beginPath(); ctx.arc(x,y,4.5,0,7); ctx.fill();
+      ctx.fillStyle=CSS.ink; ctx.textAlign='left';
+      ctx.fillText(j.dom+'  ·  '+Math.round(j.ms)+'ms'+(j.cached?'  · CACHED':''), 16, 22);
+    }
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: caching counterfactual ================= */
+const TTL1=[0,15,30,60,300];
+const rT1=document.getElementById('r-ttl1');
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(17),
+  reset(){ this.t=0; this.next=0.1; this.cache={}; this.hits=[]; this.ups=[]; this.lats=[]; this.lastS=0;
+    this.stat={hit:NaN,root:0,tld:0,auth:0,p50:NaN}; },
+  ttl(){ return TTL1[+rT1.value]; },
+  update(dt){
+    this.t+=dt;
+    while(this.t>=this.next){
+      this.next += expRand(this.rng, 1/40);
+      // zipf-ish domain pick over 50
+      const r=this.rng();
+      const dom=Math.min(49, Math.floor(Math.exp(r*Math.log(50)))-1);
+      const ttl=this.ttl();
+      const fresh = ttl>0 && this.cache[dom]!==undefined && this.t<this.cache[dom];
+      if(fresh){
+        this.hits.push({t:this.t,h:1}); this.lats.push({t:this.t,v:1});
+      } else {
+        this.hits.push({t:this.t,h:0});
+        this.ups.push(this.t);
+        this.lats.push({t:this.t,v:60+this.rng()*60});
+        if(ttl>0) this.cache[dom]=this.t+ttl;
+      }
+    }
+    const cut=this.t-3;
+    while(this.hits.length&&this.hits[0].t<cut) this.hits.shift();
+    while(this.ups.length&&this.ups[0]<cut) this.ups.shift();
+    while(this.lats.length&&this.lats[0].t<cut) this.lats.shift();
+    if(this.t-this.lastS>0.3){
+      this.lastS=this.t;
+      const hr=this.hits.length?this.hits.filter(h=>h.h).length/this.hits.length:NaN;
+      const up=this.ups.length/3;
+      const ls=this.lats.map(l=>l.v).sort((a,b)=>a-b);
+      this.stat={hit:hr, root:up, tld:up, auth:up, p50:ls.length?ls[Math.floor(ls.length/2)]:NaN};
+      setM('e1.ttl', this.ttl()===0?'OFF':this.ttl()+'s');
+      setM('e1.hit', isFinite(hr)?Math.round(hr*100)+'%':'–');
+      setM('e1.root', up.toFixed(1)+'/s');
+      setM('e1.tld', up.toFixed(1)+'/s');
+      setM('e1.auth', up.toFixed(1)+'/s');
+      setM('e1.p50', isFinite(this.stat.p50)?Math.round(this.stat.p50)+'ms':'–');
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const uy=H*0.5;
+    // users
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(W*0.06-28, uy-16, 56, 32);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('USERS', W*0.06, uy+34);
+    ctx.fillText('40 LOOKUPS/s', W*0.06, uy-26);
+    // resolver with hit dial
+    ctx.strokeStyle=CSS.traffic;
+    ctx.strokeRect(W*0.36-40, uy-24, 80, 48);
+    ctx.fillStyle=CSS.ink;
+    ctx.font='16px ui-monospace, Menlo, monospace';
+    ctx.fillText(isFinite(this.stat.hit)?Math.round(this.stat.hit*100)+'%':'–', W*0.36, uy+2);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('RESOLVER · CACHE HITS', W*0.36, uy+40);
+    ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+    ctx.beginPath(); ctx.moveTo(W*0.06+28,uy); ctx.lineTo(W*0.36-40,uy); ctx.stroke();
+    ctx.globalAlpha=1;
+    // upstream boxes with meters
+    const ups=[['ROOT',0.2],['TLD',0.5],['AUTH',0.8]];
+    ups.forEach(([name,fy])=>{
+      const y=H*fy, x=W*0.78;
+      ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+      ctx.beginPath(); ctx.moveTo(W*0.36+40,uy); ctx.lineTo(x-36,y); ctx.stroke();
+      ctx.globalAlpha=1;
+      const load=this.stat.root, frac=Math.min(1, load/45);
+      ctx.strokeStyle = load>25?CSS.fault:CSS.line;
+      ctx.strokeRect(x-36, y-12, 72, 24);
+      ctx.fillStyle = load>25?CSS.fault:CSS.b;
+      ctx.fillRect(x-35, y+6, 70*frac, 5);
+      ctx.fillStyle = load>25?CSS.fault:CSS.muted;
+      ctx.textAlign='center';
+      ctx.fillText(name+(load>25?' · MELTING':''), x, y-2);
+    });
+  }
+};
+e1.reset();
+rT1.addEventListener('input',()=>setM('e1.ttl', TTL1[+rT1.value]===0?'OFF':TTL1[+rT1.value]+'s'));
+
+/* ================= EXP-02: TTL failover ================= */
+const TTL2=[5,30,120];
+const rT2=document.getElementById('r-ttl2');
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  rng: mulberry32(29),
+  reset(){ this.t=0; this.next=0.2; this.currentIP='A'; this.cachedIP='A';
+    this.cacheAt=0; this.stale=0; this.moveT=NaN; this.lastStaleT=NaN;
+    this.pulses=[]; this.errs=[]; this.spark=[]; this.lastS=0; this.authQ=0; },
+  ttl(){ return TTL2[+rT2.value]; },
+  cacheFresh(){ return this.t < this.cacheAt + this.ttl(); },
+  move(){ this.currentIP = this.currentIP==='A'?'B':'A'; this.moveT=this.t; this.lastStaleT=NaN; },
+  update(dt){
+    this.t+=dt;
+    while(this.t>=this.next){
+      this.next += expRand(this.rng, 1/12);
+      if(!this.cacheFresh()){ this.cachedIP=this.currentIP; this.cacheAt=this.t; this.authQ++; }
+      const ok = this.cachedIP===this.currentIP;
+      if(!ok){ this.stale++; this.lastStaleT=this.t; this.errs.push(this.t); }
+      this.pulses.push({t:this.t,u:0,ok,x:this.rng()});
+    }
+    this.pulses=this.pulses.filter(p=>(p.u+=dt/0.7)<1);
+    while(this.errs.length&&this.errs[0]<this.t-3) this.errs.shift();
+    if(this.t-this.lastS>0.25){
+      this.lastS=this.t;
+      this.spark.push({t:this.t, v:this.errs.length/3});
+      while(this.spark.length&&this.spark[0].t<this.t-60) this.spark.shift();
+      setM('e2.ttl', this.ttl()+'s');
+      setM('e2.stale', this.stale);
+      const rec = isFinite(this.moveT) ?
+        (isFinite(this.lastStaleT) ? fmtS(this.lastStaleT-this.moveT)+(this.errs.length? ' · ongoing':'') : '0.0s') : '–';
+      setM('e2.rec', rec);
+      setM('e2.qpm', Math.round(60/this.ttl()*10)/10+' q/min');
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const y=H*0.42;
+    // cached record card with TTL hourglass
+    ctx.strokeStyle=CSS.traffic;
+    ctx.strokeRect(W*0.30-70, y-30, 140, 60);
+    ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+    ctx.fillText('shop.example → IP '+this.cachedIP, W*0.30, y-10);
+    const rem=Math.max(0, (this.cacheAt+this.ttl())-this.t)/this.ttl();
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(W*0.30-58, y+2, 116, 9);
+    ctx.fillStyle = this.cachedIP===this.currentIP?CSS.a:CSS.fault;
+    ctx.fillRect(W*0.30-57, y+3, 114*rem, 7);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('TTL REMAINING', W*0.30, y+24);
+    ctx.fillText('RESOLVER CACHE', W*0.30, y-40);
+    // authoritative truth
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(W*0.72-70, y-30, 140, 60);
+    ctx.fillStyle=CSS.ink;
+    ctx.fillText('LIVE SITE: IP '+this.currentIP, W*0.72, y-6);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('AUTHORITATIVE RECORD', W*0.72, y-40);
+    if(this.cachedIP!==this.currentIP){
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('CACHE IS LYING', W*0.51, y+40);
+    }
+    // visitor pulses
+    for(const p of this.pulses){
+      ctx.globalAlpha=1-p.u;
+      ctx.strokeStyle=p.ok?CSS.traffic:CSS.fault;
+      ctx.beginPath();
+      ctx.arc(W*0.12+p.x*W*0.08, H*0.75, 3+p.u*8, 0, 7); ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('VISITORS CONNECTING', W*0.16, H*0.9);
+  }
+};
+e2.reset();
+rT2.addEventListener('input',()=>setM('e2.ttl', TTL2[+rT2.value]+'s'));
+
+/* ================= EXP-03: the Dyn replay ================= */
+const SITES=[
+  {name:'twitter.example',  ttl:10},
+  {name:'spotify.example',  ttl:20},
+  {name:'github.example',   ttl:40},
+  {name:'netflix.example',  ttl:80},
+  {name:'wikipedia.example',ttl:160},
+];
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  rng: mulberry32(41),
+  reset(){ this.t=0; this.next=0.2; this.attackUntil=-1;
+    this.sites=SITES.map(s=>({...s, cacheAt:0, ok:true, failedAt:NaN}));
+    this.fails=0; this.spark=[]; this.lastS=0; this.bots=[]; },
+  attack(){ this.attackUntil=this.t+45; },
+  authAlive(){ return this.t>=this.attackUntil; },
+  update(dt){
+    this.t+=dt;
+    while(this.t>=this.next){
+      this.next += expRand(this.rng, 1/18);
+      const s=this.sites[Math.floor(this.rng()*this.sites.length)];
+      const fresh = this.t < s.cacheAt + s.ttl;
+      if(fresh){ s.ok=true; }
+      else if(this.authAlive()){ s.cacheAt=this.t; s.ok=true; if(isNaN(s.failedAt)===false) s.failedAt=NaN; }
+      else { if(s.ok && isNaN(s.failedAt)) s.failedAt=this.t; s.ok=false; this.fails++; }
+    }
+    if(!this.authAlive()){
+      if(this.bots.length<30 && this.rng()<0.4) this.bots.push({a:this.rng()*7, r:0.15+this.rng()*0.1});
+    } else this.bots=[];
+    if(this.t-this.lastS>0.25){
+      this.lastS=this.t;
+      const up=this.sites.filter(s=>s.ok).length;
+      this.spark.push({t:this.t, v:up});
+      while(this.spark.length&&this.spark[0].t<this.t-90) this.spark.shift();
+      setM('e3.status', this.authAlive() ? (this.attackUntil>0?'OVER':'–') : 'UNDERWAY · '+fmtS(this.attackUntil-this.t)+' LEFT');
+      setM('e3.up', up+'/5');
+      setM('e3.fails', this.fails);
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const ax=W*0.16, ay=H*0.5;
+    const dead=!this.authAlive();
+    ctx.strokeStyle=dead?CSS.fault:CSS.line;
+    ctx.setLineDash(dead?[4,3]:[]);
+    ctx.strokeRect(ax-52, ay-26, 104, 52);
+    ctx.setLineDash([]);
+    ctx.fillStyle=dead?CSS.fault:CSS.muted; ctx.textAlign='center';
+    ctx.fillText(dead?'DYN · DOWN':'DYN', ax, ay-2);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('AUTHORITATIVE FOR ALL 5', ax, ay+42);
+    // botnet swarm
+    for(const b of this.bots){
+      b.a += 0.02;
+      const x=ax+Math.cos(b.a)*(78+b.r*140), y=ay+Math.sin(b.a)*(52+b.r*90);
+      ctx.fillStyle=CSS.fault; ctx.globalAlpha=.8;
+      ctx.beginPath(); ctx.arc(x,y,2.2,0,7); ctx.fill();
+      ctx.globalAlpha=1;
+    }
+    // site rows
+    const x0=W*0.42, bw=Math.min(180,W*0.24);
+    this.sites.forEach((s,i)=>{
+      const y=28+i*((H-46)/5)+16;
+      ctx.fillStyle = s.ok?CSS.traffic:CSS.fault;
+      ctx.beginPath(); ctx.arc(x0, y, 4.5, 0, 7); ctx.fill();
+      ctx.fillStyle=CSS.ink; ctx.textAlign='left';
+      ctx.fillText(s.name, x0+14, y+3);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('TTL '+s.ttl+'s', x0+150, y+3);
+      const rem=Math.max(0,(s.cacheAt+s.ttl)-this.t)/s.ttl;
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(x0+200, y-5, bw, 10);
+      ctx.fillStyle=s.ok?CSS.a:CSS.fault;
+      ctx.fillRect(x0+201, y-4, (bw-2)*rem, 8);
+      if(!s.ok){
+        ctx.fillStyle=CSS.fault;
+        ctx.fillText('NXDOMAIN-ish · SERVFAIL', x0+200+bw+10, y+3);
+      } else if(dead){
+        ctx.fillStyle=CSS.muted;
+        ctx.fillText('COASTING ON CACHE', x0+200+bw+10, y+3);
+      }
+    });
+  }
+};
+e3.reset();
+
+/* charts */
+function drawSeries(cvId, samples, color, vmaxFloor, step){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  if(samples.length<2) return;
+  const L=40,R=14,T=10,B=8, pw=W-L-R, ph=H-T-B;
+  const span = cvId==='ch-e3'?90:60;
+  const t1=samples[samples.length-1].t, t0=t1-span;
+  const vmax=Math.max(vmaxFloor, ...samples.map(s=>s.v))*1.1;
+  const X=t=>L+pw*Math.max(0,(t-t0))/span, Y=v=>T+ph*(1-v/vmax);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+  ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(W-R,Y(0)); ctx.stroke(); ctx.globalAlpha=1;
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
+  samples.forEach((s,i)=>{
+    const x=X(s.t), y=Y(s.v);
+    if(i===0) ctx.moveTo(x,y);
+    else if(step){ ctx.lineTo(x, Y(samples[i-1].v)); ctx.lineTo(x,y); }
+    else ctx.lineTo(x,y);
+  });
+  ctx.stroke(); ctx.lineWidth=1;
+  const last=samples[samples.length-1];
+  ctx.fillStyle=color; ctx.beginPath(); ctx.arc(X(last.t),Y(last.v),3,0,7); ctx.fill();
+  ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  ctx.fillText(String(Math.round(vmax/1.1*10)/10), L-6, T+8);
+  ctx.fillText('0', L-6, Y(0)+3);
+}
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+document.querySelector('[data-act="e2-move"]').addEventListener('click',()=>e2.move());
+document.querySelector('[data-act="e3-attack"]').addEventListener('click',()=>e3.attack());
+
+let last=performance.now(), acc=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  acc+=dt;
+  if(acc>0.12){
+    acc=0;
+    if(visible.e2) drawSeries('ch-e2', e2.spark, CSS.fault, 2, false);
+    if(visible.e3) drawSeries('ch-e3', e3.spark, CSS.a, 5, true);
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ hero.draw(); e1.draw(); e2.draw(); e3.draw(); }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

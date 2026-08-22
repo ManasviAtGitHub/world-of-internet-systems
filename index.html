@@ -169,9 +169,9 @@
     <ul>
       <li><a class="ep" href="#/load-balancing" data-ep="load-balancing">The Load Balancer</a></li>
       <li><a class="ep" href="#/consistent-hashing" data-ep="consistent-hashing">The Hash Ring</a></li>
-      <li><span class="soon">The Log · Kafka<i>NEXT</i></span></li>
+      <li><a class="ep" href="#/the-log-kafka" data-ep="the-log-kafka">The Log · Kafka</a></li>
+      <li><a class="ep" href="#/dns" data-ep="dns">The Name · DNS</a></li>
       <li><span class="soon">URL → Page<i>SOON</i></span></li>
-      <li><span class="soon">DNS<i>SOON</i></span></li>
       <li><span class="soon">BGP<i>SOON</i></span></li>
       <li><span class="soon">CDN &amp; the Edge<i>SOON</i></span></li>
       <li><span class="soon">Databases at Scale<i>SOON</i></span></li>
@@ -182,7 +182,7 @@
     <summary>The flagships</summary>
     <ul>
       <li><a class="ep" href="#/twitter-timeline" data-ep="twitter-timeline">The Timeline · Twitter</a></li>
-      <li><span class="soon">Netflix<i>SOON</i></span></li>
+      <li><span class="soon">Netflix<i>NEXT</i></span></li>
       <li><span class="soon">WhatsApp<i>SOON</i></span></li>
       <li><span class="soon">Instagram<i>SOON</i></span></li>
       <li><span class="soon">Uber<i>SOON</i></span></li>
@@ -213,7 +213,7 @@
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">3</span> SYSTEMS LIVE · 29 RESEARCHED<br>
+    <span id="live-count">5</span> SYSTEMS LIVE · 29 RESEARCHED<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -257,6 +257,20 @@
           31-million-follower tweet clogs the fanout queue for everyone. The hybrid fix, and
           why the celebrity line is a latency promise, not an efficiency optimum.</span>
         </a>
+        <a class="card" href="#/the-log-kafka">
+          <span class="k">EP 04 · Internet plumbing</span>
+          <span class="t">The Log — Kafka</span>
+          <span class="d">The same viral spike hits a direct pipeline and a log: one loses a
+          thousand messages, the other converts failure into a lag chart that burns down.
+          Then kill the consumer, rewind history, and watch N×M collapse to N+M.</span>
+        </a>
+        <a class="card" href="#/dns">
+          <span class="k">EP 05 · Internet plumbing</span>
+          <span class="t">The Name — DNS</span>
+          <span class="d">The resolution treasure hunt, live. Turn caching off and watch the
+          root melt; move a site and watch stale answers outlive the switch; then replay the
+          2016 Dyn attack and watch sites die in TTL order.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -287,6 +301,8 @@ const EPISODES = {
   'load-balancing':    {title:'EP 01 — The Load Balancer',            file:'episodes/load-balancing.html'},
   'consistent-hashing':{title:'EP 02 — The Hash Ring',                file:'episodes/consistent-hashing.html'},
   'twitter-timeline':  {title:'EP 03 — The Timeline · Twitter',       file:'episodes/twitter-timeline.html'},
+  'the-log-kafka':     {title:'EP 04 — The Log · Kafka',              file:'episodes/the-log-kafka.html'},
+  'dns':               {title:'EP 05 — The Name · DNS',               file:'episodes/dns.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');

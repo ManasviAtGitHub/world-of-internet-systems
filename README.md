@@ -14,8 +14,10 @@ real fix, and the sliders are yours.
 | 01 | [The Load Balancer](episodes/load-balancing.html) | One server hits the 1/(1−ρ) wall; round robin betrayed by a slow server; the stale-data stampede; power of two choices |
 | 02 | [The Hash Ring](episodes/consistent-hashing.html) | mod-N scrambles 83% of keys on one failure, the ring moves 17% (the provable minimum); rolling-restart endurance; virtual nodes |
 | 03 | [The Timeline — Twitter](episodes/twitter-timeline.html) | 60:1 read/write asymmetry decides push over pull; the celebrity fan-out clog; the hybrid fix; the 5-second rule |
+| 04 | [The Log — Kafka](episodes/the-log-kafka.html) | The same spike: direct coupling loses messages, the log converts failure into lag; crash + rewind; N×M → N+M |
+| 05 | [The Name — DNS](episodes/dns.html) | The resolution walk; caching off = the root melts; TTL cuts both ways; the Dyn 2016 attack replayed in TTL order |
 
-Next: **The Log — Kafka**, then the rest of the world (sidebar shows the roadmap).
+Next: **Press Play — Netflix and the CDN inside your ISP** (sidebar shows the roadmap).
 
 ## Structure
 

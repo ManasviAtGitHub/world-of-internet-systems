@@ -19,8 +19,10 @@ outer shell first. The artifact URLs below predate this change and still work.
 | 01 | The Load Balancer | `load-balancing.html` | https://claude.ai/code/artifact/138fdb2a-d3c6-4ec1-a348-e50380714df4 |
 | 02 | The Hash Ring | `consistent-hashing.html` | https://claude.ai/code/artifact/4d043cb1-d1cb-4a8d-9081-6a7a60130bc0 |
 | 03 | The Timeline (Twitter fan-out) | `twitter-timeline.html` | https://claude.ai/code/artifact/83872498-adb2-43ae-a05a-c17e3c8eb74c |
+| 04 | The Log (Kafka) | `the-log-kafka.html` | Pages only |
+| 05 | The Name (DNS) | `dns.html` | Pages only |
 
-Next planned: **The log — Kafka, and why queues turn failure into delay**.
+Next planned: **Press Play — Netflix and the CDN inside your ISP**.
 
 Editorial lesson from Ep03 (keep): op-count economics do NOT justify the celebrity
 threshold — per follow edge, follower count cancels out of the push-vs-pull comparison.
