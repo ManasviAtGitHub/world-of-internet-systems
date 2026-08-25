@@ -21,8 +21,10 @@ outer shell first. The artifact URLs below predate this change and still work.
 | 03 | The Timeline (Twitter fan-out) | `twitter-timeline.html` | https://claude.ai/code/artifact/83872498-adb2-43ae-a05a-c17e3c8eb74c |
 | 04 | The Log (Kafka) | `the-log-kafka.html` | Pages only |
 | 05 | The Name (DNS) | `dns.html` | Pages only |
+| 06 | Press Play (Netflix) | `netflix.html` | Pages only |
+| 07 | The Message (WhatsApp) | `whatsapp.html` | Pages only |
 
-Next planned: **Press Play — Netflix and the CDN inside your ISP**.
+Next planned: **The Border — BGP, the internet's handshake agreement**.
 
 Editorial lesson from Ep03 (keep): op-count economics do NOT justify the celebrity
 threshold — per follow edge, follower count cancels out of the push-vs-pull comparison.

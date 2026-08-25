@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Message — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:52px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  canvas.chart{display:block;width:100%;background:var(--panel);border-top:1px solid var(--panel-line)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .legend{display:flex;gap:16px;padding:8px 16px 0;font-size:10.5px;color:var(--panel-muted);letter-spacing:.06em}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+  @media (max-width:620px){ .exp-controls{gap:12px} input[type=range]{width:110px} }
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Flagships · Episode 07</p>
+  <h1>The Message</h1>
+  <p class="dek">The most extreme efficiency story on the internet: about fifty engineers ran
+  a message switch for nearly a billion people, by betting everything on Erlang, FreeBSD,
+  bare metal, and ruthless minimalism. WhatsApp's server keeps no history, reads no content,
+  and does exactly one thing — hold your message until the other phone shows up. This
+  episode proves why that one thing is the whole design.</p>
+  <p class="marginal">Every dot is one message. A lock glyph means ciphertext — content the
+  server carries but cannot read. Phones flicker offline the way real mobile networks do;
+  that flakiness is the enemy every experiment below is fighting.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">One message's journey — push if online, pigeonhole if not</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:260px" role="img" aria-label="A message travels from Alice's phone through a chat server to Bob; when Bob is offline it waits in a server-side queue, then delivery receipts flow back as check marks"></canvas>
+  <div class="exp-metrics">
+    <span>SENT<b data-m="hero.sent">0</b></span>
+    <span>DELIVERED<b data-m="hero.del">0</b></span>
+    <span>WAITING IN QUEUE<b data-m="hero.q">0</b></span>
+    <span>SERVER CAN READ<b data-m="hero.read">0 of them</b></span>
+  </div>
+  <figcaption class="exp-note">The lock never opens in the middle: since April 2016, every
+  message is encrypted on Alice's phone with keys the server never holds, and decrypted only
+  on Bob's. When Bob's phone is dark, the sealed message waits in his pigeonhole — half of
+  all queued messages are picked up within 60 seconds — and is <em>deleted on delivery</em>.
+  The double check marks are just this same path run backwards.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Store-and-forward: the design that survives mobile reality</h2>
+  <p>A phone on a mobile network is not "online" the way a server is. It rides elevators,
+  enters tunnels, dies at 2%, switches towers. Any design that requires both phones to be
+  reachable at the same moment is fighting physics. WhatsApp's answer is the oldest one in
+  telecom: the server is a <strong>switch with a mailbox</strong>, not a pipe. Senders hand
+  the message to the switch and are done; the switch holds it until the recipient's socket
+  reappears, then deletes it.</p>
+  <p>Below, the same message traffic flows through both worlds while phones flicker
+  realistically. Drag the flakiness up and watch which world degrades.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Direct delivery vs store-and-forward, same flaky phones</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-off">Phones offline</label>
+      <input type="range" id="r-off" min="0" max="70" value="40" step="5">
+      <output data-m="e1.off">40%</output></span>
+    <span>10 MESSAGES/s · RECIPIENTS FLICKER ON/OFF LIKE REAL MOBILE NETWORKS</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:250px" role="img" aria-label="Split view: direct delivery fails red when the recipient is offline; store-and-forward queues sealed messages and delivers them on reconnect"></canvas>
+  <div class="legend"><span><i style="background:var(--series-a)"></i>MESSAGES WAITING IN THE SWITCH</span></div>
+  <canvas class="chart" id="ch-e1" style="height:110px"></canvas>
+  <div class="exp-metrics">
+    <span>DIRECT — FAILED<b class="bad" data-m="e1.df">0</b></span>
+    <span>S&amp;F — DELIVERED<b data-m="e1.sd">0</b></span>
+    <span>S&amp;F — FAILED<b data-m="e1.sf">0</b></span>
+    <span>S&amp;F — MEDIAN WAIT<b data-m="e1.med">–</b></span>
+  </div>
+  <figcaption class="exp-note">At 40% flakiness the direct world fails four messages in ten —
+  each one a retry the <em>sender's phone</em> must babysit on its own dying battery. The
+  switch fails <em>zero</em>: messages wait sealed in the queue (watch it breathe as phones
+  flicker) and land seconds later. Delivery latency is the honest price — and it's exactly
+  the price the double check mark was invented to communicate.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Two million phones on one computer</h2>
+  <p>The switch only works if you can afford to keep an open TCP socket to <em>every phone
+  on Earth</em> — that's the expensive part. In the old thread-per-connection server model,
+  each connection costs a thread stack, megabytes of memory: the box drowns around ten
+  thousand connections. That's the famous C10K wall. WhatsApp's Erlang runtime instead gives
+  each connection a featherweight process — kilobytes — scheduled across all cores. In 2011
+  they held <strong>1 million</strong> TCP connections on one FreeBSD box; in 2012,
+  <strong>2 million</strong> (2.8M in benchmarks) on a dual-hex-core Xeon with 100 GB of
+  RAM. Then they deliberately backed off to ~1M per box, keeping headroom for the day a
+  neighboring server dies and its million phones stampede over.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">The C10K wall — same box, two runtimes, connections climbing</span>
+    <span class="exp-run">
+      <button class="btn primary" data-act="e2-ramp">RAMP TO 2 MILLION</button>
+      <button class="btn" data-run="e2">PAUSE</button>
+      <button class="btn" data-reset="e2">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <span>THE 2012 BOX: 100 GB RAM · THREAD MODEL ≈ 1 MB / CONNECTION · ERLANG PROCESS ≈ 40 KB / CONNECTION (INCL. KERNEL BUFFERS)</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:250px" role="img" aria-label="Two identical servers accept climbing connections; the thread-per-connection one exhausts memory and dies around a hundred thousand, the event-driven one reaches two million"></canvas>
+  <div class="exp-metrics">
+    <span>CONNECTIONS<b data-m="e2.conns">0</b></span>
+    <span>THREAD MODEL<b data-m="e2.th">OK</b></span>
+    <span>ERLANG MODEL<b data-m="e2.er">OK</b></span>
+  </div>
+  <figcaption class="exp-note">Press ramp. The thread server's memory bar slams into 100 GB
+  around <em>100K connections</em> and the box dies — and 100K was already generous for the
+  era. The Erlang server strolls to 2,000,000 with room to spare, exactly as the real
+  hardware did in 2012. The economics follow: fewer, bigger boxes, ~550 servers total,
+  and the famous ratio of roughly <em>20 million users per engineer</em>.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Group chats: encrypt once, not N times</h2>
+  <p>End-to-end encryption has an awkward corollary: if only endpoints hold keys, then a
+  message to a group of 128 naively means the sender's phone encrypts and uploads
+  <em>128 separate copies</em> — over a mobile uplink, on a battery. The Signal protocol's
+  answer, <strong>Sender Keys</strong>, restores the server-side fan-out without giving the
+  server the keys: the sender distributes a group key once through pairwise channels, then
+  every message is encrypted <em>once</em>; the server copies the sealed envelope to each
+  member, able to route all of them and read none of them.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">Group fan-out, two ways — the sender's uplink is the scarce resource</span>
+    <span class="exp-run"><button class="btn primary" data-act="e3-send">SEND TO GROUP</button><button class="btn" data-run="e3">PAUSE</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-grp">Group size</label>
+      <input type="range" id="r-grp" min="8" max="256" value="128" step="8">
+      <output data-m="e3.n">128</output></span>
+    <span>MESSAGE ≈ 1.5 KB CIPHERTEXT</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:280px" role="img" aria-label="Split view: naive pairwise encryption sends many copies up the sender's thin uplink; Sender Keys uploads once and the server fans out sealed copies"></canvas>
+  <div class="exp-metrics">
+    <span>NAIVE — SENDER UPLOADS<b class="bad" data-m="e3.naive">–</b></span>
+    <span>SENDER KEYS — SENDER UPLOADS<b data-m="e3.sk">–</b></span>
+    <span>SERVER FANS OUT (SEALED)<b data-m="e3.fan">–</b></span>
+    <span>UPLINK SAVED<b data-m="e3.ratio">–</b></span>
+  </div>
+  <figcaption class="exp-note">At 256 members the naive scheme pushes 384 KB up a mobile
+  uplink for a one-line message; Sender Keys pushes <em>1.5 KB</em> and lets the datacenter
+  do the copying. The 2021 multi-device redesign runs on the same trick in miniature: each
+  message is client-encrypted once per registered <em>device</em> — up to four companions,
+  each with its own identity key — so your laptop stopped being a mirror of your phone and
+  became a first-class endpoint.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The numbers that made it a legend</h2>
+  <p>At the 2014 acquisition: ~450 million users on ~550 servers with 32 engineers. Later
+  that year: 465M monthly users, 147M concurrent connections, 342K messages/sec inbound and
+  712K/sec outbound at peak, and an in-RAM Mnesia database holding 18 billion records in
+  about 2 TB of memory. By 2015, Wired's famous framing: fifty engineers for 900 million
+  users. Two billion users by 2020, roughly 100 billion messages a day per Meta's earnings
+  remarks — all on the same skeleton: sealed envelopes, pigeonholes, and sockets held open
+  by a runtime built for telephone switches.</p>
+  <p>The pattern to keep: <strong>do less, at greater depth.</strong> No feed, no history,
+  no server-side cleverness — one flow, engineered to its physical limits. Every experiment
+  above is a consequence of refusing a feature.</p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>R. Reed — <a href="https://www.infoq.com/presentations/whatsapp-scalability/">That's "Billion" with a B</a>, Erlang Factory SF 2014 (all 2014 scale numbers); and <a href="https://vimeo.com/44312354">Scaling to Millions of Simultaneous Connections</a>, 2012.</li>
+    <li>WhatsApp — <a href="https://blog.whatsapp.com/1-million-is-so-2011">1 million is so 2011</a>, 2012 (the 2M-connection box and its hardware).</li>
+    <li>HighScalability — <a href="https://highscalability.com/the-whatsapp-architecture-facebook-bought-for-19-billion/">The WhatsApp Architecture Facebook Bought For $19 Billion</a>, 2014; and <a href="https://highscalability.com/how-whatsapp-grew-to-nearly-500-million-users-11000-cores-an/">How WhatsApp Grew to Nearly 500 Million Users</a>, 2014.</li>
+    <li>WhatsApp — <a href="https://www.whatsapp.com/security/WhatsApp-Security-Whitepaper.pdf">Encryption Overview whitepaper</a> (prekeys, Double Ratchet, Sender Keys, per-device identity); Signal — <a href="https://signal.org/blog/whatsapp-complete/">integration complete</a>, April 2016.</li>
+    <li>Engineering at Meta — <a href="https://engineering.fb.com/2021/07/14/security/whatsapp-multi-device/">How WhatsApp enables multi-device capability</a>, 2021.</li>
+    <li>Wired — <a href="https://www.wired.com/2015/09/whatsapp-serves-900-million-users-50-engineers/">Why WhatsApp Only Needs 50 Engineers for Its 900M Users</a>, 2015. The ~100B messages/day figure traces to Meta's Q3 2020 earnings remarks (via TechCrunch), not an engineering source.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>The Border: BGP, the internet's handshake agreement</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const fmtS = s => !isFinite(s) ? '–' : (s < 9.95 ? s.toFixed(1)+'s' : Math.round(s)+'s');
+function lockDot(ctx,x,y,col){
+  ctx.fillStyle=col;
+  ctx.beginPath(); ctx.arc(x,y,4,0,7); ctx.fill();
+  ctx.strokeStyle=CSS.panel; ctx.lineWidth=1.4;
+  ctx.strokeRect(x-2.2,y-0.5,4.4,3.2);
+  ctx.beginPath(); ctx.arc(x,y-0.8,1.7,Math.PI,0); ctx.stroke();
+  ctx.lineWidth=1;
+}
+
+/* ================= HERO: one message's journey ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(7),
+  reset(){ this.t=0; this.sent=0; this.del=0; this.q=0; this.job=null; this.wait=0.4;
+    this.bobOnline=true; this.bobFlip=4; },
+  update(dt){
+    this.t+=dt;
+    this.bobFlip-=dt;
+    if(this.bobFlip<=0){ this.bobOnline=!this.bobOnline; this.bobFlip=this.bobOnline?4.5:3.5; }
+    if(!this.job){ this.wait-=dt; if(this.wait<=0){ this.job={phase:0,u:0,queued:false}; this.sent++; } }
+    else {
+      const j=this.job;
+      if(j.phase===9){ // waiting in queue for bob
+        if(this.bobOnline){ j.phase=1; j.u=0; this.q--; }
+      } else {
+        j.u += dt/0.55;
+        if(j.u>=1){
+          j.u=0;
+          if(j.phase===0){
+            if(this.bobOnline) j.phase=1;
+            else { j.phase=9; j.queued=true; this.q++; }
+          } else if(j.phase===1){ j.phase=2; this.del++; }   // server->bob done; acks return
+          else if(j.phase===2){ j.phase=3; }                  // ack to server
+          else { this.job=null; this.wait=0.4+this.rng()*0.6; }
+        }
+      }
+    }
+    setM('hero.sent',this.sent); setM('hero.del',this.del); setM('hero.q',this.q);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const A={x:W*0.12,y:H*0.5}, S={x:W*0.5,y:H*0.42}, B={x:W*0.88,y:H*0.5};
+    // Alice
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(A.x-26,A.y-20,52,40);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('ALICE', A.x, A.y+36);
+    ctx.fillText('PLAINTEXT LIVES HERE', A.x+22, A.y-30);
+    // Server with pigeonholes
+    ctx.strokeStyle=CSS.traffic; ctx.strokeRect(S.x-60,S.y-30,120,60);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('CHAT SERVER · ERLANG', S.x, S.y-40);
+    ctx.fillText('~1M SOCKETS / BOX', S.x, S.y+46);
+    for(let k=0;k<6;k++){
+      const hx=S.x-45+k*15;
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(hx, S.y+6, 11, 14);
+    }
+    if(this.q>0){
+      lockDot(ctx, S.x-40+((this.sent)%6)*15+6, S.y+13, CSS.a);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('QUEUED, SEALED', S.x, S.y-8);
+    }
+    // Bob
+    const on=this.bobOnline;
+    ctx.strokeStyle= on?CSS.line:CSS.fault;
+    ctx.setLineDash(on?[]:[4,3]);
+    ctx.strokeRect(B.x-26,B.y-20,52,40);
+    ctx.setLineDash([]);
+    ctx.fillStyle=on?CSS.muted:CSS.fault;
+    ctx.fillText(on?'BOB · ONLINE':'BOB · OFFLINE', B.x, B.y+36);
+    // wires
+    ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+    ctx.beginPath(); ctx.moveTo(A.x+26,A.y); ctx.lineTo(S.x-60,S.y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(S.x+60,S.y); ctx.lineTo(B.x-26,B.y); ctx.stroke();
+    ctx.globalAlpha=1;
+    // job dot
+    const j=this.job;
+    if(j && j.phase!==9){
+      const e=j.u*j.u*(3-2*j.u);
+      let x,y,col=CSS.traffic;
+      if(j.phase===0){ x=A.x+26+(S.x-60-(A.x+26))*e; y=A.y+(S.y-A.y)*e; }
+      else if(j.phase===1){ x=S.x+60+(B.x-26-(S.x+60))*e; y=S.y+(B.y-S.y)*e; }
+      else if(j.phase===2){ x=B.x-26+(S.x+60-(B.x-26))*e; y=B.y+(S.y-B.y)*e; col=CSS.b; }
+      else { x=S.x-60+(A.x+26-(S.x-60))*e; y=S.y+(A.y-S.y)*e; col=CSS.b; }
+      if(col===CSS.traffic) lockDot(ctx,x,y,col);
+      else { ctx.fillStyle=col; ctx.textAlign='center'; ctx.font='12px ui-monospace, Menlo, monospace';
+        ctx.fillText('✓✓', x, y+4); ctx.font='10px ui-monospace, Menlo, monospace'; }
+    }
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: direct vs store-and-forward ================= */
+const rOff=document.getElementById('r-off');
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(19),
+  reset(){ this.t=0; this.next=0.2;
+    this.peers=Array.from({length:30},()=>({on:true, flip:1+this.rng()*4}));
+    this.df=0; this.dd=0; this.sd=0; this.sf=0;
+    this.queue=[]; this.waits=[]; this.pulses=[]; this.spark=[]; this.lastS=0; },
+  offP(){ return +rOff.value/100; },
+  update(dt){
+    this.t+=dt;
+    // peers flicker; alternating on/off periods sized so the offline fraction
+    // genuinely equals the slider: E[off]/(E[on]+E[off]) = p
+    const p=this.offP();
+    for(const pr of this.peers){
+      pr.flip-=dt;
+      if(pr.flip<=0){
+        if(p<=0){ pr.on=true; pr.flip=2; }
+        else {
+          pr.on=!pr.on;
+          const mean = pr.on ? (1-p)*7 : p*7;
+          pr.flip = 0.3 + expRand(this.rng, Math.max(0.2, mean));
+        }
+      }
+    }
+    while(this.t>=this.next){
+      this.next += expRand(this.rng, 1/10);
+      const pr=this.peers[Math.floor(this.rng()*30)];
+      // direct world
+      if(pr.on) this.dd++;
+      else { this.df++; this.pulses.push({u:0,side:0}); }
+      // s&f world (waits tracked only for messages that had to queue)
+      if(pr.on){ this.sd++; }
+      else this.queue.push({peer:pr, at:this.t});
+    }
+    // drain s&f queue for peers that came online
+    this.queue = this.queue.filter(q=>{
+      if(q.peer.on){
+        this.sd++;
+        this.waits.push(this.t-q.at);
+        if(this.waits.length>200) this.waits.shift();
+        this.pulses.push({u:0,side:1});
+        return false;
+      }
+      return true;
+    });
+    this.pulses=this.pulses.filter(pl=>(pl.u+=dt/0.6)<1);
+    if(this.t-this.lastS>0.25){
+      this.lastS=this.t;
+      this.spark.push({t:this.t,v:this.queue.length});
+      while(this.spark.length&&this.spark[0].t<this.t-60) this.spark.shift();
+      setM('e1.off', Math.round(this.offP()*100)+'%');
+      setM('e1.df', this.df);
+      setM('e1.sd', this.sd);
+      setM('e1.sf', this.sf);
+      const w=this.waits.slice(-100).sort((a,b)=>a-b);
+      setM('e1.med', w.length?fmtS(w[Math.floor(w.length/2)]):'–');
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2,14); ctx.lineTo(W/2,H-14); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('DIRECT — BOTH MUST BE ONLINE', W*0.25, 24);
+    ctx.fillText('STORE-AND-FORWARD — THE SWITCH WAITS', W*0.75, 24);
+    // phones grid on both halves (shared state)
+    const drawPhones=(x0)=>{
+      this.peers.forEach((pr,i)=>{
+        const x=x0+ (i%10)*(W*0.035), y=H*0.68+Math.floor(i/10)*20;
+        ctx.fillStyle= pr.on ? CSS.traffic : '#3A4A5C';
+        ctx.globalAlpha=.9;
+        ctx.fillRect(x-3,y-5,6,10);
+        ctx.globalAlpha=1;
+      });
+    };
+    drawPhones(W*0.09); drawPhones(W*0.59);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('RECIPIENTS', W*0.25, H-12);
+    ctx.fillText('RECIPIENTS', W*0.75, H-12);
+    // s&f switch with queue bar
+    ctx.strokeStyle=CSS.traffic;
+    ctx.strokeRect(W*0.75-55, H*0.34-18, 110, 36);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('THE SWITCH · Q '+this.queue.length, W*0.75, H*0.34+4);
+    // direct sender
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(W*0.25-45, H*0.34-18, 90, 36);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('SENDER RETRIES', W*0.25, H*0.34+4);
+    // pulses
+    for(const pl of this.pulses){
+      const cx= pl.side===0 ? W*0.25 : W*0.75;
+      ctx.globalAlpha=1-pl.u;
+      ctx.strokeStyle= pl.side===0 ? CSS.fault : CSS.traffic;
+      ctx.beginPath(); ctx.arc(cx, H*0.5, 4+pl.u*12, 0, 7); ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+  }
+};
+e1.reset();
+rOff.addEventListener('input',()=>setM('e1.off', rOff.value+'%'));
+
+/* ================= EXP-02: the C10K wall ================= */
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0; this.conns=0; this.target=0; this.thDead=NaN; },
+  ramp(){ this.target=2e6; },
+  update(dt){
+    this.t+=dt;
+    if(this.conns<this.target) this.conns=Math.min(this.target, this.conns+120000*dt);
+    const RAM=100e9;
+    const thMem=this.conns*1e6, erMem=this.conns*40e3;
+    if(isNaN(this.thDead) && thMem>=RAM) this.thDead=this.conns;
+    const th = isNaN(this.thDead) ? 'OK · '+Math.round(thMem/1e9)+' GB' : 'CRASHED AT '+Math.round(this.thDead/1000)+'K CONNS';
+    setM('e2.conns', this.conns>=1e6 ? (this.conns/1e6).toFixed(2)+'M' : Math.round(this.conns/1000)+'K');
+    setM('e2.th', th);
+    setM('e2.er', 'OK · '+Math.round(erMem/1e9)+' GB of 100');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const RAM=100e9;
+    const box=(x0,name,mem,dead,detail)=>{
+      const cx=x0+W/4;
+      ctx.strokeStyle= dead?CSS.fault:CSS.line;
+      ctx.setLineDash(dead?[4,3]:[]);
+      ctx.strokeRect(cx-90, H*0.28, 180, 70);
+      ctx.setLineDash([]);
+      ctx.fillStyle=dead?CSS.fault:CSS.muted; ctx.textAlign='center';
+      ctx.fillText(name, cx, H*0.28-10);
+      if(dead){ ctx.fillStyle=CSS.fault; ctx.fillText('OUT OF MEMORY', cx, H*0.28+40); }
+      else {
+        // connection hairlines
+        const lines=Math.min(60, Math.ceil(this.conns/35000));
+        ctx.strokeStyle=CSS.traffic; ctx.globalAlpha=.5;
+        for(let i=0;i<lines;i++){
+          const a=(i/60)*Math.PI - Math.PI;
+          ctx.beginPath();
+          ctx.moveTo(cx+Math.cos(a)*160, H*0.28+35+Math.sin(a)*90);
+          ctx.lineTo(cx, H*0.28+35);
+          ctx.stroke();
+        }
+        ctx.globalAlpha=1;
+      }
+      // RAM bar
+      const frac=Math.min(1, mem/RAM);
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(cx-90, H*0.72, 180, 14);
+      ctx.fillStyle= frac>0.92?CSS.fault:CSS.a;
+      ctx.fillRect(cx-89, H*0.72+1, 178*frac, 12);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('RAM '+Math.min(100,Math.round(mem/1e9))+' / 100 GB', cx, H*0.72+30);
+      ctx.fillText(detail, cx, H*0.72+44);
+    };
+    const thConns=isNaN(this.thDead)?this.conns:this.thDead;
+    box(0,'THREAD PER CONNECTION', thConns*1e6, !isNaN(this.thDead), '1 MB / CONNECTION');
+    box(W/2,'ERLANG · PROCESS PER CONNECTION', this.conns*40e3, false, '40 KB / CONNECTION');
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2,14); ctx.lineTo(W/2,H-14); ctx.stroke();
+  }
+};
+e2.reset();
+
+/* ================= EXP-03: group fan-out two ways ================= */
+const rGrp=document.getElementById('r-grp');
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  rng: mulberry32(43),
+  reset(){ this.t=0; this.jobs=[]; this.autoNext=2; },
+  send(){
+    this.jobs.push({side:0,u:0},{side:1,u:0,phase:0});
+  },
+  update(dt){
+    this.t+=dt;
+    this.autoNext-=dt;
+    if(this.autoNext<=0){ this.send(); this.autoNext=3.2; }
+    for(const j of this.jobs){
+      j.u += dt/(j.side===0?1.6:0.8);
+      if(j.side===1 && j.u>=1 && j.phase===0){ j.phase=1; j.u=0; }
+    }
+    this.jobs=this.jobs.filter(j=> j.side===0 ? j.u<1 : !(j.phase===1&&j.u>=1));
+    const N=+rGrp.value, kb=1.5;
+    setM('e3.n', N);
+    setM('e3.naive', Math.round(N*kb)+' KB ('+N+' copies)');
+    setM('e3.sk', kb+' KB (1 copy)');
+    setM('e3.fan', N+' sealed copies');
+    setM('e3.ratio', '×'+N);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const N=+rGrp.value;
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2,14); ctx.lineTo(W/2,H-14); ctx.stroke();
+    const half=(x0,title,isSK)=>{
+      const sx=x0+W*0.07, sy=H*0.5;                    // sender
+      const vx=x0+W*0.24, vy=H*0.24;                   // server
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText(title, x0+W/4, 26);
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(sx-16, sy-24, 32, 48);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('SENDER', sx, sy+40);
+      ctx.fillText(isSK?'UPLINK: 1 COPY':'UPLINK: '+N+' COPIES', sx+30, sy-36);
+      ctx.strokeStyle=CSS.traffic;
+      ctx.strokeRect(vx-30, vy-14, 60, 28);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('SERVER', vx, vy-22);
+      // members
+      const mCount=Math.min(24, N);
+      for(let i=0;i<mCount;i++){
+        const mx=x0+W*0.36+(i%4)*(W*0.028), my=H*0.16+Math.floor(i/4)*((H-90)/6);
+        ctx.fillStyle=CSS.b; ctx.globalAlpha=.8;
+        ctx.fillRect(mx-2.5,my-4,5,8);
+        ctx.globalAlpha=1;
+      }
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(N+' MEMBERS', x0+W*0.40, H-16);
+      // uplink arrows: naive = thick red-hot bundle, SK = single
+      const upW = isSK ? 2 : Math.min(14, 2+N/24);
+      ctx.strokeStyle= isSK ? CSS.traffic : CSS.fault;
+      ctx.lineWidth=upW;
+      ctx.globalAlpha=.8;
+      ctx.beginPath(); ctx.moveTo(sx+16,sy-6); ctx.lineTo(vx-30,vy+8); ctx.stroke();
+      ctx.lineWidth=1; ctx.globalAlpha=1;
+      // fanout arrows server->members (thin, always fine — datacenter)
+      ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+      for(let i=0;i<Math.min(8,N);i++){
+        const my=H*0.18+i*((H-90)/8);
+        ctx.beginPath(); ctx.moveTo(vx+30,vy); ctx.lineTo(x0+W*0.35, my); ctx.stroke();
+      }
+      ctx.globalAlpha=1;
+      // moving job dots
+      for(const j of this.jobs){
+        if((j.side===1)!==isSK) continue;
+        if(j.side===0){
+          // naive: several dots along uplink
+          for(let k=0;k<4;k++){
+            const u=Math.max(0,Math.min(1,j.u*1.3-k*0.09));
+            if(u<=0||u>=1) continue;
+            lockDot(ctx, sx+16+(vx-30-(sx+16))*u, sy-6+(vy+8-(sy-6))*u, CSS.fault);
+          }
+        } else if(j.phase===0){
+          lockDot(ctx, sx+16+(vx-30-(sx+16))*j.u, sy-6+(vy+8-(sy-6))*j.u, CSS.traffic);
+        } else {
+          for(let k=0;k<6;k++){
+            const my=H*0.18+k*((H-90)/8);
+            lockDot(ctx, vx+30+(x0+W*0.35-(vx+30))*j.u, vy+(my-vy)*j.u, CSS.traffic);
+          }
+        }
+      }
+    };
+    half(0,'NAIVE PAIRWISE — ENCRYPT ×'+N, false);
+    half(W/2,'SENDER KEYS — ENCRYPT ONCE', true);
+  }
+};
+e3.reset();
+rGrp.addEventListener('input',()=>setM('e3.n', rGrp.value));
+
+/* chart */
+function drawSeries(cvId, samples, color){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  if(samples.length<2) return;
+  const L=40,R=14,T=10,B=8, pw=W-L-R, ph=H-T-B;
+  const t1=samples[samples.length-1].t, t0=t1-60;
+  const vmax=Math.max(4, ...samples.map(s=>s.v))*1.15;
+  const X=t=>L+pw*Math.max(0,(t-t0))/60, Y=v=>T+ph*(1-v/vmax);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+  ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(W-R,Y(0)); ctx.stroke(); ctx.globalAlpha=1;
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
+  samples.forEach((s,i)=>{ i?ctx.lineTo(X(s.t),Y(s.v)):ctx.moveTo(X(s.t),Y(s.v)); });
+  ctx.stroke(); ctx.lineWidth=1;
+  const last=samples[samples.length-1];
+  ctx.fillStyle=color; ctx.beginPath(); ctx.arc(X(last.t),Y(last.v),3,0,7); ctx.fill();
+  ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  ctx.fillText(String(Math.round(vmax/1.15)), L-6, T+8);
+  ctx.fillText('0', L-6, Y(0)+3);
+}
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+document.querySelector('[data-act="e2-ramp"]').addEventListener('click',()=>e2.ramp());
+document.querySelector('[data-act="e3-send"]').addEventListener('click',()=>e3.send());
+
+let last=performance.now(), acc=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  acc+=dt;
+  if(acc>0.12){
+    acc=0;
+    if(visible.e1) drawSeries('ch-e1', e1.spark, CSS.a);
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ hero.draw(); e1.draw(); e2.update(0); e2.draw(); e3.update(0); e3.draw(); }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

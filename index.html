@@ -172,7 +172,7 @@
       <li><a class="ep" href="#/the-log-kafka" data-ep="the-log-kafka">The Log · Kafka</a></li>
       <li><a class="ep" href="#/dns" data-ep="dns">The Name · DNS</a></li>
       <li><span class="soon">URL → Page<i>SOON</i></span></li>
-      <li><span class="soon">BGP<i>SOON</i></span></li>
+      <li><span class="soon">BGP<i>NEXT</i></span></li>
       <li><span class="soon">CDN &amp; the Edge<i>SOON</i></span></li>
       <li><span class="soon">Databases at Scale<i>SOON</i></span></li>
     </ul>
@@ -182,8 +182,8 @@
     <summary>The flagships</summary>
     <ul>
       <li><a class="ep" href="#/twitter-timeline" data-ep="twitter-timeline">The Timeline · Twitter</a></li>
-      <li><span class="soon">Netflix<i>NEXT</i></span></li>
-      <li><span class="soon">WhatsApp<i>SOON</i></span></li>
+      <li><a class="ep" href="#/netflix" data-ep="netflix">Press Play · Netflix</a></li>
+      <li><a class="ep" href="#/whatsapp" data-ep="whatsapp">The Message · WhatsApp</a></li>
       <li><span class="soon">Instagram<i>SOON</i></span></li>
       <li><span class="soon">Uber<i>SOON</i></span></li>
       <li><span class="soon">Google Search<i>SOON</i></span></li>
@@ -213,7 +213,7 @@
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">5</span> SYSTEMS LIVE · 29 RESEARCHED<br>
+    <span id="live-count">7</span> SYSTEMS LIVE · 29 RESEARCHED<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -271,6 +271,20 @@
           root melt; move a site and watch stale answers outlive the switch; then replay the
           2016 Dyn attack and watch sites die in TTL order.</span>
         </a>
+        <a class="card" href="#/netflix">
+          <span class="k">EP 06 · The flagships</span>
+          <span class="t">Press Play — Netflix</span>
+          <span class="d">A CDN made of free boxes inside your ISP: remove it and watch the
+          backbone drown; watch the appliance do its shopping at 3 AM before the premiere;
+          then be the Chaos Monkey and learn why instance death is boring.</span>
+        </a>
+        <a class="card" href="#/whatsapp">
+          <span class="k">EP 07 · The flagships</span>
+          <span class="t">The Message — WhatsApp</span>
+          <span class="d">Store-and-forward vs flaky phones, the C10K wall falling to two
+          million connections on one box, and group encryption that uploads once instead of
+          256 times — the fifty-engineer switchboard, proven.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -303,6 +317,8 @@ const EPISODES = {
   'twitter-timeline':  {title:'EP 03 — The Timeline · Twitter',       file:'episodes/twitter-timeline.html'},
   'the-log-kafka':     {title:'EP 04 — The Log · Kafka',              file:'episodes/the-log-kafka.html'},
   'dns':               {title:'EP 05 — The Name · DNS',               file:'episodes/dns.html'},
+  'netflix':           {title:'EP 06 — Press Play · Netflix',         file:'episodes/netflix.html'},
+  'whatsapp':          {title:'EP 07 — The Message · WhatsApp',       file:'episodes/whatsapp.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');

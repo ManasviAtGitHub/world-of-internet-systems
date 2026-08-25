@@ -16,8 +16,10 @@ real fix, and the sliders are yours.
 | 03 | [The Timeline — Twitter](episodes/twitter-timeline.html) | 60:1 read/write asymmetry decides push over pull; the celebrity fan-out clog; the hybrid fix; the 5-second rule |
 | 04 | [The Log — Kafka](episodes/the-log-kafka.html) | The same spike: direct coupling loses messages, the log converts failure into lag; crash + rewind; N×M → N+M |
 | 05 | [The Name — DNS](episodes/dns.html) | The resolution walk; caching off = the root melts; TTL cuts both ways; the Dyn 2016 attack replayed in TTL order |
+| 06 | [Press Play — Netflix](episodes/netflix.html) | Remove Open Connect and the backbone drowns; the 3 AM fill beats the premiere miss-storm; be the Chaos Monkey |
+| 07 | [The Message — WhatsApp](episodes/whatsapp.html) | Store-and-forward vs flaky phones; the C10K wall vs 2M connections on one box; Sender Keys' ×256 uplink saving |
 
-Next: **Press Play — Netflix and the CDN inside your ISP** (sidebar shows the roadmap).
+Next: **The Border — BGP** (sidebar shows the roadmap).
 
 ## Structure
 

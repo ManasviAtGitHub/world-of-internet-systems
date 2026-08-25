@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Press Play — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:52px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  canvas.chart{display:block;width:100%;background:var(--panel);border-top:1px solid var(--panel-line)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .legend{display:flex;gap:16px;padding:8px 16px 0;font-size:10.5px;color:var(--panel-muted);letter-spacing:.06em}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+  @media (max-width:620px){ .exp-controls{gap:12px} input[type=range]{width:110px} }
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Flagships · Episode 06</p>
+  <h1>Press Play</h1>
+  <p class="dek">Netflix is two systems glued together at one button. A control plane of
+  microservices on AWS decides <em>what</em> you watch — and a private CDN called Open
+  Connect, made of free servers living inside your ISP, delivers <em>every single video
+  byte</em>. One company, roughly 15% of the world's downstream internet traffic, and the
+  reason it feels instant is that most nights the video was already in your neighborhood
+  before you wanted it.</p>
+  <p class="marginal">Amber = video bytes. Cyan = control traffic (auth, steering). The
+  backbone and server capacities below are honest fluid models, scaled down so one stream
+  ≈ many thousands of real ones.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The two-plane handoff — AWS decides, your ISP delivers</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:270px" role="img" aria-label="A viewer's play request travels to AWS and back; the video stream then flows from an Open Connect box inside the ISP, never touching AWS"></canvas>
+  <div class="exp-metrics">
+    <span>PLAYS<b data-m="hero.plays">0</b></span>
+    <span>VIDEO FROM INSIDE YOUR ISP<b data-m="hero.local">–</b></span>
+    <span>VIDEO THROUGH AWS<b data-m="hero.aws">0 bytes — ever</b></span>
+  </div>
+  <figcaption class="exp-note">Watch the handoff happen exactly once per play: a thin cyan
+  request visits AWS (entitlements, steering, a ranked list of up to ten Open Connect
+  servers), and then the thick amber stream flows from the box <em>inside the ISP</em>.
+  AWS never touches a video byte. The brain lives in 3 regions; the muscle lives in
+  1,000+ locations.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Why build your own CDN out of free boxes?</h2>
+  <p>In 2012 Netflix stopped paying commercial CDNs and started shipping its own
+  purpose-built FreeBSD servers — Open Connect Appliances — to ISPs, <em>for free</em>.
+  ISPs host them happily, because every stream served from inside their network is a stream
+  they don't have to haul across expensive transit links. By 2016, about 90% of Netflix
+  traffic flowed over direct Netflix-to-ISP connections, 100% of video went through Open
+  Connect, and a single appliance had gone from 8 Gbps (2012) to 90+ Gbps of throughput.</p>
+  <p>The experiment below is the counterfactual: the same evening audience, with and
+  without the boxes in the neighborhood. The backbone link is the honest bottleneck.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">The neighborhood test — streams with and without Open Connect</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-oc" checked> Open Connect appliance in the ISP</label>
+    <span class="ctl"><label for="r-view">Viewers tonight</label>
+      <input type="range" id="r-view" min="100" max="2000" value="900" step="50">
+      <output data-m="e1.v">900</output></span>
+    <span>BACKBONE CAPACITY: 500 STREAMS · OCA SERVES 92% LOCALLY WHEN PRESENT</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:240px" role="img" aria-label="An ISP cloud full of viewers, an optional Open Connect box inside it, and a backbone pipe to a distant origin with a load meter"></canvas>
+  <div class="legend"><span><i style="background:var(--series-a)"></i>BACKBONE LOAD, STREAMS</span><span><i style="background:var(--fault);height:2px"></i>BACKBONE CAPACITY</span></div>
+  <canvas class="chart" id="ch-e1" style="height:110px"></canvas>
+  <div class="exp-metrics">
+    <span>BACKBONE LOAD<b data-m="e1.bb">–</b></span>
+    <span>REBUFFERING VIEWERS<b class="bad" data-m="e1.rb">–</b></span>
+    <span>AVG STARTUP<b data-m="e1.st">–</b></span>
+  </div>
+  <figcaption class="exp-note">Uncheck the box at 900 viewers: all 900 streams fight over a
+  500-stream backbone, a third of the audience rebuffers, and startup crawls — this is what
+  "Netflix at scale" would do to the internet without Open Connect. Check it again:
+  92% of streams never leave the ISP, the backbone drops to a whisper, and there's suddenly
+  room to <em>triple</em> the audience. The trick isn't more bandwidth; it's moving the
+  bytes before they're needed — which is the next experiment.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The CDN that fills itself at 3 AM</h2>
+  <p>Classic CDNs are <em>demand-filled</em>: the first viewer of a title in each city pays
+  a cache-miss — the CDN fetches it across the backbone at the worst possible moment, peak
+  evening, precisely because that's when first viewers show up. Netflix inverted the model.
+  Every night, during the ISP's quiet window, each appliance asks AWS what tomorrow's
+  audience will probably watch — popularity prediction per region — and pre-positions those
+  titles. The fill traffic rides the empty night; the evening peak becomes almost purely
+  local reads.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">One simulated day — demand-filled vs pre-filled, same audience</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-e2" style="height:300px" role="img" aria-label="A 24-hour chart: audience demand swells in the evening; the demand-filled CDN's backbone traffic spikes with it, while the pre-filled CDN moved its traffic to a small night-time fill bump"></canvas>
+  <div class="exp-metrics">
+    <span>CLOCK<b data-m="e2.clock">–</b></span>
+    <span>EVENING BACKBONE — DEMAND-FILLED<b class="bad" data-m="e2.dpeak">–</b></span>
+    <span>EVENING BACKBONE — PRE-FILLED<b data-m="e2.ppeak">–</b></span>
+    <span>PRE-FILL DOES ITS SHOPPING AT<b data-m="e2.pwhen">–</b></span>
+  </div>
+  <figcaption class="exp-note">The killer detail is the premiere: new seasons drop in prime
+  time, so a demand-filled CDN takes its miss storm at 20:00 — first viewers in every city
+  are cache misses, stacked directly on top of the evening peak. The pre-filled appliance
+  shipped that season <em>last night</em> during the fill window and coasts through prime
+  time on local disk. Netflix ships tomorrow's hits tonight because it knows tonight what
+  tomorrow looks like — the recommendation system and the CDN are the same prediction,
+  spent twice.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>And then they attack their own servers</h2>
+  <p>The control plane earns its reliability differently: by being attacked, on purpose,
+  during business hours. After a 2008 database corruption halted DVD shipping for three
+  days, Netflix rebuilt on AWS with a rule the industry now calls chaos engineering —
+  <em>if instances will die randomly anyway, kill them yourself, constantly, so nobody can
+  ship a service that can't survive it.</em> Chaos Monkey (2010) kills instances; Chaos
+  Gorilla kills availability zones; Chaos Kong evacuates entire AWS regions — a drill
+  Netflix runs monthly and completes in about six minutes. Try being the monkey.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">Be the monkey — kill instances, kill a zone, watch availability</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e3-monkey">CHAOS MONKEY</button>
+      <button class="btn danger" data-act="e3-gorilla">CHAOS GORILLA (ZONE)</button>
+      <button class="btn" data-run="e3">PAUSE</button>
+      <button class="btn" data-reset="e3">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-pin"> naive world: users pinned to one instance, no retry</label>
+    <span>3 ZONES × 8 INSTANCES · FLEET HAS 2× HEADROOM · KILLED INSTANCES RESPAWN IN ~15s</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:260px" role="img" aria-label="A grid of instances across three availability zones; requests route around killed instances, or fail if users are pinned"></canvas>
+  <div class="exp-metrics">
+    <span>AVAILABILITY ·5s<b data-m="e3.avail">–</b></span>
+    <span>FAILED REQUESTS<b class="bad" data-m="e3.err">0</b></span>
+    <span>INSTANCES UP<b data-m="e3.up">24/24</b></span>
+  </div>
+  <figcaption class="exp-note">With service discovery and retries, the monkey is boring:
+  kill an instance and availability barely twitches, because every request can find any
+  healthy instance — even a whole zone dying just spends headroom. Flip on the
+  <em>pinned</em> world and the same monkey draws blood immediately: whoever's instance died
+  is simply down until it respawns. Chaos engineering isn't about breaking things — it's
+  about making "instance death" a boring, already-survived event before it happens at 3 AM.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What the play button hides</h2>
+  <p>One more number for scale: before any of this, every title is chunked and encoded on a
+  ~300,000-CPU pipeline into dozens of codec/bitrate/resolution renditions — one season of
+  <em>Stranger Things</em> became 9,570 files and took 190,000 CPU-hours. Since 2015 the
+  bitrate ladder is computed <em>per title</em> (a cartoon needs a fraction of an action
+  film's bits at equal quality), and since 2018 <em>per shot</em>, guided by their
+  open-sourced perceptual metric VMAF — roughly 30% of bitrate saved at Netflix scale is a
+  measurable share of the entire internet. And the player on your TV is doing the last
+  trick alone: measuring bandwidth continuously, sliding up and down the ladder, and failing
+  over between Open Connect servers mid-stream without telling you.</p>
+  <p>The pattern to keep from this episode: <strong>split the brain from the muscle.</strong>
+  Three AWS regions decide; a thousand embedded boxes deliver; they meet exactly once, at
+  Play. Every large media system since has converged on the same split.</p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Netflix — <a href="https://about.netflix.com/en/news/how-netflix-works-with-isps-around-the-globe-to-deliver-a-great-viewing-experience">How Netflix Works With ISPs Around the Globe</a>, 2016. Open Connect: ~1,000 locations, 90% direct delivery, 8→90 Gbps per server.</li>
+    <li>Netflix — <a href="https://about.netflix.com/en/news/completing-the-netflix-cloud-migration">Completing the Netflix Cloud Migration</a>, 2016; and <a href="https://openconnect.netflix.com/en/">Open Connect documentation</a> (fill windows, embedded appliances).</li>
+    <li>Netflix Tech Blog — <a href="https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116">The Netflix Simian Army</a>, 2011; <a href="https://netflixtechblog.com/per-title-encode-optimization-7e99442b62a2">Per-Title Encode Optimization</a>, 2015; <a href="https://netflixtechblog.com/dynamic-optimizer-a-perceptual-video-encoding-optimization-framework-e19f1e3a277f">Dynamic Optimizer</a>, 2018.</li>
+    <li>T. Hoff — <a href="https://highscalability.com/netflix-what-happens-when-you-press-play/">Netflix: What Happens When You Press Play?</a>, HighScalability, 2017. The end-to-end narrative: steering, ten OCA URLs, nightly fill, encoding scale.</li>
+    <li>Sandvine — <a href="https://www.applogicnetworks.com/inthenews/netflix-eats-up-15-of-global-downstream-traffic">Global Internet Phenomena</a>, 2023: Netflix ≈15% of global downstream traffic.</li>
+    <li>FreeBSD Foundation — <a href="https://freebsdfoundation.org/wp-content/uploads/2020/10/netflixcasestudy_final.pdf">Netflix case study</a>, 2020: the kernel work behind extreme per-server throughput.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>The Message: WhatsApp's billion-user switchboard</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const fmtS = s => !isFinite(s) ? '–' : (s < 9.95 ? s.toFixed(1)+'s' : Math.round(s)+'s');
+
+/* ================= HERO: the two-plane handoff ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(5),
+  reset(){ this.t=0; this.plays=0; this.job=null; this.wait=0.4; this.streamPulses=[]; },
+  geo(){ const {W,H}=fitCanvas(this.cv);
+    return {W,H,
+      aws:{x:W*0.16,y:H*0.30}, user:{x:W*0.45,y:H*0.72},
+      oca:{x:W*0.78,y:H*0.32}, ispBox:{x:W*0.60,y:H*0.10,w:W*0.36,h:H*0.55}}; },
+  update(dt){
+    this.t+=dt;
+    const g=this.geo();
+    if(!this.job){ this.wait-=dt; if(this.wait<=0){
+      this.job={phase:0,u:0}; this.plays++;
+    }} else {
+      const j=this.job;
+      j.u += dt/(j.phase===2?2.2:0.6);
+      if(j.u>=1){
+        j.u=0; j.phase++;
+        if(j.phase>2){ this.job=null; this.wait=0.5+this.rng()*0.6; }
+      }
+      if(j.phase===2 && this.rng()<0.5)
+        this.streamPulses.push({u:0});
+    }
+    this.streamPulses=this.streamPulses.filter(p=>(p.u+=dt/0.5)<1);
+    setM('hero.plays', this.plays);
+    setM('hero.local','92% (2016: 90% direct to ISPs)');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    const g=this.geo();
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    // ISP enclosure
+    ctx.strokeStyle=CSS.line; ctx.setLineDash([5,4]);
+    ctx.strokeRect(g.ispBox.x, g.ispBox.y, g.ispBox.w, g.ispBox.h);
+    ctx.setLineDash([]);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('YOUR ISP', g.ispBox.x+8, g.ispBox.y+14);
+    // AWS
+    ctx.strokeStyle=CSS.b;
+    ctx.strokeRect(g.aws.x-58, g.aws.y-26, 116, 52);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('CONTROL PLANE', g.aws.x, g.aws.y-4);
+    ctx.fillText('AWS · 3 REGIONS', g.aws.x, g.aws.y+10);
+    // OCA
+    ctx.strokeStyle=CSS.traffic;
+    ctx.strokeRect(g.oca.x-52, g.oca.y-22, 104, 44);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('OPEN CONNECT', g.oca.x, g.oca.y-2);
+    ctx.fillText('FREEBSD · 90+ Gbps', g.oca.x, g.oca.y+12);
+    // user
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(g.user.x-30, g.user.y-14, 60, 28);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('YOUR TV', g.user.x, g.user.y+30);
+    // job animation
+    const j=this.job;
+    if(j){
+      const lerp=(a,b,u)=>({x:a.x+(b.x-a.x)*u, y:a.y+(b.y-a.y)*u});
+      const e=j.u*j.u*(3-2*j.u);
+      if(j.phase===0){          // user -> AWS (request)
+        const p=lerp(g.user,g.aws,e);
+        ctx.fillStyle=CSS.b;
+        ctx.beginPath(); ctx.arc(p.x,p.y,4,0,7); ctx.fill();
+        ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+        ctx.fillText('PLAY → auth · steering', 16, 22);
+      } else if(j.phase===1){   // AWS -> user (10 OCA URLs)
+        const p=lerp(g.aws,g.user,e);
+        ctx.fillStyle=CSS.b;
+        ctx.beginPath(); ctx.arc(p.x,p.y,4,0,7); ctx.fill();
+        ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+        ctx.fillText('← 10 RANKED OCA URLS', 16, 22);
+      } else {                  // stream OCA -> user
+        ctx.strokeStyle=CSS.traffic; ctx.lineWidth=3; ctx.globalAlpha=.9;
+        ctx.beginPath(); ctx.moveTo(g.oca.x-20,g.oca.y+22); ctx.lineTo(g.user.x+16,g.user.y-14); ctx.stroke();
+        ctx.lineWidth=1; ctx.globalAlpha=1;
+        for(const p of this.streamPulses){
+          const q=lerp({x:g.oca.x-20,y:g.oca.y+22},{x:g.user.x+16,y:g.user.y-14},p.u);
+          ctx.fillStyle=CSS.traffic;
+          ctx.beginPath(); ctx.arc(q.x,q.y,3.4,0,7); ctx.fill();
+        }
+        ctx.fillStyle=CSS.traffic; ctx.textAlign='left';
+        ctx.fillText('STREAMING · ADAPTIVE BITRATE · NEVER TOUCHES AWS', 16, 22);
+      }
+    }
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: the neighborhood test ================= */
+const tOC=document.getElementById('t-oc');
+const rView=document.getElementById('r-view');
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(13),
+  reset(){ this.t=0; this.spark=[]; this.lastS=0; this.stat={}; },
+  update(dt){
+    this.t+=dt;
+    const V=+rView.value, oc=tOC.checked, CAP=500;
+    const bb = oc ? V*0.08 : V;
+    const over = Math.max(0, 1 - CAP/Math.max(bb,1));
+    const rebuf = Math.round((oc ? V*0.08 : V) * over);
+    const startup = oc ? 0.5 + over*2 : 2.2 + over*4;
+    this.stat={V,bb,rebuf,startup,over,oc,CAP};
+    if(this.t-this.lastS>0.25){
+      this.lastS=this.t;
+      this.spark.push({t:this.t, v:bb});
+      while(this.spark.length&&this.spark[0].t<this.t-60) this.spark.shift();
+      setM('e1.v', V);
+      setM('e1.bb', Math.round(bb)+' / 500');
+      setM('e1.rb', rebuf+' ('+Math.round(over*100)+'%)');
+      setM('e1.st', startup.toFixed(1)+'s');
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const s=this.stat; if(!s.V) return;
+    // ISP cloud
+    ctx.strokeStyle=CSS.line; ctx.setLineDash([5,4]);
+    ctx.strokeRect(W*0.05, 26, W*0.44, H-58);
+    ctx.setLineDash([]);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('THE ISP · '+s.V+' VIEWERS', W*0.05+8, 42);
+    // viewer dots (sample 60)
+    const n=60, bad=Math.round(60*s.over*(s.oc?0.08:1));
+    for(let i=0;i<n;i++){
+      const x=W*0.08+ (i%10)*(W*0.038), y=64+Math.floor(i/10)*((H-120)/6);
+      ctx.fillStyle = i<bad ? CSS.fault : CSS.traffic;
+      ctx.globalAlpha=.85;
+      ctx.beginPath(); ctx.arc(x,y,3,0,7); ctx.fill();
+      ctx.globalAlpha=1;
+    }
+    // OCA inside
+    if(s.oc){
+      ctx.strokeStyle=CSS.traffic;
+      ctx.strokeRect(W*0.30, H-76, 110, 34);
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='center';
+      ctx.fillText('OCA · 92% LOCAL', W*0.30+55, H-56);
+    }
+    // backbone pipe
+    const frac=Math.min(1, s.bb/s.CAP);
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(W*0.52, H*0.42, W*0.26, 18);
+    ctx.fillStyle = s.bb>s.CAP ? CSS.fault : CSS.a;
+    ctx.fillRect(W*0.52+1, H*0.42+1, (W*0.26-2)*frac, 16);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('THE BACKBONE', W*0.65, H*0.42-8);
+    if(s.bb>s.CAP){ ctx.fillStyle=CSS.fault; ctx.fillText('SATURATED', W*0.65, H*0.42+34); }
+    // origin
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(W*0.84, H*0.36, 100, 40);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('DISTANT ORIGIN', W*0.84+50, H*0.36+24);
+  }
+};
+e1.reset();
+rView.addEventListener('input',()=>setM('e1.v', rView.value));
+
+/* ================= EXP-02: the nightly fill, one day ================= */
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0; this.dpeak=0; this.ppeak=0; this.pwhenH=0; this.computed=false; },
+  demand(h){ // audience curve: night trough, evening peak at 20:30
+    const g=(x,mu,s)=>Math.exp(-((x-mu)*(x-mu))/(2*s*s));
+    return 0.14 + 0.9*g(h,20.5,2.6) + 0.25*g(h,13,3.5);
+  },
+  curves(){
+    if(this._c) return this._c;
+    const g=(x,mu,s)=>Math.exp(-((x-mu)*(x-mu))/(2*s*s));
+    const pts=[];
+    let dEve=0, pEve=0, pp=0, pw=0;
+    for(let i=0;i<=240;i++){
+      const h=i/10;
+      const D=this.demand(h)*1000;
+      // demand-filled: baseline misses + the premiere storm (new season drops 20:00,
+      // first viewers in every city are cache misses at the worst hour)
+      const demandFilled = D*(0.06 + 0.30*g(h,20,1.5));
+      const fill = (h>=2&&h<6)?170:0;
+      const preFilled = D*0.01 + fill;                     // shipped last night; 1% residual
+      pts.push({h, D, demandFilled, preFilled});
+      if(h>=18&&h<=23){ if(demandFilled>dEve) dEve=demandFilled; if(preFilled>pEve) pEve=preFilled; }
+      if(preFilled>pp){ pp=preFilled; pw=h; }
+    }
+    this._c={pts, dEve, pEve, pw};
+    return this._c;
+  },
+  update(dt){
+    this.t+=dt;
+    const c=this.curves();
+    const h=(this.t/2)%24;   // 2s per hour
+    setM('e2.clock', String(Math.floor(h)).padStart(2,'0')+':'+String(Math.floor(h%1*60)).padStart(2,'0'));
+    setM('e2.dpeak', Math.round(c.dEve)+' streams');
+    setM('e2.ppeak', Math.round(c.pEve)+' streams');
+    setM('e2.pwhen', String(Math.floor(c.pw)).padStart(2,'0')+':00 — the night valley');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const c=this.curves();
+    const L=48,R=18,T=20,B=34, pw=W-L-R, ph=H-T-B;
+    const X=h=>L+pw*h/24, Y=v=>T+ph*(1-v/1100);
+    // demand silhouette
+    ctx.fillStyle='rgba(126,147,171,0.13)';
+    ctx.beginPath(); ctx.moveTo(X(0),Y(0));
+    c.pts.forEach(p=>ctx.lineTo(X(p.h),Y(p.D)));
+    ctx.lineTo(X(24),Y(0)); ctx.closePath(); ctx.fill();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('AUDIENCE (SILHOUETTE)', L+6, Y(1000)+2);
+    // axes
+    ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+    ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(W-R,Y(0)); ctx.stroke(); ctx.globalAlpha=1;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    [0,6,12,18,24].forEach(h=>ctx.fillText(String(h).padStart(2,'0')+':00', X(h), H-16));
+    // night fill window shading
+    ctx.fillStyle='rgba(242,169,59,0.07)';
+    ctx.fillRect(X(2),T,X(6)-X(2),ph);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('FILL WINDOW', (X(2)+X(6))/2, T+12);
+    // lines
+    const line=(key,col)=>{
+      ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath();
+      c.pts.forEach((p,i)=>{ i?ctx.lineTo(X(p.h),Y(p[key])):ctx.moveTo(X(p.h),Y(p[key])); });
+      ctx.stroke(); ctx.lineWidth=1;
+    };
+    line('demandFilled', CSS.b);
+    line('preFilled', CSS.a);
+    ctx.fillStyle=CSS.b; ctx.textAlign='left';
+    ctx.fillText('DEMAND-FILLED CDN (BACKBONE)', X(13.2), Y(c.dEve)-8);
+    ctx.fillStyle=CSS.a;
+    ctx.fillText('PRE-FILLED OCA (BACKBONE)', X(6.3), Y(200)-8);
+    // premiere marker
+    ctx.strokeStyle=CSS.fault; ctx.globalAlpha=.5; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(X(20),T); ctx.lineTo(X(20),T+ph); ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha=1;
+    ctx.fillStyle=CSS.fault; ctx.textAlign='center';
+    ctx.fillText('NEW SEASON DROPS 20:00', X(20), T+ph+(-4));
+    // clock sweep
+    const h=(this.t/2)%24;
+    ctx.strokeStyle=CSS.traffic; ctx.globalAlpha=.75;
+    ctx.beginPath(); ctx.moveTo(X(h),T); ctx.lineTo(X(h),T+ph); ctx.stroke(); ctx.globalAlpha=1;
+    if(h>=2&&h<6){ ctx.fillStyle=CSS.traffic; ctx.textAlign='center';
+      ctx.fillText('FILLING…', X(h), T+26); }
+  }
+};
+e2.reset();
+
+/* ================= EXP-03: be the monkey ================= */
+const tPin=document.getElementById('t-pin');
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  rng: mulberry32(31),
+  reset(){ this.t=0; this.next=0.05;
+    this.inst=Array.from({length:24},(_,i)=>({zone:Math.floor(i/8), deadUntil:-1}));
+    this.err=0; this.win=[]; this.pulses=[]; },
+  alive(i){ return this.t>=this.inst[i].deadUntil; },
+  monkey(){ const a=this.inst.map((x,i)=>i).filter(i=>this.alive(i));
+    if(a.length<=1) return;
+    this.inst[a[Math.floor(this.rng()*a.length)]].deadUntil=this.t+15; },
+  gorilla(){ const z=Math.floor(this.rng()*3);
+    this.inst.forEach(x=>{ if(x.zone===z) x.deadUntil=this.t+20; }); },
+  update(dt){
+    this.t+=dt;
+    while(this.t>=this.next){
+      this.next += expRand(this.rng, 1/60);
+      let ok;
+      if(tPin.checked){
+        const i=Math.floor(this.rng()*24);          // pinned: your instance or nothing
+        ok=this.alive(i);
+      } else {
+        const healthy=this.inst.map((x,i)=>i).filter(i=>this.alive(i));
+        ok=healthy.length>0;                        // discovery+retry finds any healthy one
+      }
+      if(!ok){ this.err++; this.pulses.push({u:0}); }
+      this.win.push({t:this.t, ok});
+    }
+    while(this.win.length&&this.win[0].t<this.t-5) this.win.shift();
+    this.pulses=this.pulses.filter(p=>(p.u+=dt/0.6)<1);
+    const av=this.win.length?this.win.filter(w=>w.ok).length/this.win.length:1;
+    setM('e3.avail',(av*100).toFixed(1)+'%');
+    setM('e3.err',this.err);
+    setM('e3.up',this.inst.filter((_,i)=>this.alive(i)).length+'/24');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const zw=W*0.28, gap=W*0.04, x0=W*0.05;
+    for(let z=0;z<3;z++){
+      const zx=x0+z*(zw+gap);
+      ctx.strokeStyle=CSS.line; ctx.setLineDash([4,3]);
+      ctx.strokeRect(zx, 34, zw, H-88);
+      ctx.setLineDash([]);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('ZONE '+String.fromCharCode(65+z), zx+8, 50);
+      for(let k=0;k<8;k++){
+        const i=z*8+k;
+        const ix=zx+18+(k%4)*(zw/4.4), iy=72+Math.floor(k/4)*54;
+        const up=this.alive(i);
+        ctx.strokeStyle=up?CSS.line:CSS.fault;
+        ctx.strokeRect(ix, iy, 34, 26);
+        if(up){
+          ctx.fillStyle='rgba(242,169,59,0.25)';
+          ctx.fillRect(ix+1, iy+1, 32, 24);
+        } else {
+          ctx.fillStyle=CSS.fault; ctx.textAlign='center';
+          ctx.fillText('✕', ix+17, iy+17);
+        }
+      }
+    }
+    // error pulses
+    for(const p of this.pulses){
+      ctx.globalAlpha=1-p.u;
+      ctx.strokeStyle=CSS.fault;
+      ctx.beginPath(); ctx.arc(W*0.5, H-28, 4+p.u*14, 0, 7); ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText(tPin.checked?'MODE: PINNED, NO RETRY — THE 2000s':'MODE: DISCOVERY + RETRY (EUREKA-STYLE)', W*0.5, H-12);
+  }
+};
+e3.reset();
+
+/* charts */
+function drawSeries(cvId, samples, color, capLine){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  if(samples.length<2) return;
+  const L=46,R=14,T=10,B=8, pw=W-L-R, ph=H-T-B;
+  const t1=samples[samples.length-1].t, t0=t1-60;
+  const vmax=Math.max(capLine?capLine*1.3:10, ...samples.map(s=>s.v))*1.1;
+  const X=t=>L+pw*Math.max(0,(t-t0))/60, Y=v=>T+ph*(1-v/vmax);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+  ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(W-R,Y(0)); ctx.stroke(); ctx.globalAlpha=1;
+  if(capLine){
+    ctx.strokeStyle=CSS.fault; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(L,Y(capLine)); ctx.lineTo(W-R,Y(capLine)); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
+  samples.forEach((s,i)=>{ i?ctx.lineTo(X(s.t),Y(s.v)):ctx.moveTo(X(s.t),Y(s.v)); });
+  ctx.stroke(); ctx.lineWidth=1;
+  const last=samples[samples.length-1];
+  ctx.fillStyle=color; ctx.beginPath(); ctx.arc(X(last.t),Y(last.v),3,0,7); ctx.fill();
+  ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  ctx.fillText(String(Math.round(vmax/1.1)), L-6, T+8);
+  ctx.fillText('0', L-6, Y(0)+3);
+}
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+document.querySelector('[data-act="e3-monkey"]').addEventListener('click',()=>e3.monkey());
+document.querySelector('[data-act="e3-gorilla"]').addEventListener('click',()=>e3.gorilla());
+
+let last=performance.now(), acc=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  acc+=dt;
+  if(acc>0.12){
+    acc=0;
+    if(visible.e1) drawSeries('ch-e1', e1.spark, CSS.a, 500);
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ hero.draw(); e1.update(0); e1.draw(); e2.draw(); e3.draw(); }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>
