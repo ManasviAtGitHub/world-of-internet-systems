@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Border — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  canvas.chart{display:block;width:100%;background:var(--panel);border-top:1px solid var(--panel-line)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .legend{display:flex;gap:16px;padding:8px 16px 0;font-size:10.5px;color:var(--panel-muted);letter-spacing:.06em}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · Internet Plumbing · Episode 08</p>
+  <h1>The Border</h1>
+  <p class="dek">The internet is not one network. It's about 78,000 independently-run networks —
+  ISPs, clouds, universities, Facebook — that agree on how to reach a million address blocks
+  by <em>shouting routes at each other and mostly believing what they hear</em>. That protocol
+  is BGP, and its trust model is how one bad command deleted Facebook for six hours, and how
+  one Pakistani ISP accidentally became YouTube for the entire planet.</p>
+  <p class="marginal">Every box below is an autonomous system running real path-vector routing:
+  candidate routes per neighbor, shortest-path selection, longest-prefix forwarding. Amber
+  dots are packets; cyan pulses are route announcements; red means dropped or hijacked.
+  ~78,000 networks are compressed to twelve.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">A prefix is born — the announcement ripples, then traffic flows</span>
+    <span class="exp-run"><button class="btn" data-act="hero-re">RE-ANNOUNCE</button><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:330px" role="img" aria-label="A graph of autonomous systems; a route announcement spreads node to node, each prepending its AS number, then packets flow along the learned paths"></canvas>
+  <div class="exp-metrics">
+    <span>ASes WITH A ROUTE<b data-m="hero.reach">0/12</b></span>
+    <span>PACKETS DELIVERED<b data-m="hero.del">0</b></span>
+    <span>AVG AS-PATH LENGTH<b data-m="hero.path">–</b></span>
+  </div>
+  <figcaption class="exp-note">Watch the cyan wave: the origin tells its neighbors "this
+  prefix lives here," each neighbor <em>prepends its own AS number</em> and repeats it
+  outward — the path stamps itself like a train ticket, and seeing your own number in a path
+  is how loops die. No center, no acknowledgment, no fact-checker. Within seconds every
+  network holds its own private opinion of how to reach the prefix, and packets follow those
+  opinions hop by hop.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The self-healing rumor mill</h2>
+  <p>Because every AS keeps candidate routes from <em>each</em> neighbor and continuously
+  re-selects the best (business policy first, then shortest AS-path), the map heals itself.
+  Cut a cable and withdrawals ripple out; every affected router falls back to its next-best
+  candidate and re-announces. Nobody coordinates. The internet reroutes around damage the
+  way rumor networks survive any one gossip going quiet.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Cut the cable — watch withdrawals ripple and routes heal</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e1-cut">CUT THE ORIGIN'S MAIN LINK</button>
+      <button class="btn danger" data-act="e1-cut2">CUT THE BACKUP TOO</button>
+      <button class="btn" data-act="e1-fix">SPLICE THEM BACK</button>
+      <button class="btn" data-run="e1">PAUSE</button>
+      <button class="btn" data-reset="e1">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-e1" style="height:330px" role="img" aria-label="The same AS graph; cutting a link triggers withdrawal pulses and the routes reconverge around the damage"></canvas>
+  <div class="exp-metrics">
+    <span>ASes WITH A ROUTE<b data-m="e1.reach">0/12</b></span>
+    <span>PACKETS LOST IN TRANSIENT<b class="bad" data-m="e1.lost">0</b></span>
+    <span>DELIVERED<b data-m="e1.del">0</b></span>
+  </div>
+  <figcaption class="exp-note">Cut the main link and the honest result is an anticlimax:
+  the origin is multihomed, every router already holds alternate candidate routes, and the
+  map heals in under a second — watch ISP-2's best path silently swap. That boringness IS
+  the genius half of BGP: <em>autonomy makes healing automatic</em>. Then cut the backup:
+  redundancy is finite, the origin drops off the map entirely, and every packet dies red.
+  The next two experiments are the price of that same autonomy.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>February 24, 2008: Pakistan becomes YouTube</h2>
+  <p>Pakistan Telecom was ordered to block YouTube domestically. Their tool of choice: announce
+  <code>208.65.153.0/24</code> — a more-specific slice of YouTube's
+  <code>208.65.152.0/22</code> — into a blackhole. Their upstream propagated it to the world,
+  and BGP's iron rule did the rest: <strong>longest prefix match beats everything</strong>.
+  A /24 wins over a covering /22 no matter whose path is shorter or whose servers are real.
+  Within minutes, the planet's YouTube traffic poured into Islamabad and vanished. YouTube's
+  counter-move used the very same rule: announce two /25s — sharper than the /24 — and pull
+  the traffic back. The whole duel took about two and a quarter hours, minute-by-minute in
+  RIPE's route collectors.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">The hijack duel — longest prefix is both the attack and the antidote</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e2-hijack">ROGUE ANNOUNCES THE /24</button>
+      <button class="btn primary" data-act="e2-split">VICTIM SPLITS INTO /25s</button>
+      <button class="btn" data-run="e2">PAUSE</button>
+      <button class="btn" data-reset="e2">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-rpki"> RPKI origin validation everywhere (reality: ~67% of routes have ROAs)</label>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:330px" role="img" aria-label="The rogue AS announces a more specific prefix; networks preferring it send their packets into the blackhole, unless RPKI validation drops the forged announcement"></canvas>
+  <div class="exp-metrics">
+    <span>ASes FOOLED<b class="bad" data-m="e2.fooled">0/12</b></span>
+    <span>PACKETS BLACKHOLED<b class="bad" data-m="e2.bh">0</b></span>
+    <span>DELIVERED TO THE REAL ORIGIN<b data-m="e2.del">0</b></span>
+  </div>
+  <figcaption class="exp-note">Press the hijack: no deception required — every router
+  <em>correctly</em> follows longest-match into the blackhole. Then fight back with the /25s
+  and watch the same rule reverse the flow. Now reset, check <em>RPKI</em>, and hijack again:
+  validating borders check the signed record of who may originate the prefix, the forged /24
+  dies at every border it touches — and the lie never leaves the rogue's neighborhood. The
+  fix exists; it's deployed on about two-thirds of the internet's routes and rising.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>October 4, 2021: Facebook erases itself</h2>
+  <p>No attacker this time. A routine maintenance command — meant to <em>measure</em> backbone
+  capacity — disconnected Facebook's entire backbone instead (the audit tool that should have
+  stopped it had a bug). Then a safety mechanism finished the job: Facebook's DNS servers are
+  designed to withdraw their own BGP routes when they can't reach the data centers, so they
+  don't serve stale answers. With the backbone down, <em>all of them</em> concluded they were
+  unhealthy — and withdrew. At 15:58 UTC the prefixes were gone from the global table. The
+  data centers were healthy. The servers were running. And no route on Earth led to them.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">The self-erasure — run the maintenance command</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e3-cmd">RUN THE MAINTENANCE COMMAND</button>
+      <button class="btn primary" data-act="e3-fix">DRIVE TO THE DATACENTER &amp; RESTORE</button>
+      <button class="btn" data-run="e3">PAUSE</button>
+      <button class="btn" data-reset="e3">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-e3" style="height:330px" role="img" aria-label="The origin withdraws its own routes; reachability drains off the map while healthy servers glow inside an unreachable enclosure, and resolver retry load climbs"></canvas>
+  <div class="legend"><span><i style="background:var(--series-b)"></i>DNS RESOLVER LOAD (RETRY STORM, ×NORMAL)</span></div>
+  <canvas class="chart" id="ch-e3" style="height:110px"></canvas>
+  <div class="exp-metrics">
+    <span>ASes THAT CAN REACH FACEBOOK<b data-m="e3.reach">12/12</b></span>
+    <span>SERVERS<b data-m="e3.hp">HEALTHY</b></span>
+    <span>RESOLVER LOAD<b class="bad" data-m="e3.retry">×1.0</b></span>
+    <span>OFFLINE FOR<b data-m="e3.dur">–</b></span>
+  </div>
+  <figcaption class="exp-note">The cruelest detail: the metric row keeps saying
+  <em>SERVERS: HEALTHY</em> the whole time, because they were. Reachability is not a property
+  of your machines — it's a rumor other people's routers hold about you, and Facebook's own
+  automation retracted the rumor. Meanwhile the retry storm hammers resolvers that have
+  nothing to do with Facebook (1.1.1.1 measured 30× query load), and the recovery had to be
+  physical: badge readers and dashboards died with the same network, so engineers drove to
+  the data centers. Six hours, self-inflicted. Keep your recovery tools off your own
+  infrastructure.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What to keep</h2>
+  <p><strong>The internet is a federation, not a network.</strong> BGP's real product is
+  sovereignty: every AS applies its own private commercial policy and reveals nothing about
+  why. That's what let the internet grow without a ruler — and why nobody can simply fix it
+  from the center. Its two catastrophic properties — believe-anything trust and
+  longest-prefix supremacy — are inseparable from its two miraculous ones: no coordinator,
+  and automatic healing. RPKI is the thirty-years-late deed registry being bolted on: signed
+  proof of "who may originate this block," now covering about two-thirds of announced routes
+  — origin validation only, moving at the speed of the slowest incentive.</p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Meta Engineering — <a href="https://engineering.fb.com/2021/10/05/networking-traffic/outage-details/">More details about the October 4 outage</a>, 2021. The first-party root cause: audit-tool bug, DNS withdrawal design, physical recovery.</li>
+    <li>Cloudflare — <a href="https://blog.cloudflare.com/october-2021-facebook-outage/">Understanding How Facebook Disappeared from the Internet</a>, 2021. The outside view: exact prefixes, UTC timeline, the 30× resolver storm.</li>
+    <li>RIPE NCC — <a href="https://www.ripe.net/publications/news/youtube-hijacking-a-ripe-ncc-ris-case-study/">YouTube Hijacking: A RIS case study</a>, 2008. The minute-by-minute route-collector record of the Pakistan incident.</li>
+    <li>Cloudflare — <a href="https://blog.cloudflare.com/rpki/">RPKI and BGP: our path to securing Internet Routing</a>, 2018; and <a href="https://blog.cloudflare.com/rpki-updates-data/">measuring route origin validation</a>.</li>
+    <li>G. Huston — <a href="https://blog.apnic.net/2026/01/08/bgp-in-2025/">BGP in 2025</a>, APNIC, 2026. Table sizes (~1.05M IPv4 routes) and AS counts (~77,900).</li>
+    <li>IETF — <a href="https://datatracker.ietf.org/doc/html/rfc4271">RFC 4271: BGP-4</a>, 2006.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>The Match: Uber's hexagonal marketplace</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+
+/* ================= the AS graph ================= */
+const NODES = [
+  {name:'AS3356',  tag:'TIER-1',   x:.26,y:.13},
+  {name:'AS1299',  tag:'TIER-1',   x:.52,y:.09},
+  {name:'AS7018',  tag:'TIER-1',   x:.78,y:.14},
+  {name:'AS6939',  tag:'TRANSIT',  x:.15,y:.40},
+  {name:'AS9002',  tag:'TRANSIT',  x:.42,y:.37},
+  {name:'AS4837',  tag:'TRANSIT',  x:.66,y:.40},
+  {name:'AS3491',  tag:'PCCW',     x:.88,y:.38},
+  {name:'ISP-1',   tag:'EYEBALL',  x:.08,y:.72},
+  {name:'ISP-2',   tag:'EYEBALL',  x:.30,y:.78},
+  {name:'ISP-3',   tag:'EYEBALL',  x:.52,y:.80},
+  {name:'ORIGIN',  tag:'AS32934',  x:.76,y:.76},
+  {name:'ROGUE',   tag:'AS17557',  x:.94,y:.62},
+];
+const EDGES = [[0,1],[1,2],[0,2],[3,0],[3,1],[4,0],[4,1],[5,1],[5,2],[6,2],[6,1],
+               [7,3],[7,4],[8,4],[8,5],[9,5],[9,4],[10,5],[10,6],[11,6]];
+const ORIGIN=10, ROGUE=11, EYEBALLS=[7,8,9];
+
+class BGPSim {
+  constructor(cfg){
+    this.cfg=cfg;
+    this.cv=document.getElementById(cfg.canvas);
+    this.rng=mulberry32(cfg.seed||3);
+    this.reset();
+  }
+  reset(){
+    this.t=0; this.events=[]; this.pulses=[]; this.packets=[]; this.deadEdges=new Set();
+    this.rpki=false;
+    this.del=0; this.lost=0; this.bh=0; this.nextPkt=0.8;
+    this.retryLoad=1; this.spark=[]; this.lastS=0; this.downAt=NaN; this.upAgainAt=NaN;
+    // per node: cand[prefixKey] = Map(fromId -> path array); best[prefixKey]={path,from}
+    this.nodes=NODES.map(()=>({cand:{}, best:{}}));
+    this.originated={};       // prefixKey -> nodeId
+    this.prefixes=[];         // [{key,len,owner}] sorted by len desc for longest-match
+    this.announceBase();
+  }
+  edgeKey(a,b){ return a<b? a+'-'+b : b+'-'+a; }
+  edgeAlive(a,b){ return !this.deadEdges.has(this.edgeKey(a,b)); }
+  neighbors(id){
+    const out=[];
+    for(const [a,b] of EDGES){
+      if(!this.edgeAlive(a,b)) continue;
+      if(a===id) out.push(b); else if(b===id) out.push(a);
+    }
+    return out;
+  }
+  addPrefix(key,len,owner){
+    if(!this.prefixes.find(p=>p.key===key)){
+      this.prefixes.push({key,len,owner});
+      this.prefixes.sort((a,b)=>b.len-a.len);
+    }
+    this.originated[key]=owner;
+  }
+  announceBase(){
+    const p=this.cfg.basePrefix;
+    this.addPrefix(p.key, p.len, ORIGIN);
+    this.originate(ORIGIN, p.key);
+  }
+  originate(node, key){
+    this.nodes[node].best[key]={path:[node], from:-1};
+    for(const nb of this.neighbors(node)) this.sendUpdate(node, nb, key, [node], false);
+  }
+  unoriginate(node, key){
+    delete this.nodes[node].best[key];
+    for(const nb of this.neighbors(node)) this.sendUpdate(node, nb, key, null, true);
+  }
+  sendUpdate(from, to, key, path, withdraw){
+    const delay=0.30+this.rng()*0.25;
+    this.events.push({at:this.t+delay, from, to, key, path:path?path.slice():null, withdraw});
+    this.pulses.push({from, to, t0:this.t, t1:this.t+delay, bad:withdraw});
+  }
+  process(ev){
+    const n=this.nodes[ev.to];
+    const cand=(n.cand[ev.key] ??= new Map());
+    if(ev.withdraw) cand.delete(ev.from);
+    else {
+      if(ev.path.includes(ev.to)) return;                    // loop
+      if(this.rpki){
+        const originAS=ev.path[ev.path.length-1];
+        const pfx=this.prefixes.find(p=>p.key===ev.key);
+        if(pfx && pfx.roaOwner!==undefined && originAS!==pfx.roaOwner) return;  // RPKI-invalid: drop
+      }
+      cand.set(ev.from, ev.path);
+    }
+    this.reselect(ev.to, ev.key);
+  }
+  reselect(id, key){
+    const n=this.nodes[id];
+    if(this.originated[key]===id && n.best[key]) return;      // originator keeps its own
+    let best=null, from=-1;
+    const cand=n.cand[key];
+    if(cand) for(const [f,p] of cand){
+      if(!this.neighbors(id).includes(f)) continue;
+      if(!best || p.length<best.length || (p.length===best.length && f<from)){ best=p; from=f; }
+    }
+    const old=n.best[key];
+    const changed = (!old && best) || (old && !best) ||
+      (old && best && (old.from!==from || old.path.length!==best.length+1));
+    if(!changed) return;
+    if(best){ n.best[key]={path:[id,...best], from}; }
+    else delete n.best[key];
+    for(const nb of this.neighbors(id)){
+      if(best){
+        // split horizon: never advertise back to the supplier — but DO withdraw
+        // whatever we previously advertised to it, or it keeps a ghost of us
+        if(nb===from) this.sendUpdate(id, nb, key, null, true);
+        else this.sendUpdate(id, nb, key, n.best[key].path, false);
+      } else this.sendUpdate(id, nb, key, null, true);
+    }
+  }
+  dropEdge(a,b){
+    this.deadEdges.add(this.edgeKey(a,b));
+    for(const id of [a,b]){
+      for(const key of Object.keys(this.nodes[id].cand)){
+        this.nodes[id].cand[key].delete(id===a?b:a);
+        this.reselect(id,key);
+      }
+    }
+  }
+  restoreEdge(a,b){
+    this.deadEdges.delete(this.edgeKey(a,b));
+    for(const id of [a,b]){
+      const other=id===a?b:a;
+      for(const key of Object.keys(this.nodes[id].best)){
+        const bst=this.nodes[id].best[key];
+        if(bst) this.sendUpdate(id, other, key, bst.path, false);
+      }
+    }
+  }
+  bestFor(id, wantKeys){        // longest-match among this sim's prefixes
+    for(const p of this.prefixes){
+      if(!wantKeys.includes(p.key)) continue;
+      const b=this.nodes[id].best[p.key];
+      if(b) return {key:p.key, b};
+    }
+    return null;
+  }
+  spawnPacket(){
+    const src=EYEBALLS[Math.floor(this.rng()*3)];
+    this.packets.push({at:src, from:-1, u:0, hops:0, dst:this.cfg.dstKeys});
+  }
+  reachCount(){
+    const key=this.cfg.reachKey;
+    return this.nodes.filter((n,i)=>n.best[key]).length;
+  }
+  update(dt){
+    this.t+=dt;
+    // due events
+    this.events.sort((x,y)=>x.at-y.at);
+    while(this.events.length && this.events[0].at<=this.t) this.process(this.events.shift());
+    this.pulses=this.pulses.filter(p=>this.t<p.t1+0.15);
+    // packets
+    if(this.cfg.packets){
+      this.nextPkt-=dt;
+      if(this.nextPkt<=0){ this.spawnPacket(); this.nextPkt=0.5+this.rng()*0.4; }
+    }
+    for(const pk of this.packets){
+      pk.u+=dt/0.28;
+      if(pk.u>=1){
+        pk.u=0; pk.hops++;
+        if(pk.next!==undefined && !this.edgeAlive(pk.at, pk.next)){   // link died under the packet
+          pk.done='lost'; this.lost++; continue;
+        }
+        const here=pk.next!==undefined?pk.next:pk.at;
+        pk.at=here; pk.next=undefined;
+        const owner=this.originatorAt(here, pk.dst);
+        if(owner==='real'){ pk.done='del'; this.del++; continue; }
+        if(owner==='rogue'){ pk.done='bh'; this.bh++; continue; }
+        const r=this.bestFor(here, pk.dst);
+        if(!r || pk.hops>9){ pk.done='lost'; this.lost++; continue; }
+        pk.next=r.b.from===-1?here:r.b.from;
+        if(pk.next===here){ pk.done='lost'; this.lost++; }
+      }
+    }
+    this.packets=this.packets.filter(pk=>!pk.done || (pk.fade=(pk.fade??1)-dt*2)>0);
+    // retry storm model (e3)
+    if(this.cfg.retryMeter){
+      const frac=1-this.reachCount()/12;
+      this.retryLoad += ((1+29*frac)-this.retryLoad)*dt*0.8;
+      if(this.t-this.lastS>0.25){
+        this.lastS=this.t;
+        this.spark.push({t:this.t,v:this.retryLoad});
+        while(this.spark.length&&this.spark[0].t<this.t-90) this.spark.shift();
+      }
+    }
+    if(this.cfg.onSample) this.cfg.onSample(this);
+  }
+  originatorAt(id, dstKeys){
+    for(const p of this.prefixes){
+      if(!dstKeys.includes(p.key)) continue;
+      // does anyone reachable-from-here originate the best-matching prefix? just check: is this node the originator of the LONGEST matching prefix it has a route for (or originates)?
+      if(this.originated[p.key]===id) return id===ROGUE?'rogue':'real';
+      if(this.nodes[id].best[p.key]) return null;             // has a route for the longest match -> keep forwarding
+    }
+    return null;
+  }
+  pos(i,W,H){ return {x:NODES[i].x*W, y:NODES[i].y*H}; }
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='9.5px ui-monospace, Menlo, monospace';
+    // edges
+    for(const [a,b] of EDGES){
+      const A=this.pos(a,W,H), B=this.pos(b,W,H);
+      const dead=!this.edgeAlive(a,b);
+      ctx.strokeStyle=dead?CSS.fault:CSS.line;
+      ctx.setLineDash(dead?[3,4]:[]);
+      ctx.globalAlpha=dead?0.7:0.55;
+      ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha=1;
+    }
+    // announcement pulses
+    for(const p of this.pulses){
+      const u=Math.min(1,(this.t-p.t0)/(p.t1-p.t0));
+      const A=this.pos(p.from,W,H), B=this.pos(p.to,W,H);
+      ctx.fillStyle=p.bad?CSS.fault:CSS.b;
+      ctx.globalAlpha=.9;
+      ctx.beginPath(); ctx.arc(A.x+(B.x-A.x)*u, A.y+(B.y-A.y)*u, 2.6, 0, 7); ctx.fill();
+      ctx.globalAlpha=1;
+    }
+    // packets
+    for(const pk of this.packets){
+      let x,y;
+      const A=this.pos(pk.at,W,H);
+      if(pk.next!==undefined && !pk.done){
+        const B=this.pos(pk.next,W,H);
+        x=A.x+(B.x-A.x)*pk.u; y=A.y+(B.y-A.y)*pk.u;
+      } else { x=A.x; y=A.y; }
+      ctx.globalAlpha=pk.done?Math.max(0,pk.fade??1):1;
+      ctx.fillStyle= pk.done==='del'?CSS.traffic : pk.done? CSS.fault : CSS.traffic;
+      ctx.beginPath(); ctx.arc(x,y,3.2,0,7); ctx.fill();
+      ctx.globalAlpha=1;
+    }
+    // nodes
+    const reachKey=this.cfg.reachKey;
+    NODES.forEach((nd,i)=>{
+      const P=this.pos(i,W,H);
+      const hasRoute=!!this.nodes[i].best[reachKey];
+      const isO=i===ORIGIN, isR=i===ROGUE;
+      ctx.strokeStyle= isR?CSS.fault : isO?CSS.traffic : hasRoute?CSS.line:'#1B2836';
+      ctx.setLineDash(hasRoute||isO||isR?[]:[3,3]);
+      ctx.strokeRect(P.x-28,P.y-12,56,24);
+      ctx.setLineDash([]);
+      ctx.fillStyle= isR?CSS.fault : isO?CSS.traffic : hasRoute?CSS.muted:'#42556B';
+      ctx.textAlign='center';
+      ctx.fillText(nd.name, P.x, P.y+3);
+      ctx.fillStyle= isR?CSS.fault : '#5E7186';
+      ctx.fillText(nd.tag, P.x, P.y+22);
+    });
+    // AS-path stamp of ISP-2's current best (the train ticket)
+    const b=this.nodes[8].best[reachKey];
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('ISP-2 BEST PATH: '+(b? '['+b.path.map(i=>NODES[i].name.replace('AS','')).join(' → ')+']' : '— NO ROUTE —'), 14, H-12);
+    if(this.cfg.drawExtra) this.cfg.drawExtra(this, ctx, W, H);
+  }
+}
+
+/* ================= instances ================= */
+const heroSim=new BGPSim({canvas:'c-hero', seed:5, packets:true,
+  basePrefix:{key:'157.240.0.0/22', len:22},
+  dstKeys:['157.240.0.0/22'], reachKey:'157.240.0.0/22',
+  onSample(s){ setM('hero.reach', s.reachCount()+'/12'); setM('hero.del', s.del);
+    const lens=s.nodes.map(n=>n.best['157.240.0.0/22']).filter(Boolean).map(b=>b.path.length);
+    setM('hero.path', lens.length? (lens.reduce((a,b)=>a+b,0)/lens.length-1).toFixed(1)+' hops':'–'); }});
+
+const e1Sim=new BGPSim({canvas:'c-e1', seed:11, packets:true,
+  basePrefix:{key:'203.0.113.0/22', len:22},
+  dstKeys:['203.0.113.0/22'], reachKey:'203.0.113.0/22',
+  onSample(s){ setM('e1.reach', s.reachCount()+'/12'); setM('e1.lost', s.lost); setM('e1.del', s.del); }});
+
+const e2Sim=new BGPSim({canvas:'c-e2', seed:17, packets:true,
+  basePrefix:{key:'208.65.152.0/22', len:22},
+  dstKeys:['208.65.153.0/25a','208.65.153.0/25b','208.65.153.0/24','208.65.152.0/22'],
+  reachKey:'208.65.152.0/22',
+  onSample(s){
+    // fooled = ASes whose longest-match best leads to the rogue
+    let fooled=0;
+    for(let i=0;i<12;i++){
+      if(i===ORIGIN||i===ROGUE) continue;
+      const r=s.bestFor(i, s.cfg.dstKeys);
+      if(r && s.originated[r.key]===ROGUE) fooled++;
+    }
+    setM('e2.fooled', fooled+'/12');
+    setM('e2.bh', s.bh); setM('e2.del', s.del);
+  }});
+// ROA: the whole 208.65.152.0/22 space belongs to ORIGIN
+e2Sim.prefixes[0].roaOwner=ORIGIN;
+
+const e3Sim=new BGPSim({canvas:'c-e3', seed:23, packets:true, retryMeter:true,
+  basePrefix:{key:'129.134.30.0/23', len:23},
+  dstKeys:['129.134.30.0/23'], reachKey:'129.134.30.0/23',
+  onSample(s){
+    const r=s.reachCount();
+    setM('e3.reach', r+'/12');
+    setM('e3.hp','HEALTHY');
+    setM('e3.retry','×'+s.retryLoad.toFixed(1));
+    if(!isNaN(s.downAt)){
+      const end=isNaN(s.upAgainAt)? s.t : s.upAgainAt;
+      setM('e3.dur', (end-s.downAt).toFixed(0)+'s (real life: ~6 hours)');
+    }
+  },
+  drawExtra(s,ctx,W,H){
+    if(s.reachCount()<=1){
+      const P=s.pos(ORIGIN,W,H);
+      ctx.strokeStyle=CSS.traffic;
+      ctx.strokeRect(P.x-44,P.y-28,88,56);
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='center';
+      ctx.fillText('SERVERS: HEALTHY', P.x, P.y-34);
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('NO ROAD LEADS HERE', P.x, P.y+42);
+    }
+  }});
+
+/* buttons */
+const act=(name,fn)=>document.querySelector(`[data-act="${name}"]`).addEventListener('click',fn);
+act('hero-re', ()=>{ heroSim.reset(); });
+act('e1-cut', ()=>{ e1Sim.dropEdge(10,5); });
+act('e1-cut2', ()=>{ e1Sim.dropEdge(10,6); });
+act('e1-fix', ()=>{
+  if(e1Sim.deadEdges.has(e1Sim.edgeKey(10,5))) e1Sim.restoreEdge(10,5);
+  if(e1Sim.deadEdges.has(e1Sim.edgeKey(10,6))) e1Sim.restoreEdge(10,6);
+});
+act('e2-hijack', ()=>{
+  e2Sim.addPrefix('208.65.153.0/24', 24, ROGUE);
+  e2Sim.prefixes.find(p=>p.key==='208.65.153.0/24').roaOwner=ORIGIN;  // forged origin -> RPKI-invalid
+  e2Sim.originate(ROGUE, '208.65.153.0/24');
+});
+act('e2-split', ()=>{
+  for(const k of ['208.65.153.0/25a','208.65.153.0/25b']){
+    e2Sim.addPrefix(k, 25, ORIGIN);
+    e2Sim.prefixes.find(p=>p.key===k).roaOwner=ORIGIN;
+    e2Sim.originate(ORIGIN, k);
+  }
+});
+document.getElementById('t-rpki').addEventListener('change',e=>{ e2Sim.rpki=e.target.checked; });
+act('e3-cmd', ()=>{ if(isNaN(e3Sim.downAt)){ e3Sim.downAt=e3Sim.t; e3Sim.upAgainAt=NaN; }
+  e3Sim.unoriginate(ORIGIN,'129.134.30.0/23'); });
+act('e3-fix', ()=>{ if(!isNaN(e3Sim.downAt)&&isNaN(e3Sim.upAgainAt)) e3Sim.upAgainAt=e3Sim.t;
+  e3Sim.originate(ORIGIN,'129.134.30.0/23'); });
+
+/* rpki toggle should survive reset via checkbox state */
+const tRpki=document.getElementById('t-rpki');
+
+/* chart */
+function drawRetry(cvId, samples){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  if(samples.length<2) return;
+  const L=40,R=14,T=10,B=8, pw=W-L-R, ph=H-T-B;
+  const t1=samples[samples.length-1].t, t0=t1-90;
+  const vmax=32;
+  const X=t=>L+pw*Math.max(0,(t-t0))/90, Y=v=>T+ph*(1-v/vmax);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+  [1,30].forEach(v=>{ ctx.beginPath(); ctx.moveTo(L,Y(v)); ctx.lineTo(W-R,Y(v)); ctx.stroke(); });
+  ctx.globalAlpha=1;
+  ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  ctx.fillText('×30', L-6, Y(30)+3); ctx.fillText('×1', L-6, Y(1)+3);
+  ctx.strokeStyle=CSS.b; ctx.lineWidth=2; ctx.beginPath();
+  samples.forEach((s,i)=>{ i?ctx.lineTo(X(s.t),Y(s.v)):ctx.moveTo(X(s.t),Y(s.v)); });
+  ctx.stroke(); ctx.lineWidth=1;
+}
+
+/* ---------- wiring ---------- */
+const sims={hero:heroSim,e1:e1Sim,e2:e2Sim,e3:e3Sim}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>{ sims[name].reset(); if(name==='e2') sims.e2.rpki=tRpki.checked; });
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now(), acc=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  acc+=dt;
+  if(acc>0.12){ acc=0; if(visible.e3) drawRetry('ch-e3', e3Sim.spark); }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims) sims[k].draw(); }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

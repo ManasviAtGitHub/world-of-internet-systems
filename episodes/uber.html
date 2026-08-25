@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Match — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:52px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  canvas.chart{display:block;width:100%;background:var(--panel);border-top:1px solid var(--panel-line)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .legend{display:flex;gap:16px;padding:8px 16px 0;font-size:10.5px;color:var(--panel-muted);letter-spacing:.06em}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Flagships · Episode 09</p>
+  <h1>The Match</h1>
+  <p class="dek">Uber turned "where is everyone right now?" into a data-structure problem.
+  Every driver's phone reports its position about every four seconds — a design target of a
+  million location writes per second by 2015 — and the marketplace answers with a match in
+  moments, roughly 33 million times a day. The machinery: index the planet as hexagons,
+  batch the matching, and let the price itself be a feedback controller, computed cell by
+  cell on the same grid.</p>
+  <p class="marginal">Amber dots are drivers; cyan dots are riders waiting. The hexagons are
+  the real idea — Uber's open-source H3 grid — and every experiment below runs on genuinely
+  simulated movement and matching, scaled to one small city.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">Dispatch in one shot — request, k-ring, candidates, match</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:300px" role="img" aria-label="A city under a hexagonal grid; when a rider appears, the surrounding ring of hexes lights up, nearby drivers are ranked, and the best one drives over"></canvas>
+  <div class="exp-metrics">
+    <span>TRIPS COMPLETED<b data-m="hero.trips">0</b></span>
+    <span>AVG PICKUP TIME<b data-m="hero.eta">–</b></span>
+    <span>DRIVERS<b data-m="hero.drv">14</b></span>
+  </div>
+  <figcaption class="exp-note">Watch a request land: the <em>k-ring</em> of hexes around the
+  rider lights up, only the drivers inside it are considered, and the nearest takes the job.
+  In production the ranking uses road-network ETA, not straight lines — DISCO will even match
+  you with a driver who is still on a trip but about to finish around the corner.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Why hexagons, and why an index at all</h2>
+  <p>H3 projects the Earth onto an icosahedron and tiles it with hexagons at sixteen
+  resolutions — each cell splitting into ~7 children, 122 base cells, and the twelve
+  unavoidable pentagons parked in oceans. Hexagons because they have exactly <em>one</em>
+  neighbor distance (squares have two, triangles three), which makes "look at my
+  neighborhood" a clean, uniform operation for everything from dispatch to pricing.</p>
+  <p>But the deeper point is what any spatial index buys. "Find drivers near this rider" has
+  a naive implementation: check every driver in the city. The index implementation checks
+  one ring of cells. The experiment below runs both against the same city and counts the
+  work.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Scan the city vs ask the hexes — work per request</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-n">Drivers in the city</label>
+      <input type="range" id="r-n" min="200" max="5000" value="1000" step="200">
+      <output data-m="e1.n">1000</output></span>
+    <span>MATCHER BUDGET: 100,000 DISTANCE CHECKS/s</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:260px" role="img" aria-label="Split view: on the left every driver in the city flashes for each request; on the right only the ring of hexes around the rider lights up"></canvas>
+  <div class="exp-metrics">
+    <span>NAIVE — CHECKS/REQUEST<b class="bad" data-m="e1.naive">–</b></span>
+    <span>HEX INDEX — CHECKS/REQUEST<b data-m="e1.hex">–</b></span>
+    <span>MATCHER CAPACITY — NAIVE<b data-m="e1.capn">–</b></span>
+    <span>WITH THE INDEX<b data-m="e1.caph">–</b></span>
+  </div>
+  <figcaption class="exp-note">Drag to 5,000 drivers: the naive matcher burns 5,000 checks per
+  request and its budget caps out at <em>20 requests a second</em> — for one modest city.
+  The hex index checks ~35 and handles thousands. The index's cost barely notices city size,
+  because "nearby" is a property of the grid, not of the fleet. This is the whole reason
+  geospatial indexes exist — and why Uber runs analytics, surge, and dispatch on one shared
+  grid.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The two-second pause that shortens every ride</h2>
+  <p>Greedy dispatch — assign each rider instantly to the nearest idle driver — feels
+  optimal and isn't. The rider who requests first grabs a driver that the rider two blocks
+  away needed far more, and the city pays for the myopia in extra driving. Uber's DISCO
+  treats dispatch as a continuously re-solved optimization — Matt Ranney described it as a
+  rolling traveling-salesman problem across the city. The simplest version of that idea:
+  <strong>wait a beat, then match the pool</strong>. Both cities below receive identical
+  riders; one matches instantly, the other holds a two-second batch and assigns the pool
+  globally.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Greedy vs batched matching — identical cities, identical riders</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="Two identical cities side by side; the left assigns each rider instantly to the nearest driver, the right pools riders for two seconds and assigns globally"></canvas>
+  <div class="exp-metrics">
+    <span>AVG PICKUP DISTANCE — GREEDY<b class="bad" data-m="e2.gavg">–</b></span>
+    <span>BATCHED<b data-m="e2.bavg">–</b></span>
+    <span>BATCH ADVANTAGE<b data-m="e2.adv">–</b></span>
+    <span>TRIPS — G/B<b data-m="e2.trips">0/0</b></span>
+  </div>
+  <figcaption class="exp-note">Let it run a minute: the batched city's average pickup distance
+  settles measurably below the greedy city's — same riders, same drivers, same physics. The
+  honest price is the pause itself: up to two seconds of added wait before an offer, spent
+  buying a globally better assignment. Every ride-hail and food-delivery dispatcher converged
+  on some version of this trade.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Surge: the thermostat on the grid</h2>
+  <p>When a concert lets out, one neighborhood suddenly holds a hundred riders and four
+  idle drivers. No matching cleverness fixes a supply deficit. Uber's answer is computed on
+  the same hexagons: the demand/supply ratio per cell sets a price multiplier, which does two
+  things at once — some riders wait or walk (demand tempered), and idle drivers across town
+  see the hot cells and drift toward them (supply summoned). Whether surge is <em>fair</em>
+  is a policy debate; what the simulation can show is what it does to the queue.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">The concert lets out — with and without the thermostat</span>
+    <span class="exp-run">
+      <button class="btn primary" data-act="e3-burst">THE CONCERT ENDS</button>
+      <button class="btn" data-run="e3">PAUSE</button>
+      <button class="btn" data-reset="e3">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-surge" checked> surge pricing (per-hex multiplier)</label>
+    <span>MODEL: EACH +1.0× PRICES OUT ~25% OF RIDERS · IDLE DRIVERS DRIFT TOWARD CELLS ABOVE 1.3×</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:300px" role="img" aria-label="A city with a hex heat map; a demand burst in one corner heats the cells, and with surge on, drivers drift toward the heat while some riders decline"></canvas>
+  <div class="legend"><span><i style="background:var(--series-a)"></i>RIDERS WAITING</span></div>
+  <canvas class="chart" id="ch-e3" style="height:110px"></canvas>
+  <div class="exp-metrics">
+    <span>WAITING NOW<b data-m="e3.wait">0</b></span>
+    <span>PEAK MULTIPLIER<b data-m="e3.surge">1.0×</b></span>
+    <span>PRICED OUT<b class="bad" data-m="e3.priced">0</b></span>
+    <span>AVG WAIT ·30s<b data-m="e3.avgw">–</b></span>
+  </div>
+  <figcaption class="exp-note">Run the burst twice — once with the toggle off, once on, reset
+  between. Off: the queue spikes and grinds down slowly on whatever drivers happen to free up
+  nearby. On: the hot hexes glow, the multiplier climbs, a quarter of would-be riders don't
+  join the queue, and drivers visibly migrate — the backlog drains in a fraction of the time.
+  The chart is the argument: surge is a controller, and the queue is what it controls. The
+  cost is printed in the metrics too: <em>priced out</em> counts real people who didn't ride.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What holds it up underneath</h2>
+  <p>The dispatch engine itself is sharded with the same trick this series keeps meeting:
+  a consistent-hash ring. Uber's Ringpop nodes gossip membership (SWIM) and divide the city's
+  work; any node can take any request and forward it to the owner. Trip state outlived a 2014
+  Postgres crisis via Schemaless — an append-only sharded-MySQL store later evolved into
+  Docstore (Raft-replicated partitions, tens of millions of QPS) — and the 2021 fulfillment
+  rewrite moved live trips onto Spanner. The wildest resilience trick: for datacenter
+  failover, dispatch periodically ships an encrypted state digest to <em>driver phones</em>;
+  if a datacenter dies, the fleet of phones uploads the digests to the survivor and
+  reconstructs every in-progress trip. A million phones as the backup datastore.</p>
+  <p>The keeper pattern: <strong>put everything on one grid.</strong> Supply, demand, ETAs,
+  and price all speak hexagon — so "nearby," "busy," and "expensive" are the same cheap
+  lookup, and the marketplace can think about the city the way the city actually works:
+  locally.</p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Uber Engineering — <a href="https://www.uber.com/blog/h3/">H3: Uber's Hexagonal Hierarchical Spatial Index</a>, 2018; and <a href="https://h3geo.org/docs/">h3geo.org documentation</a>.</li>
+    <li>M. Ranney — <a href="https://www.infoq.com/presentations/uber-market-platform/">Scaling Uber's Real-time Market Platform</a>, QCon 2015; writeup at <a href="https://highscalability.com/how-uber-scales-their-real-time-market-platform/">HighScalability</a> (DISCO, supply/demand services, the 1M writes/sec target, phones as failover store).</li>
+    <li>Uber Engineering — <a href="https://www.uber.com/blog/ringpop-open-source-nodejs-library/">Ringpop</a>, 2015; <a href="https://www.uber.com/blog/schemaless-part-one-mysql-datastore/">Designing Schemaless</a>, 2016; <a href="https://www.uber.com/blog/schemaless-sql-database/">Evolving Schemaless into Docstore</a>, 2021; <a href="https://www.uber.com/blog/fulfillment-platform-rearchitecture/">the fulfillment re-architecture</a>, 2021.</li>
+    <li>Uber — <a href="https://www.uber.com/us/en/marketplace/pricing/surge-pricing/">official surge pricing mechanics</a>; and the Q4 2024 <a href="https://www.sec.gov/Archives/edgar/data/1543151/000154315125000004/uberq424earningspressrelea.htm">earnings release</a> (~33M trips/day).</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>The Index: how Google reads the whole web</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const fmtS = s => !isFinite(s) ? '–' : (s < 9.95 ? s.toFixed(1)+'s' : Math.round(s)+'s');
+
+/* ---------- hex grid helpers (flat-top axial) ---------- */
+const HEX=27;
+function hexAt(x,y){ // pixel -> axial rounded
+  const q=(2/3*x)/HEX, r=(-1/3*x+Math.sqrt(3)/3*y)/HEX;
+  let rq=Math.round(q), rr=Math.round(r), rs=Math.round(-q-r);
+  const dq=Math.abs(rq-q), dr=Math.abs(rr-r), ds=Math.abs(rs-(-q-r));
+  if(dq>dr&&dq>ds) rq=-rr-rs; else if(dr>ds) rr=-rq-rs;
+  return rq+','+rr;
+}
+function hexCenter(key){
+  const [q,r]=key.split(',').map(Number);
+  return {x:HEX*1.5*q, y:HEX*Math.sqrt(3)*(r+q/2)};
+}
+function hexRing(key){
+  const [q,r]=key.split(',').map(Number);
+  const out=[key];
+  [[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]].forEach(([dq,dr])=>out.push((q+dq)+','+(r+dr)));
+  return out;
+}
+function drawHex(ctx,cx,cy,s){
+  ctx.beginPath();
+  for(let i=0;i<6;i++){
+    const a=Math.PI/3*i;
+    const x=cx+s*Math.cos(a), y=cy+s*Math.sin(a);
+    i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+  }
+  ctx.closePath();
+}
+function drawGrid(ctx,W,H,alpha){
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=alpha;
+  for(let q=-1;q<W/(HEX*1.5)+1;q++){
+    for(let r=-q/2-1;r<H/(HEX*Math.sqrt(3))-q/2+1;r++){
+      const c=hexCenter(Math.round(q)+','+Math.round(r));
+      if(c.x<-HEX||c.x>W+HEX||c.y<-HEX||c.y>H+HEX) continue;
+      drawHex(ctx,c.x,c.y,HEX); ctx.stroke();
+    }
+  }
+  ctx.globalAlpha=1;
+}
+
+/* ---------- city engine ---------- */
+class City {
+  constructor(seed, nDrivers, W, H){
+    this.rng=mulberry32(seed);
+    this.W=W; this.H=H;
+    this.drivers=Array.from({length:nDrivers},()=>({
+      x:this.rng()*W, y:this.rng()*H, state:'idle', tx:0,ty:0, rider:null}));
+    this.riders=[]; this.trips=0; this.pickSum=0; this.pickN=0;
+    this.waitDone=[];  // {t, wait}
+  }
+  spawnRider(t,x,y){ this.riders.push({x,y,at:t,state:'waiting'}); }
+  idleDrivers(){ return this.drivers.filter(d=>d.state==='idle'); }
+  assign(d, rider, t){
+    d.state='toRider'; d.rider=rider; d.tx=rider.x; d.ty=rider.y;
+    rider.state='assigned';
+    const dist=Math.hypot(d.x-rider.x, d.y-rider.y);
+    this.pickSum+=dist; this.pickN++;
+  }
+  step(dt, t, speed){
+    for(const d of this.drivers){
+      if(d.state==='idle') continue;
+      const dx=d.tx-d.x, dy=d.ty-d.y, dist=Math.hypot(dx,dy);
+      const mv=speed*dt;
+      if(dist<=mv){
+        d.x=d.tx; d.y=d.ty;
+        if(d.state==='toRider'){
+          this.waitDone.push({t, wait:t-d.rider.at});
+          this.riders=this.riders.filter(r=>r!==d.rider);
+          d.rider=null; d.state='onTrip';
+          d.tx=this.rng()*this.W; d.ty=this.rng()*this.H;
+        } else { d.state='idle'; this.trips++; }
+      } else { d.x+=dx/dist*mv; d.y+=dy/dist*mv; }
+    }
+    while(this.waitDone.length && this.waitDone[0].t<t-30) this.waitDone.shift();
+  }
+  avgPick(){ return this.pickN? this.pickSum/this.pickN : NaN; }
+  avgWait(){ const w=this.waitDone; return w.length? w.reduce((a,b)=>a+b.wait,0)/w.length : NaN; }
+  draw(ctx, ox, t){
+    for(const d of this.drivers){
+      ctx.fillStyle = d.state==='idle'? CSS.traffic : d.state==='toRider'? CSS.ink : '#6E5A2E';
+      ctx.beginPath(); ctx.arc(ox+d.x, d.y, 3, 0, 7); ctx.fill();
+    }
+    for(const r of this.riders){
+      ctx.fillStyle = CSS.b;
+      ctx.beginPath(); ctx.arc(ox+r.x, r.y, 3.2, 0, 7); ctx.fill();
+      if(r.state==='waiting' && t-r.at>6){
+        ctx.strokeStyle=CSS.fault; ctx.globalAlpha=.7;
+        ctx.beginPath(); ctx.arc(ox+r.x, r.y, 6, 0, 7); ctx.stroke(); ctx.globalAlpha=1;
+      }
+    }
+  }
+}
+
+/* ================= HERO: dispatch in one shot ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  reset(){
+    const {W,H}=fitCanvas(this.cv);
+    this.city=new City(7, 14, W||800, H||300);
+    this.t=0; this.next=1; this.flash=null;
+  },
+  update(dt){
+    this.t+=dt;
+    const c=this.city;
+    this.next-=dt;
+    if(this.next<=0){
+      this.next=1.4+c.rng()*1.2;
+      const x=c.rng()*c.W, y=c.rng()*c.H;
+      c.spawnRider(this.t,x,y);
+      this.flash={key:hexAt(x,y), t0:this.t};
+    }
+    // greedy nearest assignment
+    for(const r of c.riders){
+      if(r.state!=='waiting') continue;
+      let best=null,bd=1e9;
+      for(const d of c.idleDrivers()){
+        const dd=Math.hypot(d.x-r.x,d.y-r.y);
+        if(dd<bd){bd=dd;best=d;}
+      }
+      if(best) c.assign(best,r,this.t);
+    }
+    c.step(dt,this.t,95);
+    setM('hero.trips',c.trips);
+    setM('hero.eta', fmtS(c.avgWait()));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    drawGrid(ctx,W,H,0.22);
+    if(this.flash && this.t-this.flash.t0<1.1){
+      ctx.fillStyle=CSS.traffic; ctx.globalAlpha=0.13*(1-(this.t-this.flash.t0)/1.1);
+      for(const k of hexRing(this.flash.key)){
+        const c=hexCenter(k); drawHex(ctx,c.x,c.y,HEX); ctx.fill();
+      }
+      ctx.globalAlpha=1;
+    }
+    this.city.draw(ctx,0,this.t);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('AMBER = DRIVER (DIM = ON TRIP) · CYAN = RIDER · RING = K-RING QUERY', 12, H-10);
+  }
+};
+
+/* ================= EXP-01: scan vs index ================= */
+const rN=document.getElementById('r-n');
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){
+    const {W,H}=fitCanvas(this.cv);
+    this.W=W||800; this.H=H||260;
+    this.rng=mulberry32(21);
+    this.pts=Array.from({length:260},()=>({x:this.rng()*(this.W/2-30)+10, y:this.rng()*(this.H-50)+16}));
+    this.t=0; this.next=1; this.flashT=-9; this.rider=null;
+  },
+  update(dt){
+    this.t+=dt; this.next-=dt;
+    if(this.next<=0){
+      this.next=1.6;
+      this.rider={x:this.rng()*(this.W/2-80)+40, y:this.rng()*(this.H-90)+30};
+      this.flashT=this.t;
+    }
+    const N=+rN.value;
+    // hexChecks: expected drivers in a k-ring of 7 cells. The drawn grid is one H3
+    // resolution coarser than the index actually queries (x12 finer cell count),
+    // matching how H3 zooms: analytics coarse, dispatch fine.
+    const cells=(this.W/2*this.H)/(2.598*HEX*HEX)*12;
+    const hexChecks=Math.max(3, Math.round(N*7/cells));
+    setM('e1.n', N);
+    setM('e1.naive', N+' checks');
+    setM('e1.hex', hexChecks+' checks');
+    setM('e1.capn', Math.round(100000/N)+' req/s');
+    setM('e1.caph', Math.round(100000/hexChecks).toLocaleString('en-US')+' req/s');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    this.W=W; this.H=H;
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2,10); ctx.lineTo(W/2,H-10); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('NAIVE — CHECK EVERY DRIVER', W*0.25, 16);
+    ctx.fillText('H3 — CHECK THE K-RING', W*0.75, 16);
+    const flash=this.t-this.flashT<0.8;
+    // left: all points flash on request
+    for(const p of this.pts){
+      ctx.fillStyle= flash? CSS.fault : CSS.traffic;
+      ctx.globalAlpha= flash? 0.9 : 0.5;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2.2, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    // right: same points shifted; only k-ring highlighted
+    ctx.save(); ctx.beginPath(); ctx.rect(W/2,0,W/2,H); ctx.clip();
+    ctx.translate(W/2,0);
+    drawGrid(ctx,W/2,H,0.22);
+    let ring=null;
+    if(this.rider) ring=new Set(hexRing(hexAt(this.rider.x,this.rider.y)));
+    for(const p of this.pts){
+      const inRing = ring && ring.has(hexAt(p.x,p.y));
+      ctx.fillStyle= inRing&&flash? CSS.fault : CSS.traffic;
+      ctx.globalAlpha= inRing&&flash? 0.95 : 0.5;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2.2, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    if(this.rider && flash){
+      ctx.fillStyle=CSS.traffic; ctx.globalAlpha=0.15;
+      for(const k of ring){ const c=hexCenter(k); drawHex(ctx,c.x,c.y,HEX); ctx.fill(); }
+      ctx.globalAlpha=1;
+    }
+    ctx.restore();
+    // rider markers
+    if(this.rider){
+      for(const ox of [0, W/2]){
+        ctx.fillStyle=CSS.b;
+        ctx.beginPath(); ctx.arc(ox+this.rider.x, this.rider.y, 4, 0, 7); ctx.fill();
+      }
+    }
+  }
+};
+
+/* ================= EXP-02: greedy vs batch ================= */
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){
+    const {W,H}=fitCanvas(this.cv);
+    const w=(W||800)/2-10, h=(H||280)-40;
+    this.w=w; this.h=h;
+    this.g=new City(31, 13, w, h);
+    this.b=new City(31, 13, w, h);   // same seed => identical layout
+    this.arr=mulberry32(77);
+    this.t=0; this.next=0.6; this.batchAt=2;
+  },
+  update(dt){
+    this.t+=dt;
+    while(this.t>=this.next){
+      this.next += expRand(this.arr, 1/1.5);
+      const x=this.arr()*this.w, y=this.arr()*this.h;
+      this.g.spawnRider(this.t,x,y);
+      this.b.spawnRider(this.t,x,y);
+    }
+    // greedy: instant nearest
+    for(const r of this.g.riders){
+      if(r.state!=='waiting') continue;
+      let best=null,bd=1e9;
+      for(const d of this.g.idleDrivers()){
+        const dd=Math.hypot(d.x-r.x,d.y-r.y);
+        if(dd<bd){bd=dd;best=d;}
+      }
+      if(best) this.g.assign(best,r,this.t);
+    }
+    // batch: every 2s, global pool assignment by ascending pair distance
+    if(this.t>=this.batchAt){
+      this.batchAt+=2;
+      const rs=this.b.riders.filter(r=>r.state==='waiting');
+      const ds=this.b.idleDrivers();
+      const pairs=[];
+      rs.forEach((r,ri)=>ds.forEach((d,di)=>pairs.push({ri,di,dd:Math.hypot(d.x-r.x,d.y-r.y)})));
+      pairs.sort((a,b)=>a.dd-b.dd);
+      const ur=new Set(), ud=new Set();
+      for(const p of pairs){
+        if(ur.has(p.ri)||ud.has(p.di)) continue;
+        ur.add(p.ri); ud.add(p.di);
+        this.b.assign(ds[p.di], rs[p.ri], this.t);
+      }
+    }
+    this.g.step(dt,this.t,95); this.b.step(dt,this.t,95);
+    const ga=this.g.avgPick(), ba=this.b.avgPick();
+    setM('e2.gavg', isFinite(ga)? Math.round(ga)+' px':'–');
+    setM('e2.bavg', isFinite(ba)? Math.round(ba)+' px':'–');
+    setM('e2.adv', (isFinite(ga)&&isFinite(ba))? Math.round((1-ba/ga)*100)+'% shorter':'–');
+    setM('e2.trips', this.g.trips+'/'+this.b.trips);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2,10); ctx.lineTo(W/2,H-10); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('GREEDY — MATCH INSTANTLY', W*0.25, 18);
+    ctx.fillText('BATCHED — POOL FOR 2s, MATCH GLOBALLY', W*0.75, 18);
+    ctx.save(); ctx.translate(6,30); this.g.draw(ctx,0,this.t); ctx.restore();
+    ctx.save(); ctx.translate(W/2+6,30); this.b.draw(ctx,0,this.t); ctx.restore();
+  }
+};
+
+/* ================= EXP-03: surge ================= */
+const tSurge=document.getElementById('t-surge');
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){
+    const {W,H}=fitCanvas(this.cv);
+    this.W=W||800; this.H=(H||300);
+    this.city=new City(41, 18, this.W, this.H-30);
+    this.arr=mulberry32(97);
+    this.t=0; this.next=0.8;
+    this.burstUntil=-1; this.zone={x:this.W*0.78, y:(this.H-30)*0.3};
+    this.priced=0; this.peakM=1;
+    this.spark=[]; this.lastS=0;
+  },
+  burst(){ this.burstUntil=this.t+18; },
+  zoneCells(){ return new Set(hexRing(hexAt(this.zone.x,this.zone.y)).flatMap(k=>hexRing(k))); },
+  multiplier(){
+    const cells=this.zoneCells();
+    const waiting=this.city.riders.filter(r=>r.state==='waiting'&&cells.has(hexAt(r.x,r.y))).length;
+    const idleNear=this.city.drivers.filter(d=>d.state==='idle'&&cells.has(hexAt(d.x,d.y))).length;
+    return Math.min(3, Math.max(1, 1 + (waiting-idleNear)/6 ));
+  },
+  update(dt){
+    this.t+=dt;
+    const c=this.city;
+    const m=tSurge.checked? this.multiplier() : 1;
+    this.peakM=Math.max(this.peakM, m);
+    // arrivals: baseline + burst zone
+    while(this.t>=this.next){
+      this.next += expRand(this.arr, 1/(this.t<this.burstUntil? 6.5 : 0.9));
+      let x,y;
+      if(this.t<this.burstUntil && this.arr()<0.8){
+        x=this.zone.x+(this.arr()-0.5)*120; y=this.zone.y+(this.arr()-0.5)*100;
+        x=Math.max(6,Math.min(this.W-6,x)); y=Math.max(6,Math.min(this.H-36,y));
+        // surge tempering: 25% priced out per +1.0x
+        if(tSurge.checked && this.arr() < (m-1)*0.25){ this.priced++; continue; }
+      } else { x=this.arr()*this.W; y=this.arr()*(this.H-30); }
+      c.spawnRider(this.t,x,y);
+    }
+    // matching: nearest idle (greedy is fine here)
+    for(const r of c.riders){
+      if(r.state!=='waiting') continue;
+      let best=null,bd=1e9;
+      for(const d of c.idleDrivers()){
+        const dd=Math.hypot(d.x-r.x,d.y-r.y);
+        if(dd<bd){bd=dd;best=d;}
+      }
+      if(best) c.assign(best,r,this.t);
+    }
+    // surge drift: idle drivers move toward the hot zone
+    if(tSurge.checked && m>1.3){
+      for(const d of c.idleDrivers()){
+        const dx=this.zone.x-d.x, dy=this.zone.y-d.y, dist=Math.hypot(dx,dy);
+        if(dist>50){ d.x+=dx/dist*55*dt; d.y+=dy/dist*55*dt; }
+      }
+    }
+    c.step(dt,this.t,95);
+    if(this.t-this.lastS>0.25){
+      this.lastS=this.t;
+      const w=c.riders.filter(r=>r.state==='waiting').length;
+      this.spark.push({t:this.t,v:w});
+      while(this.spark.length&&this.spark[0].t<this.t-60) this.spark.shift();
+      setM('e3.wait', w);
+      setM('e3.surge', this.peakM.toFixed(1)+'×');
+      setM('e3.priced', this.priced);
+      setM('e3.avgw', fmtS(c.avgWait()));
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    drawGrid(ctx,W,H-30,0.18);
+    // heat: color zone cells by multiplier
+    const m=tSurge.checked? this.multiplier():1;
+    if(m>1.05){
+      ctx.fillStyle=CSS.fault;
+      ctx.globalAlpha=Math.min(0.35, (m-1)*0.2);
+      for(const k of this.zoneCells()){
+        const c=hexCenter(k);
+        if(c.x<-HEX||c.x>W+HEX||c.y<-HEX||c.y>H+HEX) continue;
+        drawHex(ctx,c.x,c.y,HEX); ctx.fill();
+      }
+      ctx.globalAlpha=1;
+      const zc=this.zone;
+      ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+      ctx.fillText(m.toFixed(1)+'×', zc.x, zc.y-40);
+    }
+    this.city.draw(ctx,0,this.t);
+    if(this.t<this.burstUntil){
+      ctx.fillStyle=CSS.b; ctx.textAlign='center';
+      ctx.fillText('CONCERT CROWD POURING OUT', this.zone.x, 16);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText(tSurge.checked?'SURGE: ON — HOT HEXES PULL DRIVERS, TEMPER DEMAND':'SURGE: OFF — QUEUE JUST QUEUES', 12, H-10);
+  }
+};
+
+/* chart */
+function drawSeries(cvId, samples, color){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  if(samples.length<2) return;
+  const L=40,R=14,T=10,B=8, pw=W-L-R, ph=H-T-B;
+  const t1=samples[samples.length-1].t, t0=t1-60;
+  const vmax=Math.max(8, ...samples.map(s=>s.v))*1.15;
+  const X=t=>L+pw*Math.max(0,(t-t0))/60, Y=v=>T+ph*(1-v/vmax);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+  ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(W-R,Y(0)); ctx.stroke(); ctx.globalAlpha=1;
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
+  samples.forEach((s,i)=>{ i?ctx.lineTo(X(s.t),Y(s.v)):ctx.moveTo(X(s.t),Y(s.v)); });
+  ctx.stroke(); ctx.lineWidth=1;
+  const last=samples[samples.length-1];
+  ctx.fillStyle=color; ctx.beginPath(); ctx.arc(X(last.t),Y(last.v),3,0,7); ctx.fill();
+  ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  ctx.fillText(String(Math.round(vmax/1.15)), L-6, T+8);
+  ctx.fillText('0', L-6, Y(0)+3);
+}
+
+/* ---------- wiring ---------- */
+hero.reset(); e1.reset(); e2.reset(); e3.reset();
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+document.querySelector('[data-act="e3-burst"]').addEventListener('click',()=>e3.burst());
+rN.addEventListener('input',()=>setM('e1.n', rN.value));
+
+let last=performance.now(), acc=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  acc+=dt;
+  if(acc>0.12){ acc=0; if(visible.e3) drawSeries('ch-e3', e3.spark, CSS.a); }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

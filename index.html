@@ -171,8 +171,8 @@
       <li><a class="ep" href="#/consistent-hashing" data-ep="consistent-hashing">The Hash Ring</a></li>
       <li><a class="ep" href="#/the-log-kafka" data-ep="the-log-kafka">The Log · Kafka</a></li>
       <li><a class="ep" href="#/dns" data-ep="dns">The Name · DNS</a></li>
+      <li><a class="ep" href="#/bgp" data-ep="bgp">The Border · BGP</a></li>
       <li><span class="soon">URL → Page<i>SOON</i></span></li>
-      <li><span class="soon">BGP<i>NEXT</i></span></li>
       <li><span class="soon">CDN &amp; the Edge<i>SOON</i></span></li>
       <li><span class="soon">Databases at Scale<i>SOON</i></span></li>
     </ul>
@@ -184,9 +184,9 @@
       <li><a class="ep" href="#/twitter-timeline" data-ep="twitter-timeline">The Timeline · Twitter</a></li>
       <li><a class="ep" href="#/netflix" data-ep="netflix">Press Play · Netflix</a></li>
       <li><a class="ep" href="#/whatsapp" data-ep="whatsapp">The Message · WhatsApp</a></li>
+      <li><a class="ep" href="#/uber" data-ep="uber">The Match · Uber</a></li>
+      <li><span class="soon">Google Search<i>NEXT</i></span></li>
       <li><span class="soon">Instagram<i>SOON</i></span></li>
-      <li><span class="soon">Uber<i>SOON</i></span></li>
-      <li><span class="soon">Google Search<i>SOON</i></span></li>
       <li><span class="soon">Amazon &amp; Dynamo<i>SOON</i></span></li>
       <li><span class="soon">YouTube<i>SOON</i></span></li>
     </ul>
@@ -213,7 +213,7 @@
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">7</span> SYSTEMS LIVE · 29 RESEARCHED<br>
+    <span id="live-count">9</span> SYSTEMS LIVE · 29 RESEARCHED<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -285,6 +285,20 @@
           million connections on one box, and group encryption that uploads once instead of
           256 times — the fifty-engineer switchboard, proven.</span>
         </a>
+        <a class="card" href="#/bgp">
+          <span class="k">EP 08 · Internet plumbing</span>
+          <span class="t">The Border — BGP</span>
+          <span class="d">Real path-vector routing on a live AS graph: cut the cables, run the
+          2008 YouTube hijack duel prefix by prefix, then erase Facebook from the internet
+          the way Facebook did — and watch RPKI stop the lie at the border.</span>
+        </a>
+        <a class="card" href="#/uber">
+          <span class="k">EP 09 · The flagships</span>
+          <span class="t">The Match — Uber</span>
+          <span class="d">Hexagons vs scanning the whole city, the two-second pause that
+          shortens every ride, and surge pricing as a thermostat — a live marketplace on
+          the H3 grid, priced-out riders counted honestly.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -319,6 +333,8 @@ const EPISODES = {
   'dns':               {title:'EP 05 — The Name · DNS',               file:'episodes/dns.html'},
   'netflix':           {title:'EP 06 — Press Play · Netflix',         file:'episodes/netflix.html'},
   'whatsapp':          {title:'EP 07 — The Message · WhatsApp',       file:'episodes/whatsapp.html'},
+  'bgp':               {title:'EP 08 — The Border · BGP',             file:'episodes/bgp.html'},
+  'uber':              {title:'EP 09 — The Match · Uber',             file:'episodes/uber.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');

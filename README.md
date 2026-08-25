@@ -18,8 +18,10 @@ real fix, and the sliders are yours.
 | 05 | [The Name — DNS](episodes/dns.html) | The resolution walk; caching off = the root melts; TTL cuts both ways; the Dyn 2016 attack replayed in TTL order |
 | 06 | [Press Play — Netflix](episodes/netflix.html) | Remove Open Connect and the backbone drowns; the 3 AM fill beats the premiere miss-storm; be the Chaos Monkey |
 | 07 | [The Message — WhatsApp](episodes/whatsapp.html) | Store-and-forward vs flaky phones; the C10K wall vs 2M connections on one box; Sender Keys' ×256 uplink saving |
+| 08 | [The Border — BGP](episodes/bgp.html) | Real path-vector routing: the two-stage cable cut, the 2008 hijack duel, RPKI, and Facebook's self-erasure with the ×30 retry storm |
+| 09 | [The Match — Uber](episodes/uber.html) | Hex index vs scanning the city (114× capacity); the 2-second batch that shortens pickups 8%; surge as a thermostat |
 
-Next: **The Border — BGP** (sidebar shows the roadmap).
+Next: **The Index — Google Search** (sidebar shows the roadmap).
 
 ## Structure
 
