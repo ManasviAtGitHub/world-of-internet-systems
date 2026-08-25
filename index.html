@@ -172,7 +172,7 @@
       <li><a class="ep" href="#/the-log-kafka" data-ep="the-log-kafka">The Log · Kafka</a></li>
       <li><a class="ep" href="#/dns" data-ep="dns">The Name · DNS</a></li>
       <li><a class="ep" href="#/bgp" data-ep="bgp">The Border · BGP</a></li>
-      <li><span class="soon">URL → Page<i>SOON</i></span></li>
+      <li><span class="soon">URL → Page<i>NEXT</i></span></li>
       <li><span class="soon">CDN &amp; the Edge<i>SOON</i></span></li>
       <li><span class="soon">Databases at Scale<i>SOON</i></span></li>
     </ul>
@@ -188,7 +188,7 @@
       <li><a class="ep" href="#/dynamo" data-ep="dynamo">The Quorum · Dynamo</a></li>
       <li><a class="ep" href="#/google-search" data-ep="google-search">The Index · Google</a></li>
       <li><a class="ep" href="#/youtube" data-ep="youtube">The Upload · YouTube</a></li>
-      <li><span class="soon">Instagram<i>NEXT</i></span></li>
+      <li><a class="ep" href="#/instagram" data-ep="instagram">The Feed · Instagram</a></li>
     </ul>
   </details>
 
@@ -213,7 +213,7 @@
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">12</span> SYSTEMS LIVE · 29 RESEARCHED<br>
+    <span id="live-count">13</span> SYSTEMS LIVE · 29 RESEARCHED<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -320,6 +320,13 @@
           minutes instead of 60; relive the thumbnail meltdown that made BigTable
           necessary; then watch adaptive bitrate ride out dips a fixed player can't.</span>
         </a>
+        <a class="card" href="#/instagram">
+          <span class="k">EP 13 · The flagships</span>
+          <span class="t">The Feed — Instagram</span>
+          <span class="d">The famous 64-bit ID, minted and decoded live: kill the ID service
+          nobody needed, verify sort-by-ID equals sort-by-time, and watch an ID cursor read
+          a flat 20 rows while OFFSET pagination walks thousands.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -359,6 +366,7 @@ const EPISODES = {
   'google-search':     {title:'EP 10 — The Index · Google Search',    file:'episodes/google-search.html'},
   'dynamo':            {title:'EP 11 — The Quorum · Amazon Dynamo',   file:'episodes/dynamo.html'},
   'youtube':           {title:'EP 12 — The Upload · YouTube',         file:'episodes/youtube.html'},
+  'instagram':         {title:'EP 13 — The Feed · Instagram',         file:'episodes/instagram.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');

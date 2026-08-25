@@ -28,8 +28,9 @@ outer shell first. The artifact URLs below predate this change and still work.
 | 10 | The Index (Google Search) | `google-search.html` | Pages only |
 | 11 | The Quorum (Amazon Dynamo) | `dynamo.html` | Pages only |
 | 12 | The Upload (YouTube) | `youtube.html` | Pages only |
+| 13 | The Feed (Instagram) | `instagram.html` | Pages only |
 
-Next planned: **The Feed — Instagram, three engineers, fourteen million users**.
+Flagship tier complete. Next planned: **The Page — what really happens when you type a URL**.
 
 Editorial lesson from Ep03 (keep): op-count economics do NOT justify the celebrity
 threshold — per follow edge, follower count cancels out of the push-vs-pull comparison.

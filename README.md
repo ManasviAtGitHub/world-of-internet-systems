@@ -23,8 +23,9 @@ real fix, and the sliders are yours.
 | 10 | [The Index — Google Search](episodes/google-search.html) | A real inverted index (×1,000, byte-identical); a real random surfer vs the keyword stuffer; the tail at scale, hedged |
 | 11 | [The Quorum — Amazon's Dynamo](episodes/dynamo.html) | The R+W>N dial with staleness measured to exactly zero; sloppy quorum + hinted handoff; vector clocks vs last-write-wins |
 | 12 | [The Upload — YouTube](episodes/youtube.html) | Chunked-parallel transcoding (live in 5 min, not 60); the thumbnail meltdown vs packed storage; adaptive bitrate vs the dips |
+| 13 | [The Feed — Instagram](episodes/instagram.html) | The 64-bit ID minted & decoded live; kill the ID service nobody needed; sort/route verified; cursor vs OFFSET pagination |
 
-Next: **The Feed — Instagram** (sidebar shows the roadmap).
+**The flagship tier is complete.** Next: **The Page — what really happens when you type a URL** (sidebar shows the roadmap).
 
 ## Structure
 

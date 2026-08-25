@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Feed — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  canvas.chart{display:block;width:100%;background:var(--panel);border-top:1px solid var(--panel-line)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .legend{display:flex;gap:16px;padding:8px 16px 0;font-size:10.5px;color:var(--panel-muted);letter-spacing:.06em}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Flagships · Episode 13</p>
+  <h1>The Feed</h1>
+  <p class="dek">Instagram is the proof that boring technology scales: three engineers rode
+  plain Django, PostgreSQL, and Redis to fourteen million users. Their one genuinely clever
+  invention was a number — a 64-bit ID that carries its own timestamp, its own shard address,
+  and its own sequence inside itself, minted by the database with no coordination at all.
+  This episode takes that number apart, live, and shows what it buys a feed.</p>
+  <p class="marginal">Every ID below is real 64-bit arithmetic (BigInt, actually computed and
+  actually decoded). The layout is Instagram's published one: 41 bits of milliseconds,
+  13 bits of shard, 10 bits of sequence — 1,024 IDs per shard per millisecond.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The mint — photos posting at 2011 rates, each ID assembled from three fields</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:250px" role="img" aria-label="A 64-bit ruler splits into timestamp, shard, and sequence fields; each posted photo mints a new ID whose segments tick like an odometer"></canvas>
+  <div class="exp-metrics">
+    <span>PHOTOS POSTED<b data-m="hero.n">0</b></span>
+    <span>LATEST ID<b data-m="hero.id">–</b></span>
+    <span>DECODES BACK CORRECTLY<b data-m="hero.ok">–</b></span>
+  </div>
+  <figcaption class="exp-note">Watch the ruler: the left 41 bits crawl forward with the clock,
+  the middle 13 bits jump around as photos land on different shards, and the right 10 bits
+  count within each millisecond. The whole scheme is one PL/pgSQL function <em>inside each
+  Postgres shard</em> — no ID service to run, no coordination to fail, and the "decodes back"
+  check re-extracts all three fields from the raw integer every single time.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Why not just ask an ID server?</h2>
+  <p>Twitter solved the same problem with Snowflake — a fleet of dedicated ID servers. That
+  works, but it's <em>a service</em>: something to deploy, monitor, and lose. For a
+  three-engineer team, every network hop in the write path is a tax and every dependency is
+  a pager. Instagram's move was to make the ID a <strong>property of the shard itself</strong>:
+  the database mints it in the same transaction that inserts the row. The experiment below
+  runs both designs against the same posting traffic — then breaks the ID service.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Central ID service vs mint-in-the-shard — same traffic, one outage</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e1-kill">KILL THE ID SERVICE 10s</button>
+      <button class="btn" data-run="e1">PAUSE</button>
+      <button class="btn" data-reset="e1">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-e1" style="height:250px" role="img" aria-label="Two posting pipelines: one detours through a central ID service which can die; the other mints IDs inside each database shard"></canvas>
+  <div class="exp-metrics">
+    <span>CENTRAL — POSTS FAILED<b class="bad" data-m="e1.cfail">0</b></span>
+    <span>IN-SHARD — POSTS FAILED<b data-m="e1.sfail">0</b></span>
+    <span>WRITE PATH — CENTRAL<b data-m="e1.clat">2 hops</b></span>
+    <span>IN-SHARD<b data-m="e1.slat">1 hop</b></span>
+  </div>
+  <figcaption class="exp-note">Kill the service: the central world's uploads bounce red for
+  ten seconds — every photo in that window needed a number nobody could hand out. The
+  in-shard world doesn't have the dependency, so there is nothing to break. The general
+  law, met before in this series: <em>the most reliable service is the one that doesn't
+  exist</em> — push work into infrastructure you already run.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What the number knows</h2>
+  <p>The layout isn't just compact — each field does live work. Because the timestamp owns
+  the top bits, <code>ORDER BY id</code> <em>is</em> <code>ORDER BY created_at</code>: the
+  feed's reverse-chronological sort needs no second column and no second index. And because
+  the shard ID is embedded, any server holding a photo ID can compute which of several
+  thousand logical shards owns the row — routing falls out of arithmetic, no lookup table
+  required. The experiment mints a stream of IDs across eight shards and then <em>checks
+  both claims</em> against the raw integers.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Sort it, route it — both properties verified against live IDs</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-e2" style="height:270px" role="img" aria-label="A stream of freshly minted IDs sorts itself into time order while each one is decoded and routed to the correct shard box"></canvas>
+  <div class="exp-metrics">
+    <span>IDS MINTED<b data-m="e2.n">0</b></span>
+    <span>SORT BY ID = SORT BY TIME<b data-m="e2.sort">–</b></span>
+    <span>ROUTED TO CORRECT SHARD<b data-m="e2.route">–</b></span>
+  </div>
+  <figcaption class="exp-note">Both readouts are computed, not asserted: the sort check
+  compares the ID-ordering of every adjacent pair against their millisecond timestamps
+  (within one millisecond, cross-shard order is arbitrary — "k-sorted," exact to the
+  clock's resolution), and the routing check re-derives each ID's shard with
+  <code>(id &gt;&gt; 10) &amp; 8191</code> and confirms it matches where the row actually
+  lives. Several thousand of these logical shards were just Postgres <em>schemas</em>,
+  mapped onto a handful of machines — growth meant moving schemas, never rewriting rows.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What time-sortable IDs buy the scroll</h2>
+  <p>Here's the payoff hiding in every infinite feed. Paginating with
+  <code>OFFSET 2000 LIMIT 20</code> forces the database to walk and discard two thousand
+  rows to serve twenty — the deeper the scroll, the more work per page. But if IDs sort by
+  time, the app can instead remember the last ID it showed and ask
+  <code>WHERE id &lt; cursor ORDER BY id LIMIT 20</code>: an index seek straight to the
+  cursor, twenty rows read, at any depth. The experiment scrolls one user down the same
+  feed both ways and counts the rows the database actually touches.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">The infinite scroll — OFFSET pagination vs an ID cursor, rows counted</span>
+    <span class="exp-run"><button class="btn" data-run="e3">PAUSE</button><button class="btn" data-reset="e3">RESET</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-e3" style="height:230px" role="img" aria-label="A user scrolls a feed; the offset database walks and discards ever more rows per page while the cursor database reads a constant twenty"></canvas>
+  <div class="legend">
+    <span><i style="background:var(--series-b)"></i>OFFSET — ROWS TOUCHED PER PAGE</span>
+    <span><i style="background:var(--series-a)"></i>CURSOR — ROWS TOUCHED PER PAGE</span>
+  </div>
+  <canvas class="chart" id="ch-e3" style="height:110px"></canvas>
+  <div class="exp-metrics">
+    <span>PAGE<b data-m="e3.page">0</b></span>
+    <span>OFFSET — THIS PAGE<b class="bad" data-m="e3.off">–</b></span>
+    <span>CURSOR — THIS PAGE<b data-m="e3.cur">–</b></span>
+    <span>TOTAL ROWS TOUCHED<b data-m="e3.tot">–</b></span>
+  </div>
+  <figcaption class="exp-note">By page 50 the OFFSET database is walking a thousand rows to
+  serve twenty, and the gap grows forever — this is why deep pagination kills naive feeds.
+  The cursor reads a flat twenty at any depth, and it exists <em>because</em> the ID is
+  time-sortable: the cursor is just the last ID you saw. One well-designed number quietly
+  paying rent on every scroll.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The rest of the boring-technology gospel</h2>
+  <p>The famous stack around that number was deliberately dull: nginx, Django, PostgreSQL
+  behind pgbouncer (a raw Postgres connection cost ~1.3&nbsp;MB — pooling wasn't optional),
+  Redis for the precomputed feeds (fan-out-on-write, the same family we proved in the
+  Twitter episode), memcached, S3 for the bytes. When a 300-million-entry Redis mapping got
+  heavy, they didn't build a database — they repacked it into Redis hashes and cut 21&nbsp;GB
+  to 5. Fourteen million users, terabytes of photos, a hundred-plus instances: three
+  engineers. At the $1B acquisition it was thirty million users and thirteen employees,
+  and the later "Instagration" moved twenty billion photos from AWS into Facebook's
+  datacenters — with roughly eight engineers and no user-visible downtime.</p>
+  <p>Two epilogues tie back into the series. In 2016 the chronological feed died a
+  data-driven death — users were missing ~70% of posts, so an ML ranker took over and
+  pushed "posts seen from friends" to ~90%: the same pool-then-rank shape as Twitter's
+  funnel. And in 2018 Instagram attacked tail latency the hard way: Rocksandra swapped
+  Cassandra's Java storage engine for C++ RocksDB, cutting GC stalls from 2.5% to 0.3% —
+  a 10× P99 win, the Tail at Scale lesson applied with a soldering iron. The keeper from
+  this episode is smaller and sharper: <strong>when you can, design the data so the
+  infrastructure becomes unnecessary.</strong> The best ID service is a number that already
+  knows everything the service would have said.</p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Instagram Engineering — <a href="https://instagram-engineering.com/sharding-ids-at-instagram-1cf5a71e5a5c">Sharding &amp; IDs at Instagram</a>, 2011. The bit layout, PL/pgSQL minting, logical shards as schemas.</li>
+    <li>Instagram Engineering — <a href="https://instagram-engineering.com/what-powers-instagram-hundreds-of-instances-dozens-of-technologies-adf2e22da2ad">What Powers Instagram</a>, 2011; and <a href="https://instagram-engineering.com/storing-hundreds-of-millions-of-simple-key-value-pairs-in-redis-1091ae80f74c">the Redis-hashes memory trick</a> (21→5 GB), 2011.</li>
+    <li>HighScalability — <a href="https://highscalability.com/instagram-architecture-14-million-users-terabytes-of-photos/">Instagram Architecture: 14 Million Users… 3 Engineers</a>, 2011.</li>
+    <li>Instagram Engineering — <a href="https://instagram-engineering.com/open-sourcing-a-10x-reduction-in-apache-cassandra-tail-latency-d64f86b43589">Open-sourcing a 10× reduction in Cassandra tail latency</a> (Rocksandra), 2018.</li>
+    <li>Data Center Knowledge — <a href="https://www.datacenterknowledge.com/archives/2014/06/27/instagram-migrates-from-amazons-cloud-into-facebook-data-centers">the Instagration</a>, 2014; TechCrunch — <a href="https://techcrunch.com/2018/06/01/how-instagram-feed-works/">how the ranked feed works</a> (the 70%/90% numbers), 2018.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>The Page: what really happens when you type a URL</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+
+/* ---------- the real ID scheme (BigInt) ---------- */
+const EPOCH = 1293840000000;             // custom epoch, like Instagram's
+const SHARD_BITS=13n, SEQ_BITS=10n;
+function mintId(ms, shard, seq){
+  return (BigInt(ms-EPOCH) << (SHARD_BITS+SEQ_BITS)) | (BigInt(shard) << SEQ_BITS) | BigInt(seq);
+}
+function decodeId(id){
+  return { ms: Number(id >> (SHARD_BITS+SEQ_BITS)) + EPOCH,
+           shard: Number((id >> SEQ_BITS) & 8191n),
+           seq: Number(id & 1023n) };
+}
+
+/* ================= HERO: the mint ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(7),
+  reset(){ this.t=0; this.n=0; this.next=0.005; this.last=null; this.seqs={}; this.simMs=EPOCH+1e11; },
+  update(dt){
+    this.t+=dt; this.simMs+=dt*1000;
+    while(this.t>=this.next){
+      this.next += expRand(this.rng, 1/25);      // 25 photos/sec, the 2011 rate
+      const ms=Math.floor(this.simMs);
+      const shard=Math.floor(this.rng()*8192);
+      const key=ms+':'+shard;
+      const seq=(this.seqs[key]=(this.seqs[key]??-1)+1)%1024;
+      if(Object.keys(this.seqs).length>500) this.seqs={};
+      const id=mintId(ms, shard, seq);
+      const d=decodeId(id);
+      this.last={id, ms, shard, seq, ok: d.ms===ms && d.shard===shard && d.seq===seq};
+      this.n++;
+    }
+    if(this.last){
+      setM('hero.n', this.n);
+      setM('hero.id', this.last.id.toString());
+      setM('hero.ok', this.last.ok? 'YES — all 3 fields re-extracted' : 'NO (BUG)');
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    if(!this.last){ return; }
+    const {id, ms, shard, seq}=this.last;
+    // the 64-bit ruler
+    const L=30, bw=(W-60)/64, y=H*0.34, bh=44;
+    const bits=id.toString(2).padStart(64,'0');
+    for(let i=0;i<64;i++){
+      const seg= i<41? 0 : i<54? 1 : 2;
+      const col= seg===0? CSS.a : seg===1? CSS.b : CSS.traffic;
+      ctx.globalAlpha= bits[i]==='1'? 0.9 : 0.18;
+      ctx.fillStyle=col;
+      ctx.fillRect(L+i*bw, y, bw-1.2, bh);
+    }
+    ctx.globalAlpha=1;
+    // segment labels
+    ctx.textAlign='center';
+    ctx.fillStyle=CSS.a;
+    ctx.fillText('41 BITS — MILLISECONDS SINCE EPOCH', L+20.5*bw, y-14);
+    ctx.fillStyle=CSS.b;
+    ctx.fillText('13 — SHARD', L+47.5*bw, y-14);
+    ctx.fillStyle=CSS.traffic;
+    ctx.fillText('10 — SEQ', L+59*bw, y-14);
+    // decoded values
+    ctx.fillStyle=CSS.a;
+    ctx.fillText(new Date(ms).toISOString().slice(11,23), L+20.5*bw, y+bh+18);
+    ctx.fillStyle=CSS.b;
+    ctx.fillText('shard '+shard, L+47.5*bw, y+bh+18);
+    ctx.fillStyle=CSS.traffic;
+    ctx.fillText('#'+seq, L+59*bw, y+bh+18);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('ONE PL/pgSQL FUNCTION, INSIDE THE SHARD — NO SERVICE, NO COORDINATION', W/2, H-16);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: central vs in-shard ================= */
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(19),
+  reset(){ this.t=0; this.next=0.2; this.deadUntil=-1;
+    this.cfail=0; this.cok=0; this.sok=0; this.pulses=[]; },
+  kill(){ this.deadUntil=this.t+10; },
+  update(dt){
+    this.t+=dt;
+    const dead=this.t<this.deadUntil;
+    while(this.t>=this.next){
+      this.next += expRand(this.rng, 1/12);
+      if(dead){ this.cfail++; this.pulses.push({side:0,u:0,bad:true}); }
+      else { this.cok++; this.pulses.push({side:0,u:0}); }
+      this.sok++; this.pulses.push({side:1,u:0});
+    }
+    this.pulses=this.pulses.filter(p=>(p.u+=dt/0.7)<1);
+    setM('e1.cfail', this.cfail);
+    setM('e1.sfail', 0);
+    setM('e1.clat', dead? 'DOWN' : '2 hops (app → ID svc → shard)');
+    setM('e1.slat', '1 hop (app → shard)');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2,12); ctx.lineTo(W/2,H-12); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('CENTRAL ID SERVICE (SNOWFLAKE-STYLE)', W*0.25, 22);
+    ctx.fillText('MINT IN THE SHARD (INSTAGRAM)', W*0.75, 22);
+    const dead=this.t<this.deadUntil;
+    const world=(x0, hasSvc)=>{
+      const ax=x0+W*0.06, sy=H*0.45;
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(ax-4, sy-14, 56, 28);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('APP', ax+24, sy+32);
+      if(hasSvc){
+        const vx=x0+W*0.23;
+        ctx.strokeStyle= dead? CSS.fault : CSS.traffic;
+        ctx.setLineDash(dead?[4,3]:[]);
+        ctx.strokeRect(vx-30, sy-44, 60, 26);
+        ctx.setLineDash([]);
+        ctx.fillStyle= dead? CSS.fault : CSS.muted;
+        ctx.fillText(dead?'ID SVC ✕':'ID SVC', vx, sy-50);
+        ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+        ctx.beginPath(); ctx.moveTo(ax+52,sy-6); ctx.lineTo(vx-30,sy-30); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(vx+30,sy-30); ctx.lineTo(x0+W*0.36,sy-4); ctx.stroke();
+        ctx.globalAlpha=1;
+      }
+      // shards
+      for(let k=0;k<3;k++){
+        const shx=x0+W*0.38, shy=H*0.30+k*H*0.20;
+        ctx.strokeStyle=CSS.line;
+        ctx.strokeRect(shx, shy, 60, 24);
+        ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+        ctx.fillText('SHARD'+(hasSvc?'':' ⚙ID'), shx+6, shy+16);
+      }
+      if(!hasSvc){
+        ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+        ctx.beginPath(); ctx.moveTo(ax+52,sy); ctx.lineTo(x0+W*0.38,sy); ctx.stroke();
+        ctx.globalAlpha=1;
+      }
+    };
+    world(0, true);
+    world(W/2, false);
+    for(const p of this.pulses){
+      const cx=p.side===0? W*0.28 : W*0.78;
+      ctx.globalAlpha=1-p.u;
+      ctx.strokeStyle=p.bad?CSS.fault:CSS.traffic;
+      ctx.beginPath(); ctx.arc(cx, H*0.45, 5+p.u*14, 0, 7); ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+    if(dead){
+      ctx.fillStyle=CSS.fault; ctx.textAlign='center';
+      ctx.fillText('EVERY UPLOAD NEEDS A NUMBER NOBODY CAN HAND OUT', W*0.25, H-16);
+    }
+  }
+};
+e1.reset();
+document.querySelector('[data-act="e1-kill"]').addEventListener('click',()=>e1.kill());
+
+/* ================= EXP-02: sort + route, verified ================= */
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  rng: mulberry32(29),
+  reset(){ this.t=0; this.next=0.005; this.simMs=EPOCH+2e11; this.ids=[];
+    this.n=0; this.sortOK=0; this.sortAll=0; this.routeOK=0; this.flash=null; this.seqs={}; },
+  update(dt){
+    this.t+=dt; this.simMs+=dt*1000;
+    while(this.t>=this.next){
+      this.next += expRand(this.rng, 1/8);
+      const ms=Math.floor(this.simMs - this.rng()*40);   // slight arrival jitter
+      const shard=Math.floor(this.rng()*8);
+      const key=ms+':'+shard;
+      const seq=(this.seqs[key]=(this.seqs[key]??-1)+1)%1024;
+      if(Object.keys(this.seqs).length>500) this.seqs={};
+      const id=mintId(ms, shard, seq);
+      this.ids.push({id, ms, shard});
+      if(this.ids.length>40) this.ids.shift();
+      this.n++;
+      // routing check: re-derive shard from raw integer
+      const derived=Number((id >> 10n) & 8191n);
+      if(derived===shard) this.routeOK++;
+      this.flash={shard: derived, at:this.t};
+      // sort check over current window: adjacent pairs at ms granularity
+      const sorted=[...this.ids].sort((a,b)=> a.id<b.id? -1 : a.id>b.id? 1 : 0);
+      let ok=0, all=0;
+      for(let i=1;i<sorted.length;i++){ all++;
+        if(sorted[i-1].ms<=sorted[i].ms) ok++; }
+      this.sortOK=ok; this.sortAll=all;
+    }
+    setM('e2.n', this.n);
+    setM('e2.sort', this.sortAll? (this.sortOK===this.sortAll?'100%':((this.sortOK/this.sortAll*100).toFixed(1)+'%'))+' of adjacent pairs in time order' : '–');
+    setM('e2.route', this.n? Math.round(this.routeOK/this.n*100)+'% ('+this.routeOK+'/'+this.n+')' : '–');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    // sorted ID lane
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('LAST 40 IDS, SORTED BY RAW INTEGER — TIME FLOWS LEFT → RIGHT', 20, 26);
+    const sorted=[...this.ids].sort((a,b)=> a.id<b.id? -1 : a.id>b.id? 1 : 0);
+    sorted.forEach((r,i)=>{
+      const x=24+i*((W-48)/40), y=44;
+      ctx.fillStyle=['#C48224','#3B9EBD','#F2A93B','#8AA34F','#C48224','#3B9EBD','#F2A93B','#8AA34F'][r.shard%8];
+      ctx.globalAlpha=.85;
+      ctx.fillRect(x, y, (W-48)/40-3, 16);
+      ctx.globalAlpha=1;
+    });
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('COLOR = SHARD · YET THE ROW IS IN TIME ORDER — THE TIMESTAMP OWNS THE TOP BITS', 20, 78);
+    // shard route boxes
+    ctx.fillText('ROUTING BY ARITHMETIC: (id >> 10) & 8191', 20, H*0.52);
+    for(let s=0;s<8;s++){
+      const x=24+s*((W-48)/8), y=H*0.58;
+      const hot=this.flash && this.t-this.flash.at<0.3 && this.flash.shard===s;
+      ctx.strokeStyle= hot? CSS.traffic : CSS.line;
+      ctx.lineWidth= hot? 2:1;
+      ctx.strokeRect(x, y, (W-48)/8-8, 40);
+      ctx.lineWidth=1;
+      ctx.fillStyle= hot? CSS.traffic : CSS.muted;
+      ctx.textAlign='center';
+      ctx.fillText('SHARD '+s, x+((W-48)/8-8)/2, y+24);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('EACH LOGICAL SHARD = A POSTGRES SCHEMA · THOUSANDS MAP ONTO A FEW MACHINES', W/2, H-14);
+  }
+};
+e2.reset();
+
+/* ================= EXP-03: OFFSET vs cursor ================= */
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){ this.t=0; this.page=0; this.next=1;
+    this.offTotal=0; this.curTotal=0; this.offNow=0; this.curNow=0;
+    this.spark=[]; },
+  update(dt){
+    this.t+=dt; this.next-=dt;
+    if(this.next<=0){
+      this.next=0.8;
+      this.page++;
+      const PAGE=20;
+      // offset world: really walk the rows it would touch
+      let walked=0;
+      const offset=(this.page-1)*PAGE;
+      for(let i=0;i<offset+PAGE;i++) walked++;
+      this.offNow=walked; this.offTotal+=walked;
+      // cursor world: index seek + PAGE rows
+      this.curNow=PAGE; this.curTotal+=PAGE;
+      this.spark.push({t:this.t, m:this.offNow, r:this.curNow});
+      while(this.spark.length>90) this.spark.shift();
+      if(this.page>110) this.reset();
+    }
+    setM('e3.page', this.page);
+    setM('e3.off', this.offNow.toLocaleString('en-US')+' rows');
+    setM('e3.cur', this.curNow+' rows');
+    setM('e3.tot', this.offTotal.toLocaleString('en-US')+' vs '+this.curTotal.toLocaleString('en-US'));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2,12); ctx.lineTo(W/2,H-12); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('OFFSET '+((this.page-1)*20)+' LIMIT 20', W*0.25, 24);
+    ctx.fillText('WHERE id < cursor LIMIT 20', W*0.75, 24);
+    const lane=(x0, walked, kept)=>{
+      const total=walked;
+      const w=W*0.38, rows=Math.min(60, total);
+      const rw=w/60;
+      for(let i=0;i<rows;i++){
+        const isKept= i>=rows-Math.min(20,rows)*kept;
+        ctx.fillStyle= (total>20 && i<rows-20)? CSS.fault : CSS.traffic;
+        if(total<=20) ctx.fillStyle=CSS.traffic;
+        ctx.globalAlpha= (total>20 && i<rows-20)? 0.45 : 0.9;
+        ctx.fillRect(x0+W*0.06+i*rw, H*0.42, rw-1.5, 34);
+      }
+      ctx.globalAlpha=1;
+      if(total>60){
+        ctx.fillStyle=CSS.fault; ctx.textAlign='left';
+        ctx.fillText('… ×'+total.toLocaleString('en-US')+' WALKED', x0+W*0.06, H*0.42-8);
+      }
+    };
+    lane(0, this.offNow, 1);
+    lane(W/2, this.curNow, 1);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('RED = WALKED AND DISCARDED · AMBER = ACTUALLY SERVED', W*0.25, H-16);
+    ctx.fillStyle=CSS.traffic;
+    ctx.fillText('INDEX SEEK TO CURSOR, READ 20, DONE', W*0.75, H-16);
+  }
+};
+e3.reset();
+
+/* chart */
+function drawTwo(cvId, samples){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  if(samples.length<2) return;
+  const L=48,R=14,T=10,B=8, pw=W-L-R, ph=H-T-B;
+  const vmax=Math.max(100, ...samples.map(s=>s.m))*1.1;
+  const X=i=>L+pw*i/(samples.length-1), Y=v=>T+ph*(1-v/vmax);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+  ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(W-R,Y(0)); ctx.stroke(); ctx.globalAlpha=1;
+  const line=(key,col)=>{ ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath();
+    samples.forEach((s,i)=>{ i?ctx.lineTo(X(i),Y(s[key])):ctx.moveTo(X(i),Y(s[key])); });
+    ctx.stroke(); ctx.lineWidth=1; };
+  line('m',CSS.b); line('r',CSS.a);
+  ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  ctx.fillText(Math.round(vmax/1.1).toLocaleString('en-US'), L-4, T+8);
+  ctx.fillText('0', L-4, Y(0)+3);
+}
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now(), acc=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  acc+=dt;
+  if(acc>0.12){ acc=0; if(visible.e3) drawTwo('ch-e3', e3.spark); }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>
