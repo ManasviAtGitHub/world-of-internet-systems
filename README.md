@@ -24,8 +24,9 @@ real fix, and the sliders are yours.
 | 11 | [The Quorum — Amazon's Dynamo](episodes/dynamo.html) | The R+W>N dial with staleness measured to exactly zero; sloppy quorum + hinted handoff; vector clocks vs last-write-wins |
 | 12 | [The Upload — YouTube](episodes/youtube.html) | Chunked-parallel transcoding (live in 5 min, not 60); the thumbnail meltdown vs packed storage; adaptive bitrate vs the dips |
 | 13 | [The Feed — Instagram](episodes/instagram.html) | The 64-bit ID minted & decoded live; kill the ID service nobody needed; sort/route verified; cursor vs OFFSET pagination |
+| 14 | [The Page — URL to pixels](episodes/url-to-page.html) | The scrubber walk; the war on round trips (TLS 1.2 → QUIC 0-RTT); H2 head-of-line vs H3; the blocking script |
 
-**The flagship tier is complete.** Next: **The Page — what really happens when you type a URL** (sidebar shows the roadmap).
+**The flagship tier is complete.** Next: **The Edge — CDNs, anycast, and absorbing the flood** (sidebar shows the roadmap).
 
 ## Structure
 

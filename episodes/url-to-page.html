@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Page — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:52px}
+  input[type=range]{accent-color:var(--traffic);width:170px}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · Internet Plumbing · Episode 14</p>
+  <h1>The Page</h1>
+  <p class="dek">"What happens when you type a URL and press Enter?" is the most famous
+  question in systems interviews because the honest answer touches everything this series
+  has built: a keyboard bus, a global name database, three handshakes, BGP-chosen routes,
+  a server farm, and a GPU — usually in under a second. This episode walks the whole path
+  with a scrubber in your hand, then runs the three wars that made it fast: the war on
+  round trips, the war on head-of-line blocking, and the war on the blocking script.</p>
+  <p class="marginal">All times are honest arithmetic over the published budgets: ~10ms
+  keyboard poll, 20–120ms uncached DNS, one RTT per handshake, a 10ms usable frame budget.
+  Drag the scrubber — the journey is yours to replay.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The journey, scrubbable — keystroke to pixels in seven stages</span>
+    <span class="exp-run"><button class="btn" data-act="hero-play">PAUSE</button><button class="btn" data-act="hero-replay">REPLAY</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-scrub">Scrub the timeline</label>
+      <input type="range" id="r-scrub" min="0" max="279" value="0" step="1">
+      <output data-m="hero.ms">0 ms</output></span>
+    <span>DRAGGING PAUSES THE AUTO-PLAY · ~280 ms TOTAL ON A WARM 40ms-RTT CONNECTION</span>
+  </div>
+  <canvas class="sim" id="c-hero" style="height:300px" role="img" aria-label="A horizontal timeline of seven stages from keypress to pixels, with a playhead; each stage shows a vignette of what is happening at that moment"></canvas>
+  <div class="exp-metrics">
+    <span>STAGE<b data-m="hero.stage">–</b></span>
+    <span>WHAT'S HAPPENING<b data-m="hero.what">–</b></span>
+  </div>
+  <figcaption class="exp-note">The widths are the story: the network stages — DNS and the
+  handshakes — cost whole round trips while the keyboard costs ten milliseconds and parsing
+  streams for free alongside. Every stage is a system from an earlier episode: stage 2 is
+  EP05's resolution walk, the route under stages 3–5 is EP08's rumor mill, and the server
+  behind stage 5 is everything else in this series.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The war on round trips</h2>
+  <p>A page's speed is mostly counted in round trips, not megabits. Before the first byte of
+  HTML arrives, the classic stack pays: one RTT for TCP's handshake, <em>two</em> for TLS
+  1.2's negotiation, one for the request itself — plus DNS. The last decade of protocol
+  engineering is a war on those trips: TLS 1.3 (2018) sends its key shares speculatively
+  and closes in one RTT; QUIC refuses to treat transport setup and crypto setup as separate
+  conversations, fusing both into a single flight over UDP; and 0-RTT resumption rides the
+  request on the very first packets. Distance is the multiplier — drag the slider to a
+  satellite link and watch the old stack drown in its own handshakes.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Four protocol stacks race to first byte — count the arrows</span>
+    <span class="exp-run"><button class="btn" data-act="e1-race">RACE AGAIN</button><button class="btn" data-run="e1">PAUSE</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-rtt">Round-trip time</label>
+      <input type="range" id="r-rtt" min="10" max="300" value="60" step="10">
+      <output data-m="e1.rtt">60 ms</output></span>
+    <span>DNS: HALF AN RTT TO THE RESOLVER + CACHE LUCK · EVERY ARROW = ONE FLIGHT</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:300px" role="img" aria-label="Four client-server ping-pong diagrams race: HTTP over TLS 1.2 pays four round trips, TLS 1.3 three, QUIC two, resumed 0-RTT one"></canvas>
+  <div class="exp-metrics">
+    <span>TLS 1.2 ERA<b class="bad" data-m="e1.h12">–</b></span>
+    <span>TLS 1.3<b data-m="e1.h13">–</b></span>
+    <span>QUIC / HTTP-3<b data-m="e1.h3">–</b></span>
+    <span>0-RTT RESUMED<b data-m="e1.h0">–</b></span>
+  </div>
+  <figcaption class="exp-note">At fiber distances the difference is a shrug; at 300 ms —
+  satellite, or just a server an ocean away — the 1.2-era stack spends <em>1.35 seconds
+  shaking hands</em> before a single byte of content moves, while 0-RTT is done in a third
+  of a second. Two lessons in one chart: protocols win by deleting flights, and CDNs win by
+  shrinking the RTT each remaining flight costs. The fine print on 0-RTT: early data is
+  replayable, so browsers restrict it to idempotent GETs — a security/latency trade made
+  explicit in the protocol.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The war on head-of-line blocking</h2>
+  <p>A real page is not one fetch — it's dozens, racing over a lossy network. HTTP/1 opened
+  six TCP connections and queued resources behind them. HTTP/2 multiplexed everything onto
+  one connection — elegant, until a single lost packet made TCP halt <em>every</em> stream
+  while it waited for the retransmission, because TCP promises in-order bytes and doesn't
+  know the streams exist. HTTP/3's QUIC gives each stream its own delivery order: a lost
+  packet stalls only the resource it belonged to. Same page, same losses, three protocols.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">24 resources, real losses — H1's queues, H2's freeze, H3's shrug</span>
+    <span class="exp-run"><button class="btn" data-act="e2-run">LOAD THE PAGE AGAIN</button><button class="btn" data-run="e2">PAUSE</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-loss">Packet loss</label>
+      <input type="range" id="r-loss" min="0" max="5" value="2" step="1">
+      <output data-m="e2.loss">2%</output></span>
+    <span>IDENTICAL LOSS PATTERN FED TO ALL THREE PROTOCOLS · RETRANSMIT COSTS ONE 60ms RTT</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="Three lanes load the same 24 resources; a loss freezes all of HTTP/2's streams, only one of HTTP/3's"></canvas>
+  <div class="exp-metrics">
+    <span>HTTP/1 · 6 CONNECTIONS<b data-m="e2.h1">–</b></span>
+    <span>HTTP/2 · ONE TCP PIPE<b class="bad" data-m="e2.h2">–</b></span>
+    <span>HTTP/3 · QUIC STREAMS<b data-m="e2.h3">–</b></span>
+    <span>LOSSES THIS RUN<b data-m="e2.nloss">–</b></span>
+  </div>
+  <figcaption class="exp-note">Watch a red loss land: in the HTTP/2 lane the <em>entire
+  wall</em> of resources freezes for a round trip — TCP's in-order promise, taxing streams
+  that lost nothing. In HTTP/3 the same loss dims one tile and everything else keeps
+  flowing. At 0% loss H2 and H3 tie (multiplexing was never the problem); add loss and
+  they part ways — which is why QUIC had to leave TCP behind entirely.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The war on the blocking script</h2>
+  <p>The bytes have arrived; now the browser must not squander them. The parser builds the
+  DOM incrementally as HTML streams in — but a synchronous <code>&lt;script&gt;</code> in
+  the head stops it cold: the script might <code>document.write</code>, so the parser must
+  fetch it, run it, and only then continue. One slow script tag used to freeze entire
+  pages — the reason "put scripts at the bottom" became folk wisdom, later codified as
+  <code>defer</code>. The modern browser also cheats on your behalf: a preload scanner
+  races ahead of the blocked parser, starting fetches early either way.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">One slow script, two attributes — first paint, measured</span>
+    <span class="exp-run"><button class="btn" data-act="e3-run">RELOAD BOTH PAGES</button><button class="btn" data-run="e3">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-e3" style="height:270px" role="img" aria-label="Two waterfall lanes parse the same HTML; the synchronous script blocks parsing and first paint for hundreds of milliseconds, the deferred one does not"></canvas>
+  <div class="exp-metrics">
+    <span>SYNC SCRIPT — FIRST PAINT<b class="bad" data-m="e3.sync">–</b></span>
+    <span>DEFER — FIRST PAINT<b data-m="e3.defer">–</b></span>
+    <span>SCRIPT RUNS (DEFER)<b data-m="e3.dexec">–</b></span>
+  </div>
+  <figcaption class="exp-note">Same HTML, same 350 ms script fetch, same 80 ms execution.
+  The synchronous page shows nothing until the script has come and gone — first paint near
+  <em>three-quarters of a second</em>. The deferred page paints at a quarter second and runs
+  the script when parsing ends, exactly as promised. Then remember the render loop this
+  hands off to: 16.6 ms per frame at 60 Hz, ~10 usable after browser overhead — the pixel
+  pipeline (style → layout → paint → composite) is a system of its own, with express lanes
+  for transform and opacity that skip layout entirely.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The tower of translations</h2>
+  <p>Step back and the whole journey is one idea repeated: <strong>translation between
+  layers that only trust the contract below them.</strong> Names to addresses (DNS),
+  addresses to next hops (BGP, ARP), packets to reliable streams (TCP, QUIC), streams to
+  secrecy (TLS), secrecy to semantics (HTTP), markup to pixels (the engine). That
+  modularity is why each layer could evolve independently for forty years — TLS could halve
+  its handshakes, QUIC could replace TCP, browsers could grow preload scanners — without
+  anyone rewriting the internet. And it's why, when one early layer fails, everything above
+  it appears to die at once: the day Facebook's routes vanished, the world's browsers
+  reported a hundred different errors that were all the same missing answer at stage two.</p>
+  <p>This closes the plumbing tour that began with a load balancer fourteen episodes ago.
+  The keeper for the whole tier: <strong>the internet feels instant because every layer
+  streams into the next and nobody waits for completeness</strong> — DOM before the last
+  byte, paint before the last image, answers before certainty.</p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>alex/what-happens-when — <a href="https://github.com/alex/what-happens-when">the community deep answer</a>, 2013–ongoing. Keyboard polling, handshakes, parsing, the canonical reference for the question.</li>
+    <li>Cloudflare — <a href="https://blog.cloudflare.com/rfc-8446-aka-tls-1-3/">A Detailed Look at RFC 8446 (TLS 1.3)</a>, 2018 (1-RTT handshake, 0-RTT and replay); and <a href="https://blog.cloudflare.com/http3-the-past-present-and-future/">HTTP/3: the past, the present, and the future</a>, 2019 (merged handshakes, head-of-line blocking).</li>
+    <li>web.dev (Chrome team) — <a href="https://web.dev/articles/rendering-performance">Rendering performance</a>: the pixel pipeline, the 16.6/10 ms frame budget, the skippable stages.</li>
+    <li>IETF — <a href="https://datatracker.ietf.org/doc/html/rfc8446">RFC 8446 (TLS 1.3)</a>, 2018; <a href="https://datatracker.ietf.org/doc/html/rfc9000">RFC 9000 (QUIC)</a>, 2021.</li>
+    <li>Cloudflare Learning Center — <a href="https://www.cloudflare.com/learning/dns/what-is-dns/">What is DNS?</a> (the 20–120 ms figure; see EP05 for the full machinery).</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>The Edge: CDNs, anycast, and absorbing the flood</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+
+/* ================= HERO: the scrubbable journey ================= */
+const STAGES=[
+  {name:'0 · KEYPRESS', ms:10,  what:'USB polled every ~10ms; keycode → HID driver → browser'},
+  {name:'1 · DNS',      ms:30,  what:'cache walk; uncached would be 20–120ms (EP05)'},
+  {name:'2 · TCP',      ms:40,  what:'SYN → SYN-ACK → ACK — one RTT before any data'},
+  {name:'3 · TLS 1.3',  ms:40,  what:'key shares sent speculatively — one RTT (was two in 1.2)'},
+  {name:'4 · HTTP',     ms:60,  what:'GET / → server thinks → HTML streams back'},
+  {name:'5 · PARSE',    ms:50,  what:'bytes → DOM incrementally; preload scanner races ahead'},
+  {name:'6 · RENDER',   ms:50,  what:'style → layout → paint → composite; ~10ms usable per frame'},
+];
+const TOTAL=STAGES.reduce((a,s)=>a+s.ms,0);
+const rScrub=document.getElementById('r-scrub');
+const hero = {
+  cv: document.getElementById('c-hero'),
+  auto: !REDUCED,
+  reset(){ this.ms=0; },
+  stageAt(ms){ let acc=0;
+    for(let i=0;i<STAGES.length;i++){ acc+=STAGES[i].ms; if(ms<acc) return i; }
+    return STAGES.length-1; },
+  update(dt){
+    if(this.auto){
+      this.ms += dt*90;              // ~3s to play the 280ms journey
+      if(this.ms>=TOTAL+40) this.ms=0;
+      rScrub.value=String(Math.min(TOTAL-1, Math.floor(this.ms)));
+    } else {
+      this.ms=+rScrub.value;
+    }
+    const s=this.stageAt(Math.min(TOTAL-1,this.ms));
+    setM('hero.ms', Math.min(TOTAL,Math.round(this.ms))+' ms');
+    setM('hero.stage', STAGES[s].name);
+    setM('hero.what', STAGES[s].what);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const ms=Math.min(TOTAL,this.ms);
+    const cur=this.stageAt(Math.min(TOTAL-1,ms));
+    // the timeline with true-width stages
+    const L=30, tw=W-60, y=52, bh=34;
+    let acc=0;
+    STAGES.forEach((s,i)=>{
+      const x=L+acc/TOTAL*tw, w=s.ms/TOTAL*tw;
+      const active=i===cur, done=ms>=acc+s.ms;
+      ctx.strokeStyle= active? CSS.traffic : CSS.line;
+      ctx.lineWidth= active? 2:1;
+      ctx.strokeRect(x, y, w-2, bh);
+      ctx.lineWidth=1;
+      if(done||active){
+        ctx.fillStyle='rgba(196,130,36,0.30)';
+        const fillW= done? w-2 : Math.max(0,(ms-acc)/s.ms*(w-2));
+        ctx.fillRect(x+1, y+1, fillW, bh-2);
+      }
+      ctx.fillStyle= active? CSS.traffic : CSS.muted;
+      ctx.textAlign='center';
+      ctx.save(); ctx.translate(x+w/2, y-8);
+      ctx.fillText(s.name.split('· ')[1], 0, 0); ctx.restore();
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(s.ms+'ms', x+w/2, y+bh+14);
+      acc+=s.ms;
+    });
+    // playhead
+    const px=L+ms/TOTAL*tw;
+    ctx.strokeStyle=CSS.traffic;
+    ctx.beginPath(); ctx.moveTo(px, y-18); ctx.lineTo(px, y+bh+22); ctx.stroke();
+    // vignette region: client/server ping-pong for network stages, pipeline for render
+    const vy=H*0.62, cxL=W*0.18, cxR=W*0.82;
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(cxL-34, vy-14, 68, 28);
+    ctx.strokeRect(cxR-34, vy-14, 68, 28);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('YOU', cxL, vy+32);
+    ctx.fillText(cur<=1?'RESOLVER':'SERVER', cxR, vy+32);
+    const arrow=(frac, up, col, label)=>{
+      const x0=up?cxR-34:cxL+34, x1=up?cxL+34:cxR-34;
+      const yy=vy+(up?6:-6);
+      const x=x0+(x1-x0)*frac;
+      ctx.strokeStyle=col; ctx.globalAlpha=.8;
+      ctx.beginPath(); ctx.moveTo(x0,yy); ctx.lineTo(x,yy); ctx.stroke();
+      ctx.globalAlpha=1;
+      ctx.fillStyle=col;
+      ctx.beginPath(); ctx.arc(x,yy,3,0,7); ctx.fill();
+      if(label){ ctx.fillStyle=CSS.muted; ctx.textAlign='center'; ctx.fillText(label,(cxL+cxR)/2, vy-24); }
+    };
+    let sAcc=0; for(let i=0;i<cur;i++) sAcc+=STAGES[i].ms;
+    const frac=Math.max(0,Math.min(1,(ms-sAcc)/STAGES[cur].ms));
+    if(cur===0){
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='center';
+      ctx.strokeStyle=CSS.traffic;
+      ctx.strokeRect(cxL-12, vy-40, 24, 20);
+      ctx.fillText('⏎', cxL, vy-26);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('the key press crosses USB → OS → browser', (cxL+cxR)/2, vy);
+    } else if(cur===1){ arrow(frac<0.5?frac*2:1, false, CSS.b, 'where is example.com?');
+      if(frac>=0.5) arrow((frac-0.5)*2, true, CSS.b);
+    } else if(cur===2){ // 3 flights in one RTT visual: SYN, SYN-ACK, ACK
+      if(frac<0.33) arrow(frac*3, false, CSS.traffic, 'SYN');
+      else if(frac<0.66) arrow((frac-0.33)*3, true, CSS.traffic, 'SYN-ACK');
+      else arrow((frac-0.66)*3, false, CSS.traffic, 'ACK (+ first TLS bytes)');
+    } else if(cur===3){
+      if(frac<0.5) arrow(frac*2, false, CSS.b, 'ClientHello + key shares');
+      else arrow((frac-0.5)*2, true, CSS.b, 'ServerHello · cert · Finished');
+    } else if(cur===4){
+      if(frac<0.4) arrow(frac*2.5, false, CSS.traffic, 'GET / HTTP/2');
+      else arrow((frac-0.4)*1.66, true, CSS.traffic, '200 OK — HTML streaming…');
+    } else {
+      // parse/render pipeline gates
+      const gates= cur===5? ['BYTES','TOKENS','DOM','CSSOM'] : ['STYLE','LAYOUT','PAINT','COMPOSITE'];
+      gates.forEach((g,i)=>{
+        const gx=W*0.2+i*W*0.18;
+        const lit=frac*4>=i+0.5;
+        ctx.strokeStyle= lit? CSS.traffic : CSS.line;
+        ctx.strokeRect(gx-36, vy-14, 72, 28);
+        ctx.fillStyle= lit? CSS.traffic : CSS.muted;
+        ctx.textAlign='center';
+        ctx.fillText(g, gx, vy+4);
+        if(i<3){ ctx.fillStyle=CSS.muted; ctx.fillText('→', gx+45, vy+4); }
+      });
+      if(cur===6 && frac>0.9){
+        ctx.fillStyle=CSS.traffic;
+        ctx.fillText('▮▮ PIXELS ▮▮', W*0.5, vy+34);
+      }
+    }
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: the RTT race ================= */
+const rRtt=document.getElementById('r-rtt');
+const STACKS=[
+  {key:'h12', name:'TCP + TLS 1.2', rtts:4, col:CSS.fault},
+  {key:'h13', name:'TCP + TLS 1.3', rtts:3, col:CSS.b},
+  {key:'h3',  name:'QUIC (HTTP/3)', rtts:2, col:CSS.a},
+  {key:'h0',  name:'QUIC 0-RTT',    rtts:1, col:CSS.traffic},
+];
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){ this.t=0; this.raceT=0; },
+  race(){ this.raceT=0; },
+  ttfb(rtts){ const rtt=+rRtt.value; return Math.round(rtt*0.5 + rtts*rtt); },  // DNS ~ half RTT to resolver
+  update(dt){
+    this.t+=dt; this.raceT+=dt;
+    const rtt=+rRtt.value;
+    setM('e1.rtt', rtt+' ms');
+    for(const s of STACKS) setM('e1.'+s.key.replace('h','h'), this.ttfb(s.rtts)+' ms');
+    setM('e1.h12', this.ttfb(4)+' ms'); setM('e1.h13', this.ttfb(3)+' ms');
+    setM('e1.h3', this.ttfb(2)+' ms'); setM('e1.h0', this.ttfb(1)+' ms');
+    const maxT=this.ttfb(4);
+    if(this.raceT>maxT/220+1.2) this.raceT=0;   // loop the race
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const rtt=+rRtt.value, maxMs=this.ttfb(4);
+    const simMs=this.raceT*220;                 // race speed: 220 virtual ms per second
+    const L=170, bw=W-L-90;
+    STACKS.forEach((s,i)=>{
+      const y=34+i*((H-60)/4);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText(s.name, 18, y+4);
+      const t=this.ttfb(s.rtts);
+      // track
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(L, y-9, bw, 18);
+      const prog=Math.min(1, simMs/t);
+      ctx.fillStyle=s.col; ctx.globalAlpha=.75;
+      ctx.fillRect(L+1, y-8, (bw-2)*prog*(t/maxMs), 16);
+      ctx.globalAlpha=1;
+      // flight ticks
+      for(let f=0;f<=s.rtts;f++){
+        const fx=L+((rtt*0.5+f*rtt)/maxMs)*(bw-2);
+        ctx.strokeStyle=CSS.ink; ctx.globalAlpha=.5;
+        ctx.beginPath(); ctx.moveTo(fx, y-9); ctx.lineTo(fx, y+9); ctx.stroke();
+        ctx.globalAlpha=1;
+      }
+      if(prog>=1){
+        ctx.fillStyle=s.col; ctx.textAlign='left';
+        ctx.fillText('FIRST BYTE · '+t+'ms', L+bw+8, y+4);
+      }
+    });
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('TICKS = FLIGHTS (DNS + HANDSHAKES + REQUEST) · SAME DISTANCE, FEWER TRIPS', W/2, H-14);
+  }
+};
+e1.reset();
+rRtt.addEventListener('input',()=>{ e1.race(); });
+document.querySelector('[data-act="e1-race"]').addEventListener('click',()=>e1.race());
+
+/* ================= EXP-02: head-of-line blocking ================= */
+const rLoss=document.getElementById('r-loss');
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.seed=51; this.runRace(); this.t=0; },
+  runRace(){
+    const loss=+rLoss.value/100;
+    const rng=mulberry32(this.seed);
+    // 24 resources x 6 segments; shared bandwidth 12 segs per 10ms step
+    // pre-draw the loss lottery per (resource, segment) — identical for all protocols
+    const lossAt=[];
+    let nloss=0;
+    for(let r=0;r<24;r++){ lossAt.push([]);
+      for(let s=0;s<6;s++){ const l=rng()<loss; lossAt[r].push(l); if(l) nloss++; } }
+    const runProto=(mode)=>{
+      // state per resource: segs done; freeze timers (steps)
+      const done=Array(24).fill(0);
+      const frozen=Array(24).fill(0);      // per-stream freeze (h3) or per-conn (h1)
+      let connFreeze=0;                    // h2: freezes everything
+      const conn=i=>i%6;                   // h1: resource -> connection
+      const connFrozen=Array(6).fill(0);
+      const events=[];                     // {step, r} losses for drawing
+      let step=0;
+      while(done.some(d=>d<6) && step<2000){
+        step++;
+        if(connFreeze>0){ connFreeze--; if(mode==='h2') continue; }
+        for(let i=0;i<6;i++) if(connFrozen[i]>0) connFrozen[i]--;
+        for(let i=0;i<24;i++) if(frozen[i]>0) frozen[i]--;
+        let budget=12;
+        for(let r=0;r<24 && budget>0;r++){
+          if(done[r]>=6) continue;
+          if(mode==='h3' && frozen[r]>0) continue;
+          if(mode==='h1' && connFrozen[conn(r)]>0) continue;
+          if(mode==='h1' && [...Array(24).keys()].some(o=>o<r && conn(o)===conn(r) && done[o]<6)) continue; // h1: serial per connection
+          const seg=done[r];
+          budget--;
+          if(lossAt[r][seg]){
+            lossAt[r][seg]=false;          // retransmit succeeds
+            events.push({step, r});
+            if(mode==='h2') connFreeze=6;
+            else if(mode==='h3') frozen[r]=6;
+            else connFrozen[conn(r)]=6;
+          } else done[r]++;
+        }
+      }
+      // restore lottery for next protocol
+      for(let r=0;r<24;r++) for(let s=0;s<6;s++)
+        lossAt[r][s]=false;
+      // rebuild lottery deterministically for next call
+      const rng2=mulberry32(this.seed);
+      for(let r=0;r<24;r++) for(let s=0;s<6;s++) lossAt[r][s]=rng2()<loss;
+      return {ms: step*10, events};
+    };
+    this.res={ h1:runProto('h1'), h2:runProto('h2'), h3:runProto('h3'), nloss };
+    this.playT=0;
+    setM('e2.loss', rLoss.value+'%');
+    setM('e2.h1', this.res.h1.ms+' ms');
+    setM('e2.h2', this.res.h2.ms+' ms');
+    setM('e2.h3', this.res.h3.ms+' ms');
+    setM('e2.nloss', nloss);
+  },
+  update(dt){
+    this.t+=dt; this.playT+=dt;
+    const maxMs=Math.max(this.res.h1.ms, this.res.h2.ms, this.res.h3.ms);
+    if(this.playT*400>maxMs+400) this.playT=0;
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const simMs=this.playT*400;
+    const lanes=[['h1','HTTP/1 · 6 CONNS',CSS.b],['h2','HTTP/2 · ONE PIPE',CSS.fault],['h3','HTTP/3 · QUIC',CSS.a]];
+    lanes.forEach(([key,label,col],li)=>{
+      const y0=30+li*((H-50)/3);
+      const r=this.res[key];
+      const prog=Math.min(1, simMs/r.ms);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText(label+' — '+r.ms+'ms', 18, y0-4);
+      // 24 tiles filling with progress (approximation: uniform fill; freeze flashes from events)
+      const frozenNow=this.res[key].events.some(e=>Math.abs(e.step*10-simMs)<60 && key==='h2');
+      for(let i=0;i<24;i++){
+        const x=18+i*((W-36)/24);
+        const tileProg=Math.max(0,Math.min(1,(prog*26-i*0.35)/2));
+        ctx.strokeStyle=CSS.line;
+        ctx.strokeRect(x, y0, (W-36)/24-4, 26);
+        ctx.fillStyle= frozenNow? CSS.fault : col;
+        ctx.globalAlpha= frozenNow? 0.25 : 0.7;
+        ctx.fillRect(x+1, y0+1+ (26-2)*(1-tileProg), (W-36)/24-6, (26-2)*tileProg);
+        ctx.globalAlpha=1;
+      }
+      // loss flashes
+      for(const ev of r.events){
+        if(Math.abs(ev.step*10-simMs)<40){
+          const x=18+ev.r*((W-36)/24);
+          ctx.strokeStyle=CSS.fault; ctx.lineWidth=2;
+          ctx.strokeRect(x, y0, (W-36)/24-4, 26);
+          ctx.lineWidth=1;
+          if(key==='h2'){ ctx.fillStyle=CSS.fault; ctx.textAlign='center';
+            ctx.fillText('⚠ ALL STREAMS WAIT', W/2, y0+40); }
+        }
+      }
+      if(prog>=1){ ctx.fillStyle=col; ctx.textAlign='right'; ctx.fillText('DONE', W-18, y0-4); }
+    });
+  }
+};
+e2.reset();
+rLoss.addEventListener('input',()=>e2.runRace());
+document.querySelector('[data-act="e2-run"]').addEventListener('click',()=>{ e2.seed=(e2.seed*16807)%2147483647; e2.runRace(); });
+
+/* ================= EXP-03: the blocking script ================= */
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){ this.t=0; this.playT=0;
+    /* honest event model, ms:
+       HTML streams 0..300. Script tag discovered at 60.
+       SYNC: parser blocks 60..(60+350 fetch+80 exec)=490, resumes, DOM done 490+240=730.
+             First paint: after script done + first chunk parsed ≈ 740.
+       DEFER: preload scanner starts fetch at 60 (parallel). Parser never blocks:
+             DOM done ≈ 340. First paint ≈ 250 (enough DOM+CSS). Script execs at
+             max(DOM done, fetch done 60+350=410) = 410. */
+    this.sync={block:[60,490], domDone:730, paint:740};
+    this.defer={fetch:[60,410], domDone:340, paint:250, exec:410};
+    setM('e3.sync', this.sync.paint+' ms');
+    setM('e3.defer', this.defer.paint+' ms');
+    setM('e3.dexec', this.defer.exec+' ms (after DOM, exactly as promised)');
+  },
+  update(dt){ this.t+=dt; this.playT+=dt;
+    if(this.playT*300>1000) this.playT=0; },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const simMs=this.playT*300;
+    const L=120, bw=W-L-40, maxMs=800;
+    const X=ms=>L+ms/maxMs*bw;
+    const lane=(y, label, rows)=>{
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText(label, 16, y-8);
+      rows.forEach((row,i)=>{
+        const yy=y+i*22;
+        ctx.fillStyle=CSS.muted;
+        ctx.fillText(row.name, 16, yy+12);
+        const [a,b]=row.span;
+        const upTo=Math.min(b, simMs);
+        ctx.strokeStyle=CSS.line;
+        ctx.strokeRect(X(a), yy, X(b)-X(a), 15);
+        if(upTo>a){
+          ctx.fillStyle=row.col; ctx.globalAlpha=.75;
+          ctx.fillRect(X(a)+1, yy+1, X(upTo)-X(a)-2, 13);
+          ctx.globalAlpha=1;
+        }
+      });
+    };
+    lane(38,'SYNC SCRIPT IN <head>',[
+      {name:'HTML parse', span:[0,60], col:CSS.a},
+      {name:'BLOCKED',    span:[60,490], col:CSS.fault},
+      {name:'parse again',span:[490,730], col:CSS.a},
+    ]);
+    lane(H*0.55,'<script defer>',[
+      {name:'HTML parse', span:[0,340], col:CSS.a},
+      {name:'fetch (bg)', span:[60,410], col:CSS.b},
+      {name:'exec',       span:[410,490], col:CSS.traffic},
+    ]);
+    // first paint markers
+    const mark=(ms,y,label,col)=>{
+      if(simMs<ms) return;
+      ctx.strokeStyle=col;
+      ctx.beginPath(); ctx.moveTo(X(ms), y-14); ctx.lineTo(X(ms), y+52); ctx.stroke();
+      ctx.fillStyle=col; ctx.textAlign='left';
+      ctx.fillText(label+' '+ms+'ms', X(ms)+5, y-16);
+    };
+    mark(this.sync.paint, 60, '⚠ FIRST PAINT', CSS.fault);
+    mark(this.defer.paint, H*0.55+20, '✓ FIRST PAINT', CSS.traffic);
+    // time axis
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    [0,200,400,600,800].forEach(msv=>ctx.fillText(msv+'ms', X(msv), H-12));
+    // playhead
+    ctx.strokeStyle=CSS.traffic; ctx.globalAlpha=.5;
+    ctx.beginPath(); ctx.moveTo(X(Math.min(maxMs,simMs)), 16); ctx.lineTo(X(Math.min(maxMs,simMs)), H-26); ctx.stroke();
+    ctx.globalAlpha=1;
+  }
+};
+e3.reset();
+document.querySelector('[data-act="e3-run"]').addEventListener('click',()=>{ e3.playT=0; });
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+running.hero=true;   // hero runs via its own auto flag
+const heroPlay=document.querySelector('[data-act="hero-play"]');
+if(REDUCED){ hero.auto=false; heroPlay.textContent='PLAY'; }
+heroPlay.addEventListener('click',()=>{ hero.auto=!hero.auto; heroPlay.textContent=hero.auto?'PAUSE':'PLAY'; });
+document.querySelector('[data-act="hero-replay"]').addEventListener('click',()=>{ hero.ms=0; hero.auto=true; heroPlay.textContent='PAUSE'; });
+rScrub.addEventListener('input',()=>{ hero.auto=false; heroPlay.textContent='PLAY'; hero.ms=+rScrub.value; });
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.001); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

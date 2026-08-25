@@ -29,8 +29,13 @@ outer shell first. The artifact URLs below predate this change and still work.
 | 11 | The Quorum (Amazon Dynamo) | `dynamo.html` | Pages only |
 | 12 | The Upload (YouTube) | `youtube.html` | Pages only |
 | 13 | The Feed (Instagram) | `instagram.html` | Pages only |
+| 14 | The Page (URL → pixels) | `url-to-page.html` | Pages only |
 
-Flagship tier complete. Next planned: **The Page — what really happens when you type a URL**.
+Flagship tier complete. Next planned: **The Edge — CDNs, anycast, and absorbing the flood**.
+
+Extractor gotcha (learned on EP14): the awk script-extraction drops any JS line
+containing a literal `<script>` token (e.g. inside a canvas-label string) — avoid
+that exact substring in strings, or the headless harness sees a truncated file.
 
 Editorial lesson from Ep03 (keep): op-count economics do NOT justify the celebrity
 threshold — per follow edge, follower count cancels out of the push-vs-pull comparison.
