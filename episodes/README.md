@@ -30,8 +30,9 @@ outer shell first. The artifact URLs below predate this change and still work.
 | 12 | The Upload (YouTube) | `youtube.html` | Pages only |
 | 13 | The Feed (Instagram) | `instagram.html` | Pages only |
 | 14 | The Page (URL → pixels) | `url-to-page.html` | Pages only |
+| 15 | The Edge (CDN & anycast) | `cdn-edge.html` | Pages only |
 
-Flagship tier complete. Next planned: **The Edge — CDNs, anycast, and absorbing the flood**.
+Flagship tier complete. Next planned: **The Ladder — databases at scale** (closes plumbing).
 
 Extractor gotcha (learned on EP14): the awk script-extraction drops any JS line
 containing a literal `<script>` token (e.g. inside a canvas-label string) — avoid

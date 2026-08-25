@@ -25,8 +25,9 @@ real fix, and the sliders are yours.
 | 12 | [The Upload — YouTube](episodes/youtube.html) | Chunked-parallel transcoding (live in 5 min, not 60); the thumbnail meltdown vs packed storage; adaptive bitrate vs the dips |
 | 13 | [The Feed — Instagram](episodes/instagram.html) | The 64-bit ID minted & decoded live; kill the ID service nobody needed; sort/route verified; cursor vs OFFSET pagination |
 | 14 | [The Page — URL to pixels](episodes/url-to-page.html) | The scrubber walk; the war on round trips (TLS 1.2 → QUIC 0-RTT); H2 head-of-line vs H3; the blocking script |
+| 15 | [The Edge — CDN & anycast](episodes/cdn-edge.html) | Anycast vs unicast; the 78× cache funnel; the 31.4 Tbps storm at 6% headroom; the 2019 regex bomb with real engines |
 
-**The flagship tier is complete.** Next: **The Edge — CDNs, anycast, and absorbing the flood** (sidebar shows the roadmap).
+**The flagship tier is complete.** Next: **The Ladder — databases at scale** closes the plumbing tier (sidebar shows the roadmap).
 
 ## Structure
 

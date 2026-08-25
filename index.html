@@ -173,8 +173,8 @@
       <li><a class="ep" href="#/dns" data-ep="dns">The Name · DNS</a></li>
       <li><a class="ep" href="#/bgp" data-ep="bgp">The Border · BGP</a></li>
       <li><a class="ep" href="#/url-to-page" data-ep="url-to-page">The Page · URL → Pixels</a></li>
-      <li><span class="soon">CDN &amp; the Edge<i>NEXT</i></span></li>
-      <li><span class="soon">Databases at Scale<i>SOON</i></span></li>
+      <li><a class="ep" href="#/cdn-edge" data-ep="cdn-edge">The Edge · CDN</a></li>
+      <li><span class="soon">Databases at Scale<i>NEXT</i></span></li>
     </ul>
   </details>
 
@@ -213,7 +213,7 @@
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">14</span> SYSTEMS LIVE · 29 RESEARCHED<br>
+    <span id="live-count">15</span> SYSTEMS LIVE · 29 RESEARCHED<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -334,6 +334,13 @@
           seven-stage journey, the war on round trips (1.35s of handshakes on satellite),
           HTTP/2's head-of-line freeze vs QUIC's shrug, and the blocking script.</span>
         </a>
+        <a class="card" href="#/cdn-edge">
+          <span class="k">EP 15 · Internet plumbing</span>
+          <span class="t">The Edge — CDN &amp; anycast</span>
+          <span class="d">One IP announced from every city; the cache funnel that lets an
+          origin doze at 0.4 req/s; a 31.4 Tbps storm absorbed at 6% headroom; and the 2019
+          regex bomb — real engines measured, deployed two different ways.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -375,6 +382,7 @@ const EPISODES = {
   'youtube':           {title:'EP 12 — The Upload · YouTube',         file:'episodes/youtube.html'},
   'instagram':         {title:'EP 13 — The Feed · Instagram',         file:'episodes/instagram.html'},
   'url-to-page':       {title:'EP 14 — The Page · URL to Pixels',     file:'episodes/url-to-page.html'},
+  'cdn-edge':          {title:'EP 15 — The Edge · CDN & Anycast',     file:'episodes/cdn-edge.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');
