@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Upload — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:36px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  canvas.chart{display:block;width:100%;background:var(--panel);border-top:1px solid var(--panel-line)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .legend{display:flex;gap:16px;padding:8px 16px 0;font-size:10.5px;color:var(--panel-muted);letter-spacing:.06em}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Flagships · Episode 12</p>
+  <h1>The Upload</h1>
+  <p class="dek">YouTube is Netflix inverted. Netflix curates thousands of titles and ships
+  them to your ISP overnight; YouTube must accept <em>everything</em> — more than 500 hours
+  of new video arriving every minute — transcode all of it into a ladder of formats within
+  minutes, store 20 billion videos forever, and serve a billion watch-hours a day. The
+  firehose got so expensive that Google designed a custom chip just to keep up, and the
+  database layer built to survive it escaped to become everyone's MySQL scaling tool.</p>
+  <p class="marginal">Amber = video and the machines processing it. Cyan = viewers and
+  requests. The transcoding, thumbnail, and playback experiments below are honest work
+  simulations — chunks, seeks, and buffers behave by arithmetic, not by script.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The firehose — 500 hours of video arrive every minute</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:250px" role="img" aria-label="Upload dots rain into a growing stack of tape; counters track hours of video arrived since the page opened and how long it would take one person to watch it"></canvas>
+  <div class="exp-metrics">
+    <span>ARRIVED SINCE YOU OPENED THIS PAGE<b data-m="hero.hrs">0 hours</b></span>
+    <span>TIME TO WATCH IT ALL, ALONE<b data-m="hero.watch">–</b></span>
+    <span>UPLOADS TODAY, REAL YOUTUBE<b>~20 MILLION VIDEOS</b></span>
+  </div>
+  <figcaption class="exp-note">Every second you've been reading, roughly <em>eight and a
+  half hours</em> of new video arrived at YouTube's edge — each upload chunked, resumable,
+  and headed for a pipeline that must turn it into a dozen formats before anyone can press
+  play. Netflix's problem is delivery. YouTube's problem starts before the video even
+  exists in watchable form.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Cut the tape: chunked parallel transcoding</h2>
+  <p>A one-hour upload encoded on one machine at roughly real-time speed takes… an hour —
+  and that's just the first rendition. YouTube's pipeline instead <strong>cuts the video
+  into segments and encodes them simultaneously</strong> across the fleet, then stitches
+  the results. Just as important is the <em>order</em>: a fast, cheap ladder is produced
+  first so the video goes live in minutes, and the expensive VP9/AV1 renditions follow
+  later — and only where predicted popularity justifies the compute.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">One 60-minute upload — serial encode vs the chunked fleet</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-wk">Parallel workers</label>
+      <input type="range" id="r-wk" min="1" max="24" value="12" step="1">
+      <output data-m="e1.wk">12</output></span>
+    <span>12 CHUNKS OF 5 MIN · FAST PASS FIRST (GO LIVE), HQ VP9 PASS AFTER (×3 COST)</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:260px" role="img" aria-label="Two pipelines encode the same 12 video chunks: a single serial machine, and a fleet of parallel workers; a LIVE badge appears when the fast pass completes"></canvas>
+  <div class="exp-metrics">
+    <span>SERIAL — VIDEO LIVE AFTER<b class="bad" data-m="e1.slive">–</b></span>
+    <span>CHUNKED — LIVE AFTER<b data-m="e1.clive">–</b></span>
+    <span>FULL HQ LADDER — SERIAL / CHUNKED<b data-m="e1.full">–</b></span>
+    <span>SPEEDUP<b data-m="e1.speed">–</b></span>
+  </div>
+  <figcaption class="exp-note">At 12 workers the video is <em>live in 5 minutes</em> instead
+  of an hour — wall-clock collapses to one chunk's worth. In the real fleet the workers are
+  <em>Argos VCU cards</em>: Google's custom video-coding silicon, 10 encoder cores per chip
+  each eating 4K60 in real time, 20 cards per host, delivering 20–33× the
+  throughput-per-dollar of CPU encoding — the TPU logic applied to video, because at 500
+  hours a minute, software encoding lost the race.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The hard part isn't where you think: thumbnails</h2>
+  <p>Serving the <em>videos</em> was comparatively easy — big sequential files, kind to
+  disks. What nearly killed early YouTube was the small stuff: billions of ~5&nbsp;KB
+  thumbnails, dozens per page, each one a random disk seek. Apache buckled; the Squid cache
+  in front of it started at 300 requests per second and <em>degraded to 20</em> as the
+  working set outgrew memory and every request became a seek. The post-acquisition fix:
+  store thumbnails in BigTable, which packs millions of tiny images into large sorted
+  files — so one disk read fetches a whole neighborhood of thumbnails, and caches span
+  datacenters.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">The thumbnail meltdown — seek-per-file vs packed storage</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-load">Page loads /s</label>
+      <input type="range" id="r-load" min="1" max="12" value="3" step="1">
+      <output data-m="e2.load">3</output></span>
+    <span>EACH PAGE REQUESTS 60 THUMBNAILS · DISK SEEK 8ms · PACKED BLOCK = 64 THUMBS PER SEEK</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:240px" role="img" aria-label="Two thumbnail servers under the same page load: one seeks the disk for every image and its queue explodes; the other fetches packed blocks and stays calm"></canvas>
+  <div class="legend"><span><i style="background:var(--series-a)"></i>SEEK-WORLD BACKLOG, SECONDS OF DISK WORK</span></div>
+  <canvas class="chart" id="ch-e2" style="height:110px"></canvas>
+  <div class="exp-metrics">
+    <span>DEMAND<b data-m="e2.dem">–</b></span>
+    <span>SEEK-WORLD SERVES<b class="bad" data-m="e2.seek">–</b></span>
+    <span>PACKED-WORLD SERVES<b data-m="e2.bt">–</b></span>
+    <span>THUMBNAILS DROPPED (SEEK)<b class="bad" data-m="e2.drop">0</b></span>
+  </div>
+  <figcaption class="exp-note">At 3 page loads a second — 180 thumbnails — the seek-bound
+  server is already past its ~125-seek budget and the backlog starts its climb; push the
+  slider and watch it shed images exactly the way the real Squid did on the way from 300
+  req/s down to 20. The packed world amortizes one seek across 64 thumbnails and doesn't
+  notice. The general law: <em>lots of small objects are a harder storage problem than a
+  few huge ones</em> — and it's why BigTable-shaped systems exist.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The last mile: the player does the adapting</h2>
+  <p>After the pipeline built its ladder of renditions — 144p to 4K, H.264 and VP9 — the
+  final system runs on the viewer's device. The player fetches video in small segments and,
+  before each one, measures its bandwidth and picks a rung of the ladder. A fixed-quality
+  player on a wobbling connection drains its buffer and freezes; the adaptive player trades
+  pixels for continuity, stepping down before the buffer dies and back up when the network
+  recovers. Same connection, same ladder — the difference is one decision every few
+  seconds.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">A wobbly connection — fixed 1080p vs adaptive bitrate, same bandwidth</span>
+    <span class="exp-run"><button class="btn" data-run="e3">PAUSE</button><button class="btn" data-reset="e3">RESET</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-e3" style="height:250px" role="img" aria-label="Two video players with buffer gauges share one fluctuating bandwidth trace; the fixed player stalls red while the adaptive one steps down the quality ladder and keeps playing"></canvas>
+  <div class="legend">
+    <span><i style="background:var(--series-b)"></i>FIXED 1080p BUFFER, SECONDS</span>
+    <span><i style="background:var(--series-a)"></i>ADAPTIVE BUFFER, SECONDS</span>
+  </div>
+  <canvas class="chart" id="ch-e3" style="height:110px"></canvas>
+  <div class="exp-metrics">
+    <span>FIXED — STALLS<b class="bad" data-m="e3.fstall">0</b></span>
+    <span>FIXED — TIME FROZEN<b class="bad" data-m="e3.ftime">0.0s</b></span>
+    <span>ADAPTIVE — STALLS<b data-m="e3.astall">0</b></span>
+    <span>ADAPTIVE — CURRENT RUNG<b data-m="e3.rung">–</b></span>
+  </div>
+  <figcaption class="exp-note">Watch a bandwidth dip arrive: the fixed player's buffer
+  drains linearly to zero and the screen freezes — every red stall is a viewer reaching for
+  another app. The adaptive player sees the same dip, drops to 480p for a few segments,
+  and never stops. The entire transcoding factory upstream exists to give this one loop
+  options: <em>the ladder is bought at upload time so continuity can be chosen at watch
+  time</em>.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What held the metadata together</h2>
+  <p>Under all of it sits the least glamorous, most exported piece: <strong>Vitess</strong>.
+  Born at YouTube in 2010 when MySQL outages were multiplying, it wedged a Go proxy between
+  application and database — pooling memory-expensive connections, rewriting and killing
+  runaway queries, and hiding sharding and resharding from the application entirely. It
+  carried all of YouTube's database traffic from 2011, was open-sourced, graduated the CNCF
+  in 2019, and now runs MySQL fleets at Slack, GitHub, and beyond — one company's scar
+  tissue becoming everyone's infrastructure (we met it holding Slack together back in the
+  episodes' research base).</p>
+  <p>And the culture that scaled 2005-era YouTube to 4 billion views a day on a million
+  lines of Python is worth its own sentence: pick the simplest thing with the loosest
+  guarantees you can get away with; add jitter so the herd doesn't stampede; let view
+  counters be briefly, invisibly wrong. <strong>Approximate correctness where nobody can
+  observe it — exactness only where they can.</strong> That doctrine, plus a chip, plus a
+  proxy, is how you swallow the firehose.</p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>T. Hoff — <a href="https://highscalability.com/youtube-architecture/">YouTube Architecture</a> (from Cuong Do's 2007/2008 talks): the Python era, MySQL evolution, the Squid 300→20 req/s thumbnail collapse and the BigTable fix.</li>
+    <li>M. Solomon — <a href="https://highscalability.com/7-years-of-youtube-scalability-lessons-in-30-minutes/">Scalability at YouTube</a>, PyCon 2012: 4B views/day, simplicity doctrine, jitter, approximate correctness.</li>
+    <li>Ranganathan et al. — <a href="https://dl.acm.org/doi/abs/10.1145/3445814.3446723">Warehouse-scale video acceleration</a> (the Argos VCU paper), ASPLOS 2021: 10 encoder cores/chip, 20 VCUs/host, 20–33× perf/TCO.</li>
+    <li>Vitess — <a href="https://vitess.io/docs/20.0/overview/history/">project history</a>; CNCF — <a href="https://www.cncf.io/reports/vitess-project-journey-report/">journey report</a>, 2020.</li>
+    <li>YouTube — <a href="https://blog.youtube/news-and-events/happy-birthday-youtube-20/">20th-anniversary stats</a>, 2025 (20B videos, 20M uploads/day); the 500 hrs/min figure via <a href="https://www.tubefilter.com/2019/05/07/number-hours-video-uploaded-to-youtube-per-minute/">Tubefilter</a>, 2019; 1B watch-hours/day via <a href="https://www.engadget.com/2017-02-27-youtube-one-billion-hours-watched-daily.html">the 2017 announcement</a>.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>The Feed: Instagram, three engineers, fourteen million users</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const fmtS = s => !isFinite(s) ? '–' : (s < 9.95 ? s.toFixed(1)+'s' : Math.round(s)+'s');
+
+/* ================= HERO: the firehose ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(5),
+  reset(){ this.t=0; this.drops=[]; },
+  update(dt){
+    this.t+=dt;
+    if(this.rng()<dt*14 && this.drops.length<60) this.drops.push({x:this.rng(), u:0, s:0.5+this.rng()});
+    this.drops=this.drops.filter(d=>(d.u+=dt/(1.1*d.s))<1);
+    const hrs=this.t*(500/60);          // 500 hours per minute of real time
+    setM('hero.hrs', hrs>=1? hrs.toFixed(1)+' hours' : Math.round(hrs*60)+' minutes');
+    const watchDays=hrs/16;             // watching 16h/day
+    setM('hero.watch', watchDays>=1? watchDays.toFixed(1)+' days of nonstop watching'
+      : (hrs).toFixed(1)+' hours of watching');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    // the growing stack (log-ish so it doesn't fill)
+    const hrs=this.t*(500/60);
+    const stackH=Math.min(H-90, 20+Math.log10(1+hrs)*70);
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(W*0.5-90, H-34-stackH, 180, stackH);
+    ctx.fillStyle='rgba(196,130,36,0.35)';
+    ctx.fillRect(W*0.5-89, H-34-stackH+1, 178, stackH-2);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('THE PILE OF NEW TAPE', W*0.5, H-16);
+    // rain
+    for(const d of this.drops){
+      const x=W*0.12+d.x*W*0.76, y=16+d.u*(H-60-stackH*0.4);
+      ctx.fillStyle=CSS.traffic;
+      ctx.globalAlpha=0.85;
+      ctx.fillRect(x-4, y, 8, 5);
+      ctx.globalAlpha=1;
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('EACH FALLING TILE = ONE UPLOAD (20M+/DAY)', 14, 20);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: chunked transcoding ================= */
+const rWk=document.getElementById('r-wk');
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  /* time unit: 1 sim second = 8 video-minutes of encode throughput per worker */
+  RATE:8,
+  reset(){
+    this.t=0;
+    // serial world: one worker, fast pass (60 vmin) then hq (180 vmin)
+    this.s={fastDone:0, hqDone:0, liveAt:NaN, fullAt:NaN};
+    // chunked: 12 chunks x (5 fast + 15 hq); workers pull chunks, fast first
+    this.chunks=Array.from({length:12},()=>({fast:5, hq:15}));
+    this.c={liveAt:NaN, fullAt:NaN};
+  },
+  update(dt){
+    this.t+=dt;
+    const R=this.RATE*dt;
+    // serial
+    if(this.s.fastDone<60){ this.s.fastDone=Math.min(60,this.s.fastDone+R);
+      if(this.s.fastDone>=60) this.s.liveAt=this.t; }
+    else if(this.s.hqDone<180){ this.s.hqDone=Math.min(180,this.s.hqDone+R);
+      if(this.s.hqDone>=180) this.s.fullAt=this.t; }
+    // chunked: N workers spread across distinct chunks (fast pass first)
+    const N=+rWk.value;
+    const fastChunks=this.chunks.filter(c=>c.fast>0);
+    if(fastChunks.length){
+      for(let w=0;w<N;w++){ const ch=fastChunks[w%fastChunks.length]; ch.fast=Math.max(0,ch.fast-R); }
+    } else {
+      const hqChunks=this.chunks.filter(c=>c.hq>0);
+      for(let w=0;w<N && hqChunks.length;w++){ const ch=hqChunks[w%hqChunks.length]; ch.hq=Math.max(0,ch.hq-R); }
+    }
+    if(isNaN(this.c.liveAt) && this.chunks.every(c=>c.fast<=0)) this.c.liveAt=this.t;
+    if(isNaN(this.c.fullAt) && this.chunks.every(c=>c.hq<=0)) this.c.fullAt=this.t;
+    const vm=t=>isNaN(t)? '–' : Math.round(t*this.RATE)+' min';
+    setM('e1.wk', N);
+    setM('e1.slive', vm(this.s.liveAt));
+    setM('e1.clive', vm(this.c.liveAt));
+    setM('e1.full', vm(this.s.fullAt)+' / '+vm(this.c.fullAt));
+    setM('e1.speed', (!isNaN(this.s.liveAt)&&!isNaN(this.c.liveAt))?
+      '×'+(this.s.liveAt/this.c.liveAt).toFixed(1)+' to live' : '–');
+    // restart cycle when both fully done (+ pause)
+    if(!isNaN(this.s.fullAt)&&!isNaN(this.c.fullAt)&&this.t>Math.max(this.s.fullAt,this.c.fullAt)+3)
+      this.reset();
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    // serial bar
+    ctx.fillText('SERIAL — ONE MACHINE', 20, 30);
+    const bw=W-40;
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(20, 40, bw, 22);
+    const sFast=this.s.fastDone/60, sHq=this.s.hqDone/180;
+    ctx.fillStyle=CSS.a;
+    ctx.fillRect(21, 41, (bw-2)*sFast*0.25, 20);
+    ctx.fillStyle='rgba(196,130,36,0.45)';
+    ctx.fillRect(21+(bw-2)*0.25, 41, (bw-2)*sHq*0.75, 20);
+    if(!isNaN(this.s.liveAt)){
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('● LIVE', 24+(bw-2)*0.25, 56);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('fast pass ↑ live · then the ×3 HQ pass', 20, 78);
+    // chunk grid
+    ctx.fillText('CHUNKED — '+rWk.value+' WORKERS ON 12 CHUNKS', 20, 108);
+    const cw=(W-40-11*6)/12;
+    this.chunks.forEach((c,i)=>{
+      const x=20+i*(cw+6), y=118;
+      const fastFrac=1-c.fast/5, hqFrac=1-c.hq/15;
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(x, y, cw, 44);
+      ctx.fillStyle=CSS.a;
+      ctx.fillRect(x+1, y+1, (cw-2)*fastFrac, 20);
+      ctx.fillStyle='rgba(196,130,36,0.45)';
+      ctx.fillRect(x+1, y+23, (cw-2)*hqFrac, 20);
+    });
+    if(!isNaN(this.c.liveAt)){
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='left';
+      ctx.fillText('● LIVE AFTER '+Math.round(this.c.liveAt*this.RATE)+' MIN — HQ RENDITIONS STILL FILLING', 20, 186);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('TOP HALF OF EACH CHUNK: FAST PASS · BOTTOM: VP9 HQ', 20, H-16);
+  }
+};
+e1.reset();
+rWk.addEventListener('input',()=>setM('e1.wk', rWk.value));
+
+/* ================= EXP-02: thumbnail meltdown ================= */
+const rLoad=document.getElementById('r-load');
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.rng=mulberry32(23); this.t=0; this.next=0.3;
+    this.seekBacklog=0; this.drop=0; this.servedSeek=0; this.servedBT=0;
+    this.lastShed=-9; this.win=[]; this.spark=[]; this.lastS=0; },
+  update(dt){
+    this.t+=dt;
+    const pl=+rLoad.value;
+    while(this.t>=this.next){
+      this.next += expRand(this.rng, 1/pl);
+      // one page = 60 thumbnails
+      // seek world: ~85% need a seek (cold-ish cache), 8ms each, serialized
+      const seeks=Math.round(60*0.85);
+      this.seekBacklog += seeks*0.008;
+      // packed world: 60 thumbs / 64-per-block ≈ 1 seek + cache
+      this.win.push({t:this.t, n:60});
+    }
+    // seek server works off backlog in real time; shed if backlog > 4s
+    const served=Math.min(this.seekBacklog, dt);
+    this.seekBacklog-=served;
+    this.servedSeek += served/0.008;
+    if(this.seekBacklog>4){
+      const shed=(this.seekBacklog-4);
+      this.drop += shed/0.008;
+      this.seekBacklog=4;
+      this.lastShed=this.t;
+    }
+    while(this.win.length&&this.win[0].t<this.t-3) this.win.shift();
+    const demand=this.win.reduce((a,w)=>a+w.n,0)/3;
+    this.servedBT=demand;   // packed world keeps up (64x seek budget)
+    if(this.t-this.lastS>0.25){
+      this.lastS=this.t;
+      this.spark.push({t:this.t, v:this.seekBacklog});
+      while(this.spark.length&&this.spark[0].t<this.t-60) this.spark.shift();
+      setM('e2.load', pl);
+      setM('e2.dem', Math.round(demand)+' thumbs/s');
+      setM('e2.seek', Math.round(Math.min(demand,125/0.85))+'/s'+(this.t-this.lastShed<4?' · SHEDDING':''));
+      setM('e2.bt', Math.round(demand)+'/s');
+      setM('e2.drop', Math.round(this.drop));
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2,12); ctx.lineTo(W/2,H-12); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('ONE SEEK PER THUMBNAIL (SQUID ERA)', W*0.25, 24);
+    ctx.fillText('PACKED BLOCKS (BIGTABLE)', W*0.75, 24);
+    const disk=(x0, backlogSec, packed)=>{
+      const cx=x0+W/4;
+      ctx.strokeStyle=CSS.line;
+      ctx.beginPath(); ctx.arc(cx, H*0.5, 34, 0, 7); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, H*0.5, 8, 0, 7); ctx.stroke();
+      // spinning arm jitter for seeks
+      const ang=packed? this.t*1.2 : this.t*9+Math.sin(this.t*31)*2;
+      ctx.strokeStyle=packed?CSS.traffic:CSS.fault;
+      ctx.beginPath(); ctx.moveTo(cx,H*0.5);
+      ctx.lineTo(cx+Math.cos(ang)*30, H*0.5+Math.sin(ang)*30); ctx.stroke();
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(packed?'ONE SEEK → 64 THUMBS':'ONE SEEK → 1 THUMB', cx, H*0.5+56);
+      // backlog bar
+      if(!packed){
+        const frac=Math.min(1, backlogSec/4);
+        ctx.strokeStyle=CSS.line;
+        ctx.strokeRect(cx-70, H*0.78, 140, 12);
+        ctx.fillStyle= frac>0.9?CSS.fault:CSS.a;
+        ctx.fillRect(cx-69, H*0.78+1, 138*frac, 10);
+        ctx.fillStyle=CSS.muted;
+        ctx.fillText('DISK QUEUE '+backlogSec.toFixed(1)+'s'+(frac>=1?' · DROPPING':''), cx, H*0.78+26);
+      } else {
+        ctx.fillStyle=CSS.traffic;
+        ctx.fillText('KEEPING UP', cx, H*0.78+8);
+      }
+    };
+    disk(0, this.seekBacklog, false);
+    disk(W/2, 0, true);
+  }
+};
+e2.reset();
+rLoad.addEventListener('input',()=>setM('e2.load', rLoad.value));
+
+/* ================= EXP-03: adaptive bitrate ================= */
+const LADDER=[
+  {name:'1080p', mbps:4.8},
+  {name:'720p',  mbps:2.4},
+  {name:'480p',  mbps:1.2},
+  {name:'360p',  mbps:0.6},
+  {name:'144p',  mbps:0.25},
+];
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){ this.rng=mulberry32(41); this.t=0;
+    this.bw=4.5; this.dip=-1;
+    this.f={buf:6, stalls:0, stallT:0, stalled:false};
+    this.a={buf:6, stalls:0, stallT:0, stalled:false, rung:0, segT:0};
+    this.spark=[]; this.lastS=0; },
+  update(dt){
+    this.t+=dt;
+    // bandwidth: random walk + occasional deep dips
+    if(this.t>this.dip){
+      if(this.rng()<dt*0.07) this.dip=this.t+3+this.rng()*3;    // a dip every ~15s
+    }
+    const inDip=this.t<this.dip;
+    const target=inDip? 0.5 : 5+Math.sin(this.t*0.3)*1.2+this.rng()*0.6;
+    this.bw += (target-this.bw)*dt*1.5;
+    // fixed player at 1080p
+    const step=(p,mbps)=>{
+      const fill=this.bw/mbps;
+      if(p.stalled){
+        p.buf += fill*dt;
+        p.stallT += dt;
+        if(p.buf>2) p.stalled=false;                            // resume after 2s buffered
+      } else {
+        p.buf += (fill-1)*dt;
+        if(p.buf<=0){ p.buf=0; p.stalled=true; p.stalls++; }
+      }
+      p.buf=Math.min(20,p.buf);
+    };
+    step(this.f, LADDER[0].mbps);
+    // adaptive: re-choose rung every 2s segment
+    this.a.segT+=dt;
+    if(this.a.segT>=2){
+      this.a.segT=0;
+      let pick=LADDER.length-1;
+      for(let i=0;i<LADDER.length;i++){
+        if(LADDER[i].mbps<=this.bw*0.8 || (i===this.a.rung && this.a.buf>10 && LADDER[i].mbps<=this.bw*1.05)){
+          pick=i; break;
+        }
+      }
+      this.a.rung=pick;
+    }
+    step(this.a, LADDER[this.a.rung].mbps);
+    if(this.t-this.lastS>0.25){
+      this.lastS=this.t;
+      this.spark.push({t:this.t, m:this.f.buf, r:this.a.buf});
+      while(this.spark.length&&this.spark[0].t<this.t-60) this.spark.shift();
+      setM('e3.fstall', this.f.stalls);
+      setM('e3.ftime', this.f.stallT.toFixed(1)+'s');
+      setM('e3.astall', this.a.stalls);
+      setM('e3.rung', LADDER[this.a.rung].name+' @ '+this.bw.toFixed(1)+' Mbps');
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    // bandwidth gauge
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('SHARED CONNECTION: '+this.bw.toFixed(1)+' Mbps', W/2, 22);
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(W/2-120, 30, 240, 10);
+    ctx.fillStyle=this.bw<1?CSS.fault:CSS.b;
+    ctx.fillRect(W/2-119, 31, 238*Math.min(1,this.bw/6), 8);
+    const player=(x0,p,name,mbps,rungName)=>{
+      const cx=x0+W/4;
+      // screen
+      ctx.strokeStyle=p.stalled?CSS.fault:CSS.line;
+      ctx.strokeRect(cx-70, H*0.32, 140, 80);
+      if(p.stalled){
+        ctx.fillStyle=CSS.fault; ctx.textAlign='center';
+        const spin='◐◓◑◒'[Math.floor(this.t*6)%4];
+        ctx.font='22px ui-monospace, Menlo, monospace';
+        ctx.fillText(spin, cx, H*0.32+46);
+        ctx.font='10px ui-monospace, Menlo, monospace';
+        ctx.fillText('BUFFERING', cx, H*0.32+66);
+      } else {
+        ctx.fillStyle='rgba(242,169,59,0.2)';
+        ctx.fillRect(cx-69, H*0.32+1, 138, 78);
+        ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+        ctx.fillText('▶ '+rungName, cx, H*0.32+44);
+      }
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(name, cx, H*0.32-8);
+      // buffer gauge
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(cx-70, H*0.78, 140, 10);
+      ctx.fillStyle= p.buf<2?CSS.fault:CSS.a;
+      ctx.fillRect(cx-69, H*0.78+1, 138*Math.min(1,p.buf/20), 8);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('BUFFER '+p.buf.toFixed(1)+'s', cx, H*0.78+24);
+    };
+    player(0, this.f, 'FIXED 1080p (4.8 Mbps)', LADDER[0].mbps, '1080p');
+    player(W/2, this.a, 'ADAPTIVE (DASH LADDER)', LADDER[this.a.rung].mbps, LADDER[this.a.rung].name);
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2,50); ctx.lineTo(W/2,H-12); ctx.stroke();
+  }
+};
+e3.reset();
+
+/* charts */
+function drawSeries1(cvId, samples, color, cap){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  if(samples.length<2) return;
+  const L=40,R=14,T=10,B=8, pw=W-L-R, ph=H-T-B;
+  const t1=samples[samples.length-1].t, t0=t1-60;
+  const vmax=Math.max(cap||2, ...samples.map(s=>s.v))*1.1;
+  const X=t=>L+pw*Math.max(0,(t-t0))/60, Y=v=>T+ph*(1-v/vmax);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+  ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(W-R,Y(0)); ctx.stroke(); ctx.globalAlpha=1;
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
+  samples.forEach((s,i)=>{ i?ctx.lineTo(X(s.t),Y(s.v)):ctx.moveTo(X(s.t),Y(s.v)); });
+  ctx.stroke(); ctx.lineWidth=1;
+  ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  ctx.fillText(String(Math.round(vmax/1.1*10)/10), L-4, T+8);
+  ctx.fillText('0', L-4, Y(0)+3);
+}
+function drawSeries2(cvId, samples){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  if(samples.length<2) return;
+  const L=40,R=14,T=10,B=8, pw=W-L-R, ph=H-T-B;
+  const t1=samples[samples.length-1].t, t0=t1-60;
+  const vmax=21;
+  const X=t=>L+pw*Math.max(0,(t-t0))/60, Y=v=>T+ph*(1-v/vmax);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+  ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(W-R,Y(0)); ctx.stroke(); ctx.globalAlpha=1;
+  const line=(key,col)=>{ ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath();
+    samples.forEach((s,i)=>{ i?ctx.lineTo(X(s.t),Y(s[key])):ctx.moveTo(X(s.t),Y(s[key])); });
+    ctx.stroke(); ctx.lineWidth=1; };
+  line('m',CSS.b); line('r',CSS.a);
+  ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  ctx.fillText('20s', L-4, T+8); ctx.fillText('0', L-4, Y(0)+3);
+}
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now(), acc=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  acc+=dt;
+  if(acc>0.12){
+    acc=0;
+    if(visible.e2) drawSeries1('ch-e2', e2.spark, CSS.a, 4);
+    if(visible.e3) drawSeries2('ch-e3', e3.spark);
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims) sims[k].draw(); }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

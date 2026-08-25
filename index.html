@@ -187,8 +187,8 @@
       <li><a class="ep" href="#/uber" data-ep="uber">The Match · Uber</a></li>
       <li><a class="ep" href="#/dynamo" data-ep="dynamo">The Quorum · Dynamo</a></li>
       <li><a class="ep" href="#/google-search" data-ep="google-search">The Index · Google</a></li>
-      <li><span class="soon">YouTube<i>NEXT</i></span></li>
-      <li><span class="soon">Instagram<i>SOON</i></span></li>
+      <li><a class="ep" href="#/youtube" data-ep="youtube">The Upload · YouTube</a></li>
+      <li><span class="soon">Instagram<i>NEXT</i></span></li>
     </ul>
   </details>
 
@@ -213,7 +213,7 @@
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">11</span> SYSTEMS LIVE · 29 RESEARCHED<br>
+    <span id="live-count">12</span> SYSTEMS LIVE · 29 RESEARCHED<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -313,6 +313,13 @@
           inequality holds; kill two replicas and let hinted handoff keep the cart alive;
           then split the cart and see why vector clocks beat timestamps.</span>
         </a>
+        <a class="card" href="#/youtube">
+          <span class="k">EP 12 · The flagships</span>
+          <span class="t">The Upload — YouTube</span>
+          <span class="d">500 hours arrive every minute: chunk the tape and go live in 5
+          minutes instead of 60; relive the thumbnail meltdown that made BigTable
+          necessary; then watch adaptive bitrate ride out dips a fixed player can't.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -351,6 +358,7 @@ const EPISODES = {
   'uber':              {title:'EP 09 — The Match · Uber',             file:'episodes/uber.html'},
   'google-search':     {title:'EP 10 — The Index · Google Search',    file:'episodes/google-search.html'},
   'dynamo':            {title:'EP 11 — The Quorum · Amazon Dynamo',   file:'episodes/dynamo.html'},
+  'youtube':           {title:'EP 12 — The Upload · YouTube',         file:'episodes/youtube.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');
