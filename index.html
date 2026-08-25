@@ -185,9 +185,9 @@
       <li><a class="ep" href="#/netflix" data-ep="netflix">Press Play · Netflix</a></li>
       <li><a class="ep" href="#/whatsapp" data-ep="whatsapp">The Message · WhatsApp</a></li>
       <li><a class="ep" href="#/uber" data-ep="uber">The Match · Uber</a></li>
-      <li><span class="soon">Google Search<i>NEXT</i></span></li>
+      <li><a class="ep" href="#/google-search" data-ep="google-search">The Index · Google</a></li>
+      <li><span class="soon">Amazon &amp; Dynamo<i>NEXT</i></span></li>
       <li><span class="soon">Instagram<i>SOON</i></span></li>
-      <li><span class="soon">Amazon &amp; Dynamo<i>SOON</i></span></li>
       <li><span class="soon">YouTube<i>SOON</i></span></li>
     </ul>
   </details>
@@ -213,7 +213,7 @@
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">9</span> SYSTEMS LIVE · 29 RESEARCHED<br>
+    <span id="live-count">10</span> SYSTEMS LIVE · 29 RESEARCHED<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -299,6 +299,13 @@
           shortens every ride, and surge pricing as a thermostat — a live marketplace on
           the H3 grid, priced-out riders counted honestly.</span>
         </a>
+        <a class="card" href="#/google-search">
+          <span class="k">EP 10 · The flagships</span>
+          <span class="t">The Index — Google Search</span>
+          <span class="d">A real inverted index (×1,000 speedup, byte-identical answers),
+          a real random surfer converging on PageRank while the keyword stuffer sinks, and
+          the tail at scale — 63% of fan-out queries hit by 1% hiccups, cured by hedging.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -335,6 +342,7 @@ const EPISODES = {
   'whatsapp':          {title:'EP 07 — The Message · WhatsApp',       file:'episodes/whatsapp.html'},
   'bgp':               {title:'EP 08 — The Border · BGP',             file:'episodes/bgp.html'},
   'uber':              {title:'EP 09 — The Match · Uber',             file:'episodes/uber.html'},
+  'google-search':     {title:'EP 10 — The Index · Google Search',    file:'episodes/google-search.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');

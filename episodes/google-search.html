@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Index — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:60px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  canvas.chart{display:block;width:100%;background:var(--panel);border-top:1px solid var(--panel-line)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .legend{display:flex;gap:16px;padding:8px 16px 0;font-size:10.5px;color:var(--panel-muted);letter-spacing:.06em}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Flagships · Episode 10</p>
+  <h1>The Index</h1>
+  <p class="dek">Your question is answered in about 200 milliseconds against hundreds of
+  billions of pages — more than five trillion times a year — because Google never searches
+  the web. It searches a <em>pre-built, sharded, in-memory copy</em> of the web, assembled
+  offline by crawlers and pipelines so that the online path does nothing but fast lookups
+  and merges. This episode builds the actual data structures and runs the actual algorithms
+  — a real inverted index, a real random surfer, real tail statistics.</p>
+  <p class="marginal">Everything below computes for real: the index experiment builds
+  posting lists and counts true operations, the PageRank surfer is a genuine random walk
+  checked against power iteration, and the tail-latency samples are honest draws. The
+  ranking function Google runs today is a trade secret; everything shown here is the
+  published architecture.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">One query's 200 milliseconds — fan out, search shards, merge</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:290px" role="img" aria-label="A query fans from a mixer to sixteen index shards in parallel; each returns its local top results which merge into ten blue links, with a running stopwatch"></canvas>
+  <div class="exp-metrics">
+    <span>QUERIES ANSWERED<b data-m="hero.q">0</b></span>
+    <span>MACHINES PER QUERY<b data-m="hero.m">~1,000 (2008, scaled to 16)</b></span>
+    <span>LAST QUERY<b data-m="hero.t">–</b></span>
+  </div>
+  <figcaption class="exp-note">Every query hits <em>every shard</em> — the index is split by
+  document, so each leaf machine searches its slice of the whole web in parallel and returns
+  a tiny local top-k. The mixer merges. Jeff Dean's 2008 numbers: 700–1,000 machines
+  touched, answer in under a quarter second — and the whole serving index has lived in RAM
+  since about 2004.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The inversion</h2>
+  <p>The oldest and best idea in search: don't scan documents at query time. Offline, flip
+  the web inside out — from <em>page → words</em> into <em>word → sorted list of pages</em>
+  ("posting lists"). A two-word query stops being "read everything" and becomes "walk two
+  sorted lists and keep the pages they share." Brin and Page's 1998 prototype did exactly
+  this over 24 million pages; the structure hasn't changed, only the scale.</p>
+  <p>The experiment below <strong>actually builds both worlds</strong> over a synthetic
+  corpus: a grep machine that scans every word of every document, and a real inverted index
+  with a real sorted-list intersection. Same queries, same answers — count the work.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Grep the corpus vs walk the posting lists — a real index, really counted</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-docs">Corpus size</label>
+      <input type="range" id="r-docs" min="500" max="20000" value="4000" step="500">
+      <output data-m="e1.docs">4000</output></span>
+    <span>A NEW TWO-WORD QUERY EVERY 2s · BOTH METHODS MUST RETURN IDENTICAL RESULTS</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:240px" role="img" aria-label="Left: documents flashing as a scan reads all of them. Right: two sorted posting lists with pointers walking down them to intersect"></canvas>
+  <div class="exp-metrics">
+    <span>QUERY<b data-m="e1.q">–</b></span>
+    <span>GREP — WORDS SCANNED<b class="bad" data-m="e1.grep">–</b></span>
+    <span>INDEX — LIST STEPS<b data-m="e1.idx">–</b></span>
+    <span>SPEEDUP<b data-m="e1.speed">–</b></span>
+    <span>RESULTS AGREE<b data-m="e1.agree">–</b></span>
+  </div>
+  <figcaption class="exp-note">Drag the corpus to 20,000 documents: grep's bill quintuples;
+  the index's stays a rounding error, because query words are <em>rare</em> — the index only
+  ever touches the documents that actually contain them. Selectivity, not corpus size, is
+  the whole trick: at web scale your query words appear in a millionth of the pages, and
+  the posting lists stay slivers of a 100-million-gigabyte index. The "results agree" check
+  is the honesty clause: both machines return byte-identical answers, every query.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The vote of the web</h2>
+  <p>In 1997, ranking <em>was</em> the problem. Engines ranked by keyword statistics, so a
+  page repeating your query fifty times beat the genuine authority — and spammers knew it.
+  PageRank's move: ignore what a page says about itself and ask <strong>the web's own link
+  structure</strong>. Imagine a surfer clicking random links forever, occasionally getting
+  bored (15% of the time) and teleporting to a random page. The fraction of time the surfer
+  spends on each page is its rank. Links became votes, votes flowed through the graph, and
+  a page nobody linked to could shout keywords into the void.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">The random surfer vs the keyword stuffer — a real walk, checked against the math</span>
+    <span class="exp-run">
+      <button class="btn primary" data-act="e2-farm">SPAMMER BUILDS A LINK FARM</button>
+      <button class="btn" data-run="e2">PAUSE</button>
+      <button class="btn" data-reset="e2">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-e2" style="height:330px" role="img" aria-label="A small web graph with a wandering surfer dot; nodes glow with visit counts; ranking tables compare keyword counting against PageRank"></canvas>
+  <div class="exp-metrics">
+    <span>SURFER STEPS<b data-m="e2.steps">0</b></span>
+    <span>1997 RANKER SAYS #1<b class="bad" data-m="e2.kw">–</b></span>
+    <span>PAGERANK SAYS #1<b data-m="e2.pr">–</b></span>
+    <span>SPAM PAGE'S PAGERANK POSITION<b data-m="e2.spam">–</b></span>
+    <span>WALK vs THEORY GAP<b data-m="e2.gap">–</b></span>
+  </div>
+  <figcaption class="exp-note">The spam page contains the query words fifty times — the 1997
+  ranker crowns it instantly. The surfer never visits it, because <em>no one links to it</em>.
+  Watch the "walk vs theory" gap shrink: the wandering dot's visit counts genuinely converge
+  to the power-iteration solution of the same graph — the glow IS the eigenvector. Then let
+  the spammer build a link farm: three new pages, all linking to the spam page. Its rank
+  barely twitches, because the farm has no rank to give — votes only count when voters are
+  themselves voted for. That recursion is what made 1998 PageRank so hard to game.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The tail at scale</h2>
+  <p>Fan-out has a cruel statistic. Suppose each shard answers fast except for a 1-in-100
+  hiccup — a garbage-collection pause, a background task. One shard is fine. But a query
+  that must wait for <em>all 100 shards</em> gets hit whenever <em>any</em> of them hiccups:
+  1 − 0.99¹⁰⁰ ≈ <strong>63% of queries</strong>. The rare event becomes the common case,
+  and the slowest machine sets every query's latency. Dean and Barroso's published cure is
+  disarmingly simple: <strong>hedge</strong> — if a shard hasn't answered within the
+  expected time, send the same request to a replica and take whichever answers first.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">100 shards, 1% hiccups — wait for all vs hedge the stragglers</span>
+    <span class="exp-run"><button class="btn" data-run="e3">PAUSE</button><button class="btn" data-reset="e3">RESET</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-e3" style="height:250px" role="img" aria-label="One hundred shard latency bars per query; the slowest sets the total unless hedged duplicates rescue the stragglers"></canvas>
+  <div class="legend">
+    <span><i style="background:var(--series-b)"></i>WAIT-FOR-ALL P99</span>
+    <span><i style="background:var(--series-a)"></i>HEDGED P99</span>
+  </div>
+  <canvas class="chart" id="ch-e3" style="height:110px"></canvas>
+  <div class="exp-metrics">
+    <span>QUERIES HIT BY A HICCUP<b class="bad" data-m="e3.hit">–</b></span>
+    <span>WAIT-FOR-ALL — P50 / P99<b data-m="e3.wall">–</b></span>
+    <span>HEDGED — P50 / P99<b data-m="e3.hedge">–</b></span>
+    <span>HEDGES SENT<b data-m="e3.extra">–</b></span>
+  </div>
+  <figcaption class="exp-note">The same latency draws feed both strategies, so the comparison
+  is exact. Wait-for-all lives at the mercy of its slowest shard — the measured hit rate
+  hovers right at the theoretical 63%. Hedging duplicates only the stragglers (a few percent
+  of requests) and collapses p99 to nearly p50. This one idea is why a system spread across
+  a thousand unpredictable machines can feel like one fast one — and it shows up everywhere
+  fan-out lives, from search to DNS to your own microservices.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The pipeline behind the curtain</h2>
+  <p>The index doesn't exist until something builds it. Googlebot crawls from a prioritized
+  URL frontier (politeness limits, robots.txt, revisit schedules — and since 2019 it renders
+  pages in a real headless Chromium, so JavaScript content is indexed too). The papers that
+  processed the result built the modern data industry: <strong>GFS</strong> (2003) stored it
+  on cheap machines that fail constantly; <strong>MapReduce</strong> (2004) turned indexing
+  into batch dataflow — over 20 petabytes a day by 2008; <strong>Bigtable</strong> (2006)
+  held it; and <strong>Caffeine</strong> (2010) replaced batch index editions with continuous
+  incremental updates, making results 50% fresher in a ~100-million-gigabyte live index.
+  Their open-source echoes — Hadoop, HDFS, HBase — are that lineage wearing other logos.</p>
+  <p>And ranking kept moving: Knowledge Graph (2012, "things not strings"), RankBrain
+  (2015), BERT on one in ten English queries (2019) — needed partly because <strong>15% of
+  each day's queries have never been seen before</strong>. The exact modern ranking function
+  is secret; the machine that serves it is the one you just ran. The keeper pattern, purest
+  form: <strong>precompute everything offline, so online is only lookups and merges.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>S. Brin &amp; L. Page — <a href="http://infolab.stanford.edu/~backrub/google.html">The Anatomy of a Large-Scale Hypertextual Web Search Engine</a>, WWW7, 1998. PageRank, the inverted index, the 24M-page prototype.</li>
+    <li>J. Dean — <a href="https://research.google.com/people/jeff/Stanford-DL-Nov-2010.pdf">Building Software Systems at Google and Lessons Learned</a>, Stanford, 2010; and the 2008 infrastructure talk (<a href="https://perspectives.mvdirona.com/2008/06/jeff-dean-on-google-infrastructure/">notes by J. Hamilton</a>): ~1,000 machines per query, in-RAM serving, latency history.</li>
+    <li>J. Dean &amp; L. Barroso — <a href="https://research.google/pubs/the-tail-at-scale/">The Tail at Scale</a>, CACM 2013. Hedged requests and tail-tolerant fan-out.</li>
+    <li>The lineage papers — <a href="https://research.google/pubs/the-google-file-system/">GFS</a> (2003), <a href="https://research.google/pubs/mapreduce-simplified-data-processing-on-large-clusters/">MapReduce</a> (2004), <a href="https://research.google/pubs/bigtable-a-distributed-storage-system-for-structured-data/">Bigtable</a> (2006), <a href="https://research.google/pubs/large-scale-incremental-processing-using-distributed-transactions-and-notifications/">Percolator/Caffeine</a> (2010), <a href="https://research.google/pubs/spanner-googles-globally-distributed-database/">Spanner</a> (2012).</li>
+    <li>Google — <a href="https://developers.google.com/search/blog/2010/06/our-new-search-index-caffeine">Our new search index: Caffeine</a>, 2010; <a href="https://developers.google.com/search/docs/fundamentals/how-search-works">How Search works</a> (official docs); <a href="https://blog.google/products/search/search-language-understanding-bert/">BERT announcement</a>, 2019; 5T searches/year via <a href="https://searchengineland.com/google-5-trillion-searches-per-year-452928">Search Engine Land</a>, 2025.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>The Quorum: Amazon's Dynamo and the shopping cart that must never fail</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const fmtN = v => v.toLocaleString('en-US');
+
+/* ================= HERO: the fan-out pyramid ================= */
+const HERO_QUERIES=['how do planes fly','hash ring explained','why is the sky dark at night',
+  'erlang message passing','bgp hijack 2008','best noodles near me','tail latency p99'];
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(9),
+  reset(){ this.t=0; this.n=0; this.job=null; this.wait=0.5; },
+  update(dt){
+    this.t+=dt;
+    if(!this.job){ this.wait-=dt; if(this.wait<=0){
+      const shards=Array.from({length:16},()=> 0.35+this.rng()*0.45);
+      this.job={q:HERO_QUERIES[Math.floor(this.rng()*HERO_QUERIES.length)],
+        phase:0, u:0, shards, tmax:Math.max(...shards)};
+      this.n++;
+    } return; }
+    const j=this.job;
+    if(j.phase===0){ j.u+=dt/0.35; if(j.u>=1){ j.phase=1; j.u=0; } }
+    else if(j.phase===1){ j.u+=dt/j.tmax; if(j.u>=1){ j.phase=2; j.u=0; } }
+    else { j.u+=dt/0.5; if(j.u>=1){
+      setM('hero.t', '"'+j.q+'" · '+Math.round((0.35+j.tmax+0.5)*200)+'ms (scaled)');
+      setM('hero.q', this.n);
+      this.job=null; this.wait=0.9+this.rng()*0.8;
+    } }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const mix={x:W*0.5,y:H*0.24};
+    const shardY=H*0.62, n=16;
+    const sx=i=>W*0.08+ i*(W*0.84)/(n-1);
+    // mixer + result
+    ctx.strokeStyle=CSS.traffic;
+    ctx.strokeRect(mix.x-46,mix.y-14,92,28);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('ROOT / MIXER', mix.x, mix.y-20);
+    ctx.fillText('TEN BLUE LINKS', mix.x, H*0.10);
+    // shards
+    for(let i=0;i<n;i++){
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(sx(i)-14, shardY-11, 28, 22);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('16 LEAF SHARDS — EACH SEARCHES ITS SLICE OF THE WHOLE WEB, IN RAM', W*0.5, shardY+34);
+    const j=this.job;
+    if(!j) return;
+    ctx.fillStyle=CSS.ink; ctx.textAlign='left';
+    ctx.fillText('QUERY: "'+j.q+'"', 14, 20);
+    if(j.phase===0){ // fan out
+      for(let i=0;i<n;i++){
+        const u=j.u;
+        const x=mix.x+(sx(i)-mix.x)*u, y=mix.y+14+(shardY-11-(mix.y+14))*u;
+        ctx.fillStyle=CSS.b;
+        ctx.beginPath(); ctx.arc(x,y,2.2,0,7); ctx.fill();
+      }
+    } else if(j.phase===1){ // shards working; each returns when its time arrives
+      for(let i=0;i<n;i++){
+        const done=j.u*j.tmax>=j.shards[i];
+        ctx.fillStyle= done? CSS.traffic : 'rgba(242,169,59,0.25)';
+        ctx.fillRect(sx(i)-13, shardY-10, 26, 20);
+        if(done){
+          const uu=Math.min(1,(j.u*j.tmax-j.shards[i])/0.3);
+          const x=sx(i)+(mix.x-sx(i))*uu, y=shardY-11+((mix.y+14)-(shardY-11))*uu;
+          ctx.fillStyle=CSS.traffic;
+          ctx.beginPath(); ctx.arc(x,y,2.4,0,7); ctx.fill();
+        }
+      }
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText('EACH SHARD RETURNS ITS LOCAL TOP-K…', W*0.5, H-14);
+    } else { // merge up
+      const u=j.u;
+      const x=mix.x, y=mix.y-14+(H*0.12-(mix.y-14))*u;
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(x,y,3.5,0,7); ctx.fill();
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText('MERGE → SNIPPETS → PAGE', W*0.5, H-14);
+    }
+    // stopwatch
+    const elapsed = j.phase===0? j.u*0.35 : j.phase===1? 0.35+j.u*j.tmax : 0.35+j.tmax+j.u*0.5;
+    ctx.fillStyle=CSS.traffic; ctx.textAlign='right';
+    ctx.fillText(Math.round(elapsed*200)+' ms', W-14, 20);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: real inverted index ================= */
+const WORDS=('the of and to in a is that for it as with on be by this are from or an ' +
+  'server index query shard cache queue log ring hash node packet route link graph rank ' +
+  'search page web data store read write scale fail retry batch stream key value time ' +
+  'system network latency memory disk table row list tree map merge sort scan').split(/\s+/);
+// 2,000-term vocabulary: 60 common words (the zipf head) + hyphenated rare terms
+// (the tail). Real queries live in the tail — that's where selectivity comes from.
+const VOCAB=WORDS.slice();
+outer: for(let i=20;i<WORDS.length;i++) for(let j=20;j<WORDS.length;j++){
+  if(i===j) continue;
+  VOCAB.push(WORDS[i]+'-'+WORDS[j]);
+  if(VOCAB.length>=2000) break outer;
+}
+const rDocs=document.getElementById('r-docs');
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){ this.rng=mulberry32(13); this.t=0; this.next=0.5; this.built=0; this.cur=null;
+    this.build(+rDocs.value); },
+  build(n){
+    const rng=mulberry32(101);
+    this.docs=[];
+    this.index=new Map();
+    for(let d=0; d<n; d++){
+      const len=30+Math.floor(rng()*70);
+      const words=new Array(len);
+      for(let w=0; w<len; w++){
+        const r=rng();
+        words[w]=Math.min(VOCAB.length-1, Math.floor(Math.pow(r,3.5)*VOCAB.length));
+      }
+      this.docs.push(words);
+      for(const wid of new Set(words)){
+        if(!this.index.has(wid)) this.index.set(wid, []);
+        this.index.get(wid).push(d);
+      }
+    }
+    this.built=n;
+  },
+  runQuery(){
+    const rng=this.rng;
+    // query terms from the rare band, like real distinctive query words
+    const band=()=>100+Math.floor(rng()*700);
+    const a=band();
+    let b=band();
+    if(b===a) b=(b+37)%800+100;
+    // grep: scan every word of every doc
+    let grepOps=0; const grepHits=[];
+    for(let d=0; d<this.docs.length; d++){
+      const w=this.docs[d];
+      grepOps+=w.length;
+      let hasA=false, hasB=false;
+      for(let i=0;i<w.length;i++){ if(w[i]===a) hasA=true; else if(w[i]===b) hasB=true; }
+      if(hasA&&hasB) grepHits.push(d);
+    }
+    // index: sorted-list intersection
+    const LA=this.index.get(a)||[], LB=this.index.get(b)||[];
+    let i=0,j=0, idxOps=0; const idxHits=[];
+    while(i<LA.length && j<LB.length){
+      idxOps++;
+      if(LA[i]===LB[j]){ idxHits.push(LA[i]); i++; j++; }
+      else if(LA[i]<LB[j]) i++;
+      else j++;
+    }
+    idxOps+=Math.min(1, LA.length+LB.length);   // at least the lookups
+    const agree = grepHits.length===idxHits.length &&
+      grepHits.every((v,k)=>v===idxHits[k]);
+    this.cur={a,b,grepOps,idxOps,hits:idxHits.length,agree,la:LA.length,lb:LB.length,at:this.t};
+    setM('e1.q', '"'+VOCAB[a]+' '+VOCAB[b]+'" → '+idxHits.length+' results');
+    setM('e1.grep', fmtN(grepOps));
+    setM('e1.idx', fmtN(idxOps));
+    setM('e1.speed', '×'+fmtN(Math.round(grepOps/Math.max(1,idxOps))));
+    setM('e1.agree', agree? 'YES — identical':'NO (BUG)');
+    setM('e1.docs', this.built);
+  },
+  update(dt){
+    this.t+=dt;
+    if(+rDocs.value!==this.built) this.build(+rDocs.value);
+    this.next-=dt;
+    if(this.next<=0){ this.runQuery(); this.next=2; }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2,10); ctx.lineTo(W/2,H-10); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('GREP — SCAN EVERY DOCUMENT', W*0.25, 20);
+    ctx.fillText('INVERTED INDEX — WALK TWO POSTING LISTS', W*0.75, 20);
+    const c=this.cur;
+    const flash=c && this.t-c.at<1.2;
+    // left: doc grid flashing
+    const cols=28, rows=8;
+    for(let i=0;i<cols*rows;i++){
+      const x=W*0.04+(i%cols)*(W*0.42/cols), y=38+Math.floor(i/cols)*((H-70)/rows);
+      ctx.fillStyle= flash? CSS.fault : CSS.b;
+      ctx.globalAlpha= flash? 0.55 : 0.25;
+      ctx.fillRect(x,y,W*0.42/cols-2,(H-70)/rows-3);
+    }
+    ctx.globalAlpha=1;
+    if(flash){ ctx.fillStyle=CSS.fault;
+      ctx.fillText('READING ALL '+fmtN(this.built)+' DOCS…', W*0.25, H-12); }
+    // right: two posting lists as columns with pointers
+    if(c){
+      const lx=W*0.62, rx=W*0.86, top=44, bh=H-86;
+      const list=(x,len,label)=>{
+        ctx.strokeStyle=CSS.line;
+        ctx.strokeRect(x-22, top, 44, bh);
+        const cells=Math.min(14, len);
+        for(let k=0;k<cells;k++){
+          ctx.fillStyle=CSS.a; ctx.globalAlpha=0.5;
+          ctx.fillRect(x-20, top+3+k*(bh-6)/14, 40, (bh-6)/14-2);
+        }
+        ctx.globalAlpha=1;
+        ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+        ctx.fillText(label, x, top-8);
+        ctx.fillText(fmtN(len)+' docs', x, top+bh+14);
+      };
+      list(lx, c.la, '"'+VOCAB[c.a]+'"');
+      list(rx, c.lb, '"'+VOCAB[c.b]+'"');
+      if(flash){
+        const u=(this.t-c.at)/1.2;
+        const y=top+u*(bh-8);
+        ctx.fillStyle=CSS.traffic;
+        ctx.beginPath(); ctx.moveTo(lx+26,y); ctx.lineTo(lx+34,y-4); ctx.lineTo(lx+34,y+4); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(rx-26,y); ctx.lineTo(rx-34,y-4); ctx.lineTo(rx-34,y+4); ctx.closePath(); ctx.fill();
+      }
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText('∩ = '+c.hits+' SHARED DOCS', (lx+rx)/2, H-12);
+    }
+  }
+};
+
+/* ================= EXP-02: real PageRank ================= */
+const PAGES=[
+  {name:'uni.edu',      kw:3,  x:.16,y:.24},
+  {name:'news-site',    kw:5,  x:.38,y:.14},
+  {name:'big-hub.com',  kw:4,  x:.30,y:.48},
+  {name:'blog-a',       kw:2,  x:.10,y:.62},
+  {name:'blog-b',       kw:6,  x:.24,y:.80},
+  {name:'wiki-page',    kw:7,  x:.50,y:.62},
+  {name:'forum-thread', kw:8,  x:.44,y:.86},
+  {name:'shop-site',    kw:4,  x:.60,y:.30},
+  {name:'docs-portal',  kw:5,  x:.66,y:.74},
+  {name:'SPAM-PAGE',    kw:50, x:.86,y:.20, spam:true},
+];
+const LINKS0=[[0,2],[1,2],[3,2],[4,2],[2,5],[5,2],[6,5],[7,1],[8,5],[1,0],[5,8],[8,7],[4,6],[6,4],[3,0],[7,5]];
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){
+    this.rng=mulberry32(29);
+    this.pages=PAGES.map(p=>({...p}));
+    this.links=LINKS0.map(l=>l.slice());
+    this.visits=new Array(this.pages.length).fill(0);
+    this.steps=0; this.at=0; this.exact=this.powerIteration();
+    this.farm=false;
+  },
+  addFarm(){
+    if(this.farm) return;
+    this.farm=true;
+    const spam=this.pages.findIndex(p=>p.spam);
+    for(let k=0;k<3;k++){
+      this.pages.push({name:'farm-'+(k+1), kw:1, x:.80+k*0.07, y:.44+k*0.17, farm:true});
+      this.links.push([this.pages.length-1, spam]);
+    }
+    this.visits=new Array(this.pages.length).fill(0);
+    this.steps=0; this.at=0;
+    this.exact=this.powerIteration();
+  },
+  out(i){ return this.links.filter(l=>l[0]===i).map(l=>l[1]); },
+  powerIteration(){
+    const n=this.pages.length, d=0.85;
+    let r=new Array(n).fill(1/n);
+    for(let it=0; it<80; it++){
+      const nr=new Array(n).fill((1-d)/n);
+      for(let i=0;i<n;i++){
+        const outs=this.out(i);
+        if(outs.length===0){ for(let j=0;j<n;j++) nr[j]+=d*r[i]/n; }
+        else for(const j of outs) nr[j]+=d*r[i]/outs.length;
+      }
+      r=nr;
+    }
+    return r;
+  },
+  update(dt){
+    // the surfer: many steps per frame
+    const stepsNow=Math.min(400, Math.round(dt*900));
+    for(let s=0;s<stepsNow;s++){
+      const outs=this.out(this.at);
+      if(this.rng()<0.15 || outs.length===0) this.at=Math.floor(this.rng()*this.pages.length);
+      else this.at=outs[Math.floor(this.rng()*outs.length)];
+      this.visits[this.at]++; this.steps++;
+    }
+    const total=Math.max(1,this.steps);
+    const walk=this.visits.map(v=>v/total);
+    const gap=walk.reduce((a,w,i)=>a+Math.abs(w-this.exact[i]),0);
+    // rankings
+    const byKw=[...this.pages.keys()].sort((a,b)=>this.pages[b].kw-this.pages[a].kw);
+    const byPr=[...this.pages.keys()].sort((a,b)=>this.exact[b]-this.exact[a]);
+    const spamIdx=this.pages.findIndex(p=>p.spam);
+    setM('e2.steps', fmtN(this.steps));
+    setM('e2.kw', this.pages[byKw[0]].name+' (kw×'+this.pages[byKw[0]].kw+')');
+    setM('e2.pr', this.pages[byPr[0]].name);
+    setM('e2.spam', '#'+(byPr.indexOf(spamIdx)+1)+' of '+this.pages.length);
+    setM('e2.gap', (gap*100).toFixed(1)+'%');
+    this._walk=walk; this._byPr=byPr; this._byKw=byKw;
+  },
+  update0(){ this.update(0.001); },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='9.5px ui-monospace, Menlo, monospace';
+    const gw=W*0.66;
+    const pos=i=>({x:this.pages[i].x*gw, y:this.pages[i].y*H});
+    // links
+    for(const [a,b] of this.links){
+      const A=pos(a), B=pos(b);
+      ctx.strokeStyle=CSS.line; ctx.globalAlpha=.55;
+      ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke();
+      // arrowhead
+      const ang=Math.atan2(B.y-A.y,B.x-A.x);
+      const hx=B.x-14*Math.cos(ang), hy=B.y-14*Math.sin(ang);
+      ctx.beginPath();
+      ctx.moveTo(hx,hy);
+      ctx.lineTo(hx-6*Math.cos(ang-0.4), hy-6*Math.sin(ang-0.4));
+      ctx.lineTo(hx-6*Math.cos(ang+0.4), hy-6*Math.sin(ang+0.4));
+      ctx.closePath();
+      ctx.fillStyle=CSS.line; ctx.fill();
+      ctx.globalAlpha=1;
+    }
+    // nodes with glow
+    const walk=this._walk||this.pages.map(()=>0);
+    this.pages.forEach((p,i)=>{
+      const P=pos(i);
+      const glow=Math.min(1, walk[i]*6);
+      ctx.fillStyle=CSS.traffic; ctx.globalAlpha=0.10+glow*0.8;
+      ctx.beginPath(); ctx.arc(P.x,P.y, 9+glow*16, 0, 7); ctx.fill();
+      ctx.globalAlpha=1;
+      ctx.strokeStyle= p.spam? CSS.fault : p.farm? CSS.fault : CSS.line;
+      ctx.setLineDash(p.farm?[3,2]:[]);
+      ctx.strokeRect(P.x-30,P.y-9,60,18);
+      ctx.setLineDash([]);
+      ctx.fillStyle= p.spam||p.farm? CSS.fault : CSS.ink;
+      ctx.textAlign='center';
+      ctx.fillText(p.name, P.x, P.y+3.5);
+      if(p.spam){ ctx.fillStyle=CSS.fault; ctx.fillText('"…keywords ×50…"', P.x, P.y+24); }
+    });
+    // the surfer
+    const S=pos(this.at);
+    ctx.fillStyle=CSS.b;
+    ctx.beginPath(); ctx.arc(S.x, S.y-16, 4, 0, 7); ctx.fill();
+    // ranking tables
+    const tx=W*0.70;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('1997 RANKER (KEYWORDS)', tx, 22);
+    (this._byKw||[]).slice(0,5).forEach((idx,k)=>{
+      ctx.fillStyle=this.pages[idx].spam? CSS.fault : CSS.muted;
+      ctx.fillText((k+1)+'. '+this.pages[idx].name, tx, 38+k*15);
+    });
+    ctx.fillStyle=CSS.traffic;
+    ctx.fillText('PAGERANK (THE GLOW)', tx, 130);
+    (this._byPr||[]).slice(0,5).forEach((idx,k)=>{
+      ctx.fillStyle=this.pages[idx].spam? CSS.fault : CSS.ink;
+      ctx.fillText((k+1)+'. '+this.pages[idx].name+'  '+(this.exact[idx]*100).toFixed(1)+'%', tx, 146+k*15);
+    });
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('GLOW = MEASURED VISITS', tx, H-30);
+    ctx.fillText('% = POWER-ITERATION EXACT', tx, H-16);
+  }
+};
+
+/* ================= EXP-03: the tail at scale ================= */
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){ this.rng=mulberry32(37); this.t=0; this.next=0.2;
+    this.wall=[]; this.hedge=[]; this.hits=0; this.qn=0; this.extra=0;
+    this.last=null; this.spark=[]; this.lastS=0;
+    this.update(0.25);   // pre-run one query so the paused view shows the apparatus
+  },
+  sample(){ const base=8+this.rng()*4; return this.rng()<0.01? base*10+this.rng()*40 : base; },
+  update(dt){
+    this.t+=dt; this.next-=dt;
+    if(this.next<=0){
+      this.next=0.2;
+      const lats=Array.from({length:100},()=>this.sample());
+      const wall=Math.max(...lats);
+      let hedged=0, extras=0;
+      for(const L of lats){
+        if(L<=15){ hedged=Math.max(hedged,L); continue; }
+        extras++;
+        const retry=15+this.sample();
+        hedged=Math.max(hedged, Math.min(L, retry));
+      }
+      this.qn++; this.extra+=extras;
+      if(lats.some(L=>L>40)) this.hits++;
+      this.wall.push(wall); this.hedge.push(hedged);
+      if(this.wall.length>600){ this.wall.shift(); this.hedge.shift(); }
+      this.last={lats, wall, hedged};
+    }
+    if(this.t-this.lastS>0.4){
+      this.lastS=this.t;
+      const pct=(arr,p)=>{ const s=[...arr].sort((a,b)=>a-b); return s[Math.floor(p*(s.length-1))]; };
+      if(this.wall.length>20){
+        const w50=pct(this.wall,.5), w99=pct(this.wall,.99);
+        const h50=pct(this.hedge,.5), h99=pct(this.hedge,.99);
+        setM('e3.wall', Math.round(w50)+' / '+Math.round(w99)+' ms');
+        setM('e3.hedge', Math.round(h50)+' / '+Math.round(h99)+' ms');
+        setM('e3.hit', Math.round(this.hits/this.qn*100)+'% (theory: 63%)');
+        setM('e3.extra', (this.extra/this.qn/100*100).toFixed(1)+'% of requests');
+        this.spark.push({t:this.t, m:w99, r:h99});
+        while(this.spark.length&&this.spark[0].t<this.t-60) this.spark.shift();
+      }
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    if(!this.last){ ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText('SAMPLING…', W/2, H/2); return; }
+    const {lats,wall,hedged}=this.last;
+    const bw=(W-60)/100;
+    const Y=v=>H-30-Math.min(H-70, v/130*(H-70));
+    lats.forEach((L,i)=>{
+      const x=30+i*bw;
+      ctx.fillStyle= L>40? CSS.fault : CSS.b;
+      ctx.globalAlpha= L>40? 0.95 : 0.5;
+      ctx.fillRect(x, Y(L), Math.max(1.5,bw-1.2), H-30-Y(L));
+      ctx.globalAlpha=1;
+    });
+    // wall + hedged lines
+    ctx.strokeStyle=CSS.fault; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(30,Y(wall)); ctx.lineTo(W-30,Y(wall)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle=CSS.traffic;
+    ctx.beginPath(); ctx.moveTo(30,Y(hedged)); ctx.lineTo(W-30,Y(hedged)); ctx.stroke();
+    ctx.fillStyle=CSS.fault; ctx.textAlign='left';
+    ctx.fillText('WAIT-FOR-ALL: '+Math.round(wall)+'ms', 34, Y(wall)-5);
+    ctx.fillStyle=CSS.traffic;
+    ctx.fillText('HEDGED: '+Math.round(hedged)+'ms', 34, Y(hedged)-5);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('ONE QUERY = 100 SHARD LATENCIES · RED = THE 1% HICCUP', W/2, H-12);
+  }
+};
+
+/* two-series chart */
+function drawTwo(cvId, samples){
+  const cv=document.getElementById(cvId);
+  const {ctx,W,H}=fitCanvas(cv);
+  ctx.clearRect(0,0,W,H);
+  if(samples.length<2) return;
+  const L=40,R=14,T=10,B=8, pw=W-L-R, ph=H-T-B;
+  const t1=samples[samples.length-1].t, t0=t1-60;
+  const vmax=Math.max(40, ...samples.map(s=>s.m))*1.1;
+  const X=t=>L+pw*Math.max(0,(t-t0))/60, Y=v=>T+ph*(1-v/vmax);
+  ctx.font='10px ui-monospace, Menlo, monospace';
+  ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+  ctx.beginPath(); ctx.moveTo(L,Y(0)); ctx.lineTo(W-R,Y(0)); ctx.stroke(); ctx.globalAlpha=1;
+  const line=(key,col)=>{ ctx.strokeStyle=col; ctx.lineWidth=2; ctx.beginPath();
+    samples.forEach((s,i)=>{ i?ctx.lineTo(X(s.t),Y(s[key])):ctx.moveTo(X(s.t),Y(s[key])); });
+    ctx.stroke(); ctx.lineWidth=1; };
+  line('m',CSS.b); line('r',CSS.a);
+  ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+  ctx.fillText(Math.round(vmax/1.1)+'ms', L-4, T+8);
+  ctx.fillText('0', L-4, Y(0)+3);
+}
+
+/* ---------- wiring ---------- */
+e1.reset(); e2.reset(); e3.reset();
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+document.querySelector('[data-act="e2-farm"]').addEventListener('click',()=>e2.addFarm());
+rDocs.addEventListener('input',()=>setM('e1.docs', rDocs.value));
+
+let last=performance.now(), acc=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  acc+=dt;
+  if(acc>0.12){ acc=0; if(visible.e3) drawTwo('ch-e3', e3.spark); }
+  requestAnimationFrame(frame);
+}
+function relayout(){ e2.update0(); for(const k in sims) sims[k].draw(); }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>
