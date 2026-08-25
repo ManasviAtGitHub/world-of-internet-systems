@@ -346,8 +346,9 @@ const hero = {
       }
       ctx.fillStyle= active? CSS.traffic : CSS.muted;
       ctx.textAlign='center';
+      const SHORT=['KEY','DNS','TCP','TLS','HTTP','PARSE','RENDER'];
       ctx.save(); ctx.translate(x+w/2, y-8);
-      ctx.fillText(s.name.split('· ')[1], 0, 0); ctx.restore();
+      ctx.fillText(SHORT[i], 0, 0); ctx.restore();
       ctx.fillStyle=CSS.muted;
       ctx.fillText(s.ms+'ms', x+w/2, y+bh+14);
       acc+=s.ms;
@@ -356,14 +357,17 @@ const hero = {
     const px=L+ms/TOTAL*tw;
     ctx.strokeStyle=CSS.traffic;
     ctx.beginPath(); ctx.moveTo(px, y-18); ctx.lineTo(px, y+bh+22); ctx.stroke();
-    // vignette region: client/server ping-pong for network stages, pipeline for render
+    // vignette region: client/server ping-pong for the network stages only —
+    // the parse/render stages get the pipeline gates and no boxes to collide with
     const vy=H*0.62, cxL=W*0.18, cxR=W*0.82;
-    ctx.strokeStyle=CSS.line;
-    ctx.strokeRect(cxL-34, vy-14, 68, 28);
-    ctx.strokeRect(cxR-34, vy-14, 68, 28);
-    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
-    ctx.fillText('YOU', cxL, vy+32);
-    ctx.fillText(cur<=1?'RESOLVER':'SERVER', cxR, vy+32);
+    if(cur<=4){
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(cxL-34, vy-14, 68, 28);
+      ctx.strokeRect(cxR-34, vy-14, 68, 28);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText('YOU', cxL, vy+32);
+      ctx.fillText(cur<=1?'RESOLVER':'SERVER', cxR, vy+32);
+    }
     const arrow=(frac, up, col, label)=>{
       const x0=up?cxR-34:cxL+34, x1=up?cxL+34:cxR-34;
       const yy=vy+(up?6:-6);
@@ -447,7 +451,7 @@ const e1 = {
     ctx.font='10px ui-monospace, Menlo, monospace';
     const rtt=+rRtt.value, maxMs=this.ttfb(4);
     const simMs=this.raceT*220;                 // race speed: 220 virtual ms per second
-    const L=170, bw=W-L-90;
+    const L=170, bw=W-L-165;                    // leave room for the finish labels
     STACKS.forEach((s,i)=>{
       const y=34+i*((H-60)/4);
       ctx.fillStyle=CSS.muted; ctx.textAlign='left';

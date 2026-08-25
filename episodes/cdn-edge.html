@@ -446,7 +446,7 @@ const e1 = {
         ctx.strokeStyle=CSS.b;
         ctx.strokeRect(x-45, H*0.48, 90, 26);
         ctx.fillStyle=CSS.muted;
-        ctx.fillText('SHIELD '+(s+1), x, H*0.48+40);
+        ctx.fillText('SHIELD '+(s+1), x, H*0.48-8);   // above the box, out of the pulses' path
       });
     }
     // origin
@@ -630,10 +630,12 @@ const e3 = {
       this.curve.forEach((p,i)=>{ i?ctx.lineTo(X(p.n),Y(p[key])):ctx.moveTo(X(p.n),Y(p[key])); });
       ctx.stroke(); ctx.lineWidth=1; };
     line('bt', CSS.fault); line('lin', CSS.a);
-    ctx.fillStyle=CSS.fault; ctx.textAlign='left';
-    ctx.fillText('BACKTRACKING (2019 ENGINE)', L+8, Y(this.curve[this.curve.length-1].bt)-6);
+    const lastP=this.curve[this.curve.length-1];
+    ctx.textAlign='right';
+    ctx.fillStyle=CSS.fault;
+    ctx.fillText('BACKTRACKING (2019 ENGINE)', W-R-6, Y(lastP.bt)+16);
     ctx.fillStyle=CSS.a;
-    ctx.fillText('LINEAR / RE2-STYLE', L+8, Y(this.curve[this.curve.length-1].lin)-8);
+    ctx.fillText('LINEAR / RE2-STYLE', W-R-6, Y(lastP.lin)-8);
     // cursor
     const n=+rLen.value;
     ctx.strokeStyle=CSS.traffic; ctx.globalAlpha=.7;
