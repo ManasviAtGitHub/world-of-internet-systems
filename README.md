@@ -26,8 +26,9 @@ real fix, and the sliders are yours.
 | 13 | [The Feed — Instagram](episodes/instagram.html) | The 64-bit ID minted & decoded live; kill the ID service nobody needed; sort/route verified; cursor vs OFFSET pagination |
 | 14 | [The Page — URL to pixels](episodes/url-to-page.html) | The scrubber walk; the war on round trips (TLS 1.2 → QUIC 0-RTT); H2 head-of-line vs H3; the blocking script |
 | 15 | [The Edge — CDN & anycast](episodes/cdn-edge.html) | Anycast vs unicast; the 78× cache funnel; the 31.4 Tbps storm at 6% headroom; the 2019 regex bomb with real engines |
+| 16 | [The Ladder — databases at scale](episodes/databases.html) | The scaling climb; the vanishing comment; the async write that evaporated; a real Raft election that never splits the brain |
 
-**The flagship tier is complete.** Next: **The Ladder — databases at scale** closes the plumbing tier (sidebar shows the roadmap).
+**The flagship and plumbing tiers are complete** (16 of 29 systems). Next: the wider world begins with **Discord's trillion messages**.
 
 ## Structure
 

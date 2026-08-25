@@ -31,8 +31,9 @@ outer shell first. The artifact URLs below predate this change and still work.
 | 13 | The Feed (Instagram) | `instagram.html` | Pages only |
 | 14 | The Page (URL → pixels) | `url-to-page.html` | Pages only |
 | 15 | The Edge (CDN & anycast) | `cdn-edge.html` | Pages only |
+| 16 | The Ladder (databases at scale) | `databases.html` | Pages only |
 
-Flagship tier complete. Next planned: **The Ladder — databases at scale** (closes plumbing).
+Flagship AND plumbing tiers complete. Next planned: **the wider world — Discord first**.
 
 Extractor gotcha (learned on EP14): the awk script-extraction drops any JS line
 containing a literal `<script>` token (e.g. inside a canvas-label string) — avoid

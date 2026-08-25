@@ -174,7 +174,7 @@
       <li><a class="ep" href="#/bgp" data-ep="bgp">The Border · BGP</a></li>
       <li><a class="ep" href="#/url-to-page" data-ep="url-to-page">The Page · URL → Pixels</a></li>
       <li><a class="ep" href="#/cdn-edge" data-ep="cdn-edge">The Edge · CDN</a></li>
-      <li><span class="soon">Databases at Scale<i>NEXT</i></span></li>
+      <li><a class="ep" href="#/databases" data-ep="databases">The Ladder · Databases</a></li>
     </ul>
   </details>
 
@@ -195,7 +195,7 @@
   <details>
     <summary>The wider world</summary>
     <ul>
-      <li><span class="soon">Discord<i>SOON</i></span></li>
+      <li><span class="soon">Discord<i>NEXT</i></span></li>
       <li><span class="soon">Slack<i>SOON</i></span></li>
       <li><span class="soon">Spotify<i>SOON</i></span></li>
       <li><span class="soon">Zoom<i>SOON</i></span></li>
@@ -213,7 +213,7 @@
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">15</span> SYSTEMS LIVE · 29 RESEARCHED<br>
+    <span id="live-count">16</span> SYSTEMS LIVE · 29 RESEARCHED<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -341,6 +341,14 @@
           origin doze at 0.4 req/s; a 31.4 Tbps storm absorbed at 6% headroom; and the 2019
           regex bomb — real engines measured, deployed two different ways.</span>
         </a>
+        <a class="card" href="#/databases">
+          <span class="k">EP 16 · Internet plumbing</span>
+          <span class="t">The Ladder — databases at scale</span>
+          <span class="d">The climb every company makes, and its three tolls: the vanishing
+          comment (replication lag), the acked write that evaporated (async vs sync), and a
+          genuinely implemented Raft election — kill the leader, split the network, and
+          watch majorities refuse to split the brain.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -383,6 +391,7 @@ const EPISODES = {
   'instagram':         {title:'EP 13 — The Feed · Instagram',         file:'episodes/instagram.html'},
   'url-to-page':       {title:'EP 14 — The Page · URL to Pixels',     file:'episodes/url-to-page.html'},
   'cdn-edge':          {title:'EP 15 — The Edge · CDN & Anycast',     file:'episodes/cdn-edge.html'},
+  'databases':         {title:'EP 16 — The Ladder · Databases',       file:'episodes/databases.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');
