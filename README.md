@@ -21,8 +21,9 @@ real fix, and the sliders are yours.
 | 08 | [The Border — BGP](episodes/bgp.html) | Real path-vector routing: the two-stage cable cut, the 2008 hijack duel, RPKI, and Facebook's self-erasure with the ×30 retry storm |
 | 09 | [The Match — Uber](episodes/uber.html) | Hex index vs scanning the city (114× capacity); the 2-second batch that shortens pickups 8%; surge as a thermostat |
 | 10 | [The Index — Google Search](episodes/google-search.html) | A real inverted index (×1,000, byte-identical); a real random surfer vs the keyword stuffer; the tail at scale, hedged |
+| 11 | [The Quorum — Amazon's Dynamo](episodes/dynamo.html) | The R+W>N dial with staleness measured to exactly zero; sloppy quorum + hinted handoff; vector clocks vs last-write-wins |
 
-Next: **The Quorum — Amazon's Dynamo** (sidebar shows the roadmap).
+Next: **The Upload — YouTube's transcode factory** (sidebar shows the roadmap).
 
 ## Structure
 

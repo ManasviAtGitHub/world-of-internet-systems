@@ -26,8 +26,9 @@ outer shell first. The artifact URLs below predate this change and still work.
 | 08 | The Border (BGP) | `bgp.html` | Pages only |
 | 09 | The Match (Uber) | `uber.html` | Pages only |
 | 10 | The Index (Google Search) | `google-search.html` | Pages only |
+| 11 | The Quorum (Amazon Dynamo) | `dynamo.html` | Pages only |
 
-Next planned: **The Quorum — Amazon's Dynamo and the cart that must never fail**.
+Next planned: **The Upload — YouTube's transcode factory**.
 
 Editorial lesson from Ep03 (keep): op-count economics do NOT justify the celebrity
 threshold — per follow edge, follower count cancels out of the push-vs-pull comparison.

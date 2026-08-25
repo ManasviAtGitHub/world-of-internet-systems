@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Quorum — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:24px}
+  input[type=range]{accent-color:var(--traffic);width:110px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Flagships · Episode 11</p>
+  <h1>The Quorum</h1>
+  <p class="dek">Around 2004, Amazon made a business decision disguised as a technical one:
+  the shopping cart must <em>never</em> refuse an item — not during a disk failure, not
+  during a network partition, not on the biggest shopping day of the year. Accepting that
+  requirement meant giving up strong consistency, and working out the consequences honestly
+  produced the Dynamo paper — the document that launched the NoSQL era. This episode runs
+  its machinery: real quorums, real staleness, real vector clocks.</p>
+  <p class="marginal">N = 3 replicas throughout, like the paper. Amber = writes, cyan =
+  reads, red = failures and stale data. Amazon states its targets at the 99.9th percentile
+  — the slowest requests belong to the customers with the fullest carts.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">Your cart, in triplicate — every write lands on N=3 replicas of the ring</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:270px" role="img" aria-label="A client writes a cart update to a coordinator which replicates it to three replicas on a hash ring; acknowledgements return when a write quorum is met"></canvas>
+  <div class="exp-metrics">
+    <span>ADDS TO CART<b data-m="hero.w">0</b></span>
+    <span>ACKED AT W=2 OF 3<b data-m="hero.ack">–</b></span>
+    <span>THE PAPER'S SLA<b data-m="hero.sla">300ms @ 99.9% · 500 req/s</b></span>
+  </div>
+  <figcaption class="exp-note">Watch a write: the coordinator sends it to all three replicas
+  but answers the customer as soon as <em>two</em> acknowledge — the third catches up
+  asynchronously. That gap between "acked" and "everywhere" is where this entire episode
+  lives. In the 2006 holiday season this design carried tens of millions of cart requests
+  and three million checkouts in a day without refusing one.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The dial: R + W against N</h2>
+  <p>Dynamo's consistency story is one inequality. Writes wait for <strong>W</strong> of the
+  N replicas; reads consult <strong>R</strong> of them and take the newest version they see.
+  If <strong>R + W &gt; N</strong>, every read set must overlap every write set — somebody
+  you ask has the newest value, <em>guaranteed by counting</em>. If R + W ≤ N, a read can
+  land entirely on replicas the last write hasn't reached yet, and you serve the past. The
+  experiment below measures it: live writes, live reads, live replication lag, and a stale
+  counter that goes to exactly zero the moment the inequality holds.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Turn the dial — staleness and latency, measured live</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-w">W (write quorum)</label>
+      <input type="range" id="r-w" min="1" max="3" value="2" step="1">
+      <output data-m="e1.w">2</output></span>
+    <span class="ctl"><label for="r-r">R (read quorum)</label>
+      <input type="range" id="r-r" min="1" max="3" value="2" step="1">
+      <output data-m="e1.r">2</output></span>
+    <span data-m="e1.rule" style="color:var(--panel-ink)">R+W=4 &gt; N=3 — OVERLAP GUARANTEED</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:250px" role="img" aria-label="Three replicas receiving writes synchronously or with lag; reads sample R of them; a staleness meter reacts to the quorum settings"></canvas>
+  <div class="exp-metrics">
+    <span>READS SERVED<b data-m="e1.reads">0</b></span>
+    <span>STALE READS<b class="bad" data-m="e1.stale">–</b></span>
+    <span>WRITE LATENCY P50<b data-m="e1.wlat">–</b></span>
+    <span>READ LATENCY P50<b data-m="e1.rlat">–</b></span>
+  </div>
+  <figcaption class="exp-note">Try the corners. <em>W=1, R=1</em>: fastest possible, and
+  roughly a third of reads serve yesterday's cart. <em>W=3</em>: never stale at any R — but
+  the write now waits for the slowest of three machines, and one dead replica would block
+  every write. <em>W=2, R=2</em> — the paper's default — is the compromise the inequality
+  blesses: zero stale reads, moderate latency, one replica allowed to die. Counting, not
+  clocks, is doing the work.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Always writeable: the sloppy quorum</h2>
+  <p>A strict quorum has a hidden availability cliff: if enough of the key's <em>home</em>
+  replicas are down, writes fail — exactly what the cart is forbidden to do. Dynamo's
+  answer: take the write anyway. The first N <em>healthy</em> nodes on the ring accept it,
+  and each stand-in stores a <strong>hint</strong> — a luggage tag naming the true owner.
+  When the home replica returns, the tagged writes walk home. Your add-to-cart succeeded
+  during the outage; the price is a window of divergence, which the next experiment's
+  machinery will clean up.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Kill the replicas — strict quorum vs sloppy quorum with hinted handoff</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e2-kill2">KILL TWO REPLICAS</button>
+      <button class="btn primary" data-act="e2-revive">RACKS COME BACK</button>
+      <button class="btn" data-run="e2">PAUSE</button>
+      <button class="btn" data-reset="e2">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-e2" style="height:270px" role="img" aria-label="Two worlds: strict quorum fails writes when two of three home replicas die; sloppy quorum lands writes on stand-in nodes carrying hints, which stream home on recovery"></canvas>
+  <div class="exp-metrics">
+    <span>STRICT — WRITES FAILED<b class="bad" data-m="e2.fail">0</b></span>
+    <span>SLOPPY — WRITES FAILED<b data-m="e2.sfail">0</b></span>
+    <span>HINTS HELD BY STAND-INS<b data-m="e2.hints">0</b></span>
+    <span>HINTS DELIVERED HOME<b data-m="e2.homed">0</b></span>
+  </div>
+  <figcaption class="exp-note">Kill two of the three home replicas: the strict world starts
+  refusing carts — every red pulse is a customer told "try again later" during the holiday
+  rush. The sloppy world doesn't blink: stand-ins D and E accept the writes and stack up
+  luggage-tagged hints. Press the recovery and watch the tags stream home. <em>Availability
+  chosen, consistency relaxed to eventual</em> — the CAP trade-off as an operating decision
+  rather than a slogan.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The split cart, and who may merge it</h2>
+  <p>Eventual consistency has a bill, and it arrives as a <em>conflict</em>: during a
+  partition, your phone adds a lamp to the cart while your laptop adds a book, on opposite
+  sides of the split. Timestamps can't save you — "last write wins" just silently deletes
+  someone's item. Dynamo's answer is <strong>vector clocks</strong>: each version carries
+  per-node counters, so the system can tell "B descends from A" apart from "A and B are
+  genuinely concurrent." Concurrent versions are both kept and handed to the
+  <em>application</em> at read time — because only the application knows what merging
+  means. For a cart: union. An add is never lost.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">Partition, diverge, heal — last-write-wins vs vector clocks</span>
+    <span class="exp-run">
+      <button class="btn primary" data-act="e3-run">PARTITION &amp; DIVERGE</button>
+      <button class="btn primary" data-act="e3-heal">HEAL &amp; READ</button>
+      <button class="btn" data-run="e3">PAUSE</button>
+      <button class="btn" data-reset="e3">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-vc" checked> vector clocks + application merge (uncheck for last-write-wins)</label>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:280px" role="img" aria-label="A network partition splits the cart; two clients write concurrently on opposite sides; on heal, either one write silently wins or the vector clocks reveal the conflict and the carts merge"></canvas>
+  <div class="exp-metrics">
+    <span>PHASE<b data-m="e3.phase">intact</b></span>
+    <span>SIDE 1 VERSION<b data-m="e3.v1">–</b></span>
+    <span>SIDE 2 VERSION<b data-m="e3.v2">–</b></span>
+    <span>FINAL CART<b data-m="e3.cart">–</b></span>
+    <span>ITEMS SILENTLY LOST<b class="bad" data-m="e3.lost">–</b></span>
+  </div>
+  <figcaption class="exp-note">Run it both ways. Last-write-wins: the clocks compare, one
+  side "wins," and an item a real customer really added <em>vanishes without an error</em> —
+  the worst kind of bug, the invisible kind. Vector clocks: [A:1] and [C:1] are incomparable,
+  the conflict is surfaced, and the cart merges to the union. The paper admits the famous
+  quirk this creates: a deleted item can occasionally resurrect into the merged cart —
+  Amazon judged a ghost item strictly better than a vanished one.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What became of it</h2>
+  <p>The mandate that made this world possible predates the paper: around 2002, Bezos
+  ordered that every team expose its work only through service interfaces — no shared
+  databases, no back-doors, "anyone who doesn't do this will be fired" (as Steve Yegge
+  memorably recounted). One amazon.com page render became a fan-out to 100–150 services;
+  the order pipeline became queues and retries instead of one giant transaction; and the
+  internal platforms that resulted were eventually sold to the world as AWS.</p>
+  <p>Dynamo's own afterlife is the best irony in the series: DynamoDB, the managed
+  descendant launched in 2012, <em>dropped</em> the exotic parts — no sloppy quorum, no
+  vector clocks — in favor of boring Paxos-replicated partitions, because operability beat
+  theoretical elegance. The paper's real heirs are external: Cassandra, Riak, and Voldemort
+  are all its children. And the scale kept compounding: DynamoDB peaked at 89 million
+  requests per second on Prime Day 2021, 126M in 2023, 146M in 2024, and <strong>151
+  million requests per second in 2025</strong> — roughly every human on Earth pressing a
+  button every 53 milliseconds — while Amazon's consumer business finished walking off
+  Oracle entirely: 7,500 databases, 75 petabytes, gone by 2019.</p>
+  <p>The keeper: <strong>decide what must never fail, and spend consistency to buy it.</strong>
+  Every distributed database since is an answer to where that dial should sit.</p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>G. DeCandia et al. — <a href="https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf">Dynamo: Amazon's Highly Available Key-value Store</a>, SOSP 2007. Quorums, sloppy quorum, hinted handoff, vector clocks, the 99.9th-percentile SLAs, the cart war stories.</li>
+    <li>W. Vogels — <a href="https://www.allthingsdistributed.com/2007/10/amazons_dynamo.html">Amazon's Dynamo</a>, 2007; <a href="https://www.allthingsdistributed.com/2012/01/amazon-dynamodb.html">the DynamoDB launch post</a>, 2012; and <a href="https://queue.acm.org/detail.cfm?id=1142065">the ACM Queue interview</a>, 2006 (100–150 services per page).</li>
+    <li>M. Elhemali et al. — <a href="https://www.usenix.org/conference/atc22/presentation/elhemali">Amazon DynamoDB: A Scalable, Predictably Performant, and Fully Managed NoSQL Database Service</a>, USENIX ATC 2022. What the descendant kept and dropped.</li>
+    <li>S. Yegge — <a href="https://gist.github.com/chitchcock/1281611">the platforms rant</a>, 2011 (the API mandate, recounted from memory).</li>
+    <li>AWS News Blog — <a href="https://aws.amazon.com/blogs/aws/migration-complete-amazons-consumer-business-just-turned-off-its-final-oracle-database/">the Oracle exit</a>, 2019; Prime Day telemetry <a href="https://aws.amazon.com/blogs/aws/prime-day-2023-powered-by-aws-all-the-numbers/">2023</a>, <a href="https://aws.amazon.com/blogs/aws/how-aws-powered-prime-day-2024-for-record-breaking-sales/">2024</a>, <a href="https://aws.amazon.com/blogs/aws/aws-services-scale-to-new-heights-for-prime-day-2025-key-metrics-and-milestones/">2025</a>.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next episode — <b>The Upload: YouTube's transcode factory</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+
+/* ================= HERO: the write path ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(7),
+  reset(){ this.t=0; this.w=0; this.job=null; this.wait=0.5; },
+  update(dt){
+    this.t+=dt;
+    if(!this.job){ this.wait-=dt; if(this.wait<=0){
+      const lats=[0.4+this.rng()*0.5, 0.4+this.rng()*0.5, 0.9+this.rng()*1.2];
+      lats.sort(()=>this.rng()-0.5);
+      this.job={phase:0,u:0,lats,ackAt:[...lats].sort((a,b)=>a-b)[1]};
+    } return; }
+    const j=this.job;
+    if(j.phase===0){ j.u+=dt/0.4; if(j.u>=1){ j.phase=1; j.u=0; } }
+    else {
+      j.u+=dt;
+      if(!j.acked && j.u>=j.ackAt){ j.acked=true; this.w++;
+        setM('hero.w',this.w);
+        setM('hero.ack','yes — 3rd replica catches up async'); }
+      if(j.u>=Math.max(...j.lats)+0.4){ this.job=null; this.wait=0.7+this.rng()*0.7; }
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const cl={x:W*0.10,y:H*0.5}, co={x:W*0.38,y:H*0.5};
+    const reps=[{x:W*0.75,y:H*0.18},{x:W*0.82,y:H*0.5},{x:W*0.75,y:H*0.82}];
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(cl.x-30,cl.y-16,60,32);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('CUSTOMER', cl.x, cl.y+34);
+    ctx.strokeStyle=CSS.traffic;
+    ctx.strokeRect(co.x-44,co.y-16,88,32);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('COORDINATOR', co.x, co.y+34);
+    reps.forEach((r,i)=>{
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(r.x-34,r.y-14,68,28);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('REPLICA '+String.fromCharCode(65+i), r.x, r.y+32);
+      ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+      ctx.beginPath(); ctx.moveTo(co.x+44,co.y); ctx.lineTo(r.x-34,r.y); ctx.stroke();
+      ctx.globalAlpha=1;
+    });
+    ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+    ctx.beginPath(); ctx.moveTo(cl.x+30,cl.y); ctx.lineTo(co.x-44,co.y); ctx.stroke();
+    ctx.globalAlpha=1;
+    const j=this.job;
+    if(j){
+      if(j.phase===0){
+        const e=j.u*j.u*(3-2*j.u);
+        ctx.fillStyle=CSS.traffic;
+        ctx.beginPath(); ctx.arc(cl.x+30+(co.x-44-(cl.x+30))*e, cl.y, 4, 0, 7); ctx.fill();
+        ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+        ctx.fillText('PUT cart += "garden hose"', 14, 20);
+      } else {
+        reps.forEach((r,i)=>{
+          const u=Math.min(1, j.u/j.lats[i]);
+          const arrived=u>=1;
+          if(!arrived){
+            ctx.fillStyle=CSS.traffic;
+            ctx.beginPath();
+            ctx.arc(co.x+44+(r.x-34-(co.x+44))*u, co.y+(r.y-co.y)*u, 3.5, 0, 7); ctx.fill();
+          } else {
+            ctx.fillStyle='rgba(242,169,59,0.3)';
+            ctx.fillRect(r.x-33,r.y-13,66,26);
+          }
+          if(j.lats[i]>0.85){
+            ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+            ctx.fillText('(lagging)', r.x, r.y-20);
+          }
+        });
+        if(j.acked){
+          ctx.fillStyle=CSS.traffic; ctx.textAlign='left';
+          ctx.fillText('✓ ACKED AT W=2 — CUSTOMER SEES SUCCESS', 14, 20);
+        }
+      }
+    }
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: the quorum dial ================= */
+const rW=document.getElementById('r-w');
+const rR=document.getElementById('r-r');
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){ this.rng=mulberry32(19); this.t=0;
+    this.reps=[{v:0,pend:[]},{v:0,pend:[]},{v:0,pend:[]}];
+    this.committed=0; this.gv=0;
+    this.nextW=0.3; this.nextR=0.15;
+    this.reads=0; this.stale=0;
+    this.wl=[]; this.rl=[]; this.flash=null; },
+  pick(k){ const idx=[0,1,2]; const out=[];
+    for(let i=0;i<k;i++) out.push(idx.splice(Math.floor(this.rng()*idx.length),1)[0]);
+    return out; },
+  lat(){ return 15+expRand(this.rng,20); },
+  update(dt){
+    this.t+=dt;
+    const W=+rW.value, R=+rR.value;
+    // apply pending async replications
+    for(const rep of this.reps){
+      rep.pend=rep.pend.filter(p=>{
+        if(this.t>=p.at){ rep.v=Math.max(rep.v,p.v); return false; }
+        return true; });
+    }
+    while(this.t>=this.nextW){
+      this.nextW += expRand(this.rng, 1/5);
+      this.gv++;
+      const sync=this.pick(W);
+      const lats=[];
+      for(let i=0;i<3;i++){
+        if(sync.includes(i)){ this.reps[i].v=Math.max(this.reps[i].v,this.gv); lats.push(this.lat()); }
+        else this.reps[i].pend.push({v:this.gv, at:this.t+0.3+this.rng()*1.2});
+      }
+      this.committed=this.gv;
+      this.wl.push(Math.max(...lats)); if(this.wl.length>300) this.wl.shift();
+    }
+    while(this.t>=this.nextR){
+      this.nextR += expRand(this.rng, 1/10);
+      const sample=this.pick(R);
+      const seen=Math.max(...sample.map(i=>this.reps[i].v));
+      this.reads++;
+      const isStale=seen<this.committed;
+      if(isStale) this.stale++;
+      this.rl.push(Math.max(...sample.map(()=>this.lat())));
+      if(this.rl.length>300) this.rl.shift();
+      this.flash={sample, isStale, at:this.t};
+    }
+    const p50=a=>{ if(!a.length) return NaN; const s=[...a].sort((x,y)=>x-y); return s[Math.floor(s.length/2)]; };
+    setM('e1.w',W); setM('e1.r',R);
+    setM('e1.rule', 'R+W='+(R+W)+(R+W>3?' > N=3 — OVERLAP GUARANTEED':' ≤ N=3 — STALE READS POSSIBLE'));
+    setM('e1.reads', this.reads);
+    setM('e1.stale', this.stale+' ('+(this.reads? (this.stale/this.reads*100).toFixed(1):'0')+'%)');
+    setM('e1.wlat', Math.round(p50(this.wl))+'ms');
+    setM('e1.rlat', Math.round(p50(this.rl))+'ms');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const xs=[W*0.25,W*0.5,W*0.75], y=H*0.42;
+    this.reps.forEach((rep,i)=>{
+      const behind=rep.v<this.committed;
+      const inFlash=this.flash && this.t-this.flash.at<0.35 && this.flash.sample.includes(i);
+      ctx.strokeStyle= inFlash? (this.flash.isStale?CSS.fault:CSS.b) : behind? CSS.fault : CSS.line;
+      ctx.lineWidth= inFlash? 2:1;
+      ctx.strokeRect(xs[i]-52, y-30, 104, 60);
+      ctx.lineWidth=1;
+      ctx.fillStyle= behind? CSS.fault : CSS.ink;
+      ctx.textAlign='center';
+      ctx.font='15px ui-monospace, Menlo, monospace';
+      ctx.fillText('v'+rep.v, xs[i], y+2);
+      ctx.font='10px ui-monospace, Menlo, monospace';
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('REPLICA '+String.fromCharCode(65+i)+(behind?' · BEHIND':''), xs[i], y+46);
+    });
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('LATEST ACKED WRITE: v'+this.committed, W/2, 24);
+    ctx.fillText('WRITES 5/s (AMBER) · READS 10/s (CYAN) · ASYNC REPLICATION LAG 0.3–1.5s', W/2, H-14);
+    if(this.flash && this.t-this.flash.at<0.35){
+      ctx.fillStyle=this.flash.isStale?CSS.fault:CSS.b; ctx.textAlign='center';
+      ctx.fillText(this.flash.isStale?'READ SERVED STALE DATA':'READ: FRESH', W/2, H-34);
+    }
+  }
+};
+
+/* ================= EXP-02: strict vs sloppy ================= */
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.rng=mulberry32(31); this.t=0;
+    this.dead=[false,false,false]; this.deadUntil=-1;
+    this.nextW=0.4; this.fail=0; this.sfail=0; this.hints=0; this.homed=0;
+    this.pulses=[]; this.tags=[]; },
+  kill2(){ this.dead=[true,true,false]; },
+  revive(){
+    this.dead=[false,false,false];
+    // hints stream home
+    this.homing=this.hints;
+  },
+  update(dt){
+    this.t+=dt;
+    while(this.t>=this.nextW){
+      this.nextW += expRand(this.rng, 1/4);
+      const healthyHome=this.dead.filter(d=>!d).length;
+      // strict: needs W=2 of the 3 home replicas
+      if(healthyHome>=2){ /* ok */ }
+      else { this.fail++; this.pulses.push({side:0,u:0}); }
+      // sloppy: first 2 healthy of extended ring always exist
+      if(healthyHome<2){ this.hints++; this.pulses.push({side:1,u:0,ok:true}); }
+    }
+    if(this.homing>0){
+      const move=Math.min(this.homing, dt*6);
+      this.homing-=move; this.hints-=move; this.homed+=move;
+      if(this.rng()<dt*6) this.tags.push({u:0});
+    }
+    this.pulses=this.pulses.filter(p=>(p.u+=dt/0.6)<1);
+    this.tags=this.tags.filter(p=>(p.u+=dt/0.8)<1);
+    setM('e2.fail', this.fail);
+    setM('e2.sfail', this.sfail);
+    setM('e2.hints', Math.round(this.hints));
+    setM('e2.homed', Math.round(this.homed));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2,12); ctx.lineTo(W/2,H-12); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('STRICT QUORUM — HOME REPLICAS ONLY', W*0.25, 22);
+    ctx.fillText('SLOPPY QUORUM — FIRST HEALTHY NODES', W*0.75, 22);
+    const drawWorld=(x0, sloppy)=>{
+      const homes=[0,1,2].map(i=>({x:x0+W*0.09+i*W*0.115, y:H*0.42}));
+      homes.forEach((h,i)=>{
+        const dead=this.dead[i];
+        ctx.strokeStyle=dead?CSS.fault:CSS.line;
+        ctx.setLineDash(dead?[4,3]:[]);
+        ctx.strokeRect(h.x-26, h.y-14, 52, 28);
+        ctx.setLineDash([]);
+        ctx.fillStyle=dead?CSS.fault:CSS.muted;
+        ctx.fillText(dead?'✕':'HOME '+String.fromCharCode(65+i), h.x, h.y+32);
+      });
+      if(sloppy){
+        [0,1].forEach(k=>{
+          const x=x0+W*0.13+k*W*0.14, y=H*0.76;
+          ctx.strokeStyle=CSS.traffic;
+          ctx.strokeRect(x-30, y-14, 60, 28);
+          ctx.fillStyle=CSS.muted;
+          ctx.fillText('STAND-IN '+(k?'E':'D'), x, y+32);
+        });
+        if(this.hints>0.5){
+          ctx.fillStyle=CSS.traffic;
+          ctx.fillText('🏷 '+Math.round(this.hints)+' HINTS', x0+W*0.2, H*0.62);
+        }
+      }
+    };
+    drawWorld(0, false);
+    drawWorld(W/2, true);
+    for(const p of this.pulses){
+      const cx=p.side===0? W*0.25 : W*0.75;
+      ctx.globalAlpha=1-p.u;
+      ctx.strokeStyle=p.ok?CSS.traffic:CSS.fault;
+      ctx.beginPath(); ctx.arc(cx, H*0.42, 6+p.u*16, 0, 7); ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+    for(const tg of this.tags){
+      const x=W*0.70+ (W*0.83-W*0.70)*0;
+      ctx.globalAlpha=1-tg.u;
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath();
+      ctx.arc(W*0.70+(W*0.60-W*0.70)*tg.u, H*0.76+(H*0.42-H*0.76)*tg.u, 3.4, 0, 7);
+      ctx.fill();
+      ctx.globalAlpha=1;
+    }
+    const anyDead=this.dead.some(d=>d);
+    if(anyDead){
+      ctx.fillStyle=CSS.fault; ctx.textAlign='center';
+      ctx.fillText('TWO RACKS DOWN — HOLIDAY TRAFFIC CONTINUES', W/2, H-14);
+    }
+  }
+};
+
+/* ================= EXP-03: vector clocks ================= */
+const tVC=document.getElementById('t-vc');
+function vcCompare(a,b){          // real vector-clock comparison
+  let aGE=true, bGE=true;
+  const keys=new Set([...Object.keys(a),...Object.keys(b)]);
+  for(const k of keys){
+    const av=a[k]||0, bv=b[k]||0;
+    if(av<bv) aGE=false;
+    if(bv<av) bGE=false;
+  }
+  if(aGE&&bGE) return 'equal';
+  if(aGE) return 'a-dominates';
+  if(bGE) return 'b-dominates';
+  return 'concurrent';
+}
+const vcStr=v=>'['+Object.entries(v).map(([k,n])=>k+':'+n).join(', ')+']';
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){ this.t=0; this.phase='intact'; this.timeline=[];
+    this.s1={items:['socks'], vc:{}, ts:0};
+    this.s2={items:['socks'], vc:{}, ts:0};
+    this.final=null; this.lost=null; this.script=null;
+    this.pub(); },
+  pub(){
+    setM('e3.phase', this.phase);
+    setM('e3.v1', (this.s1.items.join('+')||'∅')+' '+(Object.keys(this.s1.vc).length?vcStr(this.s1.vc):''));
+    setM('e3.v2', (this.s2.items.join('+')||'∅')+' '+(Object.keys(this.s2.vc).length?vcStr(this.s2.vc):''));
+    setM('e3.cart', this.final? this.final.join(' + ') : '–');
+    setM('e3.lost', this.lost===null? '–' : this.lost===0? '0' : String(this.lost));
+  },
+  runStory(){
+    if(this.phase!=='intact') this.reset();
+    this.phase='partitioned'; this.script=[
+      {at:this.t+1.0, fn:()=>{ this.s1.items.push('book'); this.s1.vc={A:1}; this.s1.ts=this.t; this.pub(); }},
+      {at:this.t+2.2, fn:()=>{ this.s2.items.push('lamp'); this.s2.vc={C:1}; this.s2.ts=this.t; this.pub(); }},
+    ];
+    this.pub();
+  },
+  heal(){
+    if(this.phase!=='partitioned') return;
+    this.phase='healed — reading';
+    const useVC=tVC.checked;
+    if(useVC){
+      const cmp=vcCompare(this.s1.vc, this.s2.vc);
+      if(cmp==='concurrent'){
+        this.final=[...new Set([...this.s1.items, ...this.s2.items])];
+        this.lost=0;
+        this.phase='CONFLICT DETECTED → APP MERGED (UNION)';
+      } else {
+        this.final=cmp==='a-dominates'? this.s1.items : this.s2.items;
+        this.lost=0;
+        this.phase='one version descends from the other';
+      }
+    } else {
+      const winner=this.s1.ts>=this.s2.ts? this.s1 : this.s2;
+      const loser =this.s1.ts>=this.s2.ts? this.s2 : this.s1;
+      this.final=winner.items;
+      this.lost=loser.items.filter(i=>!winner.items.includes(i)).length;
+      this.phase='LAST WRITE WON — SILENT DATA LOSS';
+    }
+    this.pub();
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.script){
+      this.script=this.script.filter(s=>{ if(this.t>=s.at){ s.fn(); return false; } return true; });
+      if(!this.script.length) this.script=null;
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const part=this.phase==='partitioned';
+    // the split
+    if(part){
+      ctx.strokeStyle=CSS.fault; ctx.setLineDash([6,5]); ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(W/2, 20); ctx.lineTo(W/2, H-40); ctx.stroke();
+      ctx.setLineDash([]); ctx.lineWidth=1;
+      ctx.fillStyle=CSS.fault; ctx.textAlign='center';
+      ctx.fillText('NETWORK PARTITION', W/2, 14);
+    }
+    const side=(x0, s, who, dev)=>{
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(x0-60, H*0.30, 120, 54);
+      ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+      ctx.fillText('cart: '+s.items.join(' + '), x0, H*0.30+22);
+      ctx.fillStyle=Object.keys(s.vc).length?CSS.traffic:CSS.muted;
+      ctx.fillText(Object.keys(s.vc).length?vcStr(s.vc):'[ ]', x0, H*0.30+40);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(who+' · '+dev, x0, H*0.30+72);
+    };
+    side(W*0.25, this.s1, 'ALICE · LAPTOP', 'writes via REPLICA A');
+    side(W*0.75, this.s2, 'ALICE · PHONE', 'writes via REPLICA C');
+    // final cart
+    if(this.final){
+      const bad=this.lost>0;
+      ctx.strokeStyle=bad?CSS.fault:CSS.traffic;
+      ctx.strokeRect(W/2-110, H*0.68, 220, 44);
+      ctx.fillStyle=bad?CSS.fault:CSS.ink; ctx.textAlign='center';
+      ctx.fillText('FINAL CART: '+this.final.join(' + '), W/2, H*0.68+20);
+      ctx.fillStyle=bad?CSS.fault:CSS.traffic;
+      ctx.fillText(bad? this.lost+' ITEM SILENTLY GONE' : 'NOTHING LOST', W/2, H*0.68+36);
+    } else {
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText(part? 'both sides accepting writes — divergence underway' :
+        'press PARTITION & DIVERGE', W/2, H*0.75);
+    }
+  }
+};
+
+/* ---------- wiring ---------- */
+e1.reset(); e2.reset(); e3.reset();
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+document.querySelector('[data-act="e2-kill2"]').addEventListener('click',()=>e2.kill2());
+document.querySelector('[data-act="e2-revive"]').addEventListener('click',()=>e2.revive());
+document.querySelector('[data-act="e3-run"]').addEventListener('click',()=>e3.runStory());
+document.querySelector('[data-act="e3-heal"]').addEventListener('click',()=>e3.heal());
+rW.addEventListener('input',()=>setM('e1.w', rW.value));
+rR.addEventListener('input',()=>setM('e1.r', rR.value));
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims) sims[k].draw(); }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>
