@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Folder — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 21</p>
+  <h1>The Folder</h1>
+  <p class="dek">Dropbox's founding act was to stop believing in files. A file is a list of
+  4-megabyte blocks, each named by its own SHA-256 fingerprint — and from that one 2007
+  decision everything else falls out: edit a sentence in a gigabyte and only one block
+  moves; two people saving the same file costs zero bytes; the laptop next to you is a
+  server; and half a exabyte of blocks eventually walked out of Amazon into hardware
+  Dropbox built itself. This episode runs the arithmetic that made a folder feel
+  telepathic.</p>
+  <p class="marginal">Everything below is honestly simulated: uploads move through real
+  transfer queues at fixed link speeds, the naive lane genuinely falls behind by Little's
+  law, LAN sync spreads blocks peer-to-peer wave by wave, and the storage-overhead numbers
+  are the actual replication and erasure-coding ratios.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">A file becoming hashes — only what changed ever travels</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:270px" role="img" aria-label="A one-gigabyte file drawn as a strip of 4MB blocks, each stamped with a hash; random edits light up one or two blocks, and only those blocks travel up the wire to the cloud while counters compare bytes uploaded against what whole-file uploads would have cost"></canvas>
+  <div class="exp-metrics">
+    <span>EDITS TO THE 1GB FILE<b data-m="hero.edits">0</b></span>
+    <span>BYTES UPLOADED<b data-m="hero.up">–</b></span>
+    <span>WHOLE-FILE UPLOADS WOULD BE<b class="bad" data-m="hero.naive">–</b></span>
+    <span>SAVED<b data-m="hero.save">–</b></span>
+  </div>
+  <figcaption class="exp-note">The client watches the filesystem; on every save it
+  re-chunks the file into ≤4MB blocks and hashes each with SHA-256. The ordered hash list
+  — the <em>blocklist</em> — is the file's identity. "What changed?" is just
+  set-difference on hashes, so a paragraph edit uploads one block, not one gigabyte.
+  Watch the savings multiplier climb: this single idea is why sync felt instant in 2008
+  on 2008 internet.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Edit one sentence of a gigabyte</h2>
+  <p>Here is the counterfactual that decides the whole design. Suppose your team keeps a
+  400MB design file that someone touches every few seconds — and the office uplink moves
+  10 megabytes a second. A whole-file syncer must push 400MB per save: each upload takes
+  longer than the gap between edits, so the queue of pending uploads <em>grows without
+  bound</em> — the file you see in the cloud drifts minutes, then hours, behind reality.
+  The block syncer pushes ~4MB per save and is idle again half a second later. Same
+  uplink, same edits; one design drowns and the other naps. And content addressing has a
+  second gift: when a teammate drops in a file whose blocks Dropbox has seen before —
+  from anyone, ever — <strong>nothing is uploaded at all</strong>. The hashes already
+  live in the store.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">The delta race — whole files vs blocks on the same uplink</span>
+    <span class="exp-run">
+      <button class="btn primary" data-act="e1-dup">TEAMMATE ADDS THE SAME FILE</button>
+      <button class="btn" data-run="e1">PAUSE</button>
+      <button class="btn" data-reset="e1">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-size">File size</label>
+      <input type="range" id="r-size" min="50" max="2048" value="400" step="25">
+      <output data-m="e1.size">400MB</output></span>
+    <span>AN EDIT EVERY ~8s · UPLINK 10 MB/s · SAME EDITS ON BOTH LANES</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:270px" role="img" aria-label="Two upload lanes receive identical edits: the whole-file lane queues 400-megabyte uploads faster than the uplink can drain them and falls minutes behind, while the block lane ships four megabytes per edit and stays synced within a second"></canvas>
+  <div class="exp-metrics">
+    <span>WHOLE-FILE — BEHIND BY<b class="bad" data-m="e1.naiveq">–</b></span>
+    <span>BLOCKS — LAST SYNC TOOK<b data-m="e1.blockl">–</b></span>
+    <span>BYTES SHIPPED<b data-m="e1.up">–</b></span>
+    <span>DEDUP UPLOADS<b data-m="e1.dedup">–</b></span>
+  </div>
+  <figcaption class="exp-note">The lanes share nothing but the edit stream. At 400MB the
+  whole-file lane needs 40 seconds per save against an edit every 8 — utilization 500%,
+  so its backlog grows forever; the honest "behind by" number is the queue drained at
+  link speed. Slide the file down to 50MB and the naive lane becomes merely sluggish —
+  the collapse is a threshold, not a slope. Then press the teammate button: the
+  whole-file lane dutifully queues another full upload, while the block lane ships
+  <em>zero bytes</em> — every hash is already in the store. Deduplication isn't a
+  feature; it's what content addressing does when you're not looking.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The laptop next to you is a server</h2>
+  <p>Now put eight of those laptops in one office and drop a 100MB file in the shared
+  folder. The naive fan-out sends eight full downloads through the office's shared
+  internet line — paying for the same bytes eight times through the narrowest pipe in
+  the building. Dropbox's <strong>LAN sync</strong> (circa 2011) notices the obvious:
+  once one machine has a block, the other seven can fetch it across the office network
+  at ten times the speed, for free. Discovery is a UDP broadcast on port 17500 —
+  "anyone got block <code>ab34…</code>?" — answered over HTTPS with per-namespace
+  certificates, so the shortcut stays authenticated.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">One office, eight laptops — the internet pays once, or eight times</span>
+    <span class="exp-run">
+      <button class="btn primary" data-act="e2-drop">DROP A 100MB FILE</button>
+      <button class="btn" data-run="e2">PAUSE</button>
+      <button class="btn" data-reset="e2">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-lan"> lan sync — fetch blocks from peers on the office network (10× faster)</label>
+    <span>OFFICE LINE 12.5 MB/s SHARED · LAN 125 MB/s</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:300px" role="img" aria-label="Eight laptops in an office sync a dropped file: without LAN sync all eight download through the shared internet line and finish together after a minute; with LAN sync one seed downloads once and the rest copy from peers across the office network in seconds"></canvas>
+  <div class="exp-metrics">
+    <span>INTERNET BYTES<b class="bad" data-m="e2.inet">–</b></span>
+    <span>OFFICE FULLY SYNCED IN<b data-m="e2.time">–</b></span>
+    <span>SYNCED MACHINES<b data-m="e2.done">–</b></span>
+    <span>SERVED BY PEERS<b data-m="e2.peer">–</b></span>
+  </div>
+  <figcaption class="exp-note">Watch the shape of the two worlds. Naive: eight equal
+  trickles share 12.5 MB/s, so <em>everyone</em> finishes late together — 800MB through
+  the bottleneck, about 64 seconds. LAN sync: one seed pulls the file once (8 seconds),
+  then finished machines become sources and the file spreads peer-to-peer in doubling
+  waves — the whole office is synced in ~11 seconds having bought 100MB of internet,
+  once. Same blocks, same office; the difference is admitting that the fastest CDN node
+  is the desk beside you.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Two copies, or nine fragments</h2>
+  <p>Under all of this sits Magic Pocket — the exabyte blob store Dropbox built to walk
+  90% of 500+ petabytes out of Amazon S3 between 2013 and 2016 (the S-1 later put the
+  savings near $75M over two years). Its durability story is a two-act design.
+  <strong>Fresh blocks</strong> are fully replicated in two geographic zones within about
+  a second of arrival: 2× the storage, but writes are fast and a repair is a
+  straight copy. As blocks go <strong>cold</strong> — and almost everything in a backup
+  store goes cold — they're re-packed into erasure-coded stripes: six data fragments plus
+  three parity, spread across nine machines. Now any six of the nine can rebuild the
+  data: 1.5× storage instead of 2×, <em>and</em> it survives three simultaneous losses
+  instead of one. The catch you'd never guess: repairing an erasure-coded loss means
+  reading six fragments to rebuild one — the cheap format is the expensive one to heal,
+  which is exactly why the hot path stays replicated.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">Replicate, then erasure-code — durability's two regimes</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e3-fail">FAIL A MACHINE IN EACH WORLD</button>
+      <button class="btn" data-run="e3">PAUSE</button>
+      <button class="btn" data-reset="e3">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <span>SAME 100PB OF BLOCKS · SAME REPAIR BANDWIDTH BUDGET · TWO FORMATS</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:300px" role="img" aria-label="Two storage layouts for the same data: full replicas in two zones costing double the raw space, and a six-plus-three erasure-coded stripe costing one and a half times; failing a machine shows the replica world repairing with one read stream while the erasure world must read six fragments to rebuild one"></canvas>
+  <div class="exp-metrics">
+    <span>RAW STORAGE<b data-m="e3.raw">–</b></span>
+    <span>REPAIR READS PER LOST BYTE<b data-m="e3.amp">–</b></span>
+    <span>GUARANTEED TO SURVIVE<b data-m="e3.tol">–</b></span>
+    <span>REPAIR STATUS<b data-m="e3.rep">–</b></span>
+  </div>
+  <figcaption class="exp-note">Fail a machine in both worlds and watch the repair race:
+  the replica world reads its one surviving copy and is whole again quickly; the
+  erasure world reads <em>six</em> fragments through the same repair budget and takes six
+  times longer — its cheapness is paid for in rebuild traffic. That trade is the whole
+  policy: replicate while data is young (fast writes, fast heals), erasure-code when it
+  cools (25% less raw storage <em>and</em> a stronger loss guarantee). Stack the regimes
+  by age and you get Magic Pocket's headline: durability engineered to twelve nines —
+  on disks that are, one by one, always dying.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The rewrite and the dice machine</h2>
+  <p>Two chapters this episode leaves in prose. In 2020 Dropbox shipped
+  <strong>Nucleus</strong>, a Rust rewrite of the sync engine's heart: every client
+  reconciles three trees — Remote (the cloud's view), Local (the disk's), and Synced
+  (their last agreement) — and the old Python engine's data model made some illegal
+  states expressible enough that they eventually happened. Nucleus runs nearly all sync
+  logic on one control thread, which buys the second superpower:
+  <strong>deterministic simulation</strong> — millions of randomized scenarios a day
+  (crashes, partitions, rename storms), each perfectly reproducible from its RNG seed. A
+  dozen people swapped the engine under hundreds of millions of devices, because "same
+  seed, same bug" turns heisenbugs into regression tests. And in 2018, Magic Pocket
+  became the first petabyte-scale deployment of shingled (SMR) drives — disks that hate
+  random writes and love appends, which is only a bargain if your entire store is,
+  by design, immutable 4MB blocks appended into 1GB buckets. It is.</p>
+  <p>The keeper: <strong>Dropbox named its data by what it is instead of where it lives —
+  and dedup, delta sync, LAN shortcuts, and even the choice of disks were all the same
+  decision, echoing.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Dropbox Engineering — <a href="https://dropbox.tech/infrastructure/streaming-file-synchronization">Streaming File Synchronization</a>, 2014, and <a href="https://dropbox.tech/infrastructure/inside-lan-sync">Inside LAN Sync</a>, 2015 — blocklists, 4MB/SHA-256 chunks, UDP 17500 discovery.</li>
+    <li>Dropbox Engineering — <a href="https://dropbox.tech/infrastructure/magic-pocket-infrastructure">Scaling to exabytes and beyond</a> and <a href="https://dropbox.tech/infrastructure/inside-the-magic-pocket">Inside the Magic Pocket</a>, 2016 — the 500PB migration, cells/zones, replication then erasure coding, 12 nines.</li>
+    <li>Dropbox Engineering — <a href="https://dropbox.tech/infrastructure/rewriting-the-heart-of-our-sync-engine">Rewriting the heart of our sync engine</a> and <a href="https://dropbox.tech/infrastructure/-testing-our-new-sync-engine">Testing sync at Dropbox</a>, 2020 — Nucleus, three trees, deterministic simulation.</li>
+    <li>Dropbox Engineering — <a href="https://dropbox.tech/infrastructure/extending-magic-pocket-innovation-with-the-first-petabyte-scale-smr-drive-deployment">The first petabyte-scale SMR deployment</a>, 2018.</li>
+    <li>Wired — <a href="https://www.wired.com/2016/03/epic-story-dropboxs-exodus-amazon-cloud-empire/">The Epic Story of Dropbox's Exodus from the Amazon Cloud Empire</a>, 2016; cost figures via <a href="https://www.datacenterdynamics.com/en/analysis/how-dropbox-pulled-off-its-hybrid-cloud-transition/">Datacenter Dynamics</a> (S-1: ~$74.6M/2yr).</li>
+    <li>InfoQ / QCon SF 2022 — <a href="https://www.infoq.com/articles/dropbox-magic-pocket-exabyte-storage/">Magic Pocket: Dropbox's Exabyte-Scale Blob Storage System</a>.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next in the wider world: <b>two guests, one calendar — Airbnb</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+function fmtMB(mb){
+  if(mb>=1024) return (mb/1024).toFixed(mb<10240?1:0)+'GB';
+  return Math.round(mb)+'MB';
+}
+function fmtS(s){
+  if(s>=3600) return (s/3600).toFixed(1)+' hr';
+  if(s>=60) return (s/60).toFixed(1)+' min';
+  if(s>=1) return s.toFixed(1)+'s';
+  return Math.round(s*1000)+'ms';
+}
+const UPLINK=10;   // MB/s
+
+/* ================= HERO: a file becoming hashes ================= */
+const HB=32;                 // blocks drawn (each stands for 8 of the 256)
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(5),
+  reset(){ this.t=0; this.edits=0; this.upMB=0; this.naiveMB=0;
+    this.blocks=Array.from({length:HB},()=>({flash:-9, up:-9}));
+    this.nextEdit=1.2; this.q=[]; },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.nextEdit){
+      this.nextEdit=this.t+2.2+this.rng()*2.2;
+      this.edits++;
+      const n=1+(this.rng()<0.3?1:0);
+      for(let k=0;k<n;k++){
+        const i=Math.floor(this.rng()*HB);
+        this.blocks[i].flash=this.t;
+        this.q.push({i, at:this.t+0.25+k*0.45});
+      }
+      this.naiveMB+=1024;
+    }
+    this.q=this.q.filter(j=>{
+      if(this.t>=j.at){ this.blocks[j.i].up=this.t; this.upMB+=4; return false; }
+      return true; });
+    setM('hero.edits', this.edits);
+    setM('hero.up', fmtMB(this.upMB));
+    setM('hero.naive', fmtMB(this.naiveMB));
+    setM('hero.save', this.upMB? '×'+Math.round(this.naiveMB/this.upMB)+' LESS':'–');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    // cloud
+    ctx.strokeStyle=CSS.b;
+    ctx.strokeRect(W/2-90, 24, 180, 34);
+    ctx.fillStyle=CSS.b; ctx.textAlign='center';
+    ctx.fillText('BLOCK STORE (CONTENT-ADDRESSED)', W/2, 45);
+    // file strip
+    const bw=Math.min(22, (W-80)/HB), x0=W/2-bw*HB/2, y=H-84;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('REPORT.SKETCH — 1GB = 256 BLOCKS × 4MB (32 DRAWN)', x0, y-34);
+    for(let i=0;i<HB;i++){
+      const b=this.blocks[i];
+      const fl=this.t-b.flash<1.2, recent=this.t-b.up<2.5;
+      ctx.fillStyle= fl? CSS.traffic : recent? '#3A5068' : '#1A2836';
+      ctx.fillRect(x0+i*bw+1, y-18, bw-2, 26);
+      ctx.strokeStyle= fl? CSS.traffic : CSS.line;
+      ctx.strokeRect(x0+i*bw+1, y-18, bw-2, 26);
+    }
+    // hash stamps under a few blocks
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    const seeds=['a3f2','9c01','e77b','04d8'];
+    for(let k=0;k<4;k++) ctx.fillText(seeds[k]+'…', x0+(4+k*8)*bw+bw/2, y+24);
+    ctx.fillText('EACH BLOCK NAMED BY ITS SHA-256 — THE HASH LIST IS THE FILE', W/2, H-18);
+    // rising particles for queued uploads
+    for(const j of this.q){
+      const u=Math.max(0, Math.min(1, 1-(j.at-this.t)/0.7));
+      const bx=x0+j.i*bw+bw/2;
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(bx+(W/2-bx)*u, (y-18)+(58-(y-18))*u, 2.6, 0, 7); ctx.fill();
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('ONLY CHANGED HASHES CROSS THE WIRE', 24, 45);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: the delta race ================= */
+const rSize=document.getElementById('r-size');
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(11),
+  reset(){ this.t=0; this.nextEdit=1.5;
+    this.nq=[]; this.nRem=0;              // whole-file lane: queued jobs (MB) + current remainder
+    this.bq=[]; this.bRem=0;
+    this.nUp=0; this.bUp=0; this.blockLat=0.4; this.dedup=0; this.dupFlash=-9; },
+  size(){ return +rSize.value; },
+  dup(){ this.nq.push(this.size()); this.dedup++; this.dupFlash=this.t; },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.nextEdit){
+      this.nextEdit=this.t+7+this.rng()*2;
+      this.nq.push(this.size());
+      this.bq.push({mb:4+(this.rng()<0.3?4:0), born:this.t});
+    }
+    // whole-file lane drains at UPLINK
+    let budget=UPLINK*dt;
+    while(budget>0 && (this.nRem>0 || this.nq.length)){
+      if(this.nRem<=0) this.nRem=this.nq.shift();
+      const d=Math.min(budget, this.nRem);
+      this.nRem-=d; this.nUp+=d; budget-=d;
+    }
+    // block lane
+    budget=UPLINK*dt;
+    while(budget>0 && (this.bRem>0 || this.bq.length)){
+      if(this.bRem<=0){ const j=this.bq.shift(); this.bRem=j.mb; this._bBorn=j.born; }
+      const d=Math.min(budget, this.bRem);
+      this.bRem-=d; this.bUp+=d; budget-=d;
+      if(this.bRem<=0) this.blockLat=this.t-this._bBorn;
+    }
+    const pendMB=this.nq.reduce((s,m)=>s+m,0)+this.nRem;
+    const behind=pendMB/UPLINK;
+    setM('e1.size', fmtMB(this.size()));
+    setM('e1.naiveq', pendMB<1? 'caught up' : (this.nq.length+(this.nRem>0?1:0))+' uploads · '+fmtS(behind));
+    setM('e1.blockl', fmtS(Math.max(0.05,this.blockLat)));
+    setM('e1.up', 'naive '+fmtMB(this.nUp)+' vs blocks '+fmtMB(this.bUp));
+    setM('e1.dedup', this.dedup? this.dedup+' — blocks lane sent 0 BYTES' : '–');
+    this._behind=behind; this._pend=this.nq.length+(this.nRem>0?1:0);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const lane=(y, name, col, remFrac, queueN, statusTxt, statusCol)=>{
+      ctx.fillStyle=col; ctx.textAlign='left';
+      ctx.fillText(name, 24, y-26);
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(24, y-12, W-330, 24);
+      if(remFrac>0){
+        ctx.fillStyle=col;
+        ctx.fillRect(25, y-11, (W-332)*remFrac, 22);
+      }
+      // queued jobs as boxes to the left of the pipe
+      for(let i=0;i<Math.min(8,queueN);i++){
+        ctx.strokeStyle=CSS.fault;
+        ctx.strokeRect(W-296+i*24, y-10, 18, 20);
+      }
+      if(queueN>8){ ctx.fillStyle=CSS.fault; ctx.fillText('+'+(queueN-8), W-296+8*24+4, y+4); }
+      if(queueN>0){ ctx.fillStyle=CSS.fault; ctx.textAlign='left'; ctx.fillText('WAITING', W-296, y-16); }
+      ctx.fillStyle=statusCol; ctx.textAlign='left';
+      ctx.fillText(statusTxt, 24, y+30);
+    };
+    const nProg=this.nRem>0? 1-this.nRem/this.size() : 0;
+    lane(H*0.30, 'WHOLE-FILE SYNC — '+fmtMB(this.size())+' PER EDIT', CSS.a,
+      this.nRem>0? nProg:0, this._pend||0,
+      (this._behind||0)>2? 'FALLING BEHIND — QUEUE GROWS FASTER THAN THE LINK DRAINS' : 'KEEPING UP (BARELY)',
+      (this._behind||0)>2? CSS.fault : CSS.muted);
+    lane(H*0.70, 'BLOCK SYNC — ~4MB PER EDIT (SET-DIFFERENCE ON HASHES)', CSS.b,
+      this.bRem>0? 0.5:0, this.bq.length,
+      'IDLE MOST OF THE TIME — EACH SAVE SYNCED IN UNDER A SECOND', CSS.muted);
+    if(this.t-this.dupFlash<2.5){
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='center';
+      ctx.fillText('TEAMMATE\'S COPY: WHOLE-FILE QUEUES '+fmtMB(this.size())+' · BLOCKS SEND NOTHING — HASHES ALREADY KNOWN', W/2, H-30);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('ONE UPLINK · 10 MB/s EACH · SAME EDIT STREAM — ONLY THE UNIT OF SYNC DIFFERS', W/2, H-12);
+  }
+};
+e1.reset();
+rSize.addEventListener('input',()=>setM('e1.size', fmtMB(+rSize.value)));
+document.querySelector('[data-act="e1-dup"]').addEventListener('click',()=>e1.dup());
+
+/* ================= EXP-02: LAN sync ================= */
+const tLan=document.getElementById('t-lan');
+const FILE=100, NET=12.5, LAN=125;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0; this.inet=0; this.peerMB=0; this.doneAt=null; this.dropAt=null;
+    this.laps=Array.from({length:8},()=>({mb:0, src:null}));
+    this.drop(); },
+  drop(){ this.dropAt=this.t; this.doneAt=null; this.inet0=this.inet;
+    for(const l of this.laps){ l.mb=0; l.src=null; } },
+  update(dt){
+    this.t+=dt;
+    const lan=tLan.checked;
+    const pending=this.laps.filter(l=>l.mb<FILE);
+    if(pending.length){
+      if(!lan){
+        const share=NET/pending.length;
+        for(const l of pending){ const d=Math.min(FILE-l.mb, share*dt); l.mb+=d; this.inet+=d; l.src='NET'; }
+      } else {
+        const done=this.laps.filter(l=>l.mb>=FILE);
+        if(done.length===0){
+          const l=this.laps[0];
+          const d=Math.min(FILE-l.mb, NET*dt); l.mb+=d; this.inet+=d; l.src='NET';
+        } else {
+          // each finished machine seeds one pending peer over the LAN
+          let seeds=done.length;
+          for(const l of pending){
+            if(seeds<=0) break;
+            const d=Math.min(FILE-l.mb, LAN*dt); l.mb+=d; this.peerMB+=d; l.src='LAN'; seeds--;
+          }
+        }
+      }
+    } else if(this.doneAt===null && this.dropAt!==null){
+      this.doneAt=this.t-this.dropAt;
+    }
+    const doneN=this.laps.filter(l=>l.mb>=FILE).length;
+    setM('e2.inet', fmtMB(this.inet-this.inet0)+' THIS DROP');
+    setM('e2.time', this.doneAt!==null? fmtS(this.doneAt) : 'syncing… '+fmtS(this.t-(this.dropAt||0)));
+    setM('e2.done', doneN+'/8');
+    setM('e2.peer', fmtMB(this.peerMB));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const lan=tLan.checked;
+    // cloud + pipe
+    ctx.strokeStyle=CSS.b;
+    ctx.strokeRect(W/2-70, 20, 140, 30);
+    ctx.fillStyle=CSS.b; ctx.textAlign='center';
+    ctx.fillText('DROPBOX (CLOUD)', W/2, 39);
+    ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+    ctx.beginPath(); ctx.moveTo(W/2, 50); ctx.lineTo(W/2, 86); ctx.stroke();
+    ctx.globalAlpha=1;
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('OFFICE LINE · 12.5 MB/s SHARED', W/2, 76);
+    // office
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(60, 86, W-120, H-140);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('THE OFFICE — LAN 125 MB/s', 72, 104);
+    this.laps.forEach((l,i)=>{
+      const col=i%4, row=Math.floor(i/4);
+      const x=W/2-183+col*122, y=136+row*70;
+      const done=l.mb>=FILE;
+      ctx.strokeStyle= done? CSS.traffic : l.src==='LAN'? CSS.b : CSS.line;
+      ctx.strokeRect(x, y, 96, 34);
+      ctx.fillStyle= done? CSS.traffic : CSS.muted; ctx.textAlign='center';
+      ctx.fillText(done? '✓ LAPTOP '+(i+1) : 'LAPTOP '+(i+1), x+48, y+14);
+      // progress bar
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(x+8, y+20, 80, 7);
+      ctx.fillStyle= l.src==='LAN'? CSS.b : CSS.a;
+      ctx.fillRect(x+9, y+21, 78*Math.min(1,l.mb/FILE), 5);
+      if(!done && l.src==='LAN'){
+        ctx.fillStyle=CSS.b;
+        ctx.fillText('← PEER', x+48, y+44);
+      }
+    });
+    if(lan){
+      const seeded=this.laps.filter(l=>l.mb>=FILE).length;
+      if(seeded>0 && seeded<8){
+        ctx.fillStyle=CSS.b; ctx.textAlign='center';
+        ctx.fillText('UDP 17500: "ANYONE GOT BLOCK ab34…?" — '+seeded+' PEER'+(seeded>1?'S':'')+' ANSWER OVER HTTPS', W/2, H-32);
+      }
+    } else {
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText('EVERY LAPTOP PULLS ITS OWN FULL COPY THROUGH THE SHARED LINE', W/2, H-32);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText(lan? 'THE FASTEST CDN NODE IS THE DESK BESIDE YOU' : 'THE INTERNET PAYS ×8 FOR THE SAME BYTES', W/2, H-14);
+  }
+};
+e2.reset();
+document.querySelector('[data-act="e2-drop"]').addEventListener('click',()=>e2.drop());
+tLan.addEventListener('change',()=>e2.drop());
+
+/* ================= EXP-03: replicate vs erasure-code ================= */
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){ this.t=0;
+    this.rep={failed:false, prog:0, dur:4};
+    this.ec ={failed:false, prog:0, dur:24};
+    this.repairs=0; },
+  fail(){
+    if(!this.rep.failed && !this.ec.failed){
+      this.rep.failed=true; this.rep.prog=0;
+      this.ec.failed=true; this.ec.prog=0;
+      this.repairs++;
+    }
+  },
+  update(dt){
+    this.t+=dt;
+    for(const w of [this.rep, this.ec]){
+      if(w.failed){ w.prog+=dt/w.dur; if(w.prog>=1){ w.failed=false; w.prog=0; } }
+    }
+    setM('e3.raw', '200PB vs 150PB (−25%)');
+    setM('e3.amp', '×1 vs ×6');
+    setM('e3.tol', '1 loss vs 3 overlapping losses');
+    const st=[];
+    st.push(this.rep.failed? 'replica '+Math.round(this.rep.prog*100)+'% (4s)' : 'replica OK');
+    st.push(this.ec.failed? 'ec '+Math.round(this.ec.prog*100)+'% (24s)' : 'ec OK');
+    setM('e3.rep', st.join(' · '));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2, 12); ctx.lineTo(W/2, H-12); ctx.stroke();
+    // ---- left: replicas
+    const lx=W*0.25;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('FRESH BLOCKS — 2 FULL REPLICAS, 2 ZONES', lx, 28);
+    ctx.fillStyle=CSS.a;
+    ctx.fillText('RAW: 2.0× · WRITE FAST · HEAL FAST', lx, 44);
+    const zone=(zx, name, dead, prog)=>{
+      ctx.strokeStyle= dead? CSS.fault : CSS.line;
+      ctx.setLineDash(dead?[4,3]:[]);
+      ctx.strokeRect(zx-58, 66, 116, 130);
+      ctx.setLineDash([]);
+      ctx.fillStyle= dead? CSS.fault : CSS.muted;
+      ctx.fillText(name+(dead?' ✕':''), zx, 60);
+      for(let i=0;i<5;i++){
+        const gone= dead && prog<(i+1)/5;
+        ctx.fillStyle= gone? '#1A2836' : CSS.a;
+        ctx.globalAlpha= gone? .5:.85;
+        ctx.fillRect(zx-44, 78+i*22, 88, 14);
+        ctx.globalAlpha=1;
+        ctx.strokeStyle= gone? CSS.fault : CSS.line;
+        ctx.strokeRect(zx-44, 78+i*22, 88, 14);
+      }
+    };
+    zone(lx-70, 'ZONE WEST', false, 0);
+    zone(lx+70, 'ZONE EAST', this.rep.failed, this.rep.prog);
+    if(this.rep.failed){
+      ctx.strokeStyle=CSS.traffic; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(lx-12, 130); ctx.lineTo(lx+12, 130); ctx.stroke();
+      ctx.lineWidth=1;
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('1 READ STREAM → COPY', lx, H-52);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('LOSE BOTH COPIES AND IT\'S GONE — GUARANTEE: 1', lx, H-30);
+    // ---- right: erasure coding
+    const rx=W*0.75;
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('COLD BLOCKS — ERASURE-CODED 6 DATA + 3 PARITY', rx, 28);
+    ctx.fillStyle=CSS.b;
+    ctx.fillText('RAW: 1.5× · ANY 6 OF 9 REBUILD EVERYTHING', rx, 44);
+    for(let i=0;i<9;i++){
+      const col=i%3, row=Math.floor(i/3);
+      const fx=rx-95+col*68, fy=76+row*44;
+      const isParity=i>=6;
+      const dead= this.ec.failed && i===4 && this.ec.prog<1;
+      ctx.strokeStyle= dead? CSS.fault : isParity? CSS.b : CSS.line;
+      ctx.setLineDash(dead?[3,3]:[]);
+      ctx.strokeRect(fx, fy, 56, 30);
+      ctx.setLineDash([]);
+      ctx.fillStyle= dead? CSS.fault : isParity? CSS.b : CSS.muted;
+      ctx.fillText(dead?'✕':(isParity?'P'+(i-5):'D'+(i+1)), fx+28, fy+19);
+      if(this.ec.failed && !dead && i!==4 && i<7){
+        // six read streams converging on the rebuild
+        ctx.strokeStyle=CSS.traffic; ctx.globalAlpha=.5;
+        ctx.beginPath(); ctx.moveTo(fx+28, fy+30); ctx.lineTo(rx-95+1*68+28, 76+1*44+15); ctx.stroke();
+        ctx.globalAlpha=1;
+      }
+    }
+    if(this.ec.failed){
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('6 READ STREAMS → REBUILD ONE FRAGMENT', rx, H-52);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('THREE MACHINES CAN DIE AT ONCE — GUARANTEE: 3', rx, H-30);
+    ctx.textAlign='center';
+    ctx.fillText('SAME REPAIR BANDWIDTH BUDGET — THE CHEAP FORMAT IS THE EXPENSIVE ONE TO HEAL', W/2, H-12);
+  }
+};
+e3.reset();
+document.querySelector('[data-act="e3-fail"]').addEventListener('click',()=>e3.fail());
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

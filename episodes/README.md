@@ -36,8 +36,11 @@ outer shell first. The artifact URLs below predate this change and still work.
 | 18 | The Workspace (Slack) | `slack.html` | Pages only |
 | 19 | The Playlist (Spotify) | `spotify.html` | Pages only |
 | 20 | The Meeting (Zoom) | `zoom.html` | Pages only |
+| 21 | The Folder (Dropbox) | `dropbox.html` | Pages only |
+| 22 | The Calendar (Airbnb) | `airbnb.html` | Pages only |
+| 23 | The Charge (Stripe) | `stripe.html` | Pages only |
 
-Flagship and plumbing tiers complete; the wider world is underway. Next planned: **Dropbox**.
+Flagship and plumbing tiers complete; the wider world is underway. Next planned: **Shopify**.
 
 Extractor gotcha (learned on EP14): the awk script-extraction drops any JS line
 containing a literal `<script>` token (e.g. inside a canvas-label string) — avoid

@@ -31,8 +31,11 @@ real fix, and the sliders are yours.
 | 18 | [The Workspace — Slack](episodes/slack.html) | One message worldwide in ~500ms, persist-first; the rtm.start truck vs Flannel's diet; the reconnect storm absorbed at the edge; the wedged Redis queue Kafka un-wedged |
 | 19 | [The Playlist — Spotify](episodes/spotify.html) | The P2P era's 265ms illusion (one byte in eleven paid for); the event river with bulkheads; a Discover Weekly genuinely computed — kill the audio model and new releases vanish |
 | 20 | [The Meeting — Zoom](episodes/zoom.html) | The server that refuses to watch: MCU melts at ~97, the router holds 15× more; simulcast detaches downlink from meeting size; the 30× cliff of March 2020, provisioning dial in hand |
+| 21 | [The Folder — Dropbox](episodes/dropbox.html) | A file is a list of hashes: whole-file sync drowns where blocks nap; the teammate's copy costs 0 bytes; LAN sync makes the office the CDN; replicate-fresh vs erasure-code-cold race a repair |
+| 22 | [The Calendar — Airbnb](episodes/airbnb.html) | Two guests race one calendar (atomic commit vs the checkout window; iCal stays racy); the Monorail split by 1% comparison; the two-sided ranker that asks if the host will say yes |
+| 23 | [The Charge — Stripe](episodes/stripe.html) | Exactly once over an at-least-once wire: the idempotency key vs blind retries; the four-layer bouncer that never sheds a charge; the version time machine serving 2011 fresh from 2026 |
 
-**The wider world is underway** (20 of 29 systems). Next: **Dropbox syncs a million laptops**.
+**The wider world is underway** (23 of 29 systems). Next: **Shopify survives the drop**.
 
 ## Structure
 

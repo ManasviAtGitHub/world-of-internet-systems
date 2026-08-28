@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Charge — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 23</p>
+  <h1>The Charge</h1>
+  <p class="dek">The network under every payment promises only "at least once" — and money
+  is the one workload where "at least once" means "sometimes twice." Stripe's whole
+  engineering identity grew from taking that seriously: the idempotency key that made
+  retries safe enough to become the industry's standard pattern, rate limiters that throw
+  test traffic overboard before touching a real charge, and an API where an integration
+  written in 2011 still runs, unchanged, against fourteen years of breaking changes. $1.4
+  trillion moved across this design in 2024 — about 1.3% of global GDP.</p>
+  <p class="marginal">Everything below is honestly simulated: both retry worlds face
+  identical seeded failures, the load shedder allocates real capacity in priority order,
+  and the version time machine actually applies each dated transformation to a live
+  response object.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The life of a charge — a two-second sprint, then a two-day stroll</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:280px" role="img" aria-label="A swimlane traces each charge from the browser through the merchant, Stripe's API and Radar fraud check, out over the card network to the issuing bank and back in under two seconds; a slower lane below batches approved charges toward settlement and payout days later"></canvas>
+  <div class="exp-metrics">
+    <span>LAST AUTHORIZATION<b data-m="hero.auth">–</b></span>
+    <span>APPROVED<b data-m="hero.appr">0</b></span>
+    <span>DECLINED<b data-m="hero.decl">0</b></span>
+    <span>PAID OUT (T+2 DAYS)<b data-m="hero.paid">$0</b></span>
+  </div>
+  <figcaption class="exp-note">Two tempos share one charge. The sprint: browser tokenizes
+  the card (the merchant's server never sees the number), Stripe's Radar scores it for
+  fraud in the synchronous path, and the authorization round-trip — acquirer → card
+  network → issuing bank → back — lands in one to two seconds. The stroll: authorization
+  only placed a <em>hold</em>; capture, clearing, and settlement batch through the
+  network and pay the merchant days later. Auth-then-capture is a two-phase commit that
+  predates computing — run here on a clock where five seconds is a day.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Exactly once, over a wire that promises at least once</h2>
+  <p>Here is the nightmare in one sentence: you charge a card, the response never
+  arrives — <em>did it happen?</em> If you retry blindly, and the charge did happen, the
+  customer pays twice. If you never retry, and it didn't, you lost the sale. The network
+  cannot tell you which world you're in; there are three distinct ways to be ambiguous
+  (the request died on the way, the server died mid-work, the response died on the way
+  back), and only one of them is safe to retry naively. Stripe's answer — published in
+  2017 and copied by essentially every payments API since — is the
+  <strong>idempotency key</strong>: the client names each logical operation with a unique
+  key and retries with the <em>same key</em>; the server records the outcome atomically
+  with the work, and any repeat of a completed key gets the recorded response instead of
+  a second execution. Retries become free. Below, both worlds face the exact same
+  failures.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">The retry — blind vs keyed, identical failures, one customer's card</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-fail">Network failure rate</label>
+      <input type="range" id="r-fail" min="5" max="40" value="25" step="1">
+      <output data-m="e1.fail">25%</output></span>
+    <span>THREE AMBIGUITIES: REQUEST LOST · SERVER DIED MID-WORK · RESPONSE LOST</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:300px" role="img" aria-label="Charges flow from a merchant to Stripe over a flaky network; the blind-retry world executes the charge again whenever a response is lost, stacking double charges on the customer's statement, while the keyed world replays the recorded result and never charges twice"></canvas>
+  <div class="exp-metrics">
+    <span>CHARGES ATTEMPTED<b data-m="e1.n">0</b></span>
+    <span>RETRIES FIRED<b data-m="e1.rt">0</b></span>
+    <span>DOUBLE CHARGES — BLIND<b class="bad" data-m="e1.dbl">0</b></span>
+    <span>DOUBLE CHARGES — KEYED<b data-m="e1.keyed">0</b></span>
+    <span>UNRESOLVED<b data-m="e1.giv">0</b></span>
+  </div>
+  <figcaption class="exp-note">Watch where the failures land. A lost <em>request</em> is
+  harmless — nothing executed, both worlds retry safely. But when the server dies after
+  executing, or the response evaporates, the blind world can't tell and executes again:
+  every red line on the statement is the same sock purchase, twice. The keyed world hits
+  the identical failures and replays the recorded result — its double-charge counter is
+  not low, it is <em>structurally zero</em>. Crank the failure rate: the blind world's
+  damage scales with the network's mood; the keyed world's guarantee doesn't have a
+  slider.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Throw the test traffic overboard first</h2>
+  <p>Black Friday 2024 peaked at 137,000 transactions a minute. When demand outruns
+  capacity, the question isn't whether to drop traffic — it's <em>what to drop
+  first</em>, and Stripe's published answer is a four-layer bouncer: a per-user token
+  bucket (no single key may monopolize the fleet), a concurrency limiter for expensive
+  calls, a reserved slice of capacity that only charge-critical methods may use, and a
+  worker-utilization shedder that jettisons traffic in strict priority order — test-mode
+  requests first, then reads, then ordinary writes, and <strong>never</strong> the
+  charges. New limiters are dark-launched: they log what they <em>would</em> have
+  blocked, for weeks, before they're allowed to block anything.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">The bouncer — Black Friday and a runaway script vs the priority deck</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e2-spike">BLACK FRIDAY ×3 · 15s</button>
+      <button class="btn danger" data-act="e2-abuse">RUNAWAY SCRIPT · 500/s</button>
+      <button class="btn" data-run="e2">PAUSE</button>
+      <button class="btn" data-reset="e2">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-layers"> the four layers — token buckets, reserved capacity, priority shedding</label>
+    <span>FLEET CAPACITY 160 REQ/S · CHARGES ARE NEVER SHED</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="Four traffic classes compete for fleet capacity: without protection a spike or one runaway user starves the charge-creating requests along with everything else; with the four layers the abuser is capped by a token bucket and load is shed in priority order with charges untouched"></canvas>
+  <div class="exp-metrics">
+    <span>CHARGES SUCCEEDING<b class="bad" data-m="e2.charge">–</b></span>
+    <span>SHED<b data-m="e2.shed">–</b></span>
+    <span>RUNAWAY USER<b data-m="e2.abuser">–</b></span>
+    <span>FLEET LOAD<b data-m="e2.util">–</b></span>
+  </div>
+  <figcaption class="exp-note">Fire the runaway script at the naive fleet: one user's bug
+  becomes everyone's outage, and the revenue-bearing charges drown along with the test
+  pings — a queue with no opinions treats them identically. Now arm the layers and fire
+  it again: the token bucket caps the abuser at their fair share, and when Black Friday
+  lands on top, the shedder walks the priority deck — test mode gone, then reads, then
+  writes — while the charge success meter never leaves 100%. Degradation isn't a
+  failure mode; it's a policy, written down in advance.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The version time machine</h2>
+  <p>Stripe's strangest promise: an integration written against the 2011 API still works
+  today, and yet the API has shipped roughly a hundred backwards-incompatible changes.
+  The trick is that "version" isn't v1/v2 — it's a <em>date</em>. Your account is pinned
+  to the version in force at your first request, forever. Internally, every breaking
+  change is a module with a date and a transformation function; the server always
+  renders responses in the newest shape, then walks them <em>backward through the
+  stack of modules</em> — un-renaming fields, re-nesting objects — until the response
+  matches your pinned year. New customers get the future; old customers get 2011,
+  freshly computed.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">Backward through the gates — one response, every era</span>
+    <span class="exp-run">
+      <button class="btn primary" data-act="e3-ship">SHIP A BREAKING CHANGE</button>
+      <button class="btn" data-run="e3">PAUSE</button>
+      <button class="btn" data-reset="e3">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <span>RESPONSES RENDER NEWEST-FIRST, THEN TRANSFORM BACKWARD TO THE CALLER'S PINNED DATE</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:300px" role="img" aria-label="A response object travels backward through a tunnel of dated transformation gates, each undoing one breaking change, until it matches the calling account's pinned year; the JSON is shown mutating gate by gate, and shipping a new breaking change adds a gate without breaking any pinned account"></canvas>
+  <div class="exp-metrics">
+    <span>BREAKING CHANGES SINCE 2011<b data-m="e3.mods">–</b></span>
+    <span>OLDEST ACCOUNT WALKS<b data-m="e3.hops">–</b></span>
+    <span>INTEGRATIONS BROKEN<b data-m="e3.broken">–</b></span>
+    <span>IN A V1/V2 WORLD<b class="bad" data-m="e3.bb">–</b></span>
+  </div>
+  <figcaption class="exp-note">Watch a 2011 account's response run the full tunnel —
+  every gate un-does one change, and the JSON on the right genuinely mutates at each
+  step. Now press <em>ship a breaking change</em>, three or four times: a new gate
+  appears, the newest shape changes — and the broken-integrations counter stays at the
+  only number it has ever held. The red counter is the counterfactual: every big-bang
+  version bump forces every existing integration to migrate on your schedule instead of
+  theirs. Stripe made "never break the customer" a data structure instead of a
+  policy.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The monolith and the ledger</h2>
+  <p>Two more heresies complete the picture. While the industry split into
+  microservices, Stripe kept one giant Ruby codebase and made it survivable by building
+  <strong>Sorbet</strong> — a static type checker fast enough for 15 million lines in
+  150,000 files, open-sourced in 2019 and now Ruby's standard. And beneath every product
+  sits <strong>Ledger</strong>: all money movement modeled as state machines emitting
+  immutable events — five billion a day — into double-entry bookkeeping where every flow
+  must clear to zero. Not reconciliation scripts hoping to catch drift: continuous,
+  measured proof, with 99.9999% of money movement automatically explained. Accounting's
+  700-year-old invariant, running as a distributed systems test.</p>
+  <p>The keeper: <strong>Stripe's edge is treating the sharp edges of distributed
+  systems — retries, overload, versioning — as product surfaces with published
+  guarantees, so that the scariest possible workload behaves like a database
+  transaction.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>B. Leach — <a href="https://stripe.com/blog/idempotency">Designing robust and predictable APIs with idempotency</a>, Stripe, 2017 — the canonical idempotency-key post.</li>
+    <li>P. Tarjan — <a href="https://stripe.com/blog/rate-limiters">Scaling your API with rate limiters</a>, Stripe, 2017 — the four limiters and shedders, dark launching.</li>
+    <li>B. Leach — <a href="https://stripe.com/blog/api-versioning">APIs as infrastructure: future-proofing Stripe with versioning</a>, 2017 — date-named versions, transformation modules, ~100 breaking changes with zero broken integrations.</li>
+    <li>Stripe — <a href="https://stripe.com/blog/sorbet-stripes-type-checker-for-ruby">Sorbet: Stripe's type checker for Ruby</a>, 2019; I. Ganelin — <a href="https://stripe.dev/blog/ledger-stripe-system-for-tracking-and-validating-money-movement">Ledger</a>, 2024 — 5B events/day, 99.9999% explainability.</li>
+    <li>Stripe Newsroom — <a href="https://stripe.com/newsroom/news/stripe-2024-update">2024 update</a> ($1.4T volume, ≈1.3% of global GDP) and <a href="https://stripe.com/newsroom/news/bfcm2024">BFCM 2024</a> (137K transactions/minute peak).</li>
+    <li>Payments mechanics (auth/capture, issuer/acquirer roles): <a href="https://stripe.com/guides/introduction-to-online-payments">Stripe's introduction to online payments</a>.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next in the wider world: <b>Shopify survives the drop</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+
+/* ================= HERO: the life of a charge ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(7),
+  reset(){ this.t=0; this.appr=0; this.decl=0; this.paid=0; this.pend=[];
+    this.day=0; this.lastAuth=0; this.newCharge(); },
+  newCharge(){
+    this.amt=8+Math.round(this.rng()*140);
+    this.legs=[0.06, 0.09+this.rng()*0.05, 0.12, 0.45+this.rng()*0.35, 0.30+this.rng()*0.15];
+    this.total=this.legs.reduce((s,l)=>s+l,0);
+    this.declined=this.rng()<0.08;
+    this.start=this.t;
+  },
+  update(dt){
+    this.t+=dt;
+    const el=this.t-this.start;
+    if(el>this.total+0.9){
+      this.lastAuth=Math.round(this.total*1000);
+      if(this.declined) this.decl++;
+      else { this.appr++; this.pend.push({amt:this.amt, day:this.day}); }
+      this.newCharge();
+    }
+    // settlement clock: 5s = 1 day
+    const day=Math.floor(this.t/5);
+    if(day!==this.day){
+      this.day=day;
+      const due=this.pend.filter(p=>this.day-p.day>=2);
+      if(due.length){
+        this.paid+=due.reduce((s,p)=>s+p.amt,0);
+        this.pend=this.pend.filter(p=>this.day-p.day<2);
+        this.payFlash=this.t;
+      }
+    }
+    setM('hero.auth', this.lastAuth? this.lastAuth+'ms':'–');
+    setM('hero.appr', this.appr);
+    setM('hero.decl', this.decl);
+    setM('hero.paid', '$'+this.paid.toLocaleString('en-US'));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const stops=['BROWSER','MERCHANT','STRIPE API','RADAR','CARD NETWORK','ISSUING BANK'];
+    const y=86, x0=60, x1=W-60;
+    const xs=stops.map((_,i)=>x0+(x1-x0)*i/(stops.length-1));
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('THE SPRINT — AUTHORIZATION IN ~1–2s', x0, 30);
+    stops.forEach((s,i)=>{
+      ctx.strokeStyle= i>=4? CSS.b : CSS.line;
+      ctx.strokeRect(xs[i]-44, y-14, 88, 28);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText(s, xs[i], y+4);
+      if(i<stops.length-1){
+        ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+        ctx.beginPath(); ctx.moveTo(xs[i]+44, y); ctx.lineTo(xs[i+1]-44, y); ctx.stroke();
+        ctx.globalAlpha=1;
+      }
+    });
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('CARD TOKENIZED IN THE BROWSER — THE MERCHANT NEVER SEES THE NUMBER', x0, y+36);
+    // charge dot: out along the lane, then back
+    const el=this.t-this.start;
+    let acc=0, seg=0, segFrac=0;
+    for(let i=0;i<this.legs.length;i++){
+      if(el<acc+this.legs[i]){ seg=i; segFrac=(el-acc)/this.legs[i]; break; }
+      acc+=this.legs[i]; seg=i+1;
+    }
+    if(seg<5){
+      const sx=xs[seg], ex=xs[Math.min(5,seg+1)];
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(sx+(ex-sx)*segFrac, y-22, 3.4, 0, 7); ctx.fill();
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='center';
+      ctx.fillText('$'+this.amt, sx+(ex-sx)*segFrac, y-32);
+    } else {
+      const back=Math.min(1,(el-this.total)/0.6);
+      ctx.fillStyle= this.declined? CSS.fault : CSS.traffic;
+      ctx.beginPath(); ctx.arc(xs[5]+(xs[0]-xs[5])*back, y+26, 3.4, 0, 7); ctx.fill();
+      ctx.textAlign='center';
+      ctx.fillStyle= this.declined? CSS.fault : CSS.traffic;
+      ctx.fillText(this.declined? 'DECLINED' : 'APPROVED — HOLD PLACED', (xs[0]+xs[5])/2, y+52);
+    }
+    // the stroll
+    const sy=H-70;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('THE STROLL — CAPTURE → CLEARING → SETTLEMENT → PAYOUT (5s HERE = 1 DAY)', x0, sy-26);
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(x0, sy-12, x1-x0, 24);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('DAY '+this.day, x0+8, sy+4);
+    // pending batch
+    this.pend.slice(0,14).forEach((p,i)=>{
+      ctx.fillStyle=CSS.a;
+      ctx.fillRect(x0+70+i*26, sy-6, 18, 12);
+    });
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText(this.pend.length+' HOLDS AWAITING SETTLEMENT', x0+70, sy+26);
+    if(this.t-(this.payFlash||-9)<2){
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='right';
+      ctx.fillText('PAYOUT SENT — T+2 DAYS ✓', x1-8, sy+4);
+    }
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: the retry ================= */
+const rFail=document.getElementById('r-fail');
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(13),
+  reset(){ this.t=0; this.n=0; this.rt=0; this.dbl=0; this.giv=0; this.next=2.4;
+    this.cur=null; this.runCharge(); },   // never draw an empty storyboard
+  p(){ return +rFail.value/100; },
+  runCharge(){
+    // one logical charge; identical failure draws for both worlds
+    const p=this.p();
+    const attempts=[];
+    let blindExecs=0, keyedExecs=0, keyedDone=false, resolved=false;
+    for(let k=0;k<4 && !resolved;k++){
+      const u=this.rng();
+      let kind;                          // where the ambiguity strikes
+      if(u<p/3) kind='REQ LOST';
+      else if(u<2*p/3) kind='DIED MID-WORK';
+      else if(u<p) kind='RESP LOST';
+      else kind='OK';
+      const executed = kind!=='REQ LOST';
+      blindExecs += executed?1:0;
+      if(executed && !keyedDone){ keyedExecs++; keyedDone=true; }  // key recorded atomically with the work
+      attempts.push({kind, executed});
+      if(kind==='OK') resolved=true;
+      else if(k<3) this.rt++;
+    }
+    this.n++;
+    if(blindExecs>1) this.dbl+=blindExecs-1;
+    if(keyedExecs>1) console.error('impossible');
+    if(!resolved && attempts.every(a=>!a.executed)) this.giv++;
+    this.cur={attempts, blindExecs, keyedExecs, resolved, amt:19+Math.round(this.rng()*80), at:this.t};
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.next){ this.next=this.t+2.4; this.runCharge(); }
+    setM('e1.fail', rFail.value+'%');
+    setM('e1.n', this.n);
+    setM('e1.rt', this.rt);
+    setM('e1.dbl', this.dbl);
+    setM('e1.keyed', '0 — STRUCTURALLY');
+    setM('e1.giv', this.giv);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    // schematic
+    const y=54;
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(60, y-14, 110, 28);
+    ctx.strokeRect(W-170, y-14, 110, 28);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('MERCHANT', 115, y+4);
+    ctx.fillText('STRIPE', W-115, y+4);
+    ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+    ctx.beginPath(); ctx.moveTo(170, y-6); ctx.lineTo(W-170, y-6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(W-170, y+6); ctx.lineTo(170, y+6); ctx.stroke();
+    ctx.globalAlpha=1;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('REQUEST →', 190, y-12);
+    ctx.fillText('← RESPONSE', 190, y+20);
+    const c=this.cur;
+    if(c){
+      // attempt markers
+      ctx.textAlign='left';
+      c.attempts.forEach((a,i)=>{
+        const ax=210+i*140;
+        const col= a.kind==='OK'? CSS.traffic : CSS.fault;
+        ctx.fillStyle=col;
+        ctx.fillText('ATTEMPT '+(i+1)+': '+a.kind, ax, 96);
+        if(a.kind==='REQ LOST'){ ctx.fillText('✕', (170+W-170)/2-60, y-12); }
+        if(a.kind==='DIED MID-WORK'){ ctx.fillText('⚡ (charge ran)', W-160, y+34); }
+        if(a.kind==='RESP LOST'){ ctx.fillText('✕ (charge ran)', (170+W-170)/2+20, y+20); }
+      });
+      // two worlds' statements
+      const world=(x0, title, execs, colr, keyed)=>{
+        ctx.fillStyle=colr; ctx.textAlign='left';
+        ctx.fillText(title, x0, 138);
+        ctx.strokeStyle=CSS.line;
+        ctx.strokeRect(x0, 148, 300, 96);
+        ctx.fillStyle=CSS.muted;
+        ctx.fillText('CUSTOMER STATEMENT', x0+10, 166);
+        for(let i=0;i<Math.min(3,execs);i++){
+          const dup=i>0;
+          ctx.fillStyle= dup? CSS.fault : CSS.ink;
+          ctx.fillText('SOCKS.COM  −$'+c.amt+(dup?'  ← AGAIN':''), x0+10, 186+i*16);
+        }
+        if(execs===0){
+          ctx.fillStyle=CSS.muted;
+          ctx.fillText('(no charge landed — retry later, safely)', x0+10, 186);
+        }
+        if(keyed && c.attempts.filter(a=>a.executed).length>1){
+          ctx.fillStyle=CSS.b;
+          ctx.fillText('KEY SEEN → RECORDED RESULT REPLAYED', x0+10, 232);
+        }
+      };
+      world(56,  'RETRY BLINDLY', c.blindExecs, CSS.fault, false);
+      world(W-360, 'RETRY WITH Idempotency-Key', c.keyedExecs, CSS.b, true);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('SAME CHARGE · SAME FAILURES · THE ONLY DIFFERENCE IS WHETHER THE SERVER REMEMBERS THE KEY', W/2, H-14);
+  }
+};
+e1.reset();
+rFail.addEventListener('input',()=>setM('e1.fail', rFail.value+'%'));
+
+/* ================= EXP-02: the four-layer bouncer ================= */
+const tLayers=document.getElementById('t-layers');
+const CAP=160;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0; this.spikeUntil=-1; this.abuse=false;
+    const btn=document.querySelector('[data-act="e2-abuse"]');
+    if(btn) btn.textContent='RUNAWAY SCRIPT · 500/s'; },
+  spike(){ if(this.t>=this.spikeUntil) this.spikeUntil=this.t+15; },
+  toggleAbuse(){ this.abuse=!this.abuse;
+    const btn=document.querySelector('[data-act="e2-abuse"]');
+    if(btn) btn.textContent=this.abuse?'STOP THE SCRIPT':'RUNAWAY SCRIPT · 500/s'; },
+  update(dt){
+    this.t+=dt;
+    const mult=this.t<this.spikeUntil? 3:1;
+    const layers=tLayers.checked;
+    const d={CH:40*mult, PO:30*mult, GE:50*mult, TE:20*mult, AB:this.abuse?500:0};
+    let served={};
+    let abCap=d.AB;
+    if(layers) abCap=Math.min(d.AB, 50);            // token bucket per user
+    const total=d.CH+d.PO+d.GE+d.TE+(layers?abCap:d.AB);
+    if(!layers){
+      const share=Math.min(1, CAP/total);
+      served={CH:d.CH*share, PO:d.PO*share, GE:d.GE*share, TE:d.TE*share, AB:d.AB*share};
+    } else {
+      let left=CAP;
+      const take=(k, dem)=>{ const s=Math.min(dem,left); left-=s; return s; };
+      served.CH=take('CH', d.CH);                    // never shed (reserved slice)
+      served.PO=take('PO', d.PO);
+      served.GE=take('GE', d.GE);
+      served.AB=take('AB', abCap);
+      served.TE=take('TE', d.TE);
+    }
+    const pct=(k)=> d[k]? Math.round(served[k]/d[k]*100):100;
+    setM('e2.charge', pct('CH')+'%'+(pct('CH')<100?' — REVENUE ON THE FLOOR':' — PROTECTED'));
+    setM('e2.shed', 'TEST '+(100-pct('TE'))+'% · GET '+(100-pct('GE'))+'% · POST '+(100-pct('PO'))+'%');
+    setM('e2.abuser', this.abuse? (layers? 'BUCKET-CAPPED AT 50/s (429s)' : 'UNCHECKED — '+Math.round(served.AB)+'/s SERVED') : 'quiet');
+    setM('e2.util', Math.round(Math.min(CAP,total))+' / '+CAP+' REQ/S');
+    this._s={d, served, layers, mult};
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const s=this._s; if(!s) return;
+    const rows=[
+      ['CHARGES (CRITICAL POST)', 'CH', CSS.traffic],
+      ['OTHER POSTS', 'PO', CSS.a],
+      ['GETS (READS)', 'GE', CSS.b],
+      ['TEST MODE', 'TE', '#5A7A94'],
+      ['RUNAWAY SCRIPT', 'AB', CSS.fault],
+    ];
+    const x0=210, bw=W-x0-160;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText(s.layers? 'PRIORITY ORDER — SHED FROM THE BOTTOM, CHARGES BOLTED TO THE DECK'
+                         : 'NO OPINIONS — EVERY CLASS DROWNS EQUALLY', x0, 30);
+    rows.forEach((r,i)=>{
+      const y=52+i*42;
+      const dem=s.d[r[1]], srv=s.served[r[1]]||0;
+      ctx.fillStyle= r[1]==='AB'&&!this.abuse? '#3A4A5C' : CSS.muted;
+      ctx.textAlign='right';
+      ctx.fillText(r[0], x0-12, y+11);
+      if(r[1]==='AB' && !this.abuse){ return; }
+      const wDem=Math.min(bw, bw*dem/500);
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(x0, y, Math.max(2,wDem), 16);
+      const wSrv= dem? wDem*(srv/dem):0;
+      ctx.fillStyle=r[2];
+      ctx.fillRect(x0+1, y+1, Math.max(0,wSrv-1), 14);
+      if(srv<dem-0.5){
+        ctx.fillStyle=CSS.fault; ctx.globalAlpha=.4;
+        ctx.fillRect(x0+wSrv, y+1, wDem-wSrv, 14);
+        ctx.globalAlpha=1;
+      }
+      ctx.fillStyle= srv<dem-0.5? CSS.fault : CSS.muted;
+      ctx.textAlign='left';
+      ctx.fillText(Math.round(srv)+'/'+Math.round(dem)+'/s'+(srv<dem-0.5?' — SHED':''), x0+Math.max(2,wDem)+10, y+12);
+    });
+    if(this.t<this.spikeUntil){
+      ctx.fillStyle=CSS.fault; ctx.textAlign='left';
+      ctx.fillText('⚡ BLACK FRIDAY ×3 — '+Math.ceil(this.spikeUntil-this.t)+'s', x0, H-32);
+    }
+    if(s.layers && this.abuse){
+      ctx.fillStyle=CSS.b; ctx.textAlign='left';
+      ctx.fillText('TOKEN BUCKET: 500/s REQUESTED → 50/s ALLOWED, 450/s GET 429', x0, H-16);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('FLEET', 24, 52+5*42-28);
+    ctx.fillText('CAP 160/s', 24, 52+5*42-14);
+  }
+};
+e2.reset();
+document.querySelector('[data-act="e2-spike"]').addEventListener('click',()=>e2.spike());
+document.querySelector('[data-act="e2-abuse"]').addEventListener('click',()=>e2.toggleAbuse());
+
+/* ================= EXP-03: the version time machine ================= */
+const BASE_MODS=[
+  {d:'2023-08-16', name:'payment_method → source',
+    fn:o=>{ const {payment_method, ...r}=o; return {...r, source:payment_method}; }},
+  {d:'2020-08-27', name:'receipts{} → receipt_email',
+    fn:o=>{ const {receipts, ...r}=o; return {...r, receipt_email:receipts&&receipts.email? 'on':'off'}; }},
+  {d:'2018-02-06', name:'status: succeeded → paid',
+    fn:o=>({...o, status:o.status==='succeeded'?'paid':o.status})},
+  {d:'2015-02-18', name:'+ captured flag',
+    fn:o=>({...o, captured:true})},
+  {d:'2013-02-11', name:'currency → UPPERCASE',
+    fn:o=>({...o, currency:String(o.currency).toUpperCase()})},
+];
+const PINS=['2011-05-01','2014-03-12','2017-06-30','2019-09-14','2021-01-20','2023-10-02','2025-04-11'];
+const NEW_NAMES=['refunds expandable[]','fee → fee_details{}','dispute codes v2','amount → minor units'];
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){ this.t=0; this.mods=[...BASE_MODS]; this.shipN=0; this.bb=0;
+    this.acct=0; this.nextReq=0.4; this.animAt=0; },
+  ship(){
+    this.shipN++;
+    this.mods.unshift({d:'2026-0'+Math.min(9,this.shipN)+'-15',
+      name:NEW_NAMES[(this.shipN-1)%NEW_NAMES.length],
+      fn:o=>({...o, api_note:'v'+this.shipN})});
+    this.bb+=1200;
+  },
+  newest(){ return {amount:1999, currency:'usd', status:'succeeded', payment_method:'pm_1abc', receipts:{email:true}}; },
+  applyFor(pin){
+    let o=this.newest(); let hops=0;
+    for(const m of this.mods){ if(m.d>pin){ o=m.fn(o); hops++; } }
+    return {o, hops};
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.nextReq){
+      this.nextReq=this.t+2.8;
+      this.acct=(this.acct+1)%PINS.length;
+      this.animAt=this.t;
+    }
+    const oldest=this.applyFor(PINS[0]);
+    setM('e3.mods', (this.mods.length)+' ('+this.shipN+' just shipped)');
+    setM('e3.hops', oldest.hops+' GATES');
+    setM('e3.broken', '0 — EVER');
+    setM('e3.bb', this.bb? this.bb.toLocaleString('en-US')+' FORCED MIGRATIONS' : 'ship one to see');
+    this._cur=this.applyFor(PINS[this.acct]);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const pin=PINS[this.acct];
+    const cur=this._cur||this.applyFor(pin);
+    // tunnel of gates: newest at right, oldest at left
+    const gx1=W-320, gx0=40, gy=84;
+    const n=this.mods.length;
+    const gw=Math.min(86, (gx1-gx0)/n);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('NEWEST SHAPE ENTERS HERE →', gx0, 34);
+    ctx.textAlign='right';
+    ctx.fillText('… BACKWARD THROUGH TIME', gx1, 34);
+    for(let i=0;i<n;i++){
+      const m=this.mods[i];
+      const x=gx1-(i+1)*gw;
+      const applies=m.d>pin;
+      ctx.strokeStyle= applies? CSS.traffic : '#22334A';
+      ctx.strokeRect(x, gy-34, gw-8, 68);
+      ctx.fillStyle= applies? CSS.traffic : '#3A4A5C';
+      ctx.textAlign='center';
+      ctx.fillText(m.d.slice(0,4), x+(gw-8)/2, gy-18);
+      ctx.fillStyle= applies? CSS.muted : '#3A4A5C';
+      const words=m.name.split(' ');
+      ctx.fillText(words.slice(0, Math.ceil(words.length/2)).join(' ').slice(0,11), x+(gw-8)/2, gy+2);
+      ctx.fillText(words.slice(Math.ceil(words.length/2)).join(' ').slice(0,11), x+(gw-8)/2, gy+16);
+    }
+    // token traveling
+    const u=Math.min(1,(this.t-this.animAt)/1.6);
+    const tx=gx1-u*(cur.hops*gw);
+    ctx.fillStyle=CSS.traffic;
+    ctx.beginPath(); ctx.arc(tx, gy+44, 4, 0, 7); ctx.fill();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('RESPONSE', tx, gy+62);
+    // account pins
+    ctx.textAlign='left';
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('PINNED ACCOUNTS:', gx0, H-58);
+    PINS.forEach((p,i)=>{
+      const x=gx0+130+i*66;
+      const on=i===this.acct;
+      ctx.strokeStyle= on? CSS.traffic : CSS.line;
+      ctx.strokeRect(x, H-72, 58, 20);
+      ctx.fillStyle= on? CSS.traffic : CSS.muted;
+      ctx.textAlign='center';
+      ctx.fillText(p.slice(0,4), x+29, H-58);
+    });
+    // JSON panel
+    const jx=W-300;
+    ctx.fillStyle=CSS.b; ctx.textAlign='left';
+    ctx.fillText('AS SEEN BY THE '+pin.slice(0,4)+' ACCOUNT ('+cur.hops+' GATES):', jx, 54);
+    const lines=JSON.stringify(cur.o, null, 1).split('\n').slice(0,9);
+    lines.forEach((l,i)=>{
+      ctx.fillStyle= i===0||i===lines.length-1? CSS.muted : CSS.ink;
+      ctx.fillText(l.slice(0,34), jx, 72+i*15);
+    });
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('EVERY GATE UN-DOES ONE BREAKING CHANGE — 2011 IS COMPUTED FRESH, EVERY REQUEST', W/2, H-14);
+  }
+};
+e3.reset();
+document.querySelector('[data-act="e3-ship"]').addEventListener('click',()=>e3.ship());
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

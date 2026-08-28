@@ -199,10 +199,10 @@
       <li><a class="ep" href="#/slack" data-ep="slack">The Workspace · Slack</a></li>
       <li><a class="ep" href="#/spotify" data-ep="spotify">The Playlist · Spotify</a></li>
       <li><a class="ep" href="#/zoom" data-ep="zoom">The Meeting · Zoom</a></li>
-      <li><span class="soon">Dropbox<i>NEXT</i></span></li>
-      <li><span class="soon">Airbnb<i>SOON</i></span></li>
-      <li><span class="soon">Stripe<i>SOON</i></span></li>
-      <li><span class="soon">Shopify<i>SOON</i></span></li>
+      <li><a class="ep" href="#/dropbox" data-ep="dropbox">The Folder · Dropbox</a></li>
+      <li><a class="ep" href="#/airbnb" data-ep="airbnb">The Calendar · Airbnb</a></li>
+      <li><a class="ep" href="#/stripe" data-ep="stripe">The Charge · Stripe</a></li>
+      <li><span class="soon">Shopify<i>NEXT</i></span></li>
       <li><span class="soon">Ticketmaster<i>SOON</i></span></li>
       <li><span class="soon">Reddit<i>SOON</i></span></li>
       <li><span class="soon">Pinterest<i>SOON</i></span></li>
@@ -213,7 +213,7 @@
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">20</span> SYSTEMS LIVE · 29 RESEARCHED<br>
+    <span id="live-count">23</span> SYSTEMS LIVE · 29 RESEARCHED<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -383,6 +383,33 @@
           day by day — colo at 50%, cloud as the airbag, provisioning dial in your
           hands.</span>
         </a>
+        <a class="card" href="#/dropbox">
+          <span class="k">EP 21 · The wider world</span>
+          <span class="t">The Folder — Dropbox</span>
+          <span class="d">A file is a list of hashes: whole-file sync falls hours behind
+          on the same uplink where block sync naps; a teammate's copy costs zero bytes;
+          LAN sync turns the office into the CDN; and Magic Pocket's two durability
+          regimes — replicate fresh, erasure-code cold — race to repair a dead
+          machine.</span>
+        </a>
+        <a class="card" href="#/airbnb">
+          <span class="k">EP 22 · The wider world</span>
+          <span class="t">The Calendar — Airbnb</span>
+          <span class="d">Two guests race for the same nights — widen the checkout window
+          and watch doubles multiply until one transaction locks them out (iCal sync
+          stays racy forever); the Monorail split by the 1% comparison ratchet where
+          users never meet a bug; and a two-sided ranker that books more trips by
+          asking whether the host will say yes.</span>
+        </a>
+        <a class="card" href="#/stripe">
+          <span class="k">EP 23 · The wider world</span>
+          <span class="t">The Charge — Stripe</span>
+          <span class="d">Exactly once over an at-least-once wire: identical failures hit
+          a blind retrier and an idempotency key — one stacks double charges, the other
+          is structurally zero; a four-layer bouncer sheds test traffic before it ever
+          touches a charge; and the version time machine that walks 2011's API out of
+          2026's, gate by dated gate.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -430,6 +457,9 @@ const EPISODES = {
   'slack':             {title:'EP 18 — The Workspace · Slack',        file:'episodes/slack.html'},
   'spotify':           {title:'EP 19 — The Playlist · Spotify',       file:'episodes/spotify.html'},
   'zoom':              {title:'EP 20 — The Meeting · Zoom',           file:'episodes/zoom.html'},
+  'dropbox':           {title:'EP 21 — The Folder · Dropbox',         file:'episodes/dropbox.html'},
+  'airbnb':            {title:'EP 22 — The Calendar · Airbnb',        file:'episodes/airbnb.html'},
+  'stripe':            {title:'EP 23 — The Charge · Stripe',          file:'episodes/stripe.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');

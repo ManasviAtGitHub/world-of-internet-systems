@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Calendar — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 22</p>
+  <h1>The Calendar</h1>
+  <p class="dek">Airbnb sells something no other marketplace sells: a specific home on
+  specific nights, exactly once. Every hard problem in the company flows from that
+  sentence — inventory is a calendar, so two guests can race for the same dates; search
+  must please two parties, because the host can say no; and the Rails monolith that built
+  the business had to be dismantled mid-flight, one carefully compared percent of traffic
+  at a time. This episode runs all three: the race, the ranking, and the fission.</p>
+  <p class="marginal">Everything below is honestly simulated: the double-booking race is a
+  real read-think-commit window you can widen, the migration's bugs are found by genuinely
+  comparing dual-run answers, and the two-sided ranker beats the naive one on identical
+  guests with identical dice. Airbnb has published little on its booking internals — the
+  calendar experiment is labeled inferred design, not company fact.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The search funnel — eight million homes, ten answers, dates in the middle</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:280px" role="img" aria-label="A map of listing dots; each incoming search draws a geographic circle, filters by date availability, and ranks the survivors — a funnel readout shrinks eight million listings to a few hundred thousand, then to ten ranked results"></canvas>
+  <div class="exp-metrics">
+    <span>SEARCHES SERVED<b data-m="hero.q">0</b></span>
+    <span>THE FUNNEL<b data-m="hero.funnel">–</b></span>
+    <span>CUT BY DATES ALONE<b data-m="hero.dates">–</b></span>
+  </div>
+  <figcaption class="exp-note">The funnel every search falls through: geography first,
+  then the filter no e-commerce site has — <em>are those nights free?</em> — then
+  embedding retrieval and the ML ranker (Airbnb's published arc: hand-tuned scores →
+  gradient-boosted trees → deep networks → a two-tower embedding retrieval stage by
+  2025). Notice how much the calendar cuts: nearly half of everything that survives
+  geography dies on dates. Inventory-by-the-night is the shape of the whole
+  business.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Two guests, one calendar</h2>
+  <p>Here is the marketplace's founding nightmare. A booking is
+  read-think-commit: the guest sees the nights are free, spends a while on the checkout
+  page, then commits. Between the read and the commit is a <em>window</em> — and inside
+  that window, someone else can book the same nights. If the commit writes blindly
+  ("the page said it was free"), both reservations exist and two families arrive at one
+  door. The fix is boring and absolute: re-check availability <strong>inside the same
+  transaction that writes it</strong> — effectively a uniqueness lock on
+  listing + night — so one racer commits and the other gets a polite bounce. And then
+  the honest footnote: hosts also list on other platforms, synced by iCal files polled
+  every few minutes. Across <em>that</em> boundary no transaction exists — only the
+  polling interval decides how big the race window is.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">The race — read, think, commit, and who gets the nights</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-think">Checkout time</label>
+      <input type="range" id="r-think" min="5" max="40" value="20" step="1">
+      <output data-m="e1.think">2.0s</output></span>
+    <label class="toggle"><input type="checkbox" id="t-atomic"> atomic commit — availability re-checked &amp; locked in one transaction</label>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:300px" role="img" aria-label="A month calendar for one listing; guests read availability, linger at checkout, then commit; without atomic commits two overlapping checkouts both succeed and cells turn red with double bookings; with atomicity one wins and the other bounces; a smaller external-platform calendar synced by polling still produces cross-platform conflicts"></canvas>
+  <div class="exp-metrics">
+    <span>BOOKING ATTEMPTS<b data-m="e1.att">0</b></span>
+    <span>DOUBLE-BOOKED NIGHTS<b class="bad" data-m="e1.dbl">0</b></span>
+    <span>POLITE BOUNCES<b data-m="e1.bounce">0</b></span>
+    <span>CROSS-PLATFORM CONFLICTS<b class="bad" data-m="e1.ext">0</b></span>
+  </div>
+  <figcaption class="exp-note">Widen the checkout slider and watch the naive world get
+  worse — the race window <em>is</em> the think time. Flip on <em>atomic commit</em> and
+  in-platform doubles go to exactly zero, forever, replaced by bounces ("those dates were
+  just taken") — consistency turned a catastrophe into an apology. But the little
+  calendar on the right keeps producing conflicts either way: the other platform's
+  bookings arrive by iCal poll, minutes stale, and no lock can span two companies. Strong
+  consistency inside the walls; eventual consistency — and manual cleanup — across them.
+  <em>(Inferred design: Airbnb hasn't published its booking internals.)</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>Cracking the Monorail</h2>
+  <p>By 2015 all of Airbnb was one Rails application — "Monorail" — and the org writing
+  it was quintupling, from ~200 to ~1,000 engineers. Everyone committed to one codebase;
+  reverts and rollbacks were eating ~15 hours per engineer per week. The dangerous move
+  would have been the big-bang rewrite: build the new services, flip the traffic, pray.
+  Airbnb's published migration did the opposite: run old and new <strong>in
+  parallel</strong>, send the new path 1% of traffic, serve users the <em>old</em>
+  answer while comparing the two responses offline, fix every mismatch, then ratchet —
+  1%, 5%, 25%, 100%. The users never met a bug the comparator hadn't met
+  first.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Fission by comparison — big-bang cutover vs the 1% ratchet</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-ratchet" checked> the 1% ratchet — dual-run, compare, users keep monorail's answer</label>
+    <span>NEW SERVICE SHIPS WITH 12 HIDDEN BUGS · 50K REQUESTS/DAY · 1s = 1 DAY</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="Traffic splits between the old monolith and a new service carrying twelve hidden bugs; in big-bang mode users receive the buggy answers until incidents force rollbacks; in ratchet mode a comparator catches every mismatch while users still get the monolith's answer, and traffic advances one stage at a time to one hundred percent"></canvas>
+  <div class="exp-metrics">
+    <span>DAY<b data-m="e2.day">–</b></span>
+    <span>NEW-SERVICE TRAFFIC<b data-m="e2.share">–</b></span>
+    <span>WRONG ANSWERS SERVED TO USERS<b class="bad" data-m="e2.bad">0</b></span>
+    <span>BUGS FOUND &amp; FIXED<b data-m="e2.bugs">–</b></span>
+    <span>ROLLBACKS<b data-m="e2.rb">0</b></span>
+  </div>
+  <figcaption class="exp-note">Same new service, same twelve bugs, two release
+  philosophies. Big-bang: users are the test suite — thousands of wrong answers, an
+  incident, a rollback, a redeploy, repeat. The ratchet: the comparator sees every
+  mismatch on day one <em>because the users were never exposed</em>; each stage widens
+  the traffic only after the diff runs clean, and promotion to 100% happens when there's
+  nothing left to find. Both worlds reach the same destination in roughly the same number
+  of days. One of them made the newspapers.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The ranking that must please two people</h2>
+  <p>Airbnb search has a twist its ranking papers keep underlining: showing the guest
+  what they'll love is only half the job, because a booking isn't a booking until the
+  <em>host</em> says yes — and hosts decline: wrong dates, too short, last-minute, bad
+  fit. A ranker that optimizes pure guest appeal keeps sending guests to hosts who will
+  reject them; every rejection costs a day of waiting and some guests just give up. The
+  two-sided ranker scores <em>appeal × acceptance</em> — will they book it, and will the
+  host take it — trading a sliver of dream-listing shine for a much higher chance the
+  whole loop closes.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">One-sided vs two-sided ranking — identical guests, identical dice</span>
+    <span class="exp-run"><button class="btn" data-run="e3">PAUSE</button><button class="btn" data-reset="e3">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-picky">Host pickiness</label>
+      <input type="range" id="r-picky" min="0" max="100" value="0" step="5">
+      <output data-m="e3.picky">0</output></span>
+    <span>EACH GUEST RUNS THROUGH BOTH WORLDS WITH THE SAME RANDOM DRAWS</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:300px" role="img" aria-label="Two ranking columns process the same stream of guests: ranked by guest appeal alone, requests often hit hosts who decline; ranked by appeal times acceptance, most requests are accepted — booking rates, rejections and the small guest-appeal cost are measured side by side"></canvas>
+  <div class="exp-metrics">
+    <span>GUESTS<b data-m="e3.n">0</b></span>
+    <span>BOOKED<b data-m="e3.book">–</b></span>
+    <span>REJECTIONS PER GUEST<b class="bad" data-m="e3.rej">–</b></span>
+    <span>APPEAL OF BOOKED STAYS<b data-m="e3.appeal">–</b></span>
+  </div>
+  <figcaption class="exp-note">The comparison is scrupulously fair: each guest sees the
+  same twelve candidates in both worlds and carries the same dice for the host's
+  decision and their own patience. One-sided ranking books fewer trips and burns
+  rejections doing it; two-sided books more — and the last metric shows the honest
+  price: the booked stays are very slightly less dreamy, because the ranker traded a
+  little appeal for a yes. Slide the pickiness up (a tight season, stricter hosts) and
+  the gap widens: the scarcer acceptance gets, the more it's worth ranking on.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What the marketplace taught the toolbox</h2>
+  <p>Three inventions escaped the company. <strong>SmartStack</strong> (2013) put service
+  discovery in sidecars — Nerve health-checks your process into ZooKeeper, Synapse
+  renders the registry into a local HAProxy — a service mesh six years before the term;
+  its successor AirMesh is the same idea on Istio and Envoy. <strong>Airflow</strong>
+  (2015) came from the data side: with 5,000+ Hadoop tasks a day, Maxime Beauchemin bet
+  that pipelines should be Python code — DAGs you can loop, parameterize, and code-review
+  — and it became the industry's default orchestrator. And the payments platform quietly
+  runs a complete directed graph of 70+ currencies over 20+ processors, every cent
+  double-entry accounted — a discipline the next episode meets at full scale, where
+  charging a card exactly once is the entire product.</p>
+  <p>The keeper: <strong>Airbnb's architecture is its calendar — inventory that exists
+  once, on dates, between two consenting parties. Strong consistency where the platform
+  can lock, honest comparison where it can't, and a ranker that remembers there are two
+  sides to every booking.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>J. Tai — <a href="https://qconsf.com/sf2018/sf2018/presentation/airbnbs-great-migration-monolith-service-oriented.html">Airbnb's Great Migration: From Monolith to Service-Oriented</a>, QCon SF 2018; numbers via <a href="https://www.infoq.com/news/2019/02/airbnb-monolith-migration-soa/">InfoQ, 2019</a> (200→1,000 engineers, 15 hrs/week, the 1% comparison ratchet).</li>
+    <li>Airbnb Engineering — <a href="https://medium.com/airbnb-engineering/scaling-airbnbs-payment-platform-43ebfc99b324">Scaling Airbnb's Payment Platform</a> and <a href="https://medium.com/airbnb-engineering/tracking-the-money-scaling-financial-reporting-at-airbnb-6d742b80f040">Tracking the Money</a> — the currency graph and double-entry spine.</li>
+    <li>Grbovic &amp; Cheng — <a href="https://www.kdd.org/kdd2018/accepted-papers/view/real-time-personalization-using-embeddings-for-search-ranking-at-airbnb">Real-time Personalization using Embeddings</a>, KDD 2018; Haldar et al. — <a href="https://arxiv.org/abs/1810.09591">Applying Deep Learning to Airbnb Search</a>; <a href="https://airbnb.tech/uncategorized/embedding-based-retrieval-for-airbnb-search/">Embedding-Based Retrieval for Airbnb Search</a>, 2025 — the two-sided marketplace framing throughout.</li>
+    <li>M. Beauchemin — <a href="http://nerds.airbnb.com/airflow/">Airflow: a workflow management platform</a>, 2015; SmartStack — <a href="https://github.com/airbnb/synapse">Synapse/Nerve</a>, 2013; <a href="https://airbnb.tech/infrastructure/improving-istio-propagation-delay/">AirMesh on Istio</a>, 2023.</li>
+    <li>Calendar concurrency: Airbnb has published little first-party detail on booking internals — EXP-01 is labeled <em>inferred design</em>, consistent with standard uniqueness-under-transaction patterns and Airbnb's documented iCal sync behavior.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next in the wider world: <b>charging a card exactly once — Stripe</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+function fmtN(n){
+  if(n>=1e6) return (n/1e6).toFixed(1)+'M';
+  if(n>=1e3) return Math.round(n/1e3)+'K';
+  return String(Math.round(n));
+}
+
+/* ================= HERO: the search funnel ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(3),
+  reset(){ this.t=0; this.q=0;
+    const r=mulberry32(3);
+    this.dots=Array.from({length:900},()=>({x:0.05+r()*0.9, y:0.08+r()*0.84}));
+    this.newQuery(); },
+  newQuery(){
+    this.q++;
+    this.cx=0.2+this.rng()*0.6; this.cy=0.2+this.rng()*0.6;
+    this.r=0.09+this.rng()*0.08;
+    this.qt=this.t;
+    const inGeo=this.dots.filter(d=>Math.hypot(d.x-this.cx,d.y-this.cy)<this.r);
+    this.geoSet=new Set(inGeo.map(d=>this.dots.indexOf(d)));
+    this.dateSet=new Set([...this.geoSet].filter(()=>this.rng()<0.55));
+    const ranked=[...this.dateSet].sort((a,b)=>((a*2654435761)%997)-((b*2654435761)%997));
+    this.topSet=new Set(ranked.slice(0,10));
+    const SCALE=8888;   // 900 dots stand for 8M listings
+    this.funnel=[8000000, this.geoSet.size*SCALE, this.dateSet.size*SCALE, 10];
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t-this.qt>3.4) this.newQuery();
+    setM('hero.q', this.q);
+    setM('hero.funnel', this.funnel.map(fmtN).join(' → '));
+    setM('hero.dates', this.funnel[1]? Math.round((1-this.funnel[2]/this.funnel[1])*100)+'%':'–');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const mw=W*0.62, mh=H-48, mx=24, my=28;
+    const X=x=>mx+x*mw, Y=y=>my+y*mh;
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(mx, my, mw, mh);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('8,000,000 HOMES (900 DRAWN)', mx, my-8);
+    const phase=Math.min(3, (this.t-this.qt)/0.55);
+    this.dots.forEach((d,i)=>{
+      const geo=this.geoSet.has(i), dat=this.dateSet.has(i), top=this.topSet.has(i);
+      if(top && phase>=2.5){
+        ctx.strokeStyle=CSS.traffic;
+        ctx.strokeRect(X(d.x)-3, Y(d.y)-3, 6, 6);
+      } else if(dat && phase>=1.5){
+        ctx.fillStyle=CSS.b;
+        ctx.beginPath(); ctx.arc(X(d.x), Y(d.y), 1.8, 0, 7); ctx.fill();
+      } else if(geo && phase>=0.5){
+        ctx.fillStyle='#4A607A';
+        ctx.beginPath(); ctx.arc(X(d.x), Y(d.y), 1.6, 0, 7); ctx.fill();
+      } else {
+        ctx.fillStyle='#22334A';
+        ctx.beginPath(); ctx.arc(X(d.x), Y(d.y), 1.2, 0, 7); ctx.fill();
+      }
+    });
+    // query circle
+    ctx.strokeStyle=CSS.traffic; ctx.globalAlpha=.8;
+    ctx.beginPath(); ctx.arc(X(this.cx), Y(this.cy), this.r*mw, 0, 7); ctx.stroke();
+    ctx.globalAlpha=1;
+    // funnel bars, right column
+    const fx=mx+mw+30, fw=W-fx-24;
+    const stages=[['ALL HOMES', this.funnel[0], '#4A607A'],
+                  ['GEO + FILTERS', this.funnel[1], '#4A607A'],
+                  ['DATES FREE', this.funnel[2], CSS.b],
+                  ['RANKED TOP', this.funnel[3], CSS.traffic]];
+    ctx.textAlign='left';
+    stages.forEach((s,i)=>{
+      const y=my+18+i*56;
+      const on=phase>=i-0.5;
+      ctx.fillStyle= on? CSS.muted : '#3A4A5C';
+      ctx.fillText(s[0], fx, y);
+      const w=Math.max(4, fw*Math.pow(s[1]/8000000, 0.35));
+      ctx.fillStyle= on? s[2] : '#1A2836';
+      ctx.fillRect(fx, y+6, w, 12);
+      ctx.fillStyle= on? CSS.ink : '#3A4A5C';
+      ctx.fillText(fmtN(s[1]), fx, y+32);
+    });
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('GEO → DATES → EMBEDDINGS → RANKER', fx+fw/2, H-14);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: the calendar race ================= */
+const rThink=document.getElementById('r-think');
+const tAtomic=document.getElementById('t-atomic');
+const DAYS=30;
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(17),
+  reset(){ this.t=0;
+    this.cal=Array.from({length:DAYS},()=>null);     // null | {who:'A'|'EXT', gid, dbl}
+    this.bookings=[];                                 // {gid, nights[], until}
+    this.guests=[]; this.nextG=0.8; this.gid=1;
+    this.att=0; this.dbl=0; this.bounce=0; this.ext=0;
+    this.extB=[];                                     // external platform's own bookings
+    this.extView=Array.from({length:DAYS},()=>false); // their stale view of busy nights
+    this.nextExt=4; this.nextPoll=12; this.flash=[]; },
+  think(){ return +rThink.value/10; },
+  pickRange(view){
+    for(let tr=0; tr<4; tr++){
+      const len=2+Math.floor(this.rng()*3);
+      const start=Math.floor(this.rng()*(DAYS-len));
+      let free=true;
+      for(let d=start; d<start+len; d++) if(view(d)) free=false;
+      if(free) return {start, len};
+    }
+    return null;
+  },
+  update(dt){
+    this.t+=dt;
+    // expire finished stays
+    this.bookings=this.bookings.filter(b=>{
+      if(this.t>=b.until){
+        for(const d of b.nights) if(this.cal[d] && this.cal[d].gid===b.gid) this.cal[d]=null;
+        return false;
+      }
+      return true; });
+    // new platform guests
+    if(this.t>=this.nextG){
+      this.nextG=this.t+1.7+this.rng()*1.2;
+      const r=this.pickRange(d=>!!this.cal[d]);
+      if(r){ this.att++; this.guests.push({...r, t0:this.t, dur:this.think()*(0.75+this.rng()*0.5)}); }
+    }
+    // commits
+    this.guests=this.guests.filter(gst=>{
+      if(this.t-gst.t0<gst.dur) return true;
+      const nights=[]; for(let d=gst.start; d<gst.start+gst.len; d++) nights.push(d);
+      const taken=nights.some(d=>!!this.cal[d]);
+      if(tAtomic.checked){
+        if(taken){ this.bounce++; this.flash.push({txt:'DATES JUST TAKEN — PICK AGAIN', at:this.t, col:CSS.b}); }
+        else this.commit(nights, 'A');
+      } else {
+        if(taken){
+          this.dbl += nights.filter(d=>!!this.cal[d]).length;
+          for(const d of nights) if(this.cal[d]) this.cal[d].dbl=true;
+          this.commit(nights.filter(d=>!this.cal[d]), 'A');
+          this.flash.push({txt:'TWO FAMILIES, ONE DOOR', at:this.t, col:CSS.fault});
+        } else this.commit(nights, 'A');
+      }
+      return false;
+    });
+    // external platform bookings (from their stale view)
+    if(this.t>=this.nextExt){
+      this.nextExt=this.t+5.5+this.rng()*3;
+      const r=this.pickRange(d=>this.extView[d]);
+      if(r){
+        const nights=[]; for(let d=r.start; d<r.start+r.len; d++){ nights.push(d); this.extView[d]=true; }
+        this.extB.push({nights, until:this.t+20+this.rng()*8});
+      }
+    }
+    this.extB=this.extB.filter(b=>this.t<b.until);
+    // iCal poll
+    if(this.t>=this.nextPoll){
+      this.nextPoll=this.t+12;
+      for(const b of this.extB){
+        if(b.imported) continue;
+        b.imported=true;
+        const clash=b.nights.some(d=>this.cal[d] && this.cal[d].who==='A');
+        if(clash){ this.ext++; this.flash.push({txt:'iCAL IMPORT CLASH — RESOLVE BY HAND', at:this.t, col:CSS.fault}); }
+        else this.commit(b.nights, 'EXT');
+      }
+      for(let d=0; d<DAYS; d++) this.extView[d]=!!this.cal[d];
+      for(const b of this.extB) for(const d of b.nights) this.extView[d]=true;
+    }
+    this.flash=this.flash.filter(f=>this.t-f.at<2.2);
+    setM('e1.think', this.think().toFixed(1)+'s');
+    setM('e1.att', this.att);
+    setM('e1.dbl', this.dbl);
+    setM('e1.bounce', this.bounce);
+    setM('e1.ext', this.ext);
+  },
+  commit(nights, who){
+    if(!nights.length) return;
+    const gid=this.gid++;
+    for(const d of nights) this.cal[d]={who, gid, dbl:false};
+    this.bookings.push({gid, nights, until:this.t+16+this.rng()*10});
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    // main calendar
+    const cs=40, cols=6, gx=40, gy=52;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('THE LISTING\'S MONTH — ONE NIGHT, ONE GUEST', gx, 30);
+    for(let d=0; d<DAYS; d++){
+      const x=gx+(d%cols)*cs, y=gy+Math.floor(d/cols)*cs;
+      const c=this.cal[d];
+      if(c){
+        ctx.fillStyle= c.dbl? CSS.fault : c.who==='EXT'? '#274B5E' : '#4A3A18';
+        ctx.fillRect(x+1, y+1, cs-4, cs-4);
+      }
+      ctx.strokeStyle= c&&c.dbl? CSS.fault : CSS.line;
+      ctx.strokeRect(x+1, y+1, cs-4, cs-4);
+      ctx.fillStyle= c? (c.dbl? '#FFD9D2' : c.who==='EXT'? CSS.b : CSS.traffic) : '#3A4A5C';
+      ctx.textAlign='center';
+      ctx.fillText(c&&c.dbl? '✕2' : String(d+1), x+cs/2, y+cs/2+3);
+    }
+    // guests at checkout
+    const qx=gx+cols*cs+34;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('AT CHECKOUT (THE RACE WINDOW)', qx, 30);
+    this.guests.slice(0,5).forEach((g,i)=>{
+      const y=52+i*38;
+      ctx.strokeStyle=CSS.traffic;
+      ctx.strokeRect(qx, y, 150, 26);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('NIGHTS '+(g.start+1)+'–'+(g.start+g.len), qx+8, y+11);
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(qx+8, y+16, 134, 5);
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillRect(qx+8, y+16, 134*Math.min(1,(this.t-g.t0)/g.dur), 5);
+    });
+    if(!this.guests.length){
+      ctx.fillStyle='#3A4A5C';
+      ctx.fillText('(waiting for the next guest…)', qx, 58);
+    }
+    // external platform mini-calendar
+    const ex=qx+188, ecs=17;
+    ctx.fillStyle=CSS.b; ctx.textAlign='left';
+    ctx.fillText('OTHER PLATFORM', ex, 30);
+    for(let d=0; d<DAYS; d++){
+      const x=ex+(d%cols)*ecs, y=44+Math.floor(d/cols)*ecs;
+      const busy=this.extView[d];
+      ctx.fillStyle= busy? '#274B5E' : '#131F2E';
+      ctx.fillRect(x, y, ecs-2, ecs-2);
+    }
+    const pollFrac=1-(this.nextPoll-this.t)/12;
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(ex, 140, cols*ecs-2, 7);
+    ctx.fillStyle=CSS.b;
+    ctx.fillRect(ex, 140, (cols*ecs-2)*Math.max(0,Math.min(1,pollFrac)), 7);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('iCAL POLL ("15 MIN")', ex, 162);
+    ctx.fillText('STALE VIEW — NO LOCKS', ex, 178);
+    // flashes
+    this.flash.slice(-1).forEach(f=>{
+      ctx.fillStyle=f.col; ctx.textAlign='center';
+      ctx.font='12px ui-monospace, Menlo, monospace';
+      ctx.fillText(f.txt, W/2, H-30);
+      ctx.font='10px ui-monospace, Menlo, monospace';
+    });
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText(tAtomic.checked? 'COMMIT RE-CHECKS UNDER LOCK — ONE WINNER, ONE APOLOGY'
+                                : 'COMMIT TRUSTS A STALE READ — THE WINDOW DECIDES WHO SUFFERS', W/2, H-12);
+  }
+};
+e1.reset();
+rThink.addEventListener('input',()=>setM('e1.think',(+rThink.value/10).toFixed(1)+'s'));
+
+/* ================= EXP-02: fission by comparison ================= */
+const tRatchet=document.getElementById('t-ratchet');
+const REQ=50000;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0;
+    const r=mulberry32(29);
+    this.bugs=Array.from({length:12},()=>({p:0.0005+r()*0.005, found:false, fixAt:Infinity, obs:0, reports:0}));
+    this.stageIdx=0; this.stages=[0.01,0.05,0.25,1];
+    this.stageStart=0; this.lastMismatch=0; this.deployAt=0;
+    this.bad=0; this.rb=0; this.rolledUntil=-1; this.live=false; },
+  update(dt){
+    this.t+=dt;                                   // 1s = 1 day
+    const ratchet=tRatchet.checked;
+    for(const b of this.bugs) if(b.found && this.t>=b.fixAt) { b.fixed=true; }
+    const unfixed=this.bugs.filter(b=>!b.fixed);
+    if(ratchet){
+      const share=this.stages[this.stageIdx];
+      this.live = this.stageIdx===3;
+      for(const b of unfixed){
+        b.obs += REQ*share*b.p*dt;
+        if(!b.found && b.obs>=1){ b.found=true; b.fixAt=this.t+0.5; this.lastMismatch=this.t; }
+      }
+      if(this.live) this.bad += REQ*unfixed.reduce((s,b)=>s+b.p,0)*dt;
+      // advance: 3 days in stage AND 2 quiet days since last mismatch AND nothing pending fix
+      const pending=this.bugs.some(b=>b.found&&!b.fixed);
+      if(this.stageIdx<3 && this.t-this.stageStart>3 && this.t-this.lastMismatch>2 && !pending){
+        this.stageIdx++; this.stageStart=this.t;
+      }
+      this._share=share;
+    } else {
+      const rolled=this.t<this.rolledUntil;
+      if(this.live && rolled===false && this.t>=this.rolledUntil && this.rolledUntil>0 && this._wasRolled){
+        this.deployAt=this.t; this._wasRolled=false;
+      }
+      this.live=!rolled;
+      if(rolled) this._wasRolled=true;
+      if(!rolled){
+        let badRate=0;
+        for(const b of unfixed){
+          const r=REQ*b.p*dt;
+          badRate += REQ*b.p;
+          this.bad += r;
+          b.reports += r*0.1;
+          if(!b.found && b.reports>=3){ b.found=true; b.fixAt=this.t+1; }
+        }
+        // declaring an incident takes about a day — the day-one damage lands first
+        if(badRate>400 && this.t-this.deployAt>=1){ this.rb++; this.rolledUntil=this.t+2; }
+      }
+      this._share=this.live?1:0;
+    }
+    const fixed=this.bugs.filter(b=>b.fixed).length;
+    setM('e2.day', String(Math.floor(this.t)));
+    setM('e2.share', ratchet
+      ? (this.stageIdx===3? '100% LIVE' : Math.round(this._share*100)+'% SHADOW (users get monorail)')
+      : (this.live? '100% LIVE (day one)' : 'ROLLED BACK — users on monorail'));
+    setM('e2.bad', Math.round(this.bad).toLocaleString('en-US'));
+    setM('e2.bugs', fixed+'/12');
+    setM('e2.rb', this.rb);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const ratchet=tRatchet.checked;
+    const my=H*0.42;
+    // monorail
+    ctx.strokeStyle=CSS.a; ctx.lineWidth=2;
+    ctx.strokeRect(50, my-40, 150, 80);
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+    ctx.fillText('MONORAIL', 125, my-8);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('THE RAILS MONOLITH', 125, my+8);
+    // crack lines
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(95, my-40); ctx.lineTo(115, my); ctx.lineTo(88, my+40); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(160, my-40); ctx.lineTo(145, my-4); ctx.lineTo(168, my+40); ctx.stroke();
+    // new service
+    const unfixedN=this.bugs.filter(b=>!b.fixed).length;
+    ctx.strokeStyle= unfixedN? CSS.fault : CSS.b; ctx.lineWidth=2;
+    ctx.strokeRect(W-220, my-40, 160, 80);
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.ink;
+    ctx.fillText('NEW SERVICE', W-140, my-8);
+    ctx.fillStyle= unfixedN? CSS.fault : CSS.b;
+    ctx.fillText(unfixedN? unfixedN+' HIDDEN BUGS' : 'CLEAN ✓', W-140, my+8);
+    // traffic pipe + split
+    const share=this._share||0;
+    ctx.strokeStyle=CSS.line; ctx.globalAlpha=.7;
+    ctx.beginPath(); ctx.moveTo(200, my); ctx.lineTo(W-220, my); ctx.stroke();
+    ctx.globalAlpha=1;
+    ctx.fillStyle=CSS.traffic; ctx.textAlign='center';
+    ctx.fillText(Math.round(share*100)+'% OF 50K REQ/DAY', (200+W-220)/2, my-10);
+    if(ratchet && this.stageIdx<3){
+      ctx.fillStyle=CSS.b;
+      ctx.fillText('COMPARATOR: DIFF EVERY ANSWER · USERS SERVED BY MONORAIL', (200+W-220)/2, my+22);
+      // tick marks
+      const u=(this.t*3)%1;
+      ctx.fillStyle= (Math.floor(this.t*3)%9===0 && unfixedN)? CSS.fault : CSS.b;
+      ctx.fillText((Math.floor(this.t*3)%9===0 && unfixedN)? '✗ MISMATCH — BUG FILED' : '✓ MATCH', (200+W-220)/2, my+38);
+    } else if(!ratchet){
+      ctx.fillStyle= this.live? CSS.fault : CSS.muted;
+      ctx.fillText(this.live? 'USERS ARE THE TEST SUITE' : 'INCIDENT — ROLLED BACK, REDEPLOY IN A MOMENT', (200+W-220)/2, my+22);
+    } else {
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('PROMOTED — DIFF RAN CLEAN', (200+W-220)/2, my+22);
+    }
+    // ratchet stages strip
+    ctx.textAlign='left';
+    const labels=['1%','5%','25%','100%'];
+    labels.forEach((l,i)=>{
+      const x=W/2-130+i*70;
+      const on= ratchet? i<=this.stageIdx : i===3;
+      ctx.strokeStyle= on? CSS.traffic : CSS.line;
+      ctx.strokeRect(x, H-52, 54, 22);
+      ctx.fillStyle= on? CSS.traffic : '#3A4A5C';
+      ctx.textAlign='center';
+      ctx.fillText(l, x+27, H-38);
+    });
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText(ratchet? 'EACH STAGE ADVANCES ONLY AFTER TWO QUIET DAYS OF DIFFING'
+                        : 'BIG BANG: SHIP IT, PRAY, ROLL BACK, REPEAT', W/2, H-14);
+  }
+};
+e2.reset();
+tRatchet.addEventListener('change',()=>e2.reset());
+
+/* ================= EXP-03: two-sided ranking ================= */
+const rPicky=document.getElementById('r-picky');
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  rng: mulberry32(37),
+  reset(){ this.t=0; this.nextG=0.6; this.n=0;
+    const r=mulberry32(37);
+    this.listings=Array.from({length:60},()=>({g:0.2+r()*0.78, a:0.10+r()*0.85}));
+    this.w={one:{book:0, rej:0, gsum:0}, two:{book:0, rej:0, gsum:0}};
+    this.last=null;
+    this.spawn(); },      // never draw an empty panel
+  acc(l){ return Math.pow(l.a, 1+(+rPicky.value)/100*1.5); },
+  spawn(){
+      this.n++;
+      // the guest's candidate set + shared dice
+      const subset=[]; const seen=new Set();
+      while(subset.length<12){ const i=Math.floor(this.rng()*60); if(!seen.has(i)){ seen.add(i); subset.push(this.listings[i]); } }
+      const uAcc=[this.rng(), this.rng()];
+      const uCont=this.rng();
+      const runWorld=(rank)=>{
+        const order=[...subset].sort((x,y)=>rank(y)-rank(x));
+        if(uAcc[0]<this.acc(order[0])) return {booked:true, rej:0, g:order[0].g, order};
+        if(uCont>=0.7) return {booked:false, rej:1, order};
+        if(uAcc[1]<this.acc(order[1])) return {booked:true, rej:1, g:order[1].g, order};
+        return {booked:false, rej:2, order};
+      };
+      const r1=runWorld(l=>l.g);
+      const r2=runWorld(l=>l.g*this.acc(l));
+      for(const [w,r] of [[this.w.one,r1],[this.w.two,r2]]){
+        if(r.booked){ w.book++; w.gsum+=r.g; }
+        w.rej+=r.rej;
+      }
+      this.last={r1, r2, subset};
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.nextG){
+      this.nextG=this.t+0.85;
+      this.spawn();
+    }
+    const pct=w=>this.n? Math.round(w.book/this.n*100):0;
+    setM('e3.picky', rPicky.value);
+    setM('e3.n', this.n);
+    setM('e3.book', 'one-sided '+pct(this.w.one)+'% vs two-sided '+pct(this.w.two)+'%');
+    setM('e3.rej', this.n? (this.w.one.rej/this.n).toFixed(2)+' vs '+(this.w.two.rej/this.n).toFixed(2):'–');
+    setM('e3.appeal', (this.w.one.book&&this.w.two.book)?
+      (this.w.one.gsum/this.w.one.book).toFixed(2)+' vs '+(this.w.two.gsum/this.w.two.book).toFixed(2):'–');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    if(!this.last){ return; }
+    const col=(x0, title, res, colr)=>{
+      ctx.fillStyle=colr; ctx.textAlign='left';
+      ctx.fillText(title, x0, 30);
+      res.order.slice(0,4).forEach((l,i)=>{
+        const y=46+i*52;
+        const won= res.booked && i===res.rej;
+        const declined= i<res.rej;
+        ctx.strokeStyle= won? CSS.traffic : declined? CSS.fault : CSS.line;
+        ctx.strokeRect(x0, y, 240, 42);
+        ctx.fillStyle=CSS.muted;
+        ctx.fillText('#'+(i+1), x0+8, y+16);
+        // appeal bar
+        ctx.fillStyle=CSS.a;
+        ctx.fillRect(x0+34, y+8, 118*l.g, 8);
+        ctx.fillStyle=CSS.muted;
+        ctx.fillText('APPEAL', x0+160, y+15);
+        // acceptance bar
+        ctx.fillStyle=CSS.b;
+        ctx.fillRect(x0+34, y+24, 118*this.acc(l), 8);
+        ctx.fillStyle=CSS.muted;
+        ctx.fillText('ACCEPT', x0+160, y+31);
+        if(won || declined){
+          ctx.fillStyle= won? CSS.traffic : CSS.fault;
+          ctx.textAlign='right';
+          ctx.fillText(won? '✓' : '✗', x0+232, y+16);
+          ctx.textAlign='left';
+        }
+      });
+      ctx.fillStyle= res.booked? CSS.traffic : CSS.fault;
+      ctx.fillText(res.booked? 'BOOKED AFTER '+res.rej+' REJECTION'+(res.rej===1?'':'S') : 'GAVE UP', x0, H-24);
+    };
+    col(40, 'RANKED BY GUEST APPEAL ONLY', this.last.r1, CSS.a);
+    col(W-290, 'RANKED BY APPEAL × ACCEPTANCE', this.last.r2, CSS.b);
+    // balance glyph center
+    const cxx=W/2, cy=H*0.42;
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(cxx, cy-34); ctx.lineTo(cxx, cy+10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cxx-26, cy-22); ctx.lineTo(cxx+26, cy-26); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cxx-26, cy-14, 8, 0, 7); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cxx+26, cy-18, 8, 0, 7); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('GUEST', cxx-26, cy+4);
+    ctx.fillText('HOST', cxx+26, cy+0);
+    ctx.fillText('SAME GUEST', cxx, cy+26);
+    ctx.fillText('SAME DICE', cxx, cy+40);
+  }
+};
+e3.reset();
+rPicky.addEventListener('input',()=>setM('e3.picky', rPicky.value));
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>
