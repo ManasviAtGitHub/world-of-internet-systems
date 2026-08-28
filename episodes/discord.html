@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Guild — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 17</p>
+  <h1>The Guild</h1>
+  <p class="dek">On Discord, a community is a "server" — and inside the machine, every one of
+  them is literally a single Elixir process: one mailroom that routes every message, every
+  typing flicker, every presence change for that community. It's a beautiful idea with a
+  quadratic time bomb inside, because Midjourney's room grew to a million people online at
+  once. This episode runs the mailroom until it jams, un-jams it the way Discord did, then
+  runs the two other fires: the hot channel that melts a database partition, and the garbage
+  collector that shook a latency graph every two minutes on the clock.</p>
+  <p class="marginal">Everything below is honestly simulated: the mailroom is a real
+  single-server queue (its service time really is N sends × 40µs), coalescing really
+  collapses concurrent identical queries into one, and the GC seismograph is a queue with
+  periodic server vacations — the spikes are arithmetic, not animation.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The city of guilds — every building is one process; work grows with the square of the room</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:270px" role="img" aria-label="A skyline of guilds sorted by size: dozens of small friend servers, a 30,000-user tower, and the million-user Midjourney skyscraper whose single mailroom process dominates all delivery work"></canvas>
+  <div class="exp-metrics">
+    <span>CONNECTED IN THIS CITY<b data-m="hero.online">–</b></span>
+    <span>DELIVERIES/S (ALL GUILDS)<b data-m="hero.rate">–</b></span>
+    <span>SHARE FROM THE ONE SKYSCRAPER<b class="bad" data-m="hero.share">–</b></span>
+  </div>
+  <figcaption class="exp-note">Each building is a guild; each guild is <em>one process</em>
+  that must deliver every event to every online member. A room's chat rate rises with its
+  population (capped here at 25 messages/s — past that, human chat and slowmode saturate),
+  and every message must reach everyone: work ≈ rate × members ≈ N². That is why fifty
+  cottages and eight towers together are a rounding error next to one skyscraper — and why
+  the next experiment is about the skyscraper's mailroom.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>One mailroom per community</h2>
+  <p>Discord's real-time core maps Erlang/OTP's actor model straight onto its social
+  structure: every connected client is a session process, and every guild is a single
+  GenServer that serializes and routes all events for that community. It's an elegant fit —
+  no locks, no shared state, crash isolation per community. The catch surfaced on the way
+  to five million concurrent users in 2017: a single <code>send/2</code> to another process
+  costs roughly 30–70µs, and the guild does one per online member, <em>sequentially</em>.
+  For the biggest guild of the era — /r/Overwatch, around 30,000 concurrent — one event
+  could cost up to ~2.1 seconds of the mailroom's time. Meanwhile more members also means
+  more messages. Quadratic, meet wall.</p>
+  <p>Discord's fix, <strong>Manifold</strong>, changes who does the walking: instead of N
+  sends to N sessions, the guild sends <em>one bundle per server node</em>, and each node
+  unpacks it to its local sessions in parallel. The mailroom's per-event cost drops from
+  N × 40µs to (number of nodes) × 40µs — the quadratic term moves out of the single
+  process and gets divided across the cluster.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">The mailroom — one process fans out to N members, until N wins</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-size">Guild size (online)</label>
+      <input type="range" id="r-size" min="0" max="100" value="49" step="1">
+      <output data-m="e1.size">30K</output></span>
+    <label class="toggle"><input type="checkbox" id="t-manifold"> manifold — one bundle per node (16 nodes), not one send per member</label>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:260px" role="img" aria-label="Messages arrive at a single guild process; naive mode does one send per online member so service time grows with guild size and the mailbox backlog explodes; Manifold mode sends one bundle to each of 16 nodes and the queue drains"></canvas>
+  <div class="exp-metrics">
+    <span>FAN-OUT COST / EVENT<b data-m="e1.cost">–</b></span>
+    <span>PROCESS UTILIZATION<b data-m="e1.rho">–</b></span>
+    <span>MAILBOX BACKLOG<b data-m="e1.backlog">–</b></span>
+    <span>DELIVERY DELAY NOW<b data-m="e1.delay">–</b></span>
+    <span>VERDICT<b class="bad" data-m="e1.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">The mailroom is a genuine queue: arrivals are the guild's
+  chat (rate grows with size), service time is literally N × 40µs. Slide to 30K naive and
+  watch utilization pass 100% — from there the mailbox backlog only grows, and "delivery
+  delay now" is the honest wait: backlog × cost. Flip on <em>manifold</em>: cost per event
+  collapses to 16 × 40µs (+0.5ms bookkeeping) and the same guild runs at a few percent
+  utilization. Even 1M online stays afloat — though at that scale Discord also had to stop
+  doing some work entirely (Maxjourney, 2023: most of a million sessions become "passive"
+  and skip the member-list churn; capacity ~15×).</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The ladder beneath: a billion messages, then a trillion</h2>
+  <p>Below the mailrooms sits the other half of the promise: every message ever sent,
+  retrievable instantly. Discord climbed the database ladder in public. MongoDB died first
+  — at ~100 million messages (November 2015) the data and indexes outgrew RAM and latency
+  went "unpredictable." Cassandra took over for six years, partitioned by
+  <code>((channel_id, time-bucket))</code> — and taught two hard lessons. Deleted messages
+  aren't gone, they're <em>tombstones</em>: one channel that had millions of deletions
+  could stall a node just by being read. And partitions are only as balanced as your users:
+  a dead-quiet friend server and a firehose community are the same schema but wildly
+  different physics. By early 2022 the messages cluster was 177 nodes of Java GC
+  firefighting.</p>
+  <p>The shield Discord built in front of storage is the subject of the next experiment:
+  a Rust data-services tier that does <strong>request coalescing</strong> — when a raid,
+  an @everyone, or a viral moment makes thousands of clients open <em>the same channel at
+  the same instant</em>, the first query goes to the database and everyone else subscribes
+  to that one answer. The same channel always routes to the same service instance
+  (consistent hashing — episode 2's ring, again), so the hotness lands where the
+  coalescing table is.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Everyone opens the same channel — hot partition vs request coalescing</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e2-raid">START THE RAID</button>
+      <button class="btn" data-run="e2">PAUSE</button>
+      <button class="btn" data-reset="e2">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-raid">Raid — readers/s on one channel</label>
+      <input type="range" id="r-raid" min="500" max="5000" value="2500" step="100">
+      <output data-m="e2.raid">2,500</output></span>
+    <label class="toggle"><input type="checkbox" id="t-coal"> request coalescing — concurrent identical reads collapse into one query</label>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="A burst of clients all request the same channel; without coalescing every request becomes a database query and the hot partition's backlog grows without bound; with coalescing one query is in flight at a time and thousands of waiters share its answer"></canvas>
+  <div class="exp-metrics">
+    <span>CLIENT REQUESTS/S<b data-m="e2.creq">–</b></span>
+    <span>DB QUERIES/S<b data-m="e2.dbq">–</b></span>
+    <span>HOT PARTITION QUEUE<b class="bad" data-m="e2.hotq">–</b></span>
+    <span>HOT READ P99<b data-m="e2.hotp99">–</b></span>
+    <span>INNOCENT READS ON THAT NODE P99<b data-m="e2.coldp99">–</b></span>
+    <span>REQUESTS ABSORBED<b data-m="e2.abs">0</b></span>
+  </div>
+  <figcaption class="exp-note">Start the raid without the shield: every request is its own
+  query, the partition can serve 500/s, and the backlog — with it the p99, and the p99 of
+  <em>innocent channels that happen to live on the same node</em> — grows without bound
+  for as long as the raid lasts. Flip on <em>coalescing</em> (mid-raid works: watch the
+  backlog drain): now at most one query per hot channel is in flight, everyone else waits
+  the few milliseconds it takes and shares the answer. The punchline is the second meter —
+  turn the raid up and DB QUERIES/S doesn't move. Client load and database load have been
+  decoupled; the hot partition runs warm, but bounded.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Two minutes on the clock</h2>
+  <p>One more fire, this time in a service you'd never suspect: Read States — the thing
+  that remembers, for every user in every channel, what you've read. It's touched on every
+  connect, every send, every acknowledgement. The Go version held a huge LRU cache, and Go
+  forces a garbage-collection cycle <em>at least every two minutes</em> — so every two
+  minutes, on the clock, the service stopped to scan the entire cache and the latency graph
+  grew a spike. Not load. Not traffic. The clock.</p>
+  <p>The rewrite is why "Discord switches from Go to Rust" became the most-cited systems
+  blog of 2020: Rust has no collector — memory frees the moment an evicted entry's owner
+  drops it — so the same workload runs flat. The spikes didn't shrink; they
+  <em>ceased to exist</em>, and the team then grew the cache to 8 million entries because
+  there was no longer a GC bill for holding it.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">The seismograph — one workload, two runtimes, a quake every two minutes</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e3-gc">FORCE A GC NOW</button>
+      <button class="btn" data-run="e3">PAUSE</button>
+      <button class="btn" data-reset="e3">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-cache">LRU cache size</label>
+      <input type="range" id="r-cache" min="1" max="8" value="3.5" step="0.5">
+      <output data-m="e3.cache">3.5M</output></span>
+    <span>TIMELINE ×10 — 12s HERE = 2 MIN</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:270px" role="img" aria-label="Two latency strip charts share one scale: the Go service spikes every compressed two minutes as forced GC scans the cache and the request queue backs up; the Rust service stays flat at a fraction of a millisecond"></canvas>
+  <div class="exp-metrics">
+    <span>GO P99 (10s WINDOW)<b class="bad" data-m="e3.gop99">–</b></span>
+    <span>RUST P99<b data-m="e3.rustp99">–</b></span>
+    <span>WORST GO SPIKE<b data-m="e3.worst">–</b></span>
+    <span>FROZEN TIME / HOUR (GO)<b data-m="e3.stall">–</b></span>
+  </div>
+  <figcaption class="exp-note">Honest mechanics: during a pause the server serves nothing,
+  so requests queue at 60K/s; the spike's height is the pause plus the drain of that
+  backlog, and it decays exactly as fast as spare capacity allows. Slide the cache bigger —
+  the pause is proportional to what the collector must scan, so the quakes grow. The Rust
+  strip runs the identical workload on the same scale; eviction cost rides inside each
+  request, microseconds at a time. <em>The flat line is the entire argument.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The nine-day migration</h2>
+  <p>The ladder's last rung: in 2022 Discord moved <em>trillions</em> of messages from
+  Cassandra to ScyllaDB — same data model, but C++, shard-per-core, and no garbage
+  collector (EXP-03's lesson, applied to the database itself). They dual-wrote to both
+  clusters, then a custom Rust migrator streamed history at up to 3.2 million messages per
+  second — nine days for what the standard tooling estimated at three months — and cut
+  over in May 2022 with zero downtime. The messages cluster shrank from 177 nodes to 72,
+  p99 reads fell from 40–125ms to 15ms, p99 writes from 5–70ms to 5ms. The parts this
+  episode didn't run are stories of their own: a custom C++ WebRTC SFU fleet was carrying
+  2.6 million concurrent voice users across 13 regions back in 2018 — clients never peer
+  directly, which is both the scaling trick and the privacy guarantee.</p>
+  <p>The keeper: <strong>Discord's architecture is the actor model taken literally — a
+  community is a process — and every scaling crisis since has been about protecting one
+  hot point (a mailroom, a partition, a cache) from the crowd that loves it.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Discord Engineering — <a href="https://discord.com/blog/how-discord-scaled-elixir-to-5-000-000-concurrent-users">How Discord Scaled Elixir to 5,000,000 Concurrent Users</a>, 2017 — guild/session processes, 30–70µs sends, Manifold.</li>
+    <li>Discord Engineering — <a href="https://discord.com/blog/how-discord-stores-billions-of-messages">How Discord Stores Billions of Messages</a>, 2017 — MongoDB's RAM wall, Cassandra schema, tombstones.</li>
+    <li>Discord Engineering — <a href="https://discord.com/blog/how-discord-stores-trillions-of-messages">How Discord Stores Trillions of Messages</a>, 2023 — Rust data services, request coalescing, the 9-day ScyllaDB migration, 177→72 nodes.</li>
+    <li>Discord Engineering — <a href="https://discord.com/blog/why-discord-is-switching-from-go-to-rust">Why Discord is switching from Go to Rust</a>, 2020 — Read States, the 2-minute GC spikes, the flat Rust line.</li>
+    <li>Discord Engineering — <a href="https://discord.com/blog/maxjourney-pushing-discords-limits-with-a-million-plus-online-users-in-a-single-server">Maxjourney</a>, 2023 — million-online guilds, passive connections, ~15× capacity (independent summary: <a href="https://www.infoq.com/news/2024/01/discord-midjourney-performance/">InfoQ, 2024</a>).</li>
+    <li>Discord Engineering — <a href="https://discord.com/blog/how-discord-handles-two-and-half-million-concurrent-voice-users-using-webrtc">2.5M Concurrent Voice Users using WebRTC</a>, 2018 — the SFU fleet, 13 regions.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next in the wider world: <b>Slack's 500 milliseconds</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+function fmtN(n){
+  if(n>=1e6) return (n/1e6).toFixed(n<3e6?1:0)+'M';
+  if(n>=1e3) return (n/1e3).toFixed(n<1e4?1:0)+'K';
+  return String(Math.round(n));
+}
+function fmtS(s){
+  if(s>=60) return (s/60).toFixed(1)+' min';
+  if(s>=1) return s.toFixed(1)+'s';
+  return Math.round(s*1000)+'ms';
+}
+/* sliding-window helpers */
+function winPush(arr, t, v){ arr.push({t, v}); }
+function winPrune(arr, t, span){ while(arr.length && arr[0].t < t-span) arr.shift(); }
+function winPctl(arr, p){
+  if(!arr.length) return NaN;
+  const s=arr.map(o=>o.v).sort((a,b)=>a-b);
+  return s[Math.min(s.length-1, Math.floor(p*s.length))];
+}
+function winSum(arr){ let s=0; for(const o of arr) s+=o.v; return s; }
+
+/* ================= HERO: the city of guilds ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(7),
+  reset(){
+    this.t=0;
+    const r=mulberry32(7);
+    this.guilds=[];
+    for(let i=0;i<44;i++) this.guilds.push({n:Math.round(5+r()*r()*400)});
+    for(let i=0;i<8;i++)  this.guilds.push({n:Math.round(1000+r()*7000)});
+    this.guilds.push({n:30000,   label:'/r/OVERWATCH · 30K'});
+    this.guilds.push({n:1000000, label:'MIDJOURNEY · 1M ONLINE'});
+    this.guilds.sort((a,b)=>a.n-b.n);
+    for(const g of this.guilds){
+      g.rate=Math.min(25, g.n*2e-4);      // msgs/s: human chat saturates ~25/s
+      g.work=g.rate*g.n;                   // deliveries/s = rate × members
+      g.flash=0;
+    }
+    this.online=this.guilds.reduce((s,g)=>s+g.n,0);
+    this.del=this.guilds.reduce((s,g)=>s+g.work,0);
+    this.top=Math.max(...this.guilds.map(g=>g.work));
+  },
+  update(dt){
+    this.t+=dt;
+    for(const g of this.guilds)
+      if(this.rng() < Math.min(1, g.rate*dt)) g.flash=this.t;
+    setM('hero.online', fmtN(this.online));
+    setM('hero.rate', fmtN(this.del));
+    setM('hero.share', Math.round(this.top/this.del*100)+'%');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const base=H-40, maxH=H-92;
+    const n=this.guilds.length, bw=(W-60)/n;
+    this.guilds.forEach((g,i)=>{
+      const h=Math.max(4, (Math.log10(g.n)-0.6)/(6-0.6)*maxH);
+      const x=30+i*bw, y=base-h;
+      const flashing=this.t-g.flash<0.35;
+      const big=g.n>=30000;
+      ctx.fillStyle= flashing? CSS.traffic : big? '#233649' : '#1A2836';
+      ctx.fillRect(x+1, y, bw-2, h);
+      ctx.strokeStyle= big? CSS.traffic : CSS.line;
+      ctx.strokeRect(x+1, y, bw-2, h);
+      if(g.label){
+        ctx.fillStyle=CSS.traffic; ctx.textAlign='right';
+        ctx.fillText(g.label, x-4, y-8);
+      }
+      // mailroom dot at the building's base
+      ctx.fillStyle= flashing? CSS.traffic : CSS.muted;
+      ctx.beginPath(); ctx.arc(x+bw/2, base+7, 2, 0, 7); ctx.fill();
+    });
+    // rising particles from the skyscraper (constant firehose)
+    const sk=this.guilds[n-1];
+    const skx=30+(n-1)*bw+bw/2, skh=(Math.log10(sk.n)-0.6)/(6-0.6)*maxH;
+    ctx.fillStyle=CSS.traffic;
+    for(let i=0;i<7;i++){
+      const u=(this.t*0.5+i/7)%1;
+      ctx.globalAlpha=0.85*(1-u);
+      ctx.beginPath(); ctx.arc(skx-8+((i*53)%17), base-u*skh, 2, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('EACH BUILDING = ONE GUILD = ONE ELIXIR PROCESS · DOT = ITS MAILROOM', 30, H-14);
+    ctx.textAlign='right';
+    ctx.fillText('WORK ≈ CHAT RATE × MEMBERS ≈ N²', W-30, H-14);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: the mailroom ================= */
+const rSize=document.getElementById('r-size');
+const tManifold=document.getElementById('t-manifold');
+const T_SEND=40e-6, C0=0.0005, NODES=16;
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(11),
+  reset(){ this.t=0; this.q=[]; this.busyUntil=0; this.comps=[]; this.lats=[];
+    this.nextArr=0.3; this.overflow=false; },
+  N(){ return Math.round(Math.pow(10, 3 + (+rSize.value)*0.03)); },
+  lam(){ return Math.max(2, this.N()*2e-4); },
+  S(){ return tManifold.checked ? NODES*T_SEND + C0 : this.N()*T_SEND + C0; },
+  update(dt){
+    this.t+=dt;
+    const S=this.S(), lam=this.lam();
+    while(this.nextArr<=this.t){
+      if(this.q.length<4000) this.q.push(this.nextArr);
+      else this.overflow=true;
+      this.nextArr += expRand(this.rng, 1/lam);
+    }
+    while(this.q.length && this.busyUntil<=this.t){
+      const a=this.q.shift();
+      const start=Math.max(a, this.busyUntil);
+      const fin=start+S;
+      this.busyUntil=fin;
+      this.comps.push({fin, lat:fin-a});
+    }
+    this.comps=this.comps.filter(c=>{
+      if(c.fin<=this.t){ winPush(this.lats, this.t, c.lat); return false; }
+      return true; });
+    winPrune(this.lats, this.t, 8);
+    const backlog=this.q.length + (this.busyUntil>this.t?1:0);
+    const delay=backlog*S + Math.max(0, this.busyUntil-this.t);
+    const rho=lam*S;
+    setM('e1.size', fmtN(this.N()));
+    setM('e1.cost', S>=0.01? fmtS(S) : (S*1000).toFixed(2)+'ms');
+    setM('e1.rho', rho>=1? '>100% — FALLING BEHIND' : (rho*100).toFixed(rho<0.02?1:0)+'%');
+    setM('e1.backlog', backlog + (this.overflow?' (OOM)':' events'));
+    setM('e1.delay', fmtS(delay));
+    setM('e1.verdict', delay>10? 'COLLAPSED' : rho>=1? 'DROWNING' : rho>0.7? 'STRAINED' : 'HEALTHY');
+    const v=M['e1.verdict']; if(v) v.classList.toggle('bad', rho>=0.7);
+    this._backlog=backlog; this._rho=rho; this._S=S;
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const N=this.N(), man=tManifold.checked;
+    const gx=W*0.26, gy=H*0.44;
+    // incoming chat arrow
+    ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+    ctx.beginPath(); ctx.moveTo(24, gy); ctx.lineTo(gx-62, gy); ctx.stroke();
+    ctx.globalAlpha=1;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('CHAT · '+this.lam().toFixed(1)+' MSG/S', 24, gy-10);
+    // arrival pulse
+    if(this._backlog>0 || this.busyUntil>this.t){
+      const u=(this.t*1.4)%1;
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(24+(gx-86-24)*u, gy, 2.6, 0, 7); ctx.fill();
+    }
+    // guild process box + mailbox bar
+    const strain=Math.min(1, this._backlog/300);
+    ctx.strokeStyle= strain>0.5? CSS.fault : CSS.traffic;
+    ctx.lineWidth=2;
+    ctx.strokeRect(gx-60, gy-24, 120, 48);
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+    ctx.fillText('GUILD PROCESS', gx, gy-2);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('one mailroom', gx, gy+13);
+    // mailbox
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(gx-60, gy-48, 120, 12);
+    ctx.fillStyle= strain>0.5? CSS.fault : CSS.a;
+    ctx.fillRect(gx-59, gy-47, 118*strain, 10);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('MAILBOX', gx, gy-54);
+    // right side: recipients
+    const rx=W*0.56;
+    if(man){
+      const nodeH=30, gap=14, totH=4*nodeH+3*gap, y0=gy-totH/2+nodeH/2;
+      for(let k=0;k<4;k++){
+        const ny=y0+k*(nodeH+gap);
+        ctx.strokeStyle=CSS.b;
+        ctx.strokeRect(rx, ny-nodeH/2, 108, nodeH);
+        ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+        ctx.fillText('NODE', rx+8, ny+3);
+        ctx.fillStyle=CSS.b;
+        for(let d=0;d<6;d++){
+          ctx.beginPath(); ctx.arc(rx+50+d*9, ny, 2.2, 0, 7); ctx.fill();
+        }
+        ctx.strokeStyle=CSS.line; ctx.globalAlpha=.55;
+        ctx.beginPath(); ctx.moveTo(gx+60, gy); ctx.lineTo(rx, ny); ctx.stroke();
+        ctx.globalAlpha=1;
+        // bundle pulse
+        const u=(this.t*1.2+k*0.25)%1;
+        ctx.fillStyle=CSS.traffic;
+        ctx.beginPath();
+        ctx.arc(gx+60+(rx-gx-60)*u, gy+(ny-gy)*u, 2.4, 0, 7); ctx.fill();
+      }
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('ONE BUNDLE PER NODE · 16 NODES (4 DRAWN)', rx, gy+80);
+      ctx.fillText('EACH NODE UNPACKS TO ITS SESSIONS IN PARALLEL', rx, gy+94);
+    } else {
+      // grid of session dots
+      for(let c=0;c<8;c++) for(let r=0;r<3;r++){
+        const dx=rx+18+c*24, dy=gy-30+r*30;
+        ctx.fillStyle=CSS.muted;
+        ctx.beginPath(); ctx.arc(dx, dy, 2.4, 0, 7); ctx.fill();
+        if(c<4 && r===1){
+          ctx.strokeStyle=CSS.line; ctx.globalAlpha=.3;
+          ctx.beginPath(); ctx.moveTo(gx+60, gy); ctx.lineTo(dx, dy); ctx.stroke();
+          ctx.globalAlpha=1;
+        }
+      }
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('× '+fmtN(N)+' SESSIONS · ONE DIRECT SEND EACH, SEQUENTIALLY', rx, gy+80);
+      ctx.fillText('AT 40µs PER SEND, THE MAILROOM WALKS EVERY FLOOR ITSELF', rx, gy+94);
+    }
+    // cost line
+    ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+    const costTxt= man
+      ? 'PER EVENT: 16 × 40µs + 0.5ms  =  '+(this.S()*1000).toFixed(2)+'ms'
+      : 'PER EVENT: '+fmtN(N)+' × 40µs  =  '+fmtS(this.S());
+    ctx.fillText(costTxt, W/2, H-14);
+  }
+};
+e1.reset();
+rSize.addEventListener('input',()=>setM('e1.size', fmtN(e1.N())));
+
+/* ================= EXP-02: hot partition vs coalescing ================= */
+const rRaid=document.getElementById('r-raid');
+const tCoal=document.getElementById('t-coal');
+const DB_S=0.002, DB_RATE=500;    // 2ms deterministic service; 500 queries/s per partition
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  rng: mulberry32(19),
+  reset(){ this.t=0; this.raid=false;
+    this.parts=Array.from({length:12},()=>({b:0}));
+    this.hot=4; this.inflight=null; this.accA=0;
+    this.abs=0; this.nextCold=0.2; this.nextSample=0;
+    this.creq=[]; this.dbq=[]; this.hotLat=[]; this.coldLat=[];
+    const btn=document.querySelector('[data-act="e2-raid"]');
+    if(btn) btn.textContent='START THE RAID'; },
+  toggleRaid(){ this.raid=!this.raid;
+    const btn=document.querySelector('[data-act="e2-raid"]');
+    if(btn) btn.textContent=this.raid?'CALL IT OFF':'START THE RAID'; },
+  R(){ return +rRaid.value; },
+  update(dt){
+    this.t+=dt;
+    const coal=tCoal.checked, R=this.R(), hot=this.parts[this.hot];
+    // cold background: 60/s across 12 partitions
+    while(this.nextCold<=this.t){
+      const p=Math.floor(this.rng()*12);
+      const lat=this.parts[p].b/DB_RATE + DB_S;
+      if(p===this.hot) winPush(this.coldLat, this.t, lat);
+      this.parts[p].b += 1;
+      winPush(this.dbq, this.t, 1);
+      this.nextCold += expRand(this.rng, 1/60);
+    }
+    // raid arrivals on the hot channel
+    if(this.raid){
+      winPush(this.creq, this.t, R*dt);
+      if(coal){
+        this.accA += R*dt;
+        if(this.inflight){ this.inflight.waiters += R*dt; this.accA=0; }
+        else if(this.accA>=1){
+          this.accA=0;
+          const b0=hot.b;
+          hot.b += 1;
+          winPush(this.dbq, this.t, 1);
+          this.inflight={t0:this.t, tf:this.t+(b0+1)/DB_RATE, waiters:0};
+        }
+      } else {
+        hot.b += R*dt;
+        winPush(this.dbq, this.t, R*dt);
+      }
+    }
+    // coalesced query completion
+    if(this.inflight && this.t>=this.inflight.tf){
+      const dur=this.inflight.tf-this.inflight.t0;
+      winPush(this.hotLat, this.t, dur);
+      winPush(this.hotLat, this.t, dur*0.66);
+      winPush(this.hotLat, this.t, dur*0.33);
+      this.abs += this.inflight.waiters;
+      this.inflight=null;
+    }
+    // partitions serve
+    for(const p of this.parts) p.b=Math.max(0, p.b - DB_RATE*dt);
+    // periodic honest sample: what would a new hot reader wait right now?
+    while(this.nextSample<=this.t){
+      let lat;
+      if(coal) lat = this.inflight? (this.inflight.tf-this.t) : (hot.b+1)/DB_RATE;
+      else lat = hot.b/DB_RATE + DB_S;
+      if(this.raid || hot.b>1) winPush(this.hotLat, this.t, lat);
+      this.nextSample += 0.15;
+    }
+    winPrune(this.creq, this.t, 3); winPrune(this.dbq, this.t, 3);
+    winPrune(this.hotLat, this.t, 5); winPrune(this.coldLat, this.t, 6);
+    const creqR=winSum(this.creq)/3, dbqR=winSum(this.dbq)/3;
+    setM('e2.raid', this.R().toLocaleString('en-US'));
+    setM('e2.creq', Math.round(this.raid? creqR : 60).toLocaleString('en-US'));
+    setM('e2.dbq', Math.round(dbqR).toLocaleString('en-US'));
+    setM('e2.hotq', Math.round(hot.b).toLocaleString('en-US'));
+    const hp=winPctl(this.hotLat, 0.99);
+    setM('e2.hotp99', isNaN(hp)? '2ms (idle)' : fmtS(hp)+(!coal&&this.raid?' AND CLIMBING':''));
+    const cp=winPctl(this.coldLat, 0.99);
+    setM('e2.coldp99', isNaN(cp)? '–' : fmtS(cp));
+    setM('e2.abs', Math.round(this.abs).toLocaleString('en-US'));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const coal=tCoal.checked;
+    const cy=H*0.42;
+    // clients
+    ctx.fillStyle= this.raid? CSS.fault : CSS.muted; ctx.textAlign='left';
+    ctx.fillText(this.raid? 'RAID · '+this.R().toLocaleString('en-US')+' READERS/S' : 'CLIENTS (QUIET)', 20, cy-46);
+    for(let i=0;i<14;i++){
+      const a=(i*2.4)%6.28;
+      ctx.fillStyle= this.raid? CSS.traffic : CSS.muted;
+      ctx.globalAlpha= this.raid? .9 : .45;
+      ctx.beginPath(); ctx.arc(52+Math.cos(a)*30, cy+Math.sin(a)*32, 2.2, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    // data service box
+    const dx=W*0.40;
+    ctx.strokeStyle= coal? CSS.traffic : CSS.line;
+    ctx.lineWidth= coal? 2:1;
+    ctx.strokeRect(dx-72, cy-30, 144, 60);
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+    ctx.fillText('RUST DATA SERVICE', dx, cy-12);
+    if(coal){
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('IN FLIGHT: '+(this.inflight?1:0), dx, cy+4);
+      ctx.fillText('WAITING ON IT: '+(this.inflight? Math.round(this.inflight.waiters).toLocaleString('en-US'):0), dx, cy+19);
+    } else {
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('PASS-THROUGH', dx, cy+6);
+      ctx.fillText('(every request = a query)', dx, cy+20);
+    }
+    // arrows clients -> DS
+    ctx.strokeStyle= this.raid? CSS.traffic : CSS.line; ctx.globalAlpha=.6;
+    ctx.beginPath(); ctx.moveTo(92, cy); ctx.lineTo(dx-72, cy); ctx.stroke();
+    ctx.globalAlpha=1;
+    if(this.raid){
+      for(let i=0;i<4;i++){
+        const u=(this.t*2+i/4)%1;
+        ctx.fillStyle=CSS.traffic;
+        ctx.beginPath(); ctx.arc(92+(dx-72-92)*u, cy-6+i*4, 2.2, 0, 7); ctx.fill();
+      }
+    }
+    // partitions
+    const px0=W*0.60, pw=(W-40-px0)/12;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('MESSAGES CLUSTER · PARTITIONS ((channel, bucket))', px0, cy-64);
+    for(let i=0;i<12;i++){
+      const b=this.parts[i].b;
+      const h=Math.max(3, Math.min(1, b/120)*84);
+      const x=px0+i*pw, y=cy+42-h;
+      const heat=Math.min(1, b/60);
+      ctx.fillStyle= heat>0.6? CSS.fault : heat>0.15? CSS.a : '#1A2836';
+      ctx.fillRect(x+1, y, pw-3, h);
+      ctx.strokeStyle= i===this.hot? CSS.traffic : CSS.line;
+      ctx.strokeRect(x+1, cy+42-84, pw-3, 84);
+    }
+    ctx.fillStyle=CSS.traffic; ctx.textAlign='center';
+    ctx.fillText('▲ THE HOT CHANNEL LIVES HERE', px0+this.hot*pw+pw/2+18, cy+58);
+    // DS -> hot partition arrow
+    ctx.strokeStyle= coal? CSS.traffic : CSS.fault; ctx.globalAlpha=.7;
+    ctx.beginPath(); ctx.moveTo(dx+72, cy); ctx.lineTo(px0+this.hot*pw, cy+8); ctx.stroke();
+    ctx.globalAlpha=1;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText(coal? 'MANY READERS → ONE QUERY IN FLIGHT → ONE ANSWER, SHARED'
+                     : 'EVERY READER → ITS OWN QUERY → THE PARTITION QUEUES', W/2, H-14);
+  }
+};
+e2.reset();
+document.querySelector('[data-act="e2-raid"]').addEventListener('click',()=>e2.toggleRaid());
+rRaid.addEventListener('input',()=>setM('e2.raid', (+rRaid.value).toLocaleString('en-US')));
+
+/* ================= EXP-03: the GC seismograph ================= */
+const rCache=document.getElementById('r-cache');
+const GC_EVERY=12;                 // 12 sim-seconds = compressed 2 minutes
+const LAM3=60000, MU3=120000;      // ops/s in, capacity
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  rng: mulberry32(31),
+  reset(){ this.t=0; this.trace=[]; this.backlog=0;
+    this.nextGC=6; this.pauseUntil=-1; this.worst=0;
+    this.goWin=[]; this.rustWin=[]; },
+  cache(){ return +rCache.value; },
+  pauseDur(){ return this.cache()*0.03; },   // scan cost ∝ entries
+  forceGC(){ this.nextGC=this.t; },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.nextGC){
+      this.pauseUntil=this.t+this.pauseDur();
+      this.nextGC += GC_EVERY;
+    }
+    const paused=this.t<this.pauseUntil;
+    if(paused) this.backlog += LAM3*dt;
+    else this.backlog = Math.max(0, this.backlog-(MU3-LAM3)*dt);
+    const go = (paused? (this.pauseUntil-this.t):0) + this.backlog/MU3 + 0.0004
+             + this.rng()*0.0001;
+    const rust = 0.0003 + this.rng()*0.00012;
+    this.worst=Math.max(this.worst, go);
+    winPush(this.trace, this.t, {go, rust});
+    winPrune(this.trace, this.t, 26);
+    winPush(this.goWin, this.t, go); winPush(this.rustWin, this.t, rust);
+    winPrune(this.goWin, this.t, 10); winPrune(this.rustWin, this.t, 10);
+    setM('e3.cache', this.cache().toFixed(1).replace(/\.0$/,'')+'M');
+    setM('e3.gop99', (winPctl(this.goWin,0.99)*1000).toFixed(1)+'ms');
+    setM('e3.rustp99', (winPctl(this.rustWin,0.99)*1000).toFixed(2)+'ms');
+    setM('e3.worst', Math.round(this.worst*1000)+'ms');
+    setM('e3.stall', (3600/120*this.pauseDur()).toFixed(1)+'s ('+Math.round(3600/120)+' pauses × '+Math.round(this.pauseDur()*1000)+'ms)');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const L=56, Rm=20, span=24;
+    const yMax=Math.max(0.08, this.pauseDur()*1.35);
+    const strip=(y0, h, key, color, label, sub)=>{
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(L, y0, W-L-Rm, h);
+      // gridline at 100ms
+      const gy=y0+h-(0.1/yMax)*h;
+      if(gy>y0+4){
+        ctx.globalAlpha=.35; ctx.beginPath(); ctx.moveTo(L,gy); ctx.lineTo(W-Rm,gy); ctx.stroke(); ctx.globalAlpha=1;
+        ctx.fillStyle=CSS.muted; ctx.textAlign='right'; ctx.fillText('100ms', L-6, gy+3);
+      }
+      ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+      ctx.fillText('0', L-6, y0+h+3);
+      ctx.fillStyle=color; ctx.textAlign='left';
+      ctx.fillText(label, L, y0-6);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(sub, L+180, y0-6);
+      ctx.strokeStyle=color; ctx.lineWidth=1.5;
+      ctx.beginPath();
+      let started=false;
+      for(const o of this.trace){
+        const x=L+(1-(this.t-o.t)/span)*(W-L-Rm);
+        if(x<L) continue;
+        const y=y0+h-Math.min(1, o.v[key]/yMax)*(h-4);
+        if(!started){ ctx.moveTo(x,y); started=true; } else ctx.lineTo(x,y);
+      }
+      ctx.stroke(); ctx.lineWidth=1;
+    };
+    const h=(H-86)/2;
+    strip(28, h, 'go', CSS.a, 'GO — FORCED GC EVERY 2 MIN', '(pause scans the whole cache; requests queue)');
+    strip(28+h+30, h, 'rust', CSS.b, 'RUST — NO COLLECTOR', '(eviction cost rides inside each request)');
+    // GC markers on the go strip
+    ctx.fillStyle=CSS.fault;
+    for(const o of this.trace){
+      if(o.v.go>this.pauseDur()*0.7 && o.v.go>0.02){
+        const x=L+(1-(this.t-o.t)/span)*(W-L-Rm);
+        if(x>=L){ ctx.beginPath(); ctx.moveTo(x,24); ctx.lineTo(x-3,17); ctx.lineTo(x+3,17); ctx.fill(); }
+      }
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('SAME WORKLOAD · SAME SCALE · 24s OF (COMPRESSED) TIME — THE FLAT LINE IS THE ARGUMENT', W/2, H-10);
+  }
+};
+e3.reset();
+document.querySelector('[data-act="e3-gc"]').addEventListener('click',()=>e3.forceGC());
+rCache.addEventListener('input',()=>setM('e3.cache', (+rCache.value).toFixed(1).replace(/\.0$/,'')+'M'));
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

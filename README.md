@@ -27,8 +27,10 @@ real fix, and the sliders are yours.
 | 14 | [The Page — URL to pixels](episodes/url-to-page.html) | The scrubber walk; the war on round trips (TLS 1.2 → QUIC 0-RTT); H2 head-of-line vs H3; the blocking script |
 | 15 | [The Edge — CDN & anycast](episodes/cdn-edge.html) | Anycast vs unicast; the 78× cache funnel; the 31.4 Tbps storm at 6% headroom; the 2019 regex bomb with real engines |
 | 16 | [The Ladder — databases at scale](episodes/databases.html) | The scaling climb; the vanishing comment; the async write that evaporated; a real Raft election that never splits the brain |
+| 17 | [The Guild — Discord](episodes/discord.html) | A community as one Elixir process hits its quadratic wall (Manifold un-jams it); request coalescing decouples raid load from the database; the Go GC quake vs Rust's flat line |
+| 18 | [The Workspace — Slack](episodes/slack.html) | One message worldwide in ~500ms, persist-first; the rtm.start truck vs Flannel's diet; the reconnect storm absorbed at the edge; the wedged Redis queue Kafka un-wedged |
 
-**The flagship and plumbing tiers are complete** (16 of 29 systems). Next: the wider world begins with **Discord's trillion messages**.
+**The wider world is underway** (18 of 29 systems). Next: **Spotify presses play**.
 
 ## Structure
 

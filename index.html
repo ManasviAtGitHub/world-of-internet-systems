@@ -195,9 +195,9 @@
   <details>
     <summary>The wider world</summary>
     <ul>
-      <li><span class="soon">Discord<i>NEXT</i></span></li>
-      <li><span class="soon">Slack<i>SOON</i></span></li>
-      <li><span class="soon">Spotify<i>SOON</i></span></li>
+      <li><a class="ep" href="#/discord" data-ep="discord">The Guild · Discord</a></li>
+      <li><a class="ep" href="#/slack" data-ep="slack">The Workspace · Slack</a></li>
+      <li><span class="soon">Spotify<i>NEXT</i></span></li>
       <li><span class="soon">Zoom<i>SOON</i></span></li>
       <li><span class="soon">Dropbox<i>SOON</i></span></li>
       <li><span class="soon">Airbnb<i>SOON</i></span></li>
@@ -213,7 +213,7 @@
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">16</span> SYSTEMS LIVE · 29 RESEARCHED<br>
+    <span id="live-count">18</span> SYSTEMS LIVE · 29 RESEARCHED<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -349,6 +349,22 @@
           genuinely implemented Raft election — kill the leader, split the network, and
           watch majorities refuse to split the brain.</span>
         </a>
+        <a class="card" href="#/discord">
+          <span class="k">EP 17 · The wider world</span>
+          <span class="t">The Guild — Discord</span>
+          <span class="d">A community is literally one Elixir process — run the mailroom
+          into its quadratic wall and un-jam it with Manifold; shield a hot channel with
+          request coalescing (turn the raid up, the database doesn't notice); and watch
+          Go's garbage collector quake every two minutes next to Rust's flat line.</span>
+        </a>
+        <a class="card" href="#/slack">
+          <span class="k">EP 18 · The wider world</span>
+          <span class="t">The Workspace — Slack</span>
+          <span class="d">One message's world tour in ~500ms, persist-first; the boot
+          payload that grew into a truck (and the edge cache that put it on a diet); a
+          reconnect storm absorbed at the edge; and the day the job queue wedged because
+          the reservoir was also the turbine — until Kafka turned failure into lag.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -392,6 +408,8 @@ const EPISODES = {
   'url-to-page':       {title:'EP 14 — The Page · URL to Pixels',     file:'episodes/url-to-page.html'},
   'cdn-edge':          {title:'EP 15 — The Edge · CDN & Anycast',     file:'episodes/cdn-edge.html'},
   'databases':         {title:'EP 16 — The Ladder · Databases',       file:'episodes/databases.html'},
+  'discord':           {title:'EP 17 — The Guild · Discord',          file:'episodes/discord.html'},
+  'slack':             {title:'EP 18 — The Workspace · Slack',        file:'episodes/slack.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');
