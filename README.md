@@ -29,8 +29,10 @@ real fix, and the sliders are yours.
 | 16 | [The Ladder — databases at scale](episodes/databases.html) | The scaling climb; the vanishing comment; the async write that evaporated; a real Raft election that never splits the brain |
 | 17 | [The Guild — Discord](episodes/discord.html) | A community as one Elixir process hits its quadratic wall (Manifold un-jams it); request coalescing decouples raid load from the database; the Go GC quake vs Rust's flat line |
 | 18 | [The Workspace — Slack](episodes/slack.html) | One message worldwide in ~500ms, persist-first; the rtm.start truck vs Flannel's diet; the reconnect storm absorbed at the edge; the wedged Redis queue Kafka un-wedged |
+| 19 | [The Playlist — Spotify](episodes/spotify.html) | The P2P era's 265ms illusion (one byte in eleven paid for); the event river with bulkheads; a Discover Weekly genuinely computed — kill the audio model and new releases vanish |
+| 20 | [The Meeting — Zoom](episodes/zoom.html) | The server that refuses to watch: MCU melts at ~97, the router holds 15× more; simulcast detaches downlink from meeting size; the 30× cliff of March 2020, provisioning dial in hand |
 
-**The wider world is underway** (18 of 29 systems). Next: **Spotify presses play**.
+**The wider world is underway** (20 of 29 systems). Next: **Dropbox syncs a million laptops**.
 
 ## Structure
 

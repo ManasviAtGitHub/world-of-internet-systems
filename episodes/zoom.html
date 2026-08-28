@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Meeting — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 20</p>
+  <h1>The Meeting</h1>
+  <p class="dek">Zoom's servers never look at your video. That single refusal — no
+  decoding, no mixing, no re-encoding, just routing encrypted packets — is why a
+  500-person meeting became a checkbox instead of a hardware purchase, and why, when the
+  world moved into Zoom in March 2020 and load multiplied thirty-fold in three months,
+  the fix was simply <em>more boxes that forward bytes</em>. This episode runs the
+  refusal: the MCU that melts vs the router that doesn't, the simulcast trick that keeps
+  a 100-person gallery inside a home connection, and the 30× cliff itself.</p>
+  <p class="marginal">Everything below is honestly simulated: server load is computed from
+  per-stream decode/encode/forward costs, the gallery's bandwidth demand is real
+  arithmetic against your modeled connection, and the cliff replays the published
+  10M→300M curve against capacity that must be provisioned day by day.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">A meeting spanning the planet — everyone's first hop is short</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:280px" role="img" aria-label="Six participants in Tokyo, Berlin and São Paulo each connect to their nearest Meeting Zone; multimedia routers cascade the active speaker's stream between zones over a private backbone, and mouth-to-ear latencies stay far below the naive plan of hairpinning everyone through one US server"></canvas>
+  <div class="exp-metrics">
+    <span>ACTIVE SPEAKER<b data-m="hero.spk">–</b></span>
+    <span>WORST MOUTH-TO-EAR<b data-m="hero.far">–</b></span>
+    <span>SAME-CITY PAIR<b data-m="hero.pair">–</b></span>
+    <span>IF EVERYONE HAIRPINNED VIA ONE US HUB<b class="bad" data-m="hero.hub">–</b></span>
+  </div>
+  <figcaption class="exp-note">Each client sends <em>one uplink</em> to its nearest
+  Meeting Zone; the zones' multimedia routers cascade streams to each other over private
+  links, and every listener's last hop is local. The comparison metric is the design's
+  whole justification: two colleagues in the same Tokyo office, hairpinned through a US
+  hub, would hear each other later than they hear Berlin on the cascade. Latency is a
+  budget (~200ms mouth-to-ear before conversation breaks), and unlike Netflix's seconds
+  of buffer, none of it can be cached in advance — everything must be routed, live.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The server that refuses to watch</h2>
+  <p>Conferencing before Zoom ran on <strong>MCUs</strong> — Multipoint Control Units —
+  servers that decode every participant's video, composite one picture, and re-encode it
+  for every receiver. All the work of a TV studio, per meeting, per box: quality-lossy,
+  compute-monstrous, and capped somewhere under 100 participants. Zoom's founding bet
+  (Eric Yuan, ex-WebEx, 2011) was the <strong>Multimedia Router</strong>: a distributed
+  SFU that takes one encoded uplink per client and <em>selectively forwards</em> it —
+  the speaker's high-resolution stream to everyone, thumbnails for the gallery — never
+  opening a single frame. Encoding and decoding happen on your laptop. The server's cost
+  scales with <em>bandwidth</em>, not pixels; Zoom claimed ~15× the participants per box,
+  and the experiment below shows exactly where that number lives.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">MCU vs multimedia router — the same meeting, one box each</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-n">Participants</label>
+      <input type="range" id="r-n" min="2" max="500" value="60" step="1">
+      <output data-m="e1.n">60</output></span>
+    <span>SAME BOX SPEC ON BOTH SIDES · ONLY THE JOB DIFFERS</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:280px" role="img" aria-label="Side by side: an MCU decodes, composites and re-encodes every stream, its CPU meter passing 100 percent before one hundred participants; the multimedia router forwards encrypted packets untouched, its CPU barely moving while its network meter grows slowly toward a fifteen times higher ceiling"></canvas>
+  <div class="exp-metrics">
+    <span>MCU CPU<b class="bad" data-m="e1.mcpu">–</b></span>
+    <span>MCU ADDED LATENCY<b data-m="e1.mlat">–</b></span>
+    <span>ROUTER CPU<b data-m="e1.scpu">–</b></span>
+    <span>ROUTER NIC<b data-m="e1.snic">–</b></span>
+    <span>ONE BOX HOLDS<b data-m="e1.caps">–</b></span>
+  </div>
+  <figcaption class="exp-note">Honest arithmetic: the MCU pays a decode per sender, an
+  encode per receiver, and a composite — its CPU crosses 100% at ~97 participants and the
+  meeting dies there. The router pays microseconds per forwarded packet; its binding
+  constraint is the network card, which doesn't saturate until ~1,470 participants —
+  <em>15× the MCU</em>, the number from Zoom's 2019 capacity post. And notice the latency
+  meter: transcoding costs ~150ms even when the MCU is healthy; forwarding costs ~9ms.
+  The router is not just bigger — it's faster, because it does nothing.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>One uplink, tailored downlinks</h2>
+  <p>The router's refusal creates a puzzle at your end of the wire. If the server won't
+  composite, and 25 people are in the gallery, must your home connection receive 25
+  full-resolution streams? The answer is <strong>simulcast</strong>: every client encodes
+  its camera at several sizes at once — full, medium, thumbnail — and the router picks,
+  per receiver, which layer of which sender to forward: the active speaker in full, two
+  dozen thumbnails, nothing at all for camera 26. Your downlink stops depending on how
+  big the meeting is. The sender pays honestly for this — three encodings cost ~30% more
+  uplink than one — and it's the best bandwidth ever spent.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">The gallery vs your home connection — simulcast on and off</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-n2">Meeting size</label>
+      <input type="range" id="r-n2" min="4" max="100" value="25" step="1">
+      <output data-m="e2.n">25</output></span>
+    <span class="ctl"><label for="r-bw">Your bandwidth</label>
+      <input type="range" id="r-bw" min="5" max="50" value="20" step="1">
+      <output data-m="e2.bwv">20 Mbps</output></span>
+    <label class="toggle"><input type="checkbox" id="t-sim"> simulcast + selective forwarding — layers picked per receiver</label>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="A meeting gallery drawn as tiles: without simulcast every participant arrives at full resolution and the bandwidth pipe overflows, freezing the video; with simulcast the active speaker arrives large and everyone else as thumbnails, and demand stays flat no matter how large the meeting grows"></canvas>
+  <div class="exp-metrics">
+    <span>YOUR DOWNLINK DEMAND<b class="bad" data-m="e2.dem">–</b></span>
+    <span>YOUR CONNECTION<b data-m="e2.bw">–</b></span>
+    <span>FRAMES DROPPED<b data-m="e2.drop">–</b></span>
+    <span>YOUR VIDEO<b data-m="e2.state">–</b></span>
+    <span>SENDER UPLINK<b data-m="e2.up">–</b></span>
+  </div>
+  <figcaption class="exp-note">Without the trick, demand is (N−1) × 2.5 Mbps — a
+  25-person gallery wants 60 Mbps of a 20 Mbps connection, two frames in three are
+  dropped, and the video freezes. Flip on <em>simulcast</em>: one full stream plus
+  thumbnails ≈ 6.8 Mbps, comfortably inside the pipe — and now drag the meeting from 25
+  to 100 and watch the demand meter <strong>not move</strong>, because the layout, not
+  the meeting, decides what you download. This is the same critical-path lesson as
+  Spotify's episode, played in bandwidth instead of milliseconds: the thing that scales
+  (N) was taken off the thing that's scarce (your last mile).</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The 30× cliff</h2>
+  <p>Then came the quarter when the architecture was audited by history. December 2019:
+  ~10 million daily meeting participants, served from ~17 colocated datacenters
+  deliberately run at 50% of peak so any site can absorb a neighbor's failure. March
+  2020: 200 million. April: over 300 million. No capacity plan survives 30× in three
+  months — what saved Zoom is that its scarce resource was <em>generic</em>. Because
+  MMRs only forward bytes, "more capacity" meant ordinary cloud servers, and Zoom bought
+  them like electricity: AWS turning up thousands of servers a day, an emergency Oracle
+  deal carrying ~7 petabytes a day within weeks. The experiment below replays the curve
+  and hands you the provisioning dial.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">Dec 2019 → Apr 2020 — demand vs capacity, day by day</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e3-dc">LOSE A DATACENTER · 10 DAYS</button>
+      <button class="btn" data-run="e3">PAUSE</button>
+      <button class="btn" data-reset="e3">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-burst" checked> burst to the clouds when headroom thins (5-day lead, then ramp)</label>
+    <span class="ctl"><label for="r-prov">Provisioning rate</label>
+      <input type="range" id="r-prov" min="2" max="25" value="15" step="1">
+      <output data-m="e3.prov">15M/day</output></span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:280px" role="img" aria-label="A day-by-day chart from December 2019 to April 2020: the demand curve climbs from 10 to 300 million meeting participants; colo capacity is a flat line at 20 million and cloud capacity ramps up after a provisioning delay; where demand exceeds capacity the gap is shaded red and counted as refused meeting-days"></canvas>
+  <div class="exp-metrics">
+    <span>DATE<b data-m="e3.date">–</b></span>
+    <span>DEMAND<b data-m="e3.dem">–</b></span>
+    <span>CAPACITY<b data-m="e3.cap">–</b></span>
+    <span>TURNED AWAY TODAY<b class="bad" data-m="e3.ref">–</b></span>
+    <span>TOTAL REFUSED<b class="bad" data-m="e3.tot">–</b></span>
+  </div>
+  <figcaption class="exp-note">Try it with the burst toggle off: the colo line holds at
+  20M and by April you're refusing nine meetings in ten — an extinction event. Turn
+  bursting on and the story becomes a race with an honest handicap: the deal takes days
+  to sign, the ramp starts slow, and demand grows ~30M/day at the steepest point — so
+  even at 15M/day of provisioning there's a hairy fortnight in late March where the red
+  gap opens before capacity catches the curve. That fortnight happened. Note what the
+  <em>50% rule</em> buys meanwhile: lose a whole datacenter in February and nothing is
+  refused, because the ring was built to absorb exactly that. Fail-safe against one
+  site; cloud-elastic against the world showing up.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What the meeting taught the internet</h2>
+  <p>Two footnotes belong in prose. First, the trust lesson: in April 2020, Citizen Lab
+  found some meetings routed through datacenters in China and weaknesses in the
+  then-AES-128-ECB encryption. Zoom's response made <em>routing topology a product
+  feature</em> — paying customers can now pin or exclude regions — and Zoom 5.0 shipped
+  AES-256-GCM within a month, with end-to-end encryption that October. Where your
+  packets go became something you configure, not something you trust. Second, the
+  firewall ladder that explains Zoom's "it just works" reputation: UDP first; blocked →
+  TCP; blocked → TLS on port 443, indistinguishable from ordinary web traffic. The
+  client negotiates its way out of almost any network, and the server stays dumb.</p>
+  <p>The keeper: <strong>Zoom scaled because its servers do as little as possible — a
+  box that refuses to understand video can be replaced by any other box on earth, and in
+  March 2020 it had to be.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Zoom — <a href="https://www.zoom.com/en/blog/zoom-can-provide-increase-industry-leading-video-capacity/">Here's How Zoom Provides Industry-Leading Video Capacity</a>, June 2019 — multimedia routing vs MCU, the ~15× claim, client-side encode/decode.</li>
+    <li>Zoom — <a href="https://zoomgov.com/docs/doc/Zoom_Global_Infrastructure.pdf">Global Infrastructure whitepaper</a>, Sept 2019 — datacenters, Meeting Zones, Zone Controllers + MMRs.</li>
+    <li>E. Yuan — <a href="https://www.zoom.com/en/blog/a-message-to-our-users/">A Message to Our Users</a>, April 2020 — 10M→200M, the 90-day security plan; participant-count clarification via <a href="https://www.cnbc.com/2020/04/30/zoom-walks-back-claims-it-has-300-million-daily-active-users.html">CNBC</a>.</li>
+    <li>Data Center Frontier — <a href="https://www.datacenterfrontier.com/cloud/article/11428986/inside-zoom8217s-infrastructure-scaling-up-massively-with-colo-and-cloud">Inside Zoom's Infrastructure</a>, 2020 — 17 datacenters, the 50%-of-peak rule, colo + cloud burst; Oracle deal (~7 PB/day) via <a href="https://www.computerweekly.com/news/252482328/Zoom-chooses-Oracle-IaaS-as-core-cloud-infrastructure-provider">Computer Weekly</a>, AWS burst + preferred-provider deal via <a href="https://www.computerweekly.com/news/252492929/Zoom-signs-multi-year-preferred-cloud-provider-deal-with-AWS">Computer Weekly</a>.</li>
+    <li>Citizen Lab — <a href="https://citizenlab.ca/2020/04/move-fast-roll-your-own-crypto-a-quick-look-at-the-confidentiality-of-zoom-meetings/">Move Fast &amp; Roll Your Own Crypto</a>, April 2020 — the China-routing and ECB findings that made routing a product feature.</li>
+    <li>CometChat — <a href="https://www.cometchat.com/blog/zoom-video-technology-architecture">A Study of Zoom's Video Conferencing Architecture</a>, ~2021 — Meeting Zones, protocol fallback ladder (cross-checked against the whitepaper).</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next in the wider world: <b>Dropbox syncs a million laptops</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+
+/* ================= HERO: a meeting spanning the planet ================= */
+const ZONES=[
+  {name:'TOKYO',      x:0.20},
+  {name:'BERLIN',     x:0.50},
+  {name:'SÃO PAULO',  x:0.80},
+];
+const XLAT=[[0,125,135],[125,0,115],[135,115,0]];   // one-way ms, engineered private backbone
+const USLAT=[110,70,90];                             // one-way ms to one US hub over the public internet
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(9),
+  reset(){ this.t=0; this.spk=0; this.nextSpk=2.8;
+    this.parts=[];
+    for(let z=0; z<3; z++) for(let i=0;i<2;i++)
+      this.parts.push({z, i, hop:12+Math.round(this.rng()*16)});
+  },
+  update(dt){
+    this.t+=dt;
+    this.nextSpk-=dt;
+    if(this.nextSpk<=0){ this.nextSpk=2.8; this.spk=(this.spk+1)%this.parts.length; }
+    const s=this.parts[this.spk];
+    let far=0, hubFar=0;
+    for(const r of this.parts){
+      if(r===s) continue;
+      far=Math.max(far, s.hop + XLAT[s.z][r.z] + r.hop);
+      hubFar=Math.max(hubFar, USLAT[s.z] + USLAT[r.z]);
+    }
+    // same-city pair: the speaker's roommate (or Berlin pair as reference)
+    const mate=this.parts.find(r=>r!==s && r.z===s.z);
+    const pair=s.hop + mate.hop;
+    const pairHub=USLAT[s.z]*2;
+    setM('hero.spk', ZONES[s.z].name+'-'+(s.i+1));
+    setM('hero.far', far+'ms');
+    setM('hero.pair', ZONES[s.z].name+'→'+ZONES[s.z].name+' '+pair+'ms (via hub: '+pairHub+'ms)');
+    setM('hero.hub', 'worst '+hubFar+'ms');
+    this._far=far;
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const zy=104, py=196;
+    const s=this.parts[this.spk];
+    // ghost US hub
+    ctx.strokeStyle='#2A3E54'; ctx.setLineDash([4,4]);
+    ctx.strokeRect(W/2-80, 20, 160, 26);
+    ctx.setLineDash([]);
+    ctx.fillStyle='#4A5E74'; ctx.textAlign='center';
+    ctx.fillText('ONE US HUB (THE NAIVE PLAN)', W/2, 37);
+    // zones + backbone
+    ZONES.forEach((z,zi)=>{
+      const zx=z.x*W;
+      const active=zi===s.z;
+      ctx.strokeStyle= active? CSS.traffic : CSS.line;
+      ctx.lineWidth= active? 2:1;
+      ctx.strokeRect(zx-72, zy-17, 144, 34);
+      ctx.lineWidth=1;
+      ctx.fillStyle= active? CSS.ink : CSS.muted;
+      ctx.fillText(z.name+' MMR', zx, zy+4);
+      ctx.strokeStyle='#2A3E54'; ctx.globalAlpha=.5; ctx.setLineDash([3,4]);
+      ctx.beginPath(); ctx.moveTo(zx, zy-17); ctx.lineTo(W/2, 46); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha=1;
+    });
+    for(let a=0;a<3;a++) for(let b=a+1;b<3;b++){
+      ctx.strokeStyle=CSS.line;
+      ctx.beginPath(); ctx.moveTo(ZONES[a].x*W+72, zy); ctx.lineTo(ZONES[b].x*W-72, zy); ctx.stroke();
+      ctx.fillStyle=CSS.muted;
+      // the TOK–SAO label would land on the middle box; lift it clear
+      ctx.fillText(XLAT[a][b]+'ms'+(b-a===2?' END TO END':''), (ZONES[a].x+ZONES[b].x)/2*W, b-a===2? zy-28 : zy-8);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('PRIVATE BACKBONE · MMRs CASCADE STREAMS ZONE TO ZONE', 20, zy+40);
+    // participants
+    this.parts.forEach((p,i)=>{
+      const zx=ZONES[p.z].x*W, px=zx-30+p.i*60;
+      const speaking=i===this.spk;
+      ctx.strokeStyle=CSS.line; ctx.globalAlpha=.55;
+      ctx.beginPath(); ctx.moveTo(px, py-8); ctx.lineTo(zx, zy+17); ctx.stroke();
+      ctx.globalAlpha=1;
+      ctx.fillStyle= speaking? CSS.traffic : CSS.b;
+      ctx.beginPath(); ctx.arc(px, py, speaking?6:4, 0, 7); ctx.fill();
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText(p.hop+'ms', px, py+18);
+      if(speaking){ ctx.fillStyle=CSS.traffic; ctx.fillText('🎙 SPEAKING', px, py+32); }
+    });
+    // stream pulses: speaker -> own zone -> other zones -> listeners
+    const u=(this.t*1.5)%1;
+    const sx=ZONES[s.z].x*W-30+s.i*60;
+    ctx.fillStyle=CSS.traffic;
+    if(u<0.33){
+      const v=u/0.33;
+      ctx.beginPath(); ctx.arc(sx+(ZONES[s.z].x*W-sx)*v, py-8+(zy+17-(py-8))*v, 3, 0, 7); ctx.fill();
+    } else if(u<0.66){
+      const v=(u-0.33)/0.33;
+      for(let z=0;z<3;z++){ if(z===s.z) continue;
+        ctx.beginPath();
+        ctx.arc(ZONES[s.z].x*W+(ZONES[z].x*W-ZONES[s.z].x*W)*v, zy, 3, 0, 7); ctx.fill();
+      }
+    } else {
+      const v=(u-0.66)/0.34;
+      this.parts.forEach((p,i)=>{ if(i===this.spk) return;
+        const zx=ZONES[p.z].x*W, px=zx-30+p.i*60;
+        ctx.beginPath(); ctx.arc(zx+(px-zx)*v, zy+17+((py-8)-(zy+17))*v, 2.5, 0, 7); ctx.fill();
+      });
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('ONE UPLINK EACH · NEAREST ZONE FIRST · LAST HOP ALWAYS LOCAL', W/2, H-14);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: MCU vs MMR ================= */
+const rN=document.getElementById('r-n');
+const BOX=200;                        // compute units per box
+const FWD=0.004, HIGH=2.5, THUMB=0.18, NIC=10000;
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){ this.t=0; },
+  N(){ return +rN.value; },
+  update(dt){
+    this.t+=dt;
+    const N=this.N();
+    const mcuU=N*2.05;                              // decode + encode/receiver + composite share
+    const mcpu=mcuU/BOX*100;
+    const hops=N*Math.min(25, Math.max(1,N-1));
+    const scpu=hops*FWD/BOX*100;
+    const nic=N*(HIGH+THUMB*Math.min(24, Math.max(0,N-2)));
+    const snic=nic/NIC*100;
+    const over=Math.max(1, mcpu/100);
+    const mlat= mcpu>100? Math.round(150*(1+4*(over-1))) : 150;
+    const mcuCap=Math.floor(BOX/2.05);
+    const sfuCap=Math.floor(NIC/(HIGH+THUMB*24));
+    setM('e1.n', N);
+    setM('e1.mcpu', Math.round(mcpu)+'%'+(mcpu>100?' — MEETING FAILS':mcpu>85?' — DEGRADED':''));
+    setM('e1.mlat', mlat+'ms transcode'+(mcpu>100?' + collapse':''));
+    setM('e1.scpu', scpu.toFixed(1)+'%');
+    setM('e1.snic', snic.toFixed(1)+'% ('+(nic/1000).toFixed(1)+' Gbps)');
+    setM('e1.caps', '~'+mcuCap+' vs ~'+sfuCap.toLocaleString('en-US')+' — '+Math.round(sfuCap/mcuCap)+'×');
+    this._m={mcpu, scpu, snic, N};
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const m=this._m||{mcpu:0,scpu:0,snic:0,N:0};
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2, 12); ctx.lineTo(W/2, H-12); ctx.stroke();
+    const world=(x0, title, isMcu)=>{
+      const cx=x0+W*0.25, by=H*0.45;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText(title, cx, 26);
+      // incoming tiles
+      const shown=Math.min(24, m.N);
+      const cols=6;
+      for(let i=0;i<shown;i++){
+        const tx=cx-78+(i%cols)*26, ty=by-78+Math.floor(i/cols)*20;
+        ctx.strokeStyle= isMcu? CSS.a : CSS.b; ctx.globalAlpha=.75;
+        ctx.strokeRect(tx, ty, 20, 14);
+        ctx.globalAlpha=1;
+      }
+      if(m.N>shown){
+        ctx.fillStyle=CSS.muted;
+        ctx.fillText('… ×'+m.N, cx+96, by-24);
+      }
+      // the box
+      const failing=isMcu && m.mcpu>100;
+      ctx.strokeStyle= failing? CSS.fault : isMcu? CSS.a : CSS.b;
+      ctx.lineWidth=2;
+      ctx.strokeRect(cx-84, by+6, 168, 44);
+      ctx.lineWidth=1;
+      ctx.fillStyle= failing? CSS.fault : CSS.ink;
+      ctx.fillText(isMcu? (failing?'MCU — DROWNING':'MCU') : 'MULTIMEDIA ROUTER', cx, by+24);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(isMcu? 'DECODE · COMPOSITE · RE-ENCODE ×N' : 'FORWARDS ENCRYPTED PACKETS', cx, by+40);
+      // meters
+      const meter=(mx, label, v, warn)=>{
+        ctx.strokeStyle=CSS.line;
+        ctx.strokeRect(mx, by+64, 110, 11);
+        ctx.fillStyle= v>100? CSS.fault : v>85&&warn? CSS.a : CSS.b;
+        ctx.fillRect(mx+1, by+65, Math.min(108, 108*v/100), 9);
+        ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+        ctx.fillText(label+' '+Math.round(v)+'%', mx, by+90);
+        ctx.textAlign='center';
+      };
+      if(isMcu) meter(cx-55, 'CPU', m.mcpu, true);
+      else { meter(cx-116, 'CPU', m.scpu, false); meter(cx+8, 'NIC', m.snic, false); }
+    };
+    world(0, 'THE OLD WAY — MCU (A TV STUDIO PER MEETING)', true);
+    world(W/2, 'ZOOM — SFU (A ROUTER THAT REFUSES TO WATCH)', false);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('SAME '+(this._m?this._m.N:0)+' PARTICIPANTS · THE MCU PAYS IN PIXELS, THE ROUTER PAYS IN BYTES', W/2, H-12);
+  }
+};
+e1.reset();
+rN.addEventListener('input',()=>setM('e1.n', rN.value));
+
+/* ================= EXP-02: simulcast ================= */
+const rN2=document.getElementById('r-n2');
+const rBw=document.getElementById('r-bw');
+const tSim=document.getElementById('t-sim');
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0; this.spk=0; this.nextSpk=3; },
+  update(dt){
+    this.t+=dt;
+    this.nextSpk-=dt;
+    const N=+rN2.value;
+    if(this.nextSpk<=0){ this.nextSpk=3; this.spk=(this.spk+1)%Math.min(N,25); }
+    const sim=tSim.checked, bw=+rBw.value;
+    const dem= sim? HIGH+THUMB*Math.min(24, N-2) : (N-1)*HIGH;
+    const drop=Math.max(0, 1-bw/dem);
+    const state= drop===0? 'SMOOTH' : drop<0.5? 'DEGRADED' : 'FROZEN';
+    setM('e2.n', N);
+    setM('e2.bwv', bw+' Mbps');
+    setM('e2.dem', dem.toFixed(1)+' Mbps');
+    setM('e2.bw', bw+' Mbps');
+    setM('e2.drop', Math.round(drop*100)+'%');
+    setM('e2.state', state);
+    setM('e2.up', sim? '3.25 Mbps (3 LAYERS)' : '2.5 Mbps (1 LAYER)');
+    this._s={N, sim, bw, dem, drop, state};
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const s=this._s||{N:25,sim:false,bw:20,dem:60,drop:0.6,state:'FROZEN'};
+    const frozen=s.state==='FROZEN', degraded=s.state==='DEGRADED';
+    const gx=30, gy=34, gw=W*0.60, gh=H-110;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('YOUR SCREEN · '+s.N+'-PERSON MEETING', gx, gy-10);
+    if(s.sim){
+      // speaker large + thumbnails
+      const bigW=gw*0.55, bigH=gh*0.72;
+      ctx.strokeStyle= frozen? CSS.fault : CSS.traffic; ctx.lineWidth=2;
+      ctx.strokeRect(gx, gy, bigW, bigH);
+      ctx.lineWidth=1;
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='center';
+      ctx.fillText('ACTIVE SPEAKER · FULL 2.5 Mbps', gx+bigW/2, gy+bigH/2);
+      const tn=Math.min(24, s.N-2);
+      const cols=6, tw=(gw-bigW-14)/2-4;
+      for(let i=0;i<Math.min(tn,16);i++){
+        const tx=gx+bigW+12+(i%2)*(tw+6), ty=gy+Math.floor(i/2)*(bigH/8+2);
+        ctx.strokeStyle= i===0? CSS.b : CSS.line;
+        ctx.strokeRect(tx, ty, tw, bigH/8-3);
+      }
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText(tn+' THUMBNAILS × 0.18 Mbps · CAMERA #26+ NOT SENT AT ALL', gx, gy+bigH+18);
+    } else {
+      const cols=Math.ceil(Math.sqrt(Math.min(s.N,25)));
+      const shown=Math.min(s.N, 25);
+      const tw=gw/cols-6, th=gh/cols-6;
+      for(let i=0;i<shown;i++){
+        const tx=gx+(i%cols)*(tw+6), ty=gy+Math.floor(i/cols)*(th+6);
+        ctx.strokeStyle= frozen? CSS.fault : CSS.a;
+        ctx.setLineDash(frozen?[3,3]:[]);
+        ctx.strokeRect(tx, ty, tw, th);
+        ctx.setLineDash([]);
+      }
+      ctx.fillStyle= frozen? CSS.fault : CSS.muted; ctx.textAlign='left';
+      ctx.fillText('EVERY TILE ARRIVES AT FULL 2.5 Mbps — '+(s.N-1)+' STREAMS'+(s.N>25?' (25 DRAWN)':''), gx, gy+gh+18);
+    }
+    if(frozen){
+      ctx.fillStyle=CSS.fault; ctx.textAlign='center';
+      ctx.font='13px ui-monospace, Menlo, monospace';
+      ctx.fillText('⏸ FROZEN — '+Math.round(s.drop*100)+'% OF FRAMES DROPPED', gx+gw/2, gy+gh/2);
+      ctx.font='10px ui-monospace, Menlo, monospace';
+    } else if(degraded){
+      ctx.fillStyle=CSS.a; ctx.textAlign='center';
+      ctx.fillText('DEGRADED — DROPPING '+Math.round(s.drop*100)+'%', gx+gw/2, gy+gh+34);
+    }
+    // bandwidth pipe
+    const px=W*0.70, pw=W-px-30, py=gy+10;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('YOUR LAST MILE', px, py-12);
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(px, py, pw, 20);
+    const fill=Math.min(1, s.bw/Math.max(s.bw,s.dem));
+    const demW=Math.min(pw-2, (pw-2)*s.dem/Math.max(s.bw,s.dem));
+    ctx.fillStyle= s.dem>s.bw? CSS.fault : CSS.b;
+    ctx.fillRect(px+1, py+1, demW, 18);
+    // capacity marker
+    const capX=px+(pw-2)*s.bw/Math.max(s.bw,s.dem);
+    ctx.strokeStyle=CSS.traffic; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(capX, py-4); ctx.lineTo(capX, py+24); ctx.stroke();
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('DEMAND '+s.dem.toFixed(1)+' / CAP '+s.bw+' Mbps', px, py+38);
+    ctx.fillStyle= s.dem>s.bw? CSS.fault : CSS.b;
+    ctx.fillText(s.dem>s.bw? 'OVERFLOW → DROPS' : 'FITS — '+Math.round((s.bw-s.dem)*10)/10+' Mbps SPARE', px, py+54);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('SENDER SIDE:', px, py+84);
+    ctx.fillText(s.sim? '3 LAYERS UP (2.5+0.6+0.15)' : '1 LAYER UP (2.5)', px, py+100);
+    ctx.fillText(s.sim? 'ROUTER PICKS PER RECEIVER' : 'ROUTER MUST SEND IT ALL', px, py+116);
+    ctx.textAlign='center';
+    ctx.fillText(s.sim? 'THE LAYOUT DECIDES WHAT YOU DOWNLOAD — NOT THE MEETING SIZE'
+                      : 'WITHOUT LAYERS, EVERY VIEWER PAYS FOR EVERY CAMERA', W/2, H-12);
+  }
+};
+e2.reset();
+rN2.addEventListener('input',()=>setM('e2.n', rN2.value));
+rBw.addEventListener('input',()=>setM('e2.bwv', rBw.value+' Mbps'));
+
+/* ================= EXP-03: the 30x cliff ================= */
+const tBurst=document.getElementById('t-burst');
+const rProv=document.getElementById('r-prov');
+const COLO=20, DAYS=140, SPEED=8;     // M participants; days; days per second
+const MONTHS=[['DEC',31],['JAN',31],['FEB',29],['MAR',31],['APR',30],['MAY',31]];
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){ this.d=0; this.cloud=0; this.startDay=-1; this.tot=0;
+    this.dcUntil=-1; this.hold=0; this.trace=[]; },
+  demand(d){ return 10 + 290/(1+Math.exp(-(d-105)/6)); },
+  colo(){ return this.d<this.dcUntil? COLO*16/17 : COLO; },
+  dc(){ if(this.d>=this.dcUntil) this.dcUntil=this.d+10; },
+  dateStr(){
+    let d=Math.floor(this.d);
+    for(const [m,len] of MONTHS){ if(d<len) return m+' '+(d+1); d-=len; }
+    return 'MAY 31';
+  },
+  update(dt){
+    if(this.hold>0){ this.hold-=dt; if(this.hold<=0) this.reset(); return; }
+    const dd=dt*SPEED;
+    this.d+=dd;
+    if(this.d>DAYS){ this.hold=2.5; this.d=DAYS; }
+    const dem=this.demand(this.d);
+    const cap=this.colo()+this.cloud;
+    // provisioning: trigger at 90% headroom, 5-day lead, slow ramp then full rate
+    if(tBurst.checked){
+      if(this.startDay<0 && dem>0.9*cap) this.startDay=this.d+5;
+      if(this.startDay>=0 && this.d>=this.startDay){
+        const age=this.d-this.startDay;
+        const rate= age<5? 2 : +rProv.value;
+        this.cloud+=rate*dd;
+      }
+    }
+    const ref=Math.max(0, dem-cap);
+    this.tot+=ref*dd;
+    this.trace.push({d:this.d, dem, cap});
+    if(this.trace.length>1200) this.trace.shift();
+    setM('e3.prov', rProv.value+'M/day');
+    setM('e3.date', this.dateStr()+' '+(this.d<31?'2019':'2020'));
+    setM('e3.dem', Math.round(dem)+'M');
+    setM('e3.cap', Math.round(cap)+'M ('+Math.round(this.colo())+' colo + '+Math.round(this.cloud)+' cloud)');
+    setM('e3.ref', ref<0.5? 'none' : Math.round(ref)+'M participants');
+    setM('e3.tot', Math.round(this.tot)+' M-days');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const gx=54, gy=26, gw=W-gx-30, gh=H-78;
+    const X=d=>gx+d/DAYS*gw, Y=v=>gy+gh-Math.min(1, v/340)*gh;
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(gx, gy, gw, gh);
+    // month ticks
+    let acc=0;
+    for(const [m] of MONTHS){
+      if(acc>DAYS) break;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText(m, X(acc)+3, gy+gh+16);
+      ctx.strokeStyle=CSS.line; ctx.globalAlpha=.4;
+      ctx.beginPath(); ctx.moveTo(X(acc), gy); ctx.lineTo(X(acc), gy+gh); ctx.stroke();
+      ctx.globalAlpha=1;
+      acc+=MONTHS[MONTHS.findIndex(x=>x[0]===m)][1];
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+    ctx.fillText('300M', gx-6, Y(300)+3);
+    ctx.fillText('100M', gx-6, Y(100)+3);
+    ctx.fillText('20M', gx-6, Y(20)+3);
+    // refused region + curves
+    for(let i=1;i<this.trace.length;i++){
+      const a=this.trace[i-1], b=this.trace[i];
+      if(b.dem>b.cap){
+        ctx.fillStyle=CSS.fault; ctx.globalAlpha=.28;
+        ctx.fillRect(X(a.d), Y(b.dem), Math.max(1,X(b.d)-X(a.d)), Y(b.cap)-Y(b.dem));
+        ctx.globalAlpha=1;
+      }
+    }
+    const line=(key, col, w)=>{
+      ctx.strokeStyle=col; ctx.lineWidth=w; ctx.beginPath();
+      this.trace.forEach((o,i)=>{ const x=X(o.d), y=Y(o[key]); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+      ctx.stroke(); ctx.lineWidth=1;
+    };
+    line('cap', CSS.b, 1.6);
+    line('dem', CSS.a, 1.8);
+    // labels
+    ctx.fillStyle=CSS.a; ctx.textAlign='left';
+    ctx.fillText('DEMAND (DAILY MEETING PARTICIPANTS)', gx+8, gy+14);
+    ctx.fillStyle=CSS.b;
+    ctx.fillText('CAPACITY = COLO 20M + CLOUD', gx+8, gy+28);
+    if(this.startDay>=0 && this.d>=this.startDay){
+      ctx.fillStyle=CSS.traffic;
+      const x=Math.min(X(this.startDay), gx+gw-150);
+      ctx.fillText('▲ CLOUD BURST BEGINS', x, Y(20)-8);
+    }
+    if(this.d<this.dcUntil){
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('DC DOWN — RING ABSORBS', gx+8, gy+44);
+    }
+    ctx.fillStyle=CSS.fault;
+    if(this.tot>1) ctx.fillText('RED = TURNED AWAY', gx+gw-130, gy+14);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('17 COLOS BUILT TO RUN AT 50% · THE CLOUD IS THE AIRBAG · 8 DAYS/SECOND', W/2, H-10);
+  }
+};
+e3.reset();
+document.querySelector('[data-act="e3-dc"]').addEventListener('click',()=>e3.dc());
+rProv.addEventListener('input',()=>setM('e3.prov', rProv.value+'M/day'));
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Playlist — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 19</p>
+  <h1>The Playlist</h1>
+  <p class="dek">In 2008 a Swedish startup promised music that starts faster than your
+  hard drive — on infrastructure it couldn't possibly afford. The trick: make the
+  listeners the CDN. Spotify ran the biggest legal P2P network in the world for six years,
+  then deleted it without sentimentality, deleted its datacenters too, and rebuilt itself
+  as a data-pipeline company whose flagship feature is a Monday-morning batch job. This
+  episode runs all three acts: the 265-millisecond illusion, the event river that must
+  never clog, and a Discover Weekly you can actually watch being computed.</p>
+  <p class="marginal">Everything below is honestly simulated: the latency split really is
+  server-start-plus-background-search, the byte accounting reproduces the published ~9%
+  figure from its own arithmetic, the pipeline backlogs are real queues, and EXP-03 runs a
+  genuine nearest-neighbor recommendation over an embedded catalog — the picks are
+  computed, not decorated.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The three sources of a song — 2008–2014, when the listeners were the CDN</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:270px" role="img" aria-label="A playback bar fills from three sources: the local cache for repeat listens, Spotify's servers for the urgent first seconds, and a swarm of peers for the bulk of the bytes; running counters show the server's share of bytes staying under ten percent"></canvas>
+  <div class="exp-metrics">
+    <span>TRACKS PLAYED<b data-m="hero.n">0</b></span>
+    <span>MEDIAN CLICK→SOUND<b data-m="hero.lat">–</b></span>
+    <span>BYTES FROM SPOTIFY'S SERVERS<b data-m="hero.srv">–</b></span>
+    <span>PAPER'S MEASUREMENT (2010)<b>8.8%</b></span>
+  </div>
+  <figcaption class="exp-note">Every track is accounted honestly, using the paper's own
+  proportions: 55% of plays are repeats served from the local cache; the rest start with
+  ~15 seconds from Spotify's servers while the P2P search runs, and peers carry the
+  remaining ~195 — with the server quietly filling the swarm's gaps (~12% of the tail,
+  the amber flecks). Let it run and the server-byte counter settles near 8% — the 2010
+  measurement was 8.8%, with a median click→sound of 265ms. A startup served a planet's
+  music while paying for one byte in eleven.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>A CDN made of listeners</h2>
+  <p>The hard part of P2P isn't moving bytes — it's <em>finding</em> them. When you click
+  play, asking a tracker and gossiping with neighbors for peers takes most of a second,
+  and a music player that hesitates for a second feels broken. Spotify's founding trick
+  was to refuse the choice between fast and cheap: the client fetches the first ~15
+  seconds <strong>from Spotify's servers immediately</strong> — click→sound is server
+  latency, ~150–250ms — while the P2P search runs behind the music. By the time the
+  server chunk runs out, peers are found and the swarm carries the rest of the track.
+  Latency comes from the fast source; bytes come from the cheap one.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">The 265ms illusion — pure P2P vs server-assisted start</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-seek">P2P search time</label>
+      <input type="range" id="r-seek" min="30" max="150" value="70" step="5">
+      <output data-m="e1.seek">0.7s</output></span>
+    <span>SAME CLICKS · SAME TRACKS · SAME PEERS — ONLY THE START DIFFERS</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:260px" role="img" aria-label="Two playback lanes receive identical clicks: the pure P2P lane waits for peer discovery before any sound, taking around a second; the hybrid lane starts instantly from the server while searching in the background, and its stopwatch stays under 250 milliseconds regardless of how slow the peer search is"></canvas>
+  <div class="exp-metrics">
+    <span>PURE P2P — UNCACHED CLICK→SOUND P50<b class="bad" data-m="e1.p50p">–</b></span>
+    <span>HYBRID — P50<b data-m="e1.p50h">–</b></span>
+    <span>FEELS INSTANT (&lt;250ms)<b data-m="e1.inst">–</b></span>
+    <span>HYBRID'S SERVER BYTES<b data-m="e1.srvb">–</b></span>
+  </div>
+  <figcaption class="exp-note">Drag the search-time slider to the right — a worse swarm,
+  a flakier network. The pure-P2P lane's stopwatch tracks it faithfully upward past a
+  second; the hybrid lane <em>doesn't move</em>, because its start never depended on the
+  search. That invariance is the whole design: the slow path was taken off the critical
+  path. And the last meter shows what the illusion costs — the server pays for the first
+  15 seconds of uncached plays plus the occasional swarm miss, which is how ~92% of bytes
+  stayed free.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Delete the network, delete the datacenters</h2>
+  <p>Then Spotify killed it. By 2014, bandwidth prices had collapsed, and listening had
+  moved to phones — where P2P never ran. The desktop swarm that once carried ~80% of
+  traffic was a shrinking island of complexity, so in April 2014 it was shut down: pure
+  client-server + CDN from then on. The right architecture for one era, retired cleanly in
+  the next — and then the same knife again, deeper: from 2016 to 2018 Spotify moved
+  ~1,200 microservices and 20,000 data jobs out of its four datacenters into Google's
+  cloud (a reported ~$450M commitment) and closed the last machine room. What was left to
+  engineer, once serving bytes became a line item? The <em>data</em>. Half a trillion
+  events a day of it.</p>
+
+  <h2>The event river</h2>
+  <p>Every tap in Spotify — play, skip, search, playlist-add — becomes an event, and one
+  of those types is sacred: the royalty-bearing play, the record that pays the artists.
+  The first event pipeline (2016-era: syslog into Kafka 0.7 into Hadoop) moved 700K
+  events/sec through <strong>one shared channel</strong> — so any surge or sink failure
+  anywhere delayed <em>everything</em>, including the sacred stream. The rebuilt system
+  gives every event type its own Pub/Sub topic and its own pipeline: bulkheads. A busy
+  stream can only sink itself. By 2019 it carried 8M events/sec at peak — 500 billion
+  events, 350 terabytes, every day.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">One river or eight pipes — a surge and a sink failure, twice</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e2-surge">DEBUG EVENTS SURGE ×20 · 10s</button>
+      <button class="btn danger" data-act="e2-choke">THE SINK CHOKES · 8s</button>
+      <button class="btn" data-run="e2">PAUSE</button>
+      <button class="btn" data-reset="e2">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-iso"> topic per event type — every stream gets its own pipeline (bulkheads)</label>
+    <span>ROYALTY PLAYS ARE THE STREAM THAT PAYS THE ARTISTS</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="Eight event streams flow into either one shared pipeline or eight independent ones; a surge in debug telemetry backs up every stream in the shared world including royalty plays, while in the isolated world only the debug pipe swells"></canvas>
+  <div class="exp-metrics">
+    <span>ROYALTY-PLAY DELAY<b class="bad" data-m="e2.roy">–</b></span>
+    <span>STREAMS LAGGING<b data-m="e2.lag">–</b></span>
+    <span>DELIVERED/S<b data-m="e2.thru">–</b></span>
+    <span>DEBUG BACKLOG<b data-m="e2.dbg">–</b></span>
+  </div>
+  <figcaption class="exp-note">Fire the surge in the shared world: a chatty debug build
+  ships, telemetry jumps ×20, and the royalty stream — which did nothing wrong — falls
+  minutes behind, because a shared queue has shared misfortune. Now flip on
+  <em>topic-per-type</em> and fire it again: the debug pipe swells grotesquely and
+  <strong>nothing else moves</strong>. Same story for the choking sink: in the shared
+  world it's everyone's outage; in the isolated world, one stream's. Isolation doesn't
+  prevent failures — it decides who's allowed to feel them.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Thirty songs every Monday</h2>
+  <p>The payoff for all that plumbing ships weekly. Discover Weekly (July 2015) is a
+  <em>batch job</em>: once a week, a pipeline regenerates a 30-song playlist for every
+  user — 40 million listeners and five billion streams in its first year. Three model
+  families vote: <strong>collaborative filtering</strong> embeds songs near each other
+  when the same people listen to them (mined from 2+ billion user-made playlists — taste
+  statements, free); <strong>NLP</strong> embeds what the internet writes about music; and
+  a <strong>convolutional net over the raw audio</strong> — which matters for one specific
+  reason the experiment below makes visible: a song released on Friday has no listening
+  history, so collaborative filtering literally cannot see it. The audio model can.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">The Sunday batch — a real recommendation, computed in front of you</span>
+    <span class="exp-run">
+      <button class="btn primary" data-act="e3-batch">RUN THE SUNDAY BATCH</button>
+      <button class="btn" data-run="e3">PAUSE</button>
+      <button class="btn" data-reset="e3">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-adv">Adventurousness</label>
+      <input type="range" id="r-adv" min="0" max="100" value="25" step="1">
+      <output data-m="e3.adv">25</output></span>
+    <label class="toggle"><input type="checkbox" id="t-cnn" checked> audio-cnn features — let songs with zero plays into the map</label>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:300px" role="img" aria-label="A two-dimensional embedding of 420 songs in genre clusters; the user's listening history forms two taste centers; running the batch ranks unheard songs by distance, marks 30 picks, and shows this week's zero-play releases appearing among them only when audio features are on"></canvas>
+  <div class="exp-metrics">
+    <span>CATALOG EMBEDDED<b data-m="e3.cand">–</b></span>
+    <span>ALREADY-HEARD FILTERED<b data-m="e3.filt">–</b></span>
+    <span>YOUR 30 PICKS — MEDIAN DISTANCE<b data-m="e3.dist">–</b></span>
+    <span>ZERO-PLAY NEW RELEASES IN YOUR 30<b data-m="e3.new">–</b></span>
+  </div>
+  <figcaption class="exp-note">This is a real computation: your 24 plays form two taste
+  centroids, every unheard song is scored by distance to the nearer one, the 30 best
+  scores win, and everything you've already heard is filtered. Raise
+  <em>adventurousness</em> and rerun: the ring of picks moves measurably outward. Now
+  turn off the audio-CNN and rerun — the diamond-marked releases from this week vanish
+  from your 30, every single one, because without audio features a zero-play song has no
+  position in the map. One toggle is the difference between a discovery engine and an
+  echo chamber of what's already popular.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What the story teaches</h2>
+  <p>One postscript from the org chart: a thousand squad-owned microservices made the
+  <em>map</em> the scarce artifact, so Spotify built Backstage — a searchable catalog of
+  everything — and open-sourced it in 2020. Conway's law, embraced on purpose and then
+  given tooling. Today the machine serves ~700 million monthly listeners, and its
+  signature feature still ships the way this episode ran it: as a batch job, once a week,
+  quietly.</p>
+  <p>The keeper: <strong>Spotify never had one architecture — it had the right one three
+  times: peers when bytes were expensive, cloud when engineers were, and pipelines when
+  the product became the data. The skill isn't the design; it's the willingness to delete
+  it.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>G. Kreitz &amp; F. Niemelä — <a href="https://www.csc.kth.se/~gkreitz/spotify-p2p10/kreitz-spotify-p2p10.pdf">Spotify — Large Scale, Low Latency, P2P Music-on-Demand Streaming</a>, IEEE P2P 2010 — the canonical record: 8.8% server bytes, 265ms median latency, tracker + gossip design.</li>
+    <li>TorrentFreak — <a href="https://torrentfreak.com/spotify-starts-shutting-down-its-massive-p2p-network-140416/">Spotify Starts Shutting Down Its Massive P2P Network</a>, April 2014.</li>
+    <li>Spotify Engineering — <a href="https://engineering.atspotify.com/2016/02/spotifys-event-delivery-the-road-to-the-cloud-part-i">Event Delivery: The Road to the Cloud (I–III)</a>, 2016, and <a href="https://engineering.atspotify.com/2019/11/spotifys-event-delivery-life-in-the-cloud">Life in the Cloud</a>, 2019 — 700K/s → 8M/s, topic-per-type isolation, 500B events/day.</li>
+    <li>Spotify Engineering — <a href="https://engineering.atspotify.com/2019/12/views-from-the-cloud-a-history-of-spotifys-journey-to-the-cloud-part-1-2">A History of Spotify's Journey to the Cloud</a>, 2019 — ~1,200 services, 20K data jobs, datacenters closed 2018.</li>
+    <li>S. Ciocca — <a href="https://medium.com/s/story/spotifys-discover-weekly-how-machine-learning-finds-your-new-music-19a41ab76efe">How Does Spotify Know You So Well?</a>, 2017 — the three model families behind Discover Weekly (CF, NLP, audio CNN); adoption figures via <a href="https://musically.com/2016/05/25/spotify-discover-weekly-playlists-5bn-tracks/">Music Ally, 2016</a> and <a href="https://newsroom.spotify.com/2020-07-09/spotify-users-have-spent-over-2-3-billion-hours-streaming-discover-weekly-playlists-since-2015/">Spotify Newsroom, 2020</a>.</li>
+    <li>Spotify Engineering — <a href="https://engineering.atspotify.com/2020/03/what-the-heck-is-backstage-anyway">What the Heck is Backstage Anyway?</a>, 2020; scale figures from <a href="https://www.sec.gov/Archives/edgar/data/1639920/000114036125027654/ef20052398_ex99-1.htm">Q2 2025 earnings</a> (696M MAU).</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next in the wider world: <b>Zoom's servers never look at your video</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+function fmtS(s){
+  if(s>=60) return (s/60).toFixed(1)+' min';
+  if(s>=1) return s.toFixed(1)+'s';
+  return Math.round(s*1000)+'ms';
+}
+function median(a){ if(!a.length) return NaN; const s=[...a].sort((x,y)=>x-y); return s[Math.floor(s.length/2)]; }
+
+const TRACK=210, HEAD=15;           // 210s tracks; first 15s server-assisted
+
+/* ================= HERO: the three sources ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(3),
+  reset(){ this.t=0; this.n=0; this.lats=[];
+    this.bytes={srv:0, peer:0, cache:0};
+    this.newTrack(); },
+  newTrack(){
+    this.pos=0; this.speed=26;               // 26 track-seconds per real second
+    this.cacheHit=this.rng()<0.55;           // paper: 55.4% of bytes came from cache
+    const lat=this.cacheHit? 0.03+this.rng()*0.03 : 0.12+this.rng()*0.13;
+    this.lats.push(lat); if(this.lats.length>40) this.lats.shift();
+    this.n++;
+  },
+  update(dt){
+    this.t+=dt;
+    const adv=this.speed*dt;
+    const from=this.pos; this.pos=Math.min(TRACK, this.pos+adv);
+    const d=this.pos-from;
+    if(this.cacheHit) this.bytes.cache+=d;
+    else if(this.pos<=HEAD) this.bytes.srv+=d;
+    else {
+      const srvPart=Math.max(0, HEAD-from);
+      const tail=d-srvPart;
+      // peers carry the tail; the server quietly fills the swarm's gaps (~12%)
+      this.bytes.srv+=srvPart+tail*0.12; this.bytes.peer+=tail*0.88;
+    }
+    if(this.pos>=TRACK) this.newTrack();
+    const tot=this.bytes.srv+this.bytes.peer+this.bytes.cache;
+    setM('hero.n', this.n);
+    setM('hero.lat', this.lats.length? Math.round(median(this.lats)*1000)+'ms':'–');
+    setM('hero.srv', tot? (this.bytes.srv/tot*100).toFixed(1)+'%':'–');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('THE P2P ERA · 2008–2014', 20, 24);
+    const bx=190, bw=W-190-170, by=H*0.45;
+    // sources
+    const srvY=by-58, cacheY=by+58;
+    ctx.strokeStyle=CSS.a;
+    ctx.strokeRect(24, srvY-16, 130, 32);
+    ctx.fillStyle=CSS.a; ctx.textAlign='center';
+    ctx.fillText('SPOTIFY SERVERS', 89, srvY+3);
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(24, cacheY-16, 130, 32);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('YOUR CACHE', 89, cacheY+3);
+    // peers cloud
+    const px=W-90;
+    ctx.fillStyle=CSS.b;
+    for(let i=0;i<14;i++){
+      const a=i*2.7, r=26+((i*37)%22);
+      ctx.globalAlpha=.8;
+      ctx.beginPath(); ctx.arc(px+Math.cos(a)*r*0.9, by+Math.sin(a)*r, 2.4, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    ctx.fillStyle=CSS.b; ctx.fillText('PEERS · OTHER LISTENERS', px, by+58);
+    // playback bar with source segments
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(bx, by-11, bw, 22);
+    const frac=this.pos/TRACK;
+    if(this.cacheHit){
+      ctx.fillStyle='#3A4A5C';
+      ctx.fillRect(bx+1, by-10, (bw-2)*frac, 20);
+    } else {
+      const headFrac=Math.min(frac, HEAD/TRACK);
+      ctx.fillStyle=CSS.a;
+      ctx.fillRect(bx+1, by-10, (bw-2)*headFrac, 20);
+      if(frac>headFrac){
+        ctx.fillStyle=CSS.b;
+        ctx.fillRect(bx+1+(bw-2)*headFrac, by-10, (bw-2)*(frac-headFrac), 20);
+        // amber flecks: the server filling swarm gaps in the tail
+        ctx.fillStyle=CSS.a;
+        for(let fx=headFrac+0.06; fx<frac; fx+=0.115){
+          ctx.fillRect(bx+1+(bw-2)*fx, by-10, 2.5, 20);
+        }
+      }
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('NOW PLAYING · TRACK #'+this.n+(this.cacheHit?' (CACHED REPEAT)':' (SERVER HEAD + PEER TAIL, GAPS SERVER-FILLED)'), bx, by-22);
+    ctx.fillText('AMBER = SERVER · CYAN = PEERS · GREY = CACHE', bx, by+34);
+    // flow particle from active source
+    let sx, sy;
+    if(this.cacheHit){ sx=154; sy=cacheY; }
+    else if(this.pos<=HEAD){ sx=154; sy=srvY; }
+    else { sx=px-40; sy=by; }
+    const hx=bx+ (bw-2)*frac;
+    const u=(this.t*2.2)%1;
+    ctx.fillStyle= this.cacheHit? '#5A6E82' : (this.pos<=HEAD||this.p2pFail)? CSS.a : CSS.b;
+    ctx.beginPath(); ctx.arc(sx+(hx-sx)*u, sy+(by-sy)*u, 2.6, 0, 7); ctx.fill();
+    // byte split bar
+    const tot=this.bytes.srv+this.bytes.peer+this.bytes.cache;
+    if(tot>0){
+      const y2=H-34, w2=W-260;
+      ctx.strokeStyle=CSS.line; ctx.strokeRect(130, y2, w2, 12);
+      let x=131;
+      const seg=(v,c)=>{ const w=(w2-2)*v/tot; ctx.fillStyle=c; ctx.fillRect(x, y2+1, w, 10); x+=w; };
+      seg(this.bytes.srv, CSS.a); seg(this.bytes.peer, CSS.b); seg(this.bytes.cache, '#3A4A5C');
+      ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+      ctx.fillText('ALL BYTES SO FAR', 122, y2+10);
+      ctx.textAlign='left';
+      ctx.fillText((this.bytes.srv/tot*100).toFixed(1)+'% PAID FOR', 136+w2, y2+10);
+    }
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: the 265ms illusion ================= */
+const rSeek=document.getElementById('r-seek');
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(13),
+  reset(){ this.t=0; this.nextClick=0.8;
+    this.lanes=[{lats:[],pos:0,st:null},{lats:[],pos:0,st:null}];
+    this.srvBytes=0; this.allBytes=0; this.inst0=0; this.inst1=0; this.plays=0; },
+  seek(){ return +rSeek.value/100; },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.nextClick){
+      this.nextClick=this.t+2.6+this.rng()*1.4;
+      const cache=this.rng()<0.5;
+      const fail=!cache && this.rng()<0.10;
+      const search=this.seek()*(0.75+this.rng()*0.5);
+      const peerFB=0.1+this.rng()*0.2;
+      const srvFB=0.12+this.rng()*0.13;
+      const cacheL=0.03+this.rng()*0.03;
+      // lane 0: pure P2P (cache still instant; misses fall back to server after search)
+      const l0 = cache? cacheL : search+peerFB;
+      // lane 1: hybrid server-assisted
+      const l1 = cache? cacheL : srvFB;
+      if(!cache){
+        this.lanes[0].lats.push(l0); this.lanes[1].lats.push(l1);
+        if(this.lanes[0].lats.length>16){ this.lanes[0].lats.shift(); this.lanes[1].lats.shift(); }
+      }
+      this.lanes[0].st={at:this.t, lat:l0, cache}; this.lanes[1].st={at:this.t, lat:l1, cache};
+      this.lanes[0].pos=0; this.lanes[1].pos=0;
+      // byte accounting for the hybrid lane
+      this.plays++;
+      if(this.plays>1){ // count previous track as fully fetched
+        this.allBytes+=TRACK;
+        if(!this._pCache){ this.srvBytes += this._pFail? TRACK : HEAD; }
+      }
+      this._pCache=cache; this._pFail=fail;
+      if(l0<0.25) this.inst0++;
+      if(l1<0.25) this.inst1++;
+    }
+    for(const l of this.lanes){
+      if(l.st && this.t-l.st.at>l.st.lat) l.pos=Math.min(1, l.pos+dt*0.12);
+    }
+    setM('e1.seek', this.seek().toFixed(1)+'s');
+    setM('e1.p50p', this.lanes[0].lats.length? Math.round(median(this.lanes[0].lats)*1000)+'ms':'–');
+    setM('e1.p50h', this.lanes[1].lats.length? Math.round(median(this.lanes[1].lats)*1000)+'ms':'–');
+    setM('e1.inst', this.plays? 'P2P '+Math.round(this.inst0/this.plays*100)+'% · HYBRID '+Math.round(this.inst1/this.plays*100)+'%':'–');
+    setM('e1.srvb', this.allBytes? (this.srvBytes/this.allBytes*100).toFixed(1)+'%':'–');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const lane=(i, y, name, col)=>{
+      const l=this.lanes[i];
+      ctx.fillStyle=col; ctx.textAlign='left';
+      ctx.fillText(name, 24, y-26);
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(150, y-11, W-330, 22);
+      const st=l.st;
+      if(st){
+        const waiting=this.t-st.at<st.lat;
+        if(waiting){
+          ctx.fillStyle=CSS.fault;
+          ctx.fillText('…SILENCE ('+Math.round((this.t-st.at)*1000)+'ms)', 160, y+4);
+        } else {
+          ctx.fillStyle= st.cache? '#3A4A5C' : col;
+          ctx.fillRect(151, y-10, (W-332)*l.pos, 20);
+        }
+        // stopwatch
+        ctx.fillStyle= st.lat<0.25? CSS.traffic : CSS.fault;
+        ctx.textAlign='left';
+        ctx.fillText('CLICK→SOUND '+Math.round(st.lat*1000)+'ms'+(st.cache?' (CACHE)':''), W-166, y+4);
+      }
+    };
+    lane(0, H*0.30, 'PURE P2P — WAIT FOR THE SWARM', CSS.b);
+    lane(1, H*0.66, 'HYBRID — SERVER STARTS, SWARM FINISHES', CSS.a);
+    // annotation under hybrid lane
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('FIRST 15s FROM THE SERVER (AMBER) · P2P SEARCH RUNS BEHIND THE MUSIC', 150, H*0.66+34);
+    ctx.fillText('PEER SEARCH: TRACKER + NEIGHBOR GOSSIP · '+this.seek().toFixed(1)+'s ON THIS NETWORK', 150, H*0.30+34);
+    ctx.textAlign='center';
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME CLICKS, SAME SWARM — ONLY WHAT SITS ON THE CRITICAL PATH DIFFERS', W/2, H-12);
+  }
+};
+e1.reset();
+rSeek.addEventListener('input',()=>setM('e1.seek',(+rSeek.value/100).toFixed(1)+'s'));
+
+/* ================= EXP-02: the event river ================= */
+const tIso=document.getElementById('t-iso');
+const TYPES=[
+  {k:'ROYALTY PLAYS', r:300, crit:true},
+  {k:'SEARCHES',      r:200},
+  {k:'SKIPS',         r:150},
+  {k:'PLAYLIST EDITS',r:100},
+  {k:'AD EVENTS',     r:80},
+  {k:'SOCIAL',        r:50},
+  {k:'DEBUG TELEM.',  r:60},
+  {k:'MISC',          r:60},
+];
+const DBG=6, SHARED_CAP=1300;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0; this.shared=0; this.own=TYPES.map(()=>0);
+    this.surgeUntil=-1; this.chokeUntil=-1; },
+  surge(){ if(this.t>=this.surgeUntil) this.surgeUntil=this.t+10; },
+  choke(){ if(this.t>=this.chokeUntil) this.chokeUntil=this.t+8; },
+  rate(i){ return TYPES[i].r*(i===DBG && this.t<this.surgeUntil? 20:1); },
+  update(dt){
+    this.t+=dt;
+    const iso=tIso.checked, choked=this.t<this.chokeUntil;
+    let thru=0;
+    if(iso){
+      for(let i=0;i<TYPES.length;i++){
+        const cap=(choked && i===DBG)? 0 : TYPES[i].r*2.5;
+        this.own[i]=Math.max(0, this.own[i]+(this.rate(i)-cap)*dt);
+        thru+= this.own[i]>0? cap : Math.min(this.rate(i), cap);
+      }
+      this.shared=Math.max(0, this.shared-SHARED_CAP*dt);   // drain any leftover from v1
+    } else {
+      const cap=choked? 0 : SHARED_CAP;
+      const inn=TYPES.reduce((s,_,i)=>s+this.rate(i),0);
+      this.shared=Math.max(0, this.shared+(inn-cap)*dt);
+      thru= this.shared>0? cap : Math.min(inn, cap);
+      for(let i=0;i<TYPES.length;i++) this.own[i]=Math.max(0, this.own[i]-TYPES[i].r*2.5*dt);
+    }
+    const royDelay= iso? this.own[0]/(TYPES[0].r*2.5) : this.shared/SHARED_CAP;
+    const dbgBacklog= iso? this.own[DBG] : this.shared*(this.rate(DBG)/TYPES.reduce((s,_,i)=>s+this.rate(i),0));
+    let lag=0;
+    for(let i=0;i<TYPES.length;i++){
+      const b= iso? this.own[i] : this.shared;
+      if(b>20) lag++;
+    }
+    setM('e2.roy', royDelay<0.05? 'live' : fmtS(royDelay)+' behind');
+    setM('e2.lag', lag+'/8');
+    setM('e2.thru', Math.round(thru).toLocaleString('en-US'));
+    setM('e2.dbg', Math.round(dbgBacklog).toLocaleString('en-US'));
+    this._thru=thru;
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const iso=tIso.checked, choked=this.t<this.chokeUntil, surging=this.t<this.surgeUntil;
+    const rows=TYPES.length, y0=34, rh=(H-70)/rows;
+    const lx=140, qx=lx+120, qw=W-qx-190;
+    TYPES.forEach((tp,i)=>{
+      const y=y0+i*rh+rh/2;
+      const hot=tp.crit;
+      ctx.fillStyle= hot? CSS.traffic : CSS.muted; ctx.textAlign='right';
+      ctx.fillText(tp.k, lx, y+3);
+      const r=this.rate(i);
+      ctx.fillStyle= (i===DBG&&surging)? CSS.fault : CSS.muted;
+      ctx.textAlign='left';
+      ctx.fillText(Math.round(r)+'/s', lx+8, y+3);
+      // pipe
+      ctx.strokeStyle= hot? CSS.traffic : CSS.line; ctx.globalAlpha=.7;
+      ctx.beginPath(); ctx.moveTo(qx, y); ctx.lineTo(qx+qw, y); ctx.stroke();
+      ctx.globalAlpha=1;
+      // backlog bulge
+      const b= iso? this.own[i] : this.shared*(r/TYPES.reduce((s,_,j)=>s+this.rate(j),0));
+      if(b>5){
+        const w=Math.min(qw*0.9, b/40);
+        ctx.fillStyle= hot? CSS.fault : CSS.a; ctx.globalAlpha=.75;
+        ctx.fillRect(qx+qw-40-w, y-Math.min(9,rh*0.32), w, Math.min(18,rh*0.64));
+        ctx.globalAlpha=1;
+      }
+      // flow particle
+      if(this._thru>0 && !(iso&&choked&&i===DBG) && !( !iso&&choked)){
+        const u=(this.t*1.6+i*0.13)%1;
+        ctx.fillStyle= hot? CSS.traffic : CSS.b;
+        ctx.beginPath(); ctx.arc(qx+qw*u, y, 2, 0, 7); ctx.fill();
+      }
+      if(iso){
+        ctx.strokeStyle= (choked&&i===DBG)? CSS.fault : CSS.line;
+        ctx.strokeRect(qx+qw+12, y-8, 56, 16);
+        if(choked&&i===DBG){ ctx.fillStyle=CSS.fault; ctx.textAlign='left'; ctx.fillText('✕', qx+qw+74, y+3); }
+      }
+    });
+    // sink
+    ctx.textAlign='center';
+    if(iso){
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('8 PIPELINES · TOPIC PER TYPE (PUB/SUB)', W/2, 20);
+      ctx.fillText('EACH SINK FAILS ALONE', qx+qw+40, H-16);
+    } else {
+      const sy=y0+(rows*rh)/2;
+      ctx.strokeStyle= choked? CSS.fault : CSS.line;
+      ctx.lineWidth= choked? 2:1;
+      ctx.strokeRect(qx+qw+12, sy-34, 76, 68);
+      ctx.lineWidth=1;
+      ctx.fillStyle= choked? CSS.fault : CSS.ink;
+      ctx.fillText(choked? 'HADOOP ✕' : 'HADOOP', qx+qw+50, sy);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('ONE SHARED', qx+qw+50, sy+16);
+      ctx.fillText('SINK', qx+qw+50, sy+28);
+      ctx.fillText('ONE SHARED PIPELINE (KAFKA 0.7 → HADOOP) · CAP '+SHARED_CAP+'/s', W/2, 20);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText(iso? 'A SURGE CAN ONLY SINK ITS OWN STREAM' : 'A SHARED QUEUE HAS SHARED MISFORTUNE', W/2, H-14);
+  }
+};
+e2.reset();
+document.querySelector('[data-act="e2-surge"]').addEventListener('click',()=>e2.surge());
+document.querySelector('[data-act="e2-choke"]').addEventListener('click',()=>e2.choke());
+
+/* ================= EXP-03: the Sunday batch ================= */
+const rAdv=document.getElementById('r-adv');
+const tCnn=document.getElementById('t-cnn');
+function gauss(rng){ return (rng()+rng()+rng()+rng()-2)/2; }
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){
+    this.t=0;
+    const rng=mulberry32(41);
+    const C=[[0.20,0.28],[0.76,0.22],[0.50,0.56],[0.20,0.82],[0.80,0.80],[0.52,0.14]];
+    this.songs=[];
+    for(let i=0;i<368;i++){
+      const c=C[Math.floor(rng()*6)];
+      this.songs.push({x:c[0]+gauss(rng)*0.14, y:c[1]+gauss(rng)*0.14, nw:false});
+    }
+    for(let i=0;i<40;i++){
+      const c= i<12? C[i%2===0?0:4] : C[Math.floor(rng()*6)];   // seed new releases near the user's taste too
+      this.songs.push({x:c[0]+gauss(rng)*0.14, y:c[1]+gauss(rng)*0.14, nw:true});
+    }
+    this.songs.forEach(s=>{ s.x=Math.min(0.97,Math.max(0.03,s.x)); s.y=Math.min(0.97,Math.max(0.03,s.y)); });
+    // listening history: 16 plays near cluster 0, 8 near cluster 4 (regular songs only)
+    this.played=[];
+    const near=(cx,cy,n)=>{
+      const cand=this.songs.map((s,i)=>({i, d:Math.hypot(s.x-cx,s.y-cy)}))
+        .filter(o=>!this.songs[o.i].nw && !this.played.includes(o.i))
+        .sort((a,b)=>a.d-b.d).slice(0,n).map(o=>o.i);
+      this.played.push(...cand);
+    };
+    near(0.20,0.28,16); near(0.80,0.80,8);
+    const cen=idx=>{ let x=0,y=0; idx.forEach(i=>{x+=this.songs[i].x;y+=this.songs[i].y}); return [x/idx.length,y/idx.length]; };
+    this.c1=cen(this.played.slice(0,16)); this.c2=cen(this.played.slice(16));
+    this.picks=[]; this.stale=true; this.anim=-1;
+    this.batch();
+  },
+  score(s){ return Math.min(Math.hypot(s.x-this.c1[0],s.y-this.c1[1]), Math.hypot(s.x-this.c2[0],s.y-this.c2[1])); },
+  batch(){
+    this.anim=0;
+    const cnn=tCnn.checked, bias=(+rAdv.value)/100*0.22;
+    const cand=this.songs.map((s,i)=>({i,s}))
+      .filter(o=>!this.played.includes(o.i))
+      .filter(o=>cnn || !o.s.nw);
+    const ranked=cand.map(o=>({...o, d:this.score(o.s)}))
+      .sort((a,b)=>Math.abs(a.d-bias)-Math.abs(b.d-bias));
+    this.picks=ranked.slice(0,30);
+    this.candN=cand.length; this.stale=false;
+    const ds=this.picks.map(p=>p.d).sort((a,b)=>a-b);
+    setM('e3.cand', this.candN+' of '+this.songs.length);
+    setM('e3.filt', this.played.length);
+    setM('e3.dist', ds.length? ds[Math.floor(ds.length/2)].toFixed(3):'–');
+    setM('e3.new', this.picks.filter(p=>p.s.nw).length+' of 30'+(tCnn.checked?'':' — CF IS BLIND TO THEM'));
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.anim>=0){ this.anim+=dt; if(this.anim>2.6) this.anim=-1; }
+    setM('e3.adv', rAdv.value);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const mx=24, my=26, mw=Math.min(W*0.56, H-56), mh=H-56;
+    const X=x=>mx+x*mw, Y=y=>my+y*mh;
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(mx, my, mw, mh);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('THE MAP OF TASTE (2-D EMBEDDING)', mx, my-8);
+    const stage=this.anim<0? 4 : Math.floor(this.anim/0.65);
+    // songs
+    for(const s of this.songs){
+      if(s.nw){
+        ctx.strokeStyle= tCnn.checked? CSS.b : '#33465C';
+        ctx.strokeRect(X(s.x)-2.4, Y(s.y)-2.4, 4.8, 4.8);
+      } else {
+        ctx.fillStyle='#33465C';
+        ctx.beginPath(); ctx.arc(X(s.x), Y(s.y), 1.7, 0, 7); ctx.fill();
+      }
+    }
+    // played
+    for(const i of this.played){
+      const s=this.songs[i];
+      ctx.fillStyle=CSS.a;
+      ctx.beginPath(); ctx.arc(X(s.x), Y(s.y), 2.8, 0, 7); ctx.fill();
+    }
+    // centroids
+    for(const c of [this.c1,this.c2]){
+      ctx.strokeStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(X(c[0]), Y(c[1]), 7, 0, 7); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(c[0])-10,Y(c[1])); ctx.lineTo(X(c[0])+10,Y(c[1])); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(c[0]),Y(c[1])-10); ctx.lineTo(X(c[0]),Y(c[1])+10); ctx.stroke();
+    }
+    // picks (revealed at final stage)
+    if(stage>=4 || this.anim>2.0){
+      for(const p of this.picks){
+        ctx.strokeStyle= p.s.nw? CSS.b : '#7FD0E8';
+        ctx.lineWidth=1.4;
+        ctx.beginPath(); ctx.arc(X(p.s.x), Y(p.s.y), 5, 0, 7); ctx.stroke();
+        ctx.lineWidth=1;
+      }
+    }
+    // right column: pipeline + legend
+    const rx=mx+mw+26;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('THE SUNDAY BATCH', rx, my+4);
+    const STAGES=['PLAY MATRIX → CF EMBEDDING','WEB CRAWL → NLP EMBEDDING','RAW AUDIO → CNN EMBEDDING','MERGE · RANK · FILTER HEARD'];
+    STAGES.forEach((s,i)=>{
+      const y=my+22+i*34;
+      const on= this.anim<0 || stage>i;
+      const active= this.anim>=0 && stage===i;
+      ctx.strokeStyle= active? CSS.traffic : on? CSS.line : '#1A2836';
+      ctx.strokeRect(rx, y, Math.min(230, W-rx-20), 24);
+      ctx.fillStyle= active? CSS.traffic : on? CSS.muted : '#3A4A5C';
+      ctx.fillText(s, rx+8, y+15);
+      if(i===2 && !tCnn.checked){
+        ctx.fillStyle=CSS.fault;
+        ctx.fillText('OFF', rx+Math.min(230, W-rx-20)-30, y+15);
+      }
+    });
+    const ly=my+22+4*34+14;
+    const leg=[['● YOUR 24 PLAYS',CSS.a],['○ YOUR 30 PICKS','#7FD0E8'],['◇ ZERO-PLAY NEW RELEASES',CSS.b],['✛ TASTE CENTROIDS',CSS.traffic]];
+    leg.forEach((l,i)=>{ ctx.fillStyle=l[1]; ctx.fillText(l[0], rx, ly+i*17); });
+    if(this.stale){
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('PARAMS CHANGED — RUN THE SUNDAY BATCH', rx, ly+4*17+8);
+    }
+  }
+};
+e3.reset();
+document.querySelector('[data-act="e3-batch"]').addEventListener('click',()=>e3.batch());
+rAdv.addEventListener('input',()=>{ e3.stale=true; setM('e3.adv', rAdv.value); });
+tCnn.addEventListener('change',()=>{ e3.stale=true; });
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

@@ -34,8 +34,10 @@ outer shell first. The artifact URLs below predate this change and still work.
 | 16 | The Ladder (databases at scale) | `databases.html` | Pages only |
 | 17 | The Guild (Discord) | `discord.html` | Pages only |
 | 18 | The Workspace (Slack) | `slack.html` | Pages only |
+| 19 | The Playlist (Spotify) | `spotify.html` | Pages only |
+| 20 | The Meeting (Zoom) | `zoom.html` | Pages only |
 
-Flagship and plumbing tiers complete; the wider world is underway. Next planned: **Spotify**.
+Flagship and plumbing tiers complete; the wider world is underway. Next planned: **Dropbox**.
 
 Extractor gotcha (learned on EP14): the awk script-extraction drops any JS line
 containing a literal `<script>` token (e.g. inside a canvas-label string) — avoid

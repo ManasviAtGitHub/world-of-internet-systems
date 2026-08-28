@@ -197,9 +197,9 @@
     <ul>
       <li><a class="ep" href="#/discord" data-ep="discord">The Guild · Discord</a></li>
       <li><a class="ep" href="#/slack" data-ep="slack">The Workspace · Slack</a></li>
-      <li><span class="soon">Spotify<i>NEXT</i></span></li>
-      <li><span class="soon">Zoom<i>SOON</i></span></li>
-      <li><span class="soon">Dropbox<i>SOON</i></span></li>
+      <li><a class="ep" href="#/spotify" data-ep="spotify">The Playlist · Spotify</a></li>
+      <li><a class="ep" href="#/zoom" data-ep="zoom">The Meeting · Zoom</a></li>
+      <li><span class="soon">Dropbox<i>NEXT</i></span></li>
       <li><span class="soon">Airbnb<i>SOON</i></span></li>
       <li><span class="soon">Stripe<i>SOON</i></span></li>
       <li><span class="soon">Shopify<i>SOON</i></span></li>
@@ -213,7 +213,7 @@
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">18</span> SYSTEMS LIVE · 29 RESEARCHED<br>
+    <span id="live-count">20</span> SYSTEMS LIVE · 29 RESEARCHED<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -365,6 +365,24 @@
           reconnect storm absorbed at the edge; and the day the job queue wedged because
           the reservoir was also the turbine — until Kafka turned failure into lag.</span>
         </a>
+        <a class="card" href="#/spotify">
+          <span class="k">EP 19 · The wider world</span>
+          <span class="t">The Playlist — Spotify</span>
+          <span class="d">The P2P era rebuilt live: the 265ms illusion (server starts,
+          swarm finishes — the slider can't touch it), one byte in eleven paid for;
+          the event river with bulkheads so a debug surge can't delay the stream that
+          pays artists; and a Discover Weekly computed in front of you — turn off the
+          audio model and this week's releases vanish from your 30.</span>
+        </a>
+        <a class="card" href="#/zoom">
+          <span class="k">EP 20 · The wider world</span>
+          <span class="t">The Meeting — Zoom</span>
+          <span class="d">Servers that refuse to watch your video: the MCU melts at ~97
+          participants while the router forwards 15× more; simulcast detaches your
+          downlink from the meeting size; and the 30× cliff of March 2020 replayed
+          day by day — colo at 50%, cloud as the airbag, provisioning dial in your
+          hands.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -410,6 +428,8 @@ const EPISODES = {
   'databases':         {title:'EP 16 — The Ladder · Databases',       file:'episodes/databases.html'},
   'discord':           {title:'EP 17 — The Guild · Discord',          file:'episodes/discord.html'},
   'slack':             {title:'EP 18 — The Workspace · Slack',        file:'episodes/slack.html'},
+  'spotify':           {title:'EP 19 — The Playlist · Spotify',       file:'episodes/spotify.html'},
+  'zoom':              {title:'EP 20 — The Meeting · Zoom',           file:'episodes/zoom.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');
