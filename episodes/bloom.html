@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Filter — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  /* toolbox cards: the interview card + the revision card */
+  .tbx{border:1px solid var(--rule);background:var(--card);border-radius:6px;
+    padding:16px 20px;margin:26px 0;font-size:15px}
+  .tbx .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-text);
+    text-transform:uppercase;display:block;margin-bottom:8px}
+  .tbx ul{margin:.4em 0 .2em;padding-left:1.2em}
+  .tbx li{margin:.3em 0}
+  .tbx .met{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .btn.picked{border-color:var(--traffic);color:var(--traffic)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .exp-note a{color:var(--series-b)}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Toolbox · T-01 · Preview</p>
+  <h1>The Filter</h1>
+  <p class="dek">You've revised Bloom filters before — probably from a table of formulas,
+  probably twice, probably forgotten twice. This time, meet the structure where it
+  actually lives: guarding the disks under Discord's messages, sitting inside LinkedIn's
+  feed storage, deciding what a CDN bothers to cache. A Bloom filter is a bit array
+  that's allowed to lie — in exactly one direction — and that single asymmetry is worth
+  billions of disk seeks a day. Predict first, then run it. That's the rep.</p>
+  <p class="marginal">The Toolbox is DSA revision anchored to the 30 systems of this
+  series: one structure per piece, honestly simulated, with a prediction to make before
+  you run and backlinks to every episode where you've already met it under fire.</p>
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <div class="tbx">
+    <span class="k">The interview card — where you've ground this before</span>
+    <ul>
+      <li>"Check if a URL is malicious without shipping the whole blocklist." (Chrome did exactly this.)</li>
+      <li>"Dedupe a stream too big to store." · "Have we crawled this page before?"</li>
+      <li>"Reduce cache misses / avoid disk reads for keys that don't exist."</li>
+    </ul>
+    <p class="met">PATTERN: hashing · bit manipulation · probability &nbsp;·&nbsp;
+    SPACE: m bits for n keys, ~10 bits/key for 1% error &nbsp;·&nbsp;
+    TIME: O(k) per op, k hash functions &nbsp;·&nbsp;
+    THE CATCH: no deletes, no false negatives, tunable false positives</p>
+  </div>
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The structure that lies in one direction — a real filter, filling up</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:300px" role="img" aria-label="A 2,048-bit array fills as keys stream in, each key lighting four hashed bits; membership queries stream through — every stored key answers yes with certainty, absent keys usually answer no, and occasionally all four probed bits happen to be lit and the filter tells a false yes, counted live against the formula's prediction"></canvas>
+  <div class="exp-metrics">
+    <span>KEYS INSERTED<b data-m="hero.n">–</b></span>
+    <span>BITS LIT<b data-m="hero.fill">–</b></span>
+    <span>FALSE POSITIVES<b class="bad" data-m="hero.fp">–</b></span>
+    <span>FALSE NEGATIVES<b data-m="hero.fn">0 — IMPOSSIBLE, BY CONSTRUCTION</b></span>
+  </div>
+  <figcaption class="exp-note">This is a genuine Bloom filter: 2,048 bits, k=4 hash
+  functions. Inserting a key sets its four bits; asking "have you seen this?" checks
+  them. If <em>any</em> probed bit is dark, the key was never inserted — a "no" is a
+  mathematical certainty, which is why false negatives read zero forever. But bits are
+  shared: sometimes an absent key's four bits were all lit by <em>other</em> keys, and
+  the filter says a false "yes." Watch the measured false-positive rate hunt the
+  formula's prediction — the lie is bounded, priced, and entirely yours to
+  tune.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The rep: predict before you run</h2>
+  <p>Here's the revision mechanic this tier is built on. The classic production
+  configuration is <strong>8 bits per key with 6 hash functions</strong> — it's what
+  you'll find as the default in LSM storage engines. Before you touch anything: a
+  million keys go in, a million absent keys get queried. <em>What fraction get a false
+  "yes"?</em> Commit to an answer. The measurement — a real filter, thousands of real
+  probes — will grade you, and then show you the whole curve you were standing
+  on.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">REP-01</span>
+    <span class="exp-title">8 bits per key, 6 hashes — call the false-positive rate</span>
+    <span class="exp-run">
+      <button class="btn" data-act="p0">~0.1%</button>
+      <button class="btn" data-act="p1">~2%</button>
+      <button class="btn" data-act="p2">~10%</button>
+      <button class="btn" data-act="p3">~25%</button>
+      <button class="btn" data-reset="e1">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <span data-m="e1.state">PICK A PREDICTION — THE MEASUREMENT WON'T RUN UNTIL YOU COMMIT</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:300px" role="img" aria-label="After the viewer commits to a prediction, a real Bloom filter with eight bits per key and six hashes is built and probed with thousands of absent keys; the measured false-positive rate converges on the formula's two percent, plotted on the bits-per-key curve with the viewer's guess and the measured point marked"></canvas>
+  <div class="exp-metrics">
+    <span>YOUR CALL<b data-m="e1.pick">–</b></span>
+    <span>PROBES<b data-m="e1.probes">–</b></span>
+    <span>MEASURED<b data-m="e1.meas">–</b></span>
+    <span>THE FORMULA SAYS<b data-m="e1.form">–</b></span>
+    <span>VERDICT<b data-m="e1.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">The curve is the one thing worth memorizing, and it's
+  one number: at the optimal hash count, false positives ≈ <em>0.62 per bit</em> —
+  <code>p ≈ 0.6185^(bits/key)</code>. Eight bits ≈ 2%. Ten bits ≈ 1%. Every added bit
+  per key buys the same ×0.62, forever. That's the whole design space of the structure
+  on a single exponential — and you just watched a live filter land on it to within a
+  couple tenths of a percent.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Where it lives: the disk seek you didn't do</h2>
+  <p>Now the production story. LSM storage engines — Cassandra and ScyllaDB under
+  <a href="../index.html#/discord" target="_top">Discord's trillion messages (EP 17)</a>,
+  RocksDB under <a href="../index.html#/linkedin" target="_top">LinkedIn's feed indexes
+  (EP 28)</a> — keep data in layers of immutable sorted files. A read might have to
+  check <em>six files</em> to conclude a key doesn't exist, and in real workloads most
+  lookups are for keys that don't exist (the empty channel, the user with no unread
+  state). Six disk seeks to say "nothing here" is how storage engines drown. So every
+  file carries a Bloom filter in RAM: ask the filter first, and 99% of the pointless
+  seeks die as a one-bit "no." The filter's one-way honesty is what makes this safe —
+  it can waste a seek, but it can never hide your data.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Six files deep — absent-key reads, with and without the doorman</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-absent">Lookups for absent keys</label>
+      <input type="range" id="r-absent" min="50" max="95" value="80" step="5">
+      <output data-m="e2.absent">80%</output></span>
+    <label class="toggle"><input type="checkbox" id="t-bloom"> bloom filter per file — 1% false positives, zero false negatives</label>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="Two hundred reads per second descend a stack of six sorted files; without filters every absent key costs six disk seeks and the disk array runs at ninety percent, collapsing as the absent share rises; with per-file Bloom filters in RAM almost every absent key is answered no in nanoseconds and the disks idle"></canvas>
+  <div class="exp-metrics">
+    <span>DISK SEEKS<b class="bad" data-m="e2.seeks">–</b></span>
+    <span>DISK ARRAY<b class="bad" data-m="e2.util">–</b></span>
+    <span>READ P99<b data-m="e2.p99">–</b></span>
+    <span>SEEKS KILLED BY A ONE-BIT "NO"<b data-m="e2.skip">–</b></span>
+  </div>
+  <figcaption class="exp-note">Slide the absent share to 95% — a metadata-heavy
+  workload — and watch the unfiltered world cross its disk budget and start queueing:
+  the classic collapse of this whole series (
+  <a href="../index.html#/load-balancing" target="_top">EP 1's</a> wall, wearing
+  SSTables). Flip the filters on: the same workload drops to ~11% disk load, because
+  ~1,600 seeks a second were replaced by RAM lookups that cost nanoseconds and a few
+  bytes per key. The 1% false positives are the honest tax — a hundred-odd wasted seeks
+  a day at this scale, versus a hundred million avoided. No cache, no more hardware:
+  just a structure that's cheap to ask and only lies upward.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The one-hit wonder problem</h2>
+  <p>Second production story, from the edge. Back in
+  <a href="../index.html#/cdn-edge" target="_top">EP 15</a> the cache funnel absorbed
+  90% of a CDN's traffic — but there's a dirty secret in edge caches: measured across
+  real CDNs, <strong>most objects are requested exactly once</strong>. Cache
+  on first touch and these one-hit wonders flood your LRU, evicting the popular objects
+  that were earning their keep, and burning an SSD write for content nobody will ask for
+  again. Akamai's fix (published 2015): a Bloom filter remembers what's been seen
+  before, and the cache only admits an object <em>on its second request</em>. The
+  wonders never come back, so they never get in.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">Cache on first sight vs bloom-gated admission — same stream, both worlds</span>
+    <span class="exp-run"><button class="btn" data-run="e3">PAUSE</button><button class="btn" data-reset="e3">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span>60 REQ/s · 45% ARE ONE-HIT WONDERS · LRU HOLDS 300 OBJECTS · IDENTICAL STREAMS</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:280px" role="img" aria-label="The same request stream feeds two LRU caches: the admit-everything cache churns as one-hit wonders evict popular objects and its hit rate sags, while the bloom-gated cache admits only objects seen before, keeps the populars resident, serves a higher hit rate, and writes a fraction as much to disk"></canvas>
+  <div class="exp-metrics">
+    <span>HIT RATE<b data-m="e3.hit">–</b></span>
+    <span>CACHE WRITES<b class="bad" data-m="e3.writes">–</b></span>
+    <span>ONE-HIT WONDERS KEPT OUT<b data-m="e3.ohw">–</b></span>
+    <span>SNEAKED IN VIA FALSE POSITIVE<b data-m="e3.fp">–</b></span>
+  </div>
+  <figcaption class="exp-note">Both caches see the same requests with the same dice.
+  The admit-everything world runs its LRU as a revolving door — every wonder that
+  enters shoves something useful out — while the gated world's population settles into
+  exactly the objects with a future. The last metric is the structure being honest with
+  you: the filter's false positives occasionally vouch for a stranger, and a wonder
+  sneaks in. That's the deal, always: Bloom filters never cost you correctness, only a
+  bounded, measured amount of wasted generosity. Akamai reported roughly this: hit
+  ratio up, disk writes nearly halved, from one bit array.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What it cannot do</h2>
+  <p>Revision honesty: the filter's magic has hard edges. You <strong>cannot
+  delete</strong> — clearing a bit might erase someone else's key, turning the one
+  impossible lie (a false "no") into a real one; systems that need deletion pay double
+  with counting filters, or rebuild periodically (LSM engines get this free, since
+  their files are immutable — which is exactly <em>why</em> the two structures are
+  soulmates). It cannot enumerate its members, cannot say how many times it saw
+  something, and it degrades as it overfills — past its design load the false-positive
+  rate climbs the curve you measured in REP-01. When you need counts, sketches
+  (Count-Min) are next door; when you need "roughly how many distinct," that's
+  HyperLogLog. Same family: trade exactness for a size that fits in RAM, and know the
+  price to four decimal places.</p>
+
+  <div class="tbx">
+    <span class="k">The revision card — for the you that comes back in three months</span>
+    <ul>
+      <li>Why can a Bloom filter never false-negative? <span class="met">(what would a dark bit mean?)</span></li>
+      <li>One number: what does each added bit-per-key buy? <span class="met">(×0.62 — you watched it)</span></li>
+      <li>Why do LSM engines and Bloom filters belong together? <span class="met">(immutable files → no deletes needed)</span></li>
+      <li>When is admitting on second sight better than caching everything? <span class="met">(EP 15's funnel + this page's EXP-03)</span></li>
+    </ul>
+    <p class="met">SEEN UNDER FIRE IN: <a href="../index.html#/discord" target="_top">EP 17 Discord</a> ·
+    <a href="../index.html#/linkedin" target="_top">EP 28 LinkedIn</a> ·
+    <a href="../index.html#/cdn-edge" target="_top">EP 15 The Edge</a> ·
+    <a href="../index.html#/databases" target="_top">EP 16 The Ladder</a></p>
+  </div>
+
+  <p>The keeper: <strong>a Bloom filter buys you a "no" for one bit and a few hashes,
+  and its only lie is a bounded "maybe yes" — which is why the internet asks it first
+  and the disks answer second.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>B. Bloom — <a href="https://dl.acm.org/doi/10.1145/362686.362692">Space/Time Trade-offs in Hash Coding with Allowable Errors</a>, CACM 1970 — the original paper.</li>
+    <li>Maggs &amp; Sitaraman — <a href="https://www.akamai.com/site/en/documents/research-paper/algorithmic-nuggets-in-content-delivery-technical-publication.pdf">Algorithmic Nuggets in Content Delivery</a>, SIGCOMM CCR 2015 — the one-hit-wonder measurement (~74% of objects) and Bloom-gated cache admission at Akamai.</li>
+    <li>RocksDB — <a href="https://github.com/facebook/rocksdb/wiki/RocksDB-Bloom-Filter">Bloom Filter wiki</a> and Apache Cassandra — <a href="https://cassandra.apache.org/doc/latest/cassandra/architecture/storage-engine.html">storage engine docs</a> — per-SSTable filters, ~10 bits/key defaults.</li>
+    <li>Kirsch &amp; Mitzenmacher — <a href="https://www.eecs.harvard.edu/~michaelm/postscripts/rsa2008.pdf">Less Hashing, Same Performance</a>, 2008 — the double-hashing trick this page's filter uses.</li>
+    <li>Series anchors: <a href="../index.html#/discord" target="_top">EP 17</a>, <a href="../index.html#/linkedin" target="_top">EP 28</a>, <a href="../index.html#/cdn-edge" target="_top">EP 15</a>.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · The Toolbox is a preview — if it earns its place: <b>T-02 the heap, T-03 the LSM tree, T-04 the trie…</b> · <a href="../index.html" target="_top">back to the index</a></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+function fmtMs(s){
+  if(s>=1) return s.toFixed(1)+'s';
+  return Math.round(s*1000)+'ms';
+}
+
+/* ---------- a real Bloom filter (Kirsch–Mitzenmacher double hashing) ---------- */
+function makeBloom(m, k){
+  const bits=new Uint8Array(m);
+  const h=(key, i)=>{
+    let a=key*2654435761 >>> 0;
+    a^=a>>>15; a=Math.imul(a,0x85EBCA6B)>>>0; a^=a>>>13;
+    let b=key*40503+2166136261 >>> 0;
+    b^=b>>>16; b=Math.imul(b,0xC2B2AE35)>>>0; b^=b>>>16;
+    b|=1;                    // odd step ⊥ power-of-two m — Kirsch–Mitzenmacher stays uniform
+    return ((a + i*b) >>> 0) % m;
+  };
+  return {
+    bits, m, k, n:0,
+    add(key){ for(let i=0;i<k;i++) bits[h(key,i)]=1; this.n++; },
+    has(key){ for(let i=0;i<k;i++) if(!bits[h(key,i)]) return false; return true; },
+    fill(){ let s=0; for(let i=0;i<m;i++) s+=bits[i]; return s/m; },
+  };
+}
+function theoryFP(k, n, m){ return Math.pow(1-Math.exp(-k*n/m), k); }
+
+/* ================= HERO: the filter, filling up ================= */
+const HM=2048, HK=4, HN=384;
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(5),
+  reset(){ this.t=0; this.bl=makeBloom(HM, HK);
+    this.nextIns=0.3; this.nextQ=0.1; this.keyId=1;
+    this.queries=0; this.fps=0; this.absentQ=0; this.flash=null;
+    this.ring=[]; },
+  update(dt){
+    this.t+=dt;
+    if(this.bl.n<HN && this.t>=this.nextIns){
+      this.nextIns=this.t+0.05;
+      this.bl.add(this.keyId++);
+    }
+    while(this.t>=this.nextQ){
+      this.nextQ+=1/30;
+      this.queries++;
+      const member=this.rng()<0.5 && this.bl.n>0;
+      if(member){
+        const key=1+Math.floor(this.rng()*this.bl.n);
+        this.bl.has(key);                      // always true — the certainty side
+      } else {
+        const key=1000000+Math.floor(this.rng()*10000000);
+        this.absentQ++;
+        const lied=this.bl.has(key);
+        if(lied){ this.fps++; this.flash={at:this.t}; }
+        this.ring.push(lied?1:0);
+        if(this.ring.length>400) this.ring.shift();
+      }
+    }
+    setM('hero.n', this.bl.n+' / '+HN+' (m='+HM+' BITS, k='+HK+')');
+    setM('hero.fill', Math.round(this.bl.fill()*100)+'%');
+    // windowed rate — the lifetime average includes the filling phase and misleads
+    const meas=this.ring.length>50? this.ring.reduce((a,b)=>a+b,0)/this.ring.length : 0;
+    setM('hero.fn', '0 — IMPOSSIBLE, BY CONSTRUCTION');
+    setM('hero.fp', this.fps+' of '+this.absentQ+' absent probes · LAST 400: '+(meas*100).toFixed(1)+'% (FORMULA '+(theoryFP(HK,this.bl.n,HM)*100).toFixed(1)+'%)');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const cols=64, rows=HM/cols, cs=Math.min((W-260)/cols, (H-70)/rows);
+    const gx=30, gy=40;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('THE BIT ARRAY — EACH KEY LIGHTS '+HK+' HASHED BITS', gx, 26);
+    for(let i=0;i<HM;i++){
+      const x=gx+(i%cols)*cs, y=gy+Math.floor(i/cols)*cs;
+      ctx.fillStyle= this.bl.bits[i]? CSS.a : '#16233370';
+      ctx.fillRect(x, y, cs-1, cs-1);
+    }
+    // side panel
+    const sx=gx+cols*cs+26;
+    ctx.fillStyle=CSS.b; ctx.textAlign='left';
+    ctx.fillText('QUERIES · 30/s', sx, 50);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('MEMBER → "YES"', sx, 74);
+    ctx.fillText('(NEVER WRONG)', sx, 88);
+    ctx.fillText('ABSENT → "NO"…', sx, 112);
+    ctx.fillText('…USUALLY', sx, 126);
+    if(this.flash && this.t-this.flash.at<0.9){
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('⚠ FALSE "YES" —', sx, 154);
+      ctx.fillText('ALL '+HK+' BITS LIT', sx, 168);
+      ctx.fillText('BY OTHER KEYS', sx, 182);
+    }
+    ctx.fillStyle=CSS.traffic;
+    ctx.fillText('A DARK BIT =', sx, 214);
+    ctx.fillText('CERTAIN "NO"', sx, 228);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('ONE-WAY HONESTY: IT CAN WASTE YOUR TIME, IT CAN NEVER HIDE YOUR DATA', W/2, H-14);
+  }
+};
+hero.reset();
+
+/* ================= REP-01: predict, then measure ================= */
+const CHOICES=['~0.1%','~2%','~10%','~25%'];
+const RM=32768, RK=6, RN=4096;      // 8 bits/key, k=6
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(13),
+  reset(){ this.t=0; this.pick=-1; this.bl=null;
+    this.probes=0; this.fps=0; this.done=false;
+    setM('e1.state','PICK A PREDICTION — THE MEASUREMENT WON\'T RUN UNTIL YOU COMMIT');
+    setM('e1.pick','–'); setM('e1.probes','–'); setM('e1.meas','–');
+    setM('e1.form','–'); setM('e1.verdict','–');
+    document.querySelectorAll('[data-act^="p"]').forEach(b=>b.classList.remove('picked')); },
+  choose(i){
+    if(this.pick>=0) return;
+    this.pick=i;
+    document.querySelectorAll('[data-act^="p"]')[i]?.classList?.add('picked');
+    this.bl=makeBloom(RM, RK);
+    for(let key=1;key<=RN;key++) this.bl.add(key);
+    setM('e1.state','MEASURING — A REAL FILTER, 8 BITS/KEY, '+RN.toLocaleString('en-US')+' KEYS IN, ABSENT KEYS PROBING…');
+    setM('e1.pick', CHOICES[i]);
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.pick<0 || this.done) return;
+    const batch=Math.round(2500*dt);
+    for(let i=0;i<batch;i++){
+      const key=10000000+Math.floor(this.rng()*100000000);
+      this.probes++;
+      if(this.bl.has(key)) this.fps++;
+    }
+    const meas=this.probes? this.fps/this.probes:0;
+    const form=theoryFP(RK, RN, RM);
+    setM('e1.probes', this.probes.toLocaleString('en-US'));
+    setM('e1.meas', (meas*100).toFixed(2)+'%');
+    setM('e1.form', (form*100).toFixed(2)+'%');
+    if(this.probes>=15000){
+      this.done=true;
+      const right=this.pick===1;
+      setM('e1.verdict', right? 'CORRECT — ~2%. THE CURVE IS YOURS.' : 'YOU SAID '+CHOICES[this.pick]+' — IT\'S ~2%. NOW YOU\'LL REMEMBER WHY.');
+      setM('e1.state','MEASURED. EVERY BIT/KEY BUYS ×0.62 — READ THE CURVE.');
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    if(this.pick<0){
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText('n = 1,000,000 KEYS · m = 8,000,000 BITS · k = 6 HASHES', W/2, H/2-30);
+      ctx.fillStyle=CSS.traffic;
+      ctx.font='13px ui-monospace, Menlo, monospace';
+      ctx.fillText('WHAT FRACTION OF ABSENT KEYS GET A FALSE "YES"?', W/2, H/2);
+      ctx.font='10px ui-monospace, Menlo, monospace';
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('COMMIT FIRST — THAT\'S THE REP', W/2, H/2+26);
+      return;
+    }
+    // the bits-per-key curve: p = 0.6185^b (optimal k)
+    const gx0=70, gx1=W-40, gy0=34, gy1=H-56;
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(gx0, gy0, gx1-gx0, gy1-gy0);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('FALSE-POSITIVE RATE vs BITS PER KEY (LOG SCALE) — p ≈ 0.6185^b', gx0, gy0-8);
+    const X=b=>gx0+(b-2)/(16-2)*(gx1-gx0);
+    const Y=p=>gy0+(-Math.log10(Math.max(1e-4, Math.min(1, p))))/4*(gy1-gy0);
+    // gridlines at 10%, 1%, 0.1%
+    [[0.1,'10%'],[0.01,'1%'],[0.001,'0.1%']].forEach(([p,l])=>{
+      ctx.strokeStyle=CSS.line; ctx.globalAlpha=.4;
+      ctx.beginPath(); ctx.moveTo(gx0, Y(p)); ctx.lineTo(gx1, Y(p)); ctx.stroke();
+      ctx.globalAlpha=1;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+      ctx.fillText(l, gx0-6, Y(p)+3);
+    });
+    ctx.strokeStyle=CSS.b; ctx.lineWidth=1.8;
+    ctx.beginPath();
+    for(let b=2;b<=16;b+=0.25){
+      const p=Math.pow(0.6185, b);
+      const x=X(b), y=Y(p);
+      if(b===2) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.lineWidth=1;
+    // x labels
+    [4,8,12,16].forEach(b=>{
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText(b+' b/key', X(b), gy1+16);
+    });
+    // your prediction marker (at b=8 line, their claimed p)
+    const claims=[0.001, 0.02, 0.10, 0.25];
+    ctx.fillStyle=CSS.fault;
+    ctx.beginPath(); ctx.arc(X(8), Y(claims[this.pick]), 4, 0, 7); ctx.fill();
+    ctx.textAlign='left';
+    ctx.fillText('YOUR CALL '+CHOICES[this.pick], X(8)+10, Y(claims[this.pick])+3);
+    // measured point
+    const meas=this.probes? this.fps/this.probes : 0;
+    if(this.probes>300){
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(X(8), Y(meas), 4.5, 0, 7); ctx.fill();
+      ctx.textAlign='left';
+      ctx.fillText('MEASURED '+(meas*100).toFixed(2)+'%', X(8)+10, Y(meas)-6);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('CASSANDRA & ROCKSDB DEFAULTS LIVE AROUND 8–10 BITS/KEY — NOW YOU KNOW WHY', W/2, H-12);
+  }
+};
+e1.reset();
+CHOICES.forEach((_,i)=>{
+  document.querySelector('[data-act="p'+i+'"]').addEventListener('click',()=>e1.choose(i));
+});
+
+/* ================= EXP-02: the disk seek you didn't do ================= */
+const rAbsent=document.getElementById('r-absent');
+const tBloom=document.getElementById('t-bloom');
+const READS=200, L=6, SEEK=0.008, DISKCAP=1150;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0; this.q=0; this.skipped=0; },
+  update(dt){
+    this.t+=dt;
+    const absent=(+rAbsent.value)/100, bloom=tBloom.checked;
+    const absentSeeks= bloom? L*0.01 : L;          // 1% FPs still seek
+    const presentSeeks=3;                           // found halfway down on average
+    const seeks=READS*(absent*absentSeeks + (1-absent)*presentSeeks);
+    if(bloom) this.skipped+=READS*absent*L*0.99*dt;
+    const rho=seeks/DISKCAP;
+    this.q= rho>1? this.q+(seeks-DISKCAP)*dt : Math.max(0, this.q-(DISKCAP-seeks)*dt);
+    const wait= this.q/DISKCAP + (rho<0.97? rho/(1-rho)*SEEK*0.5 : 0.4);
+    const pathSeeks= absent>0.5? (bloom? presentSeeks : L) : presentSeeks;
+    const p99=pathSeeks*SEEK + wait*(rho>0.5?1:0.2);
+    setM('e2.absent', Math.round(absent*100)+'%');
+    setM('e2.seeks', Math.round(seeks).toLocaleString('en-US')+'/s');
+    setM('e2.util', Math.round(rho*100)+'%'+(rho>=1?' — QUEUE GROWING':''));
+    setM('e2.p99', fmtMs(p99)+(rho>=1?' AND CLIMBING':''));
+    setM('e2.skip', bloom? Math.round(READS*absent*L*0.99).toLocaleString('en-US')+'/s ('+Math.round(this.skipped).toLocaleString('en-US')+' TOTAL)' : '0 — EVERY "NO" COSTS '+L+' SEEKS');
+    this._d={absent, bloom, seeks, rho};
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const d=this._d; if(!d) return;
+    const cx=W*0.34;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('200 READS/s · '+Math.round(d.absent*100)+'% FOR KEYS THAT DON\'T EXIST', 30, 26);
+    // read arrow
+    ctx.strokeStyle=CSS.traffic; ctx.globalAlpha=.7;
+    ctx.beginPath(); ctx.moveTo(30, 46); ctx.lineTo(cx-70, 46); ctx.stroke();
+    ctx.globalAlpha=1;
+    // SSTable stack with bloom chips
+    for(let i=0;i<L;i++){
+      const y=40+i*34;
+      if(d.bloom){
+        ctx.strokeStyle=CSS.b;
+        ctx.strokeRect(cx-66, y-9, 44, 20);
+        ctx.fillStyle=CSS.b; ctx.textAlign='center';
+        ctx.fillText('BF', cx-44, y+4);
+      }
+      const hot=!d.bloom;
+      ctx.strokeStyle= hot? CSS.a : CSS.line;
+      ctx.strokeRect(cx-10, y-9, 190, 20);
+      ctx.fillStyle= hot? CSS.a : CSS.muted;
+      ctx.textAlign='center';
+      ctx.fillText('SSTABLE L'+i+' · IMMUTABLE', cx+85, y+4);
+      ctx.textAlign='left';
+      if(!d.bloom){
+        ctx.fillStyle=CSS.fault;
+        ctx.fillText('SEEK 8ms', cx+192, y+4);
+      } else if(i===3){
+        ctx.fillStyle=CSS.traffic;
+        ctx.fillText('MAYBE (1%) → SEEK', cx+192, y+4);
+      } else {
+        ctx.fillStyle=CSS.b;
+        ctx.fillText('"NO" — SKIP', cx+192, y+4);
+      }
+      ctx.textAlign='center';
+    }
+    // disk meter
+    const my=H-46;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('DISK ARRAY — '+DISKCAP.toLocaleString('en-US')+' SEEKS/s BUDGET', 30, my-8);
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(30, my, W-320, 12);
+    ctx.fillStyle= d.rho>=1? CSS.fault : d.rho>0.75? CSS.a : CSS.b;
+    ctx.fillRect(31, my+1, (W-322)*Math.min(1,d.rho), 10);
+    ctx.fillStyle= d.rho>=1? CSS.fault : CSS.muted;
+    ctx.fillText(Math.round(d.rho*100)+'%', W-282, my+10);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText(d.bloom? 'FILTERS: ~10 BITS/KEY OF RAM' : 'NO FILTERS: DISKS ANSWER EVERYTHING', W-248, my+10);
+    ctx.textAlign='center';
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('ASK THE BIT ARRAY FIRST — SEEN IN EP 17\'s SCYLLADB AND EP 28\'s ROCKSDB', W/2, H-10);
+  }
+};
+e2.reset();
+rAbsent.addEventListener('input',()=>setM('e2.absent', rAbsent.value+'%'));
+
+/* ================= EXP-03: the one-hit wonder problem ================= */
+const POP=400, CACHE=300;
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  rng: mulberry32(23),
+  reset(){ this.t=0; this.nextReq=0;
+    this.popW=Array.from({length:POP},(_,i)=>Math.pow(i+1,-0.8));
+    this.popTot=this.popW.reduce((s,w)=>s+w,0);
+    this.worlds={
+      naive:{cache:new Map(), hits:0, reqs:0, writes:0},
+      gated:{cache:new Map(), hits:0, reqs:0, writes:0},
+    };
+    this.seen=makeBloom(65536, 5);
+    this.ohwOut=0; this.fpIn=0; this.tailId=1000000;
+    this.win={n:[], g:[]}; },
+  pickPopular(){
+    let r=this.rng()*this.popTot;
+    for(let i=0;i<POP;i++){ r-=this.popW[i]; if(r<=0) return i; }
+    return POP-1;
+  },
+  access(w, id, admit){
+    w.reqs++;
+    if(w.cache.has(id)){
+      w.hits++;
+      w.cache.delete(id); w.cache.set(id, 1);       // LRU touch
+      return true;
+    }
+    if(admit){
+      if(w.cache.size>=CACHE) w.cache.delete(w.cache.keys().next().value);
+      w.cache.set(id, 1);
+      w.writes++;
+    }
+    return false;
+  },
+  update(dt){
+    this.t+=dt;
+    while(this.nextReq<=this.t){
+      this.nextReq+=1/60;
+      const isTail=this.rng()<0.45;
+      const id= isTail? this.tailId++ : this.pickPopular();
+      // naive: admit everything
+      const hn=this.access(this.worlds.naive, id, true);
+      // gated: admit only if the bloom filter has seen it before
+      const seenBefore=this.seen.has(id);
+      const hg=this.access(this.worlds.gated, id, seenBefore);
+      if(isTail && !seenBefore) this.ohwOut++;
+      if(isTail && seenBefore){ this.fpIn++; }      // a wonder vouched for by a false positive
+      if(!seenBefore) this.seen.add(id);
+      this.win.n.push(hn?1:0); this.win.g.push(hg?1:0);
+      if(this.win.n.length>600){ this.win.n.shift(); this.win.g.shift(); }
+    }
+    const pct=a=>a.length? Math.round(a.reduce((s,x)=>s+x,0)/a.length*100):0;
+    const wn=this.worlds.naive, wg=this.worlds.gated;
+    setM('e3.hit', 'admit-all '+pct(this.win.n)+'% vs bloom-gated '+pct(this.win.g)+'%');
+    setM('e3.writes', wn.writes.toLocaleString('en-US')+' vs '+wg.writes.toLocaleString('en-US')+
+      (wg.writes? ' (×'+(wn.writes/wg.writes).toFixed(1)+' FEWER)':''));
+    setM('e3.ohw', this.ohwOut.toLocaleString('en-US'));
+    setM('e3.fp', this.fpIn+' — THE FILTER\'S HONEST TAX');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const world=(x0, name, w, gated, colr)=>{
+      const cx=x0+W*0.25;
+      ctx.fillStyle=colr; ctx.textAlign='center';
+      ctx.fillText(name, cx, 30);
+      // cache slots: draw 60 cells standing for 300; popular = amber, tail = grey
+      let pop=0;
+      for(const id of w.cache.keys()) if(id<POP) pop++;
+      const tail=w.cache.size-pop;
+      const cells=60, popCells=Math.round(pop/CACHE*cells), tailCells=Math.round(tail/CACHE*cells);
+      for(let i=0;i<cells;i++){
+        const x=cx-120+(i%20)*12, y=48+Math.floor(i/20)*16;
+        ctx.fillStyle= i<popCells? CSS.a : i<popCells+tailCells? '#3A4A5C' : '#16233370';
+        ctx.fillRect(x, y, 9, 11);
+      }
+      ctx.fillStyle=CSS.a; ctx.textAlign='left';
+      ctx.fillText(pop+' POPULAR', cx-120, 112);
+      ctx.fillStyle='#5A7A94';
+      ctx.fillText(tail+' ONE-HIT WONDERS', cx-14, 112);
+      // hit bar
+      const hits= this.win[gated?'g':'n'];
+      const rate=hits.length? hits.reduce((s,x)=>s+x,0)/hits.length : 0;
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(cx-120, 128, 240, 12);
+      ctx.fillStyle=colr;
+      ctx.fillRect(cx-119, 129, 238*rate, 10);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText('HIT RATE '+Math.round(rate*100)+'%', cx, 156);
+      ctx.fillText(gated? 'DOOR POLICY: "HAVE I SEEN YOU BEFORE?"' : 'DOOR POLICY: EVERYONE IN', cx, 176);
+    };
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2, 14); ctx.lineTo(W/2, H-40); ctx.stroke();
+    world(0, 'ADMIT EVERYTHING — THE REVOLVING DOOR', this.worlds.naive, false, CSS.a);
+    world(W/2, 'BLOOM-GATED — SECOND SIGHT ONLY', this.worlds.gated, true, CSS.b);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('SAME STREAM, SAME DICE · THE FILTER REMEMBERS FIRST SIGHTS SO THE CACHE CAN WAIT FOR SECOND ONES', W/2, H-14);
+  }
+};
+e3.reset();
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>
