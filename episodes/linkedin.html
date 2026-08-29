@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Graph — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 28</p>
+  <h1>The Graph</h1>
+  <p class="dek">LinkedIn's feed problem was so hard that a side effect of solving it —
+  Kafka, and the idea that one append-only log should be a company's circulatory system
+  — became more famous than the feed. This episode runs the feed itself: the machine
+  that answers "what did the 800 people and companies you follow just do?" in 140
+  milliseconds, by doing the exact opposite of what Twitter chose in episode 3 —
+  fan-out on <em>read</em>, with the ranking pushed all the way down into the storage
+  nodes, and yesterday's heaviest computations shipped in by atomic pointer flip.</p>
+  <p class="marginal">Everything below is honestly simulated: scatter-gather latency is
+  a genuine max-of-twelve with jitter, write amplification is counted follower by
+  follower, the broker's network card saturates by arithmetic, and the in-place deploy
+  really does serve mixed-version reads until the atomic swap removes the window
+  entirely.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">One feed open — scatter to twelve partitions, gather, merge</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:280px" role="img" aria-label="A member opens the feed; a broker scatters the query to twelve index partitions holding the timelines of followed actors; each leaf returns scored candidates at its own jittered speed, the slowest one sets the pace, and the merged feed returns in roughly 140 milliseconds at the 99th percentile"></canvas>
+  <div class="exp-metrics">
+    <span>FEED OPENS<b data-m="hero.n">0</b></span>
+    <span>P99 (WINDOW)<b data-m="hero.p99">–</b></span>
+    <span>SHAPE<b data-m="hero.parts">12 PARTITIONS · ~800 FOLLOWED ACTORS</b></span>
+    <span>FOLLOWFEED 2016<b>~140ms P99</b></span>
+  </div>
+  <figcaption class="exp-note">FollowFeed's read path: your followed-actor list arrives
+  with the request; a broker scatters it to the index partitions that own those actors'
+  timelines (reverse-chronological activity chains in RocksDB, hot heads in cache);
+  every leaf answers at its own speed and <em>the slowest partition sets your
+  latency</em> — the max, not the mean, which is why the tail-taming tricks of episode
+  10 haunt every scatter-gather system. The 2016 migration to this design made the
+  mobile feed ~5× faster and halved the hardware.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>When every celebrity is an employer</h2>
+  <p>Episode 3 watched Twitter choose push: write each tweet into every follower's
+  timeline inbox, because reads outnumber writes 60:1 and celebrities can get an escape
+  hatch. LinkedIn chose the opposite — and the reason is who its "celebrities" are.
+  On a professional network the mega-followed accounts aren't a handful of pop stars;
+  they're <em>every major employer</em>, and company updates are a huge share of all
+  posts. Push that world and write amplification isn't an edge case — it's the
+  workload. FollowFeed indexes each activity <strong>once, by its author</strong>, and
+  assembles your feed at read time. Below, both designs face the same posts; then
+  Microsoft shares a jobs update.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Push vs pull — same posts, and then the employer posts</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e1-mega">MICROSOFT POSTS · 200K FOLLOWERS (×1000 SCALE)</button>
+      <button class="btn" data-run="e1">PAUSE</button>
+      <button class="btn" data-reset="e1">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <span>3 POSTS/s · PEOPLE ≈500 FOLLOWERS · COMPANIES ≈20K (×1000 SCALE) · WRITE CAPACITY 5,000/s</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:280px" role="img" aria-label="The same stream of posts hits a push world writing to every follower's inbox and a pull world writing once per author; the push world's write queue runs hot and one employer post buries it for minutes, while the pull world's single writes never notice — at the honest cost of slower reads"></canvas>
+  <div class="exp-metrics">
+    <span>WRITE AMPLIFICATION<b data-m="e1.wamp">–</b></span>
+    <span>PUSH WORLD<b class="bad" data-m="e1.push">–</b></span>
+    <span>PULL WORLD<b data-m="e1.pull">–</b></span>
+    <span>READ COST<b data-m="e1.read">–</b></span>
+  </div>
+  <figcaption class="exp-note">Be fair to push: its reads are unbeatable — one inbox
+  fetch, ~2ms, versus pull's ~31ms scatter. That's the entire trade, and Twitter took
+  it. But watch the write meters: ordinary traffic already amplifies every post into
+  ~1,500 inbox writes, running the fleet at 88% — and then one employer posts and the
+  queue swallows two hundred thousand writes, with every feed on the network going
+  stale for the minutes it takes to drain. The pull world charged that post exactly
+  one write. When your celebrities post daily and number in the millions, the escape
+  hatch <em>is</em> the architecture.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Send the ranking to the data</h2>
+  <p>Pull has a hidden tax that killed naive implementations: moving the candidates.
+  If each of twelve partitions ships its raw activities to the broker — hundreds of
+  2KB blobs each — every feed open moves ~10MB across the network <em>before ranking
+  can even start</em>, and the broker's NIC becomes the whole system's ceiling.
+  FollowFeed's fix is the oldest big-data commandment: move the computation, not the
+  data. Each storage node runs relevance scoring <em>locally</em>, against its own
+  slice, and returns only its top candidates — IDs and scores, a few kilobytes. The
+  broker merges winners, not warehouses.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Ship the blobs, or ship the scores — the broker's network card decides</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-loads">Feed opens/s</label>
+      <input type="range" id="r-loads" min="20" max="150" value="100" step="5">
+      <output data-m="e2.loads">100</output></span>
+    <span>12 LEAVES × 400 CANDIDATES × 2KB RAW — OR TOP-25 IDS+SCORES PER LEAF</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="Two versions of the same scatter-gather feed: shipping raw candidate blobs moves nearly ten megabytes per feed open and saturates the broker's network card as load climbs, while leaf-side scoring returns kilobytes of IDs and scores and the broker barely registers"></canvas>
+  <div class="exp-metrics">
+    <span>BYTES PER FEED OPEN<b data-m="e2.bytes">–</b></span>
+    <span>BROKER NIC<b class="bad" data-m="e2.broker">–</b></span>
+    <span>FEED P99<b data-m="e2.p99">–</b></span>
+  </div>
+  <figcaption class="exp-note">The arithmetic is merciless: 12 × 400 × 2KB ≈ 9.6MB per
+  open, so at a hundred opens a second the raw world is pushing a gigabyte a second
+  through one machine — watch its NIC meter cross into queueing and take the p99 with
+  it. The leaf-scored world moves <em>two thousand times less</em>: 25 winners per
+  partition at 16 bytes each, merged in microseconds. Early scoring costs a few
+  milliseconds of CPU at every leaf — CPU that sits right next to the data it's
+  judging, which is exactly where LinkedIn's 140ms budget was hiding.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Yesterday's computation, shipped by pointer flip</h2>
+  <p>Not everything can be computed at read time. "People You May Know" is a walk over
+  the whole member graph — hundreds of milliseconds <em>per member</em> if done live.
+  LinkedIn's Voldemort answered with a pattern that outlived the store itself: compute
+  the entire feature for everyone <strong>offline in Hadoop</strong>, build the store's
+  index and data files as part of the batch job, ship them to the serving nodes
+  alongside the live version, warm them — and then flip a pointer. One atomic swap:
+  between two requests, every member's recommendations change version, and no request
+  ever sees half a build. The alternative — updating rows in place under live traffic
+  — serves a window of mixed old-and-new that no amount of care closes.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">Ship tonight's build — in place, or by atomic swap</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e3-inplace">DEPLOY IN PLACE</button>
+      <button class="btn primary" data-act="e3-swap">DEPLOY BY ATOMIC SWAP</button>
+      <button class="btn" data-run="e3">PAUSE</button>
+      <button class="btn" data-reset="e3">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-e3" style="height:280px" role="img" aria-label="A read-only store serves People You May Know at eighty reads a second; deploying the nightly Hadoop build in place overwrites rows under live traffic and serves mixed-version and partially-written responses for the whole window, while the atomic swap builds alongside, warms, and flips between two requests with zero corrupt reads"></canvas>
+  <div class="exp-metrics">
+    <span>SERVING<b data-m="e3.ver">–</b></span>
+    <span>CORRUPT / MIXED RESPONSES<b class="bad" data-m="e3.corrupt">0</b></span>
+    <span>DEPLOYS<b data-m="e3.deploys">–</b></span>
+    <span>WHY BATCH AT ALL<b data-m="e3.lat">–</b></span>
+  </div>
+  <figcaption class="exp-note">Run both deploys and read the damage counter. In-place
+  spends eight seconds overwriting rows while 80 reads/s land among them — every read
+  in the window risks a half-written row or a recommendation list stitched from two
+  different nights. The swap builds the new files <em>beside</em> the old, warms them,
+  and flips: the version counter changes between one request and the next, and the
+  corrupt counter doesn't move. It's the same atomicity lesson as a database commit,
+  applied to a 100-gigabyte artifact — and the last metric is why the pattern exists:
+  serving a precomputed answer costs a millisecond; computing it live would cost three
+  hundred.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The log that ate the company</h2>
+  <p>And beneath all of it, the famous part. By 2010 LinkedIn's systems — warehouse,
+  search, monitoring, recommenders — each grew bespoke pipelines to every other, N²
+  integrations all breaking differently. Kafka reframed the problem: make every data
+  change an event on one replicated, partitioned commit log, and let every system be a
+  subscriber with its own bookmark. Episode 4 ran that machine's physics; this is the
+  company that built it because the feed demanded it — and then wrote the manifesto
+  ("The Log," 2013) that turned it into an industry. The numbers grew up accordingly:
+  7 <em>trillion</em> messages a day through LinkedIn's Kafka by 2019, feeding
+  FollowFeed's indexers, Espresso's change streams, Samza, Hadoop, and everything this
+  episode simulated. One monolith named Leo became 750+ services, and the log is what
+  they all agree on.</p>
+  <p>The keeper: <strong>LinkedIn's feed teaches the pull side of the eternal fan-out
+  argument — index once by author, scatter reads, score at the leaves — and its deeper
+  lesson is that the hardest integration problem is solved by a data structure: one
+  ordered log, many bookmarks.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Ghike &amp; Gupta — <a href="https://engineering.linkedin.com/blog/2016/03/followfeed--linkedin-s-feed-made-faster-and-smarter">FollowFeed: LinkedIn's Feed Made Faster and Smarter</a>, 2016 — actor-partitioned timeline indexes, scatter-gather, early scoring, the 140ms/5×/50% numbers.</li>
+    <li>J. Kreps — <a href="https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying">The Log</a>, 2013; Kreps, Narkhede &amp; Rao — <a href="https://kafka.apache.org/books-and-papers">Kafka</a>, NetDB 2011; <a href="https://engineering.linkedin.com/blog/2019/apache-kafka-trillion-messages">7 trillion messages/day</a>, 2019.</li>
+    <li>J. Clemm — <a href="https://engineering.linkedin.com/architecture/brief-history-scaling-linkedin">A Brief History of Scaling LinkedIn</a>, 2015 — Leo → 750+ services, the graph service, Inversion.</li>
+    <li>Sumbaly et al. — <a href="https://www.usenix.org/conference/fast12/serving-large-scale-batch-computed-data-project-voldemort">Serving Large-scale Batch Computed Data with Project Voldemort</a>, FAST 2012 — the read-only build-and-swap design.</li>
+    <li><a href="https://dl.acm.org/doi/10.1145/2463676.2465298">On Brewing Fresh Espresso</a>, SIGMOD 2013 — the MySQL-backed source-of-truth document store and its change stream.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next in the wider world: <b>Tinder cuts the world to fit its people</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+function fmtS(s){
+  if(s>=60) return (s/60).toFixed(1)+' min';
+  if(s>=1) return s.toFixed(1)+'s';
+  return Math.round(s*1000)+'ms';
+}
+
+/* ================= HERO: scatter-gather ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(5),
+  reset(){ this.t=0; this.n=0; this.lats=[]; this.newOpen(); },
+  newOpen(){
+    this.n++;
+    this.leaves=Array.from({length:12},()=> (15+expRand(this.rng,18))/1000);
+    this.slowest=Math.max(...this.leaves);
+    this.total=0.025+this.slowest+0.008;   // net + max(leaves) + merge
+    this.start=this.t;
+    this.lats.push(this.total);
+    if(this.lats.length>60) this.lats.shift();
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t-this.start>Math.max(1.3, this.total*6)) this.newOpen();
+    const s=[...this.lats].sort((a,b)=>a-b);
+    setM('hero.n', this.n);
+    setM('hero.p99', this.lats.length>10? Math.round(s[Math.floor(s.length*0.99)]*1000)+'ms':'–');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const el=(this.t-this.start)/Math.max(0.9,this.total*5);   // slow-mo
+    const bx=W*0.30, by=H*0.48;
+    // member
+    ctx.strokeStyle=CSS.traffic;
+    ctx.strokeRect(40, by-16, 96, 32);
+    ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+    ctx.fillText('MEMBER', 88, by+4);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('OPENS FEED', 88, by+30);
+    // broker
+    ctx.strokeStyle=CSS.b; ctx.lineWidth=2;
+    ctx.strokeRect(bx-52, by-24, 104, 48);
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.ink;
+    ctx.fillText('BROKER', bx, by-2);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('SCATTER · MERGE', bx, by+14);
+    ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+    ctx.beginPath(); ctx.moveTo(136, by); ctx.lineTo(bx-52, by); ctx.stroke();
+    ctx.globalAlpha=1;
+    // 12 partitions
+    const px=W*0.56, pw=W-px-40;
+    for(let i=0;i<12;i++){
+      const col=i%4, row=Math.floor(i/4);
+      const x=px+col*(pw/4), y=44+row*((H-104)/3);
+      const leafDone=el> 0.25+ (this.leaves? this.leaves[i]/this.slowest*0.55 : 1);
+      const isSlow=this.leaves && this.leaves[i]===this.slowest;
+      ctx.strokeStyle= isSlow&&!leafDone? CSS.a : leafDone? CSS.b : CSS.line;
+      ctx.strokeRect(x, y, pw/4-10, 40);
+      ctx.fillStyle= leafDone? CSS.b : CSS.muted; ctx.textAlign='center';
+      ctx.fillText('P'+(i+1), x+(pw/4-10)/2, y+16);
+      ctx.fillStyle= isSlow? CSS.a : CSS.muted;
+      ctx.fillText(this.leaves? Math.round(this.leaves[i]*1000)+'ms':'', x+(pw/4-10)/2, y+31);
+      // scatter/return lines
+      if(el>0.05 && el<0.9){
+        ctx.strokeStyle= leafDone? CSS.b : CSS.line; ctx.globalAlpha=.35;
+        ctx.beginPath(); ctx.moveTo(bx+52, by); ctx.lineTo(x, y+20); ctx.stroke();
+        ctx.globalAlpha=1;
+      }
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('TIMELINE INDEXES — BY ACTOR · RocksDB + CACHE', px, H-30);
+    ctx.textAlign='center';
+    const done=el>=0.9;
+    ctx.fillStyle= done? CSS.traffic : CSS.muted;
+    ctx.fillText(done? 'MERGED — '+Math.round(this.total*1000)+'ms (THE SLOWEST LEAF SET THE PACE)' :
+      'WAITING FOR THE SLOWEST OF 12…', W*0.33, H-30);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('FAN-OUT ON READ — THE MIRROR IMAGE OF EPISODE 3', W/2, H-12);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: push vs pull ================= */
+const WCAP=5000;
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(11),
+  reset(){ this.t=0; this.nextPost=0.4;
+    this.backlog=0; this.posts=0; this.writesTotal=0; this.megaAt=-9; },
+  mega(){ this.backlog+=200000; this.posts++; this.writesTotal+=200000; this.megaAt=this.t; },
+  update(dt){
+    this.t+=dt;
+    while(this.nextPost<=this.t){
+      this.nextPost+=1/3;
+      const company=this.rng()<0.05;
+      const followers=company? 15000+Math.floor(this.rng()*10000) : 300+Math.floor(this.rng()*400);
+      this.posts++;
+      this.writesTotal+=followers;
+      this.backlog+=followers;
+    }
+    this.backlog=Math.max(0, this.backlog-WCAP*dt);
+    const stale=this.backlog/WCAP;
+    setM('e1.wamp', 'push '+Math.round(this.writesTotal/Math.max(1,this.posts)).toLocaleString('en-US')+' writes/post vs pull 1');
+    setM('e1.push', Math.round(this.backlog).toLocaleString('en-US')+' WRITES QUEUED · FEEDS '+fmtS(stale)+' STALE');
+    setM('e1.pull', '0 QUEUED — EVERY POST IS ONE INDEX APPEND');
+    setM('e1.read', 'inbox 2ms vs scatter 31ms — push wins the reads');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const mega=this.t-this.megaAt<3;
+    // push side
+    const hot=this.backlog>20000;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('PUSH — WRITE TO EVERY FOLLOWER\'S INBOX', W*0.27, 28);
+    ctx.strokeStyle= hot? CSS.fault : CSS.a; ctx.lineWidth=2;
+    ctx.strokeRect(W*0.27-100, 42, 200, 70);
+    ctx.lineWidth=1;
+    ctx.fillStyle= hot? CSS.fault : CSS.ink;
+    ctx.fillText('FANOUT WORKERS · 5,000 w/s', W*0.27, 64);
+    // backlog bar
+    const bfrac=Math.min(1, this.backlog/250000);
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(W*0.27-90, 76, 180, 12);
+    ctx.fillStyle= hot? CSS.fault : CSS.a;
+    ctx.fillRect(W*0.27-89, 77, 178*bfrac, 10);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText(Math.round(this.backlog).toLocaleString('en-US')+' QUEUED', W*0.27, 104);
+    // inboxes
+    for(let i=0;i<24;i++){
+      const x=W*0.27-96+(i%12)*17, y=132+Math.floor(i/12)*20;
+      ctx.strokeStyle= hot? '#5A3230' : CSS.line;
+      ctx.strokeRect(x, y, 13, 14);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('MILLIONS OF INBOXES (24 DRAWN)', W*0.27, 186);
+    if(mega){
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('⚡ 200,000 WRITES FROM ONE POST', W*0.27, 208);
+    }
+    // pull side
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('PULL — INDEX ONCE, BY AUTHOR', W*0.73, 28);
+    ctx.strokeStyle=CSS.b; ctx.lineWidth=2;
+    ctx.strokeRect(W*0.73-100, 42, 200, 70);
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.ink;
+    ctx.fillText('TIMELINE INDEX APPEND', W*0.73, 64);
+    ctx.fillStyle=CSS.b;
+    ctx.fillText('1 WRITE PER POST — ANY POST', W*0.73, 82);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('0 QUEUED', W*0.73, 104);
+    for(let i=0;i<12;i++){
+      const x=W*0.73-96+(i%12)*17;
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(x, 132, 13, 14);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('12 ACTOR-PARTITIONED INDEXES', W*0.73, 166);
+    if(mega){
+      ctx.fillStyle=CSS.b;
+      ctx.fillText('THE SAME POST: ONE APPEND ✓', W*0.73, 208);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('WHEN EVERY EMPLOYER IS A CELEBRITY, EVERY POST IS A CELEBRITY POST', W/2, H-14);
+  }
+};
+e1.reset();
+document.querySelector('[data-act="e1-mega"]').addEventListener('click',()=>e1.mega());
+
+/* ================= EXP-02: early scoring at the leaves ================= */
+const rLoads=document.getElementById('r-loads');
+const NIC=1250;   // MB/s
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0; this.q=0; },
+  update(dt){
+    this.t+=dt;
+    const loads=+rLoads.value;
+    const rawMB=12*400*2/1024;              // ≈9.4MB per open
+    const leafKB=12*25*16/1024;             // ≈4.7KB per open
+    const rawUtil=loads*rawMB/NIC;
+    this.q= rawUtil>1? this.q+(loads*rawMB-NIC)*dt : Math.max(0, this.q-(NIC-loads*rawMB)*dt);
+    const rawP99= rawUtil>=1? 0.04+this.q/NIC : 0.04/(1-Math.min(0.97,rawUtil))+0.0;
+    const leafP99=0.046;
+    setM('e2.loads', loads);
+    setM('e2.bytes', rawMB.toFixed(1)+'MB RAW vs '+leafKB.toFixed(1)+'KB LEAF-SCORED (×'+Math.round(rawMB*1024/leafKB)+')');
+    setM('e2.broker', 'raw '+Math.round(rawUtil*100)+'%'+(rawUtil>=1?' — SATURATED':'')+' · leaf-scored '+ (loads*leafKB/1024/NIC*100).toFixed(2)+'%');
+    setM('e2.p99', 'raw '+fmtS(rawP99)+' vs leaf-scored '+Math.round(leafP99*1000)+'ms');
+    this._d={loads, rawUtil, rawP99};
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const d=this._d; if(!d) return;
+    const world=(y0, name, thick, col, note, sat)=>{
+      ctx.fillStyle=col; ctx.textAlign='left';
+      ctx.fillText(name, 40, y0-10);
+      // leaves
+      for(let i=0;i<12;i++){
+        const x=40+i*44;
+        ctx.strokeStyle=CSS.line;
+        ctx.strokeRect(x, y0, 34, 24);
+      }
+      // pipes to broker
+      const bxx=W-170;
+      for(let i=0;i<12;i++){
+        const x=40+i*44+17;
+        ctx.strokeStyle= sat? CSS.fault : col;
+        ctx.lineWidth= thick? 4 : 1;
+        ctx.globalAlpha= thick? .5 : .8;
+        ctx.beginPath(); ctx.moveTo(x, y0+24); ctx.lineTo(bxx, y0+58); ctx.stroke();
+        ctx.globalAlpha=1; ctx.lineWidth=1;
+      }
+      ctx.strokeStyle= sat? CSS.fault : CSS.line;
+      ctx.strokeRect(bxx-8, y0+50, 120, 24);
+      ctx.fillStyle= sat? CSS.fault : CSS.muted; ctx.textAlign='left';
+      ctx.fillText(sat? 'BROKER — CHOKING' : 'BROKER', bxx, y0+66);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(note, 40, y0+66);
+    };
+    world(46, 'SHIP THE BLOBS — 400 × 2KB PER LEAF', true, CSS.a,
+      '9.4MB CROSSES THE WIRE BEFORE RANKING BEGINS', d.rawUtil>=0.95);
+    world(160, 'SCORE AT THE LEAF — TOP 25 IDS + SCORES', false, CSS.b,
+      '4.7KB OF WINNERS · RANKING HAPPENED NEXT TO THE DATA', false);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('MOVE THE COMPUTATION, NOT THE DATA — THE OLDEST BIG-DATA COMMANDMENT', W/2, H-14);
+  }
+};
+e2.reset();
+rLoads.addEventListener('input',()=>setM('e2.loads', rLoads.value));
+
+/* ================= EXP-03: the atomic swap ================= */
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  rng: mulberry32(31),
+  reset(){ this.t=0; this.ver=7; this.freshH=18; this.corrupt=0;
+    this.inplace=0; this.swaps=0; this.deploy=null; },
+  startInplace(){ if(!this.deploy){ this.deploy={kind:'inplace', until:this.t+8}; } },
+  startSwap(){ if(!this.deploy){ this.deploy={kind:'swap', until:this.t+8}; } },
+  update(dt){
+    this.t+=dt;
+    this.freshH+=dt*0.5;                       // 2s here = 1h
+    if(this.deploy){
+      if(this.deploy.kind==='inplace'){
+        // 80 reads/s land among half-overwritten rows
+        this.corrupt+=80*0.25*dt;
+      }
+      if(this.t>=this.deploy.until){
+        this.ver++;
+        this.freshH=0;
+        if(this.deploy.kind==='inplace') this.inplace++; else this.swaps++;
+        this.deploy=null;
+      }
+    }
+    setM('e3.ver', 'v'+this.ver+' · BUILT '+this.freshH.toFixed(0)+'h AGO (HADOOP, NIGHTLY)');
+    setM('e3.corrupt', Math.round(this.corrupt).toLocaleString('en-US'));
+    setM('e3.deploys', 'in-place '+this.inplace+' · atomic swap '+this.swaps);
+    setM('e3.lat', 'serve 1.2ms — live graph walk would be ~300ms');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const dep=this.deploy;
+    // hadoop
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(50, 40, 150, 46);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('HADOOP — NIGHTLY', 125, 58);
+    ctx.fillText('PYMK FOR EVERYONE', 125, 74);
+    // store
+    const sx=W*0.52;
+    const dirty=dep && dep.kind==='inplace';
+    ctx.strokeStyle= dirty? CSS.fault : CSS.b; ctx.lineWidth=2;
+    ctx.strokeRect(sx-110, 40, 220, 120);
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.ink;
+    ctx.fillText('READ-ONLY STORE · v'+this.ver, sx, 60);
+    // rows
+    for(let i=0;i<24;i++){
+      const x=sx-98+(i%8)*25, y=74+Math.floor(i/8)*22;
+      let col='#22334A';
+      if(dep){
+        const prog=1-(dep.until-this.t)/8;
+        const flipped=i/24<prog;
+        if(dep.kind==='inplace') col= flipped? CSS.a : '#22334A';
+      }
+      ctx.fillStyle=col;
+      ctx.fillRect(x, y, 20, 14);
+      if(dirty && this.rng()<0.05){
+        ctx.strokeStyle=CSS.fault;
+        ctx.strokeRect(x, y, 20, 14);
+      }
+    }
+    if(dirty){
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('MIXED v'+this.ver+'/v'+(this.ver+1)+' — SERVING BOTH AT ONCE', sx, 176);
+    }
+    // shadow copy during swap
+    if(dep && dep.kind==='swap'){
+      const prog=1-(dep.until-this.t)/8;
+      ctx.strokeStyle=CSS.traffic; ctx.setLineDash([4,3]);
+      ctx.strokeRect(sx-110, 186, 220, 40);
+      ctx.setLineDash([]);
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('v'+(this.ver+1)+' BUILDING ALONGSIDE — '+Math.round(prog*100)+'%', sx, 202);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(prog>0.85? 'WARM — POINTER FLIPS AT 100%' : 'LIVE TRAFFIC UNTOUCHED', sx, 218);
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(sx-108, 208, 216*prog, 12);
+    }
+    // deploy pipe
+    if(dep){
+      ctx.strokeStyle= dep.kind==='inplace'? CSS.fault : CSS.traffic; ctx.globalAlpha=.7;
+      ctx.beginPath(); ctx.moveTo(200, 63); ctx.lineTo(sx-110, dep.kind==='swap'? 206:100); ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+    // readers
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('80 READS/s, ALWAYS ON →', W-186, 100);
+    for(let i=0;i<4;i++){
+      const u=(this.t*1.8+i/4)%1;
+      ctx.fillStyle= dirty? CSS.fault : CSS.b;
+      ctx.beginPath(); ctx.arc(W-60-u*(W-60-(sx+110)), 108+i*6, 2.2, 0, 7); ctx.fill();
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('ONE POINTER FLIP = EVERY MEMBER CHANGES VERSION BETWEEN TWO REQUESTS', W/2, H-14);
+  }
+};
+e3.reset();
+document.querySelector('[data-act="e3-inplace"]').addEventListener('click',()=>e3.startInplace());
+document.querySelector('[data-act="e3-swap"]').addEventListener('click',()=>e3.startSwap());
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

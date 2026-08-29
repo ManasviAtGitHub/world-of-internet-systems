@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Board — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 27</p>
+  <h1>The Board</h1>
+  <p class="dek">Pinterest nearly died of interesting technology. Doubling every six weeks
+  in 2012, running five databases at once, the team ripped out every clustered wonder
+  mid-crisis and bet the company on the most boring stack available — manually sharded
+  MySQL behind an ID that carries its own address. Then, on top of the boring, they built
+  two quietly radical things: a home feed that is a scored pool instead of a timeline,
+  and a recommender that answers by taking thousands of random walks across a
+  three-billion-node graph held in RAM. This episode runs all three.</p>
+  <p class="marginal">Everything below is honestly simulated: both feed worlds consume
+  the identical pin stream and the engagement gap emerges from real top-k arithmetic,
+  the Pixie panel runs genuine random walks over a seeded pin–board graph, and the
+  hydration numbers are batched cache lookups against real hit rates.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The ID is the map — 64 bits that route themselves</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:280px" role="img" aria-label="Every saved pin mints a 64-bit ID packing shard, type, and local row; the ID decodes on screen and an arrow flies straight to the owning shard among a grid representing 65,536 — with the lookup counter fixed at zero"></canvas>
+  <div class="exp-metrics">
+    <span>IDS MINTED<b data-m="hero.n">0</b></span>
+    <span>LAST DECODE<b data-m="hero.shard">–</b></span>
+    <span>DIRECTORY LOOKUPS NEEDED<b data-m="hero.lookups">0 — THE ID IS THE MAP</b></span>
+  </div>
+  <figcaption class="exp-note">The layout: 16 bits of shard, 10 bits of type (pin, board,
+  user…), 36 bits of local row — <code>(shard&nbsp;«&nbsp;46)&nbsp;|&nbsp;(type&nbsp;«&nbsp;36)&nbsp;|&nbsp;local</code>.
+  Any server holding any object ID can compute its database with two shifts and a mask:
+  65,536 logical shards, ~68 billion rows per type per shard, zero lookup services.
+  Episode 13 met Instagram's 64-bit trick — time in the high bits, so IDs <em>sort</em>
+  themselves. Pinterest packed the shard there instead, so IDs <em>route</em> themselves.
+  Same instrument, opposite tune: one bought ordering, the other bought
+  addressing.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Not a timeline — a pool with a scan head</h2>
+  <p>In 2014 Pinterest tore up the chronological home feed. The replacement separates
+  what you <em>haven't seen</em> from what you have: every new pin from people you follow
+  is scored by the Pinnability models at write time and dropped into an HBase-backed
+  <strong>pool</strong>, keyed <code>(user, score, pin)</code> — so the rows sort
+  themselves best-first, and rendering your feed means reading the top of the table.
+  Chronology stops mattering: a pin saved twenty minutes ago that scores higher than
+  everything since will greet you at the top, not drown eight screens down. The
+  experiment feeds both designs the same stream and lets the arithmetic speak.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Conveyor vs pool — the same pins, two feeds</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span>~15 NEW PINS BETWEEN SESSIONS · YOU'LL LOOK AT 8 · SAME STREAM, BOTH WORLDS</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:300px" role="img" aria-label="Pins with hidden quality flow into two feeds: the chronological conveyor shows the newest eight and buries the rest forever, while the scored pool keeps everything unseen sorted best-first; engagement per session and good-pins-buried counters diverge"></canvas>
+  <div class="exp-metrics">
+    <span>SESSIONS<b data-m="e1.sessions">0</b></span>
+    <span>ENGAGEMENTS / SESSION<b data-m="e1.eng">–</b></span>
+    <span>GREAT PINS BURIED BY THE CONVEYOR<b class="bad" data-m="e1.buried">0</b></span>
+    <span>LATE-BUT-GREAT, RESCUED BY THE POOL<b data-m="e1.late">0</b></span>
+  </div>
+  <figcaption class="exp-note">The model is deliberately simple and fully honest: each
+  pin carries a hidden quality; Pinnability's score is that quality plus noise; you
+  engage with what you're shown in proportion to true quality. The conveyor hands you
+  the newest eight of ~fifteen — a coin flip's worth of quality — and everything older
+  is gone forever, including the great stuff (watch the buried counter). The pool never
+  forgets an unseen pin: its top eight are the best of everything you haven't met yet,
+  and the rescued counter is chronology's quiet crime, itemized. Pinterest reported
+  ~30% more engagement when Pinnability shipped; the gap here comes out the same
+  way, from nothing but sorting.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Recommendations by random walk</h2>
+  <p>Pinterest's catalog is a bipartite graph: pins live on boards, boards collect pins.
+  Human curation already encoded taste into that structure — so <strong>Pixie</strong>
+  (2017) recommends without any precomputation at all. Take the user's recent pins,
+  release thousands of short random walks — pin to board to pin to board — with a bias
+  to restart at the query pins so walks don't wander off into the void, and count where
+  they land. High-visit pins are your recommendations: fresh, personal, computed in
+  ~60ms against a 3-billion-node, 17-billion-edge graph pruned to fit in one machine's
+  RAM. The panel below runs the actual algorithm on a small graph and lets you hold the
+  restart dial.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Pixie — thousands of walks vs the popularity chart</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-alpha">Restart probability</label>
+      <input type="range" id="r-alpha" min="10" max="90" value="50" step="5">
+      <output data-m="e2.alpha">0.50</output></span>
+    <span>2,000 REAL WALKS FROM YOUR 3 RECENT PINS · GRAPH: 360 PINS × 72 BOARDS</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:300px" role="img" aria-label="A pin-and-board graph clustered by topic; random walks spark outward from three query pins, visit counts accumulate, and the top recommendations stay overwhelmingly on-topic while a global popularity baseline recommends the same viral pins to everyone"></canvas>
+  <div class="exp-metrics">
+    <span>ON-TOPIC RECOMMENDATIONS<b data-m="e2.rel">–</b></span>
+    <span>GRAPH TOUCHED PER QUERY<b data-m="e2.reach">–</b></span>
+    <span>COST<b data-m="e2.walks">–</b></span>
+  </div>
+  <figcaption class="exp-note">These are real walks — you can watch a few of the two
+  thousand as they happen. Against the baseline (recommend whatever's globally popular:
+  the same viral pins for everyone), Pixie's picks stay on your topics because the walk
+  physically cannot leave your neighborhood without crossing curated board edges. The
+  restart dial is the honest trade: drag it low and walks drift — on-topic share falls
+  as recommendations blur toward the global average; drag it high and walks barely
+  leave home — precise, but the touched-graph counter collapses and discovery dies.
+  Pinterest tuned per-pin walk budgets around exactly this dial; the paper reports
+  +50% engagement over the Hadoop pipeline it replaced.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>No joins — hydrate through the cache wall</h2>
+  <p>The sharding scheme has a price written into it: there are no joins, no foreign
+  keys, no cross-shard transactions. A board page — one board, fifty pins, fifty
+  authors — can't be a <code>JOIN</code>, because those rows live on dozens of shards
+  by design. Pinterest's answer is the pattern half the industry now runs: read the
+  <em>mapping table</em> for IDs, then hydrate every object by ID through a thick
+  memcached layer in one batched multi-get. The relational query becomes a hundred key
+  lookups — which sounds worse until you remember key lookups are what caches,
+  and 65,536 shards, are perfect at.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">The join that can't shard vs a hundred key lookups</span>
+    <span class="exp-run"><button class="btn" data-run="e3">PAUSE</button><button class="btn" data-reset="e3">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-rate">Board-page views/s</label>
+      <input type="range" id="r-rate" min="20" max="150" value="100" step="5">
+      <output data-m="e3.rate">100</output></span>
+    <span>ONE PAGE = 1 BOARD + 50 PINS + 50 AUTHORS · BOTH WORLDS SERVE THE SAME TRAFFIC</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:280px" role="img" aria-label="The same board-page traffic hits two worlds: a single relational database running fifty-way joins saturates and its p95 explodes as traffic climbs, while the sharded world reads a mapping table and hydrates a hundred IDs through memcached in milliseconds, spreading trivial load across the shard grid"></canvas>
+  <div class="exp-metrics">
+    <span>JOIN WORLD<b class="bad" data-m="e3.join">–</b></span>
+    <span>HYDRATE WORLD<b data-m="e3.hyd">–</b></span>
+    <span>CACHE<b data-m="e3.cache">–</b></span>
+  </div>
+  <figcaption class="exp-note">The join is genuinely cheaper per query — one round trip,
+  ~18ms of one database's CPU — right up until it isn't: joins can't leave the one
+  machine that holds all the tables, so the slider is a countdown. The hydrate world
+  pays differently: 1 mapping read + a batched multi-get for 100 objects, 95% answered
+  by memcached in a third of a millisecond, the misses scattered as primary-key reads
+  across 128 shard-slices at ~4% load each. Slide traffic to 150/s: one world has a
+  queue, the other has a shrug. "No joins" isn't a limitation of the design — it
+  <em>is</em> the design.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The great simplification</h2>
+  <p>The context for all of it: in 2012, mid-hypergrowth, Pinterest was running MySQL,
+  Cassandra, MongoDB, membase, and Redis at once — and the clustered systems kept
+  failing in ways nobody could diagnose at 3 AM while traffic doubled every six weeks.
+  The founding scaling decision wasn't a technology; it was a subtraction. They removed
+  everything exotic and kept what was "mature, well-known, well-liked" — MySQL,
+  memcached, Redis, Solr — because a system that fails in <em>understood</em> ways is
+  worth more than one that's theoretically better. Everything in this episode stands on
+  that call: the boring shards, the ID that routes itself, the cache wall. And on top
+  of the boring, the adventurous: visual search that finds the lamp in your photo among
+  billions of pins (one of the first production CNN retrieval systems, 2015; 600M+
+  visual searches a month by 2019), and Pixie's graph in RAM.</p>
+  <p>The keeper: <strong>be boring where you must be reliable, and radical only where
+  it's the product — Pinterest sharded like an accountant and recommended like a
+  gambler, and both choices were the same discipline.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Pinterest Engineering — <a href="https://medium.com/pinterest-engineering/sharding-pinterest-how-we-scaled-our-mysql-fleet-3f341e96ca6f">Sharding Pinterest: How we scaled our MySQL fleet</a>, 2015 — the ID bit layout, object/mapping tables, no-joins discipline.</li>
+    <li>HighScalability — <a href="https://highscalability.com/scaling-pinterest-from-0-to-10s-of-billions-of-page-views-a/">Scaling Pinterest</a>, 2013 — the NoSQL purge and the boring-stack doctrine.</li>
+    <li>Pinterest Engineering — <a href="https://medium.com/pinterest-engineering/building-a-smarter-home-feed-ad1918fdfbe3">Building a smarter home feed</a> and <a href="https://medium.com/pinterest-engineering/building-a-scalable-and-available-home-feed-6a343766bb6">Building a scalable and available home feed</a>, 2014 — pools vs materialized content, the (user, score, pin) key; <a href="https://medium.com/pinterest-engineering/pinnability-machine-learning-in-the-home-feed-64be2074bf60">Pinnability</a>, 2015 (~30% engagement lift).</li>
+    <li>Eksombatchai, Leskovec et al. — <a href="https://arxiv.org/abs/1711.07601">Pixie: A System for Recommending 3+ Billion Items to 200+ Million Users in Real-Time</a>, WWW 2018 — the random-walk recommender, graph-in-RAM, 60ms p99.</li>
+    <li>Jing et al. — <a href="https://arxiv.org/abs/1505.07647">Visual Search at Pinterest</a>, KDD 2015; Zhai et al. — <a href="https://arxiv.org/abs/1908.01707">Learning a Unified Embedding</a>, KDD 2019.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next in the wider world: <b>LinkedIn plugs everything into the log</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+
+/* ================= HERO: the self-routing ID ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(3),
+  reset(){ this.t=0; this.n=0; this.mint(); },
+  mint(){
+    this.n++;
+    this.shard=Math.floor(this.rng()*65536);
+    this.type=[1,2,3][Math.floor(this.rng()*3)];
+    this.local=Math.floor(this.rng()*68719476736);
+    this.mintAt=this.t;
+    setM('hero.n', this.n);
+    setM('hero.shard', 'shard '+this.shard.toLocaleString('en-US')+' · '+(['','PIN','BOARD','USER'][this.type])+' · row '+this.local.toLocaleString('en-US'));
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t-this.mintAt>2.8) this.mint();
+    setM('hero.lookups', '0 — THE ID IS THE MAP');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const u=Math.min(1,(this.t-this.mintAt)/1.2);
+    // the 64-bit strip
+    const sx=60, sw=W-120, sy=52;
+    const segs=[['2 RSVD',2,'#3A4A5C'],['16 BITS — SHARD',16,CSS.traffic],['10 — TYPE',10,CSS.b],['36 BITS — LOCAL ROW',36,CSS.a]];
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('A SAVE MINTS AN ID:  (shard « 46) | (type « 36) | local', sx, 30);
+    let x=sx;
+    for(const [label,bits,col] of segs){
+      const w=sw*bits/64;
+      ctx.strokeStyle=col;
+      ctx.strokeRect(x, sy, w, 30);
+      ctx.fillStyle=col; ctx.textAlign='center';
+      ctx.fillText(label, x+w/2, sy+19);
+      x+=w;
+    }
+    ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+    const id=(BigInt(this.shard)<<46n)|(BigInt(this.type)<<36n)|BigInt(this.local);
+    ctx.fillText('ID '+id.toString(), W/2, sy+52);
+    // shard grid (128 cells stand for 65,536)
+    const gcols=32, grows=4, gw=(W-120)/gcols, gy=150;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('65,536 LOGICAL SHARDS (128 DRAWN) — PHYSICAL HOSTS ARE JUST A CONFIG LAYER', 60, gy-10);
+    const target=Math.floor(this.shard/65536*128);
+    for(let i=0;i<128;i++){
+      const cx2=60+(i%gcols)*gw, cy2=gy+Math.floor(i/gcols)*22;
+      const hit=i===target && u>0.7;
+      ctx.strokeStyle= hit? CSS.traffic : CSS.line;
+      ctx.lineWidth= hit? 2:1;
+      ctx.strokeRect(cx2, cy2, gw-3, 18);
+      ctx.lineWidth=1;
+      if(hit){ ctx.fillStyle=CSS.traffic; ctx.globalAlpha=.3; ctx.fillRect(cx2, cy2, gw-3, 18); ctx.globalAlpha=1; }
+    }
+    // arrow from shard segment to target cell
+    if(u>0.15){
+      const ax0=sx+sw*(2/64)+sw*(16/64)/2, ay0=sy+30;
+      const ax1=60+(target%gcols)*gw+gw/2, ay1=gy+Math.floor(target/gcols)*22;
+      const uu=Math.min(1,(u-0.15)/0.55);
+      ctx.strokeStyle=CSS.traffic; ctx.globalAlpha=.8;
+      ctx.beginPath(); ctx.moveTo(ax0, ay0);
+      ctx.lineTo(ax0+(ax1-ax0)*uu, ay0+(ay1-ay0)*uu); ctx.stroke();
+      ctx.globalAlpha=1;
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(ax0+(ax1-ax0)*uu, ay0+(ay1-ay0)*uu, 3, 0, 7); ctx.fill();
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('TWO SHIFTS AND A MASK — NO DIRECTORY SERVICE, NO LOOKUP, EVER', W/2, H-14);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: conveyor vs pool ================= */
+const SEE=8;
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(11),
+  reset(){ this.t=0; this.nextPin=0.3; this.nextSession=6;
+    this.conveyor=[];                  // newest-first {q, born}
+    this.pool=[];                      // sorted by score desc {q, score, born}
+    this.sessions=0; this.engC=0; this.engP=0;
+    this.buried=0; this.late=0; this.lastShownC=[]; this.lastShownP=[];
+    for(let i=0;i<15;i++) this.addPin();   // never draw an empty panel:
+    this.session(); },                      // prime with a first session
+  addPin(){
+    const q=this.rng();
+    const score=Math.max(0, Math.min(1, q+(this.rng()-0.5)*0.24));
+    this.conveyor.unshift({q, born:this.t});
+    this.pool.push({q, score, born:this.t});
+    this.pool.sort((a,b)=>b.score-a.score);
+  },
+  session(){
+    this.sessions++;
+    // conveyor: newest 8; everything older than what's shown is buried forever
+    const shownC=this.conveyor.slice(0, SEE);
+    const missed=this.conveyor.slice(SEE);
+    this.buried+=missed.filter(p=>p.q>0.7).length;
+    for(const p of shownC) if(this.rng()<p.q) this.engC++;
+    this.lastShownC=shownC;
+    this.conveyor=[];                              // the belt moved on
+    // pool: top 8 unseen
+    const shownP=this.pool.slice(0, SEE);
+    for(const p of shownP){
+      if(this.rng()<p.q) this.engP++;
+      if(this.t-p.born>6.5 && p.q>0.7) this.late++;  // older than one session yet surfaced
+    }
+    this.lastShownP=shownP;
+    this.pool=this.pool.slice(SEE);
+  },
+  update(dt){
+    this.t+=dt;
+    while(this.nextPin<=this.t){
+      this.nextPin+=0.4;
+      this.addPin();
+    }
+    if(this.t>=this.nextSession){
+      this.nextSession=this.t+6;
+      this.session();
+    }
+    setM('e1.sessions', this.sessions);
+    setM('e1.eng', this.sessions? 'chrono '+(this.engC/this.sessions).toFixed(1)+' vs pool '+(this.engP/this.sessions).toFixed(1) : '–');
+    setM('e1.buried', this.buried);
+    setM('e1.late', this.late);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const col=(x0, title, shown, colr, sub)=>{
+      ctx.fillStyle=colr; ctx.textAlign='left';
+      ctx.fillText(title, x0, 30);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(sub, x0, 44);
+      shown.slice(0,SEE).forEach((p,i)=>{
+        const y=56+i*26;
+        ctx.strokeStyle=CSS.line;
+        ctx.strokeRect(x0, y, 250, 20);
+        ctx.fillStyle= p.q>0.7? CSS.traffic : p.q>0.4? CSS.a : '#3A4A5C';
+        ctx.fillRect(x0+2, y+2, 246*p.q, 16);
+        ctx.fillStyle=CSS.ink; ctx.textAlign='right';
+        ctx.fillText('q '+p.q.toFixed(2), x0+244, y+14);
+        ctx.textAlign='left';
+      });
+    };
+    col(60,  'THE CONVEYOR — NEWEST 8', this.lastShownC, CSS.a, 'arrival order · the rest scrolled away');
+    col(W-320, 'THE POOL — TOP 8 UNSEEN', this.lastShownP, CSS.b, '(user, score, pin) · scan head reads the top');
+    // middle annotation
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('SAME', W/2, H*0.42);
+    ctx.fillText('PINS', W/2, H*0.42+14);
+    ctx.fillText('BAR = HIDDEN TRUE QUALITY · YOU ENGAGE IN PROPORTION TO IT', W/2, H-30);
+    ctx.fillText('THE CONVEYOR FORGETS · THE POOL ONLY FORGETS WHAT YOU\'VE SEEN', W/2, H-14);
+  }
+};
+e1.reset();
+
+/* ================= EXP-02: Pixie random walks ================= */
+const rAlpha=document.getElementById('r-alpha');
+const TOPICS=12, BPT=6, PPT=30;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0;
+    const rng=mulberry32(19);
+    this.pins=[]; this.boards=[];
+    for(let tp=0;tp<TOPICS;tp++){
+      for(let b=0;b<BPT;b++) this.boards.push({topic:tp, pins:[]});
+      for(let p=0;p<PPT;p++) this.pins.push({topic:tp, boards:[], pop:rng()});
+    }
+    for(let pi=0;pi<this.pins.length;pi++){
+      const p=this.pins[pi];
+      const nb=2+Math.floor(rng()*3);
+      for(let e=0;e<nb;e++){
+        const sameTopic=rng()<0.85;
+        const tp=sameTopic? p.topic : Math.floor(rng()*TOPICS);
+        const bi=tp*BPT+Math.floor(rng()*BPT);
+        if(!p.boards.includes(bi)){ p.boards.push(bi); this.boards[bi].pins.push(pi); }
+      }
+    }
+    // two global virals: celebrity hubs pinned to boards in EVERY topic —
+    // exactly the gravity wells that make restarting walks necessary
+    for(const vi of [7,190]){
+      const v=this.pins[vi]; v.pop=8+(vi===190?1:0);
+      for(let tp=0;tp<TOPICS;tp++){
+        const bi=tp*BPT+Math.floor(rng()*BPT);
+        if(!v.boards.includes(bi)){ v.boards.push(bi); this.boards[bi].pins.push(vi); }
+      }
+    }
+    this.qTopics=[2,7];
+    this.query=[2*PPT+3, 7*PPT+11, 7*PPT+4];
+    this.rng=rng; this.nextRun=0.2; this.trails=[]; this.res=null; },
+  alpha(){ return +rAlpha.value/100; },
+  runWalks(){
+    const visits=new Map();
+    const a=this.alpha();
+    let steps=0; const trails=[];
+    for(let w=0;w<2000;w++){
+      let cur=this.query[w%3];
+      const trail=w<5? [cur]:null;
+      for(let s=0;s<20;s++){
+        steps++;
+        if(this.rng()<a){ cur=this.query[w%3]; if(trail) trail.push(cur); continue; }
+        const p=this.pins[cur];
+        if(!p.boards.length) break;
+        const b=p.boards[Math.floor(this.rng()*p.boards.length)];
+        const bp=this.boards[b].pins;
+        if(!bp.length) break;
+        cur=bp[Math.floor(this.rng()*bp.length)];
+        if(trail) trail.push(cur);
+        if(!this.query.includes(cur)) visits.set(cur,(visits.get(cur)||0)+1);
+      }
+      if(trail) trails.push(trail);
+    }
+    const top=[...visits.entries()].sort((x,y)=>y[1]-x[1]).slice(0,10).map(e=>e[0]);
+    const rel=top.filter(pi=>this.qTopics.includes(this.pins[pi].topic)).length/10;
+    // popularity baseline
+    const popTop=this.pins.map((p,i)=>({i, s:p.pop*(1+p.boards.length)}))
+      .filter(o=>!this.query.includes(o.i))
+      .sort((x,y)=>y.s-x.s).slice(0,10).map(o=>o.i);
+    const popRel=popTop.filter(pi=>this.qTopics.includes(this.pins[pi].topic)).length/10;
+    this.res={top, rel, popRel, reach:visits.size, steps, trails};
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.nextRun){ this.nextRun=this.t+1.6; this.runWalks(); }
+    if(this.res){
+      setM('e2.alpha', this.alpha().toFixed(2));
+      setM('e2.rel', 'pixie '+Math.round(this.res.rel*100)+'% vs popularity '+Math.round(this.res.popRel*100)+'%');
+      setM('e2.reach', this.res.reach+' of 360 pins');
+      setM('e2.walks', '2,000 walks · '+(this.res.steps/1000).toFixed(0)+'K steps · <1ms here, 60ms p99 real');
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const cx=W*0.36, cy=H*0.50, RX=W*0.235, RY=H*0.37;
+    const pinPos=pi=>{
+      const p=this.pins[pi];
+      const a=(p.topic+0.5)/TOPICS*Math.PI*2;
+      const j=(pi*2654435761 % 1000)/1000;
+      const rr=0.55+j*0.42;
+      const aj=a+((pi*40503%1000)/1000-0.5)*0.42;
+      return {x:cx+Math.cos(aj)*RX*rr, y:cy+Math.sin(aj)*RY*rr};
+    };
+    // pins
+    this.pins.forEach((p,i)=>{
+      const P=pinPos(i);
+      const isTop=this.res && this.res.top.includes(i);
+      const isQ=this.query.includes(i);
+      if(isQ){
+        ctx.strokeStyle=CSS.traffic; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(P.x, P.y, 6, 0, 7); ctx.stroke();
+        ctx.lineWidth=1;
+      } else if(isTop){
+        ctx.fillStyle=CSS.b;
+        ctx.beginPath(); ctx.arc(P.x, P.y, 3.6, 0, 7); ctx.fill();
+      } else {
+        ctx.fillStyle= this.qTopics.includes(p.topic)? '#4A607A' : '#22334A';
+        ctx.beginPath(); ctx.arc(P.x, P.y, 1.6, 0, 7); ctx.fill();
+      }
+    });
+    // a few walk trails
+    if(this.res){
+      const phase=(this.t*0.7)%1;
+      this.res.trails.forEach((tr,k)=>{
+        ctx.strokeStyle=CSS.traffic; ctx.globalAlpha=0.25;
+        ctx.beginPath();
+        const upto=Math.max(2, Math.floor(tr.length*phase));
+        for(let s=0;s<upto;s++){
+          const P=pinPos(tr[s]);
+          if(s===0) ctx.moveTo(P.x, P.y); else ctx.lineTo(P.x, P.y);
+        }
+        ctx.stroke(); ctx.globalAlpha=1;
+      });
+    }
+    // legend
+    const lx=W-206;
+    ctx.textAlign='left';
+    ctx.strokeStyle=CSS.traffic; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(lx+6, 40, 5, 0, 7); ctx.stroke(); ctx.lineWidth=1;
+    ctx.fillStyle=CSS.muted; ctx.fillText('YOUR 3 RECENT PINS', lx+20, 44);
+    ctx.fillStyle=CSS.b; ctx.beginPath(); ctx.arc(lx+6, 60, 3.6, 0, 7); ctx.fill();
+    ctx.fillStyle=CSS.muted; ctx.fillText('TOP-10 BY VISITS', lx+20, 64);
+    ctx.fillStyle='#4A607A'; ctx.beginPath(); ctx.arc(lx+6, 80, 2, 0, 7); ctx.fill();
+    ctx.fillStyle=CSS.muted; ctx.fillText('PINS IN YOUR TOPICS', lx+20, 84);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('AMBER TRAILS =', lx, 108);
+    ctx.fillText('5 OF THE 2,000 WALKS', lx, 122);
+    ctx.fillText('PIN → BOARD → PIN,', lx, 144);
+    ctx.fillText('RESTART W.P. α', lx, 158);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('12 TOPIC CLUSTERS · CURATION IS THE EDGE STRUCTURE — WALKS CAN\'T LEAVE WITHOUT CROSSING IT', W/2, H-12);
+  }
+};
+e2.reset();
+rAlpha.addEventListener('input',()=>setM('e2.alpha',(+rAlpha.value/100).toFixed(2)));
+
+/* ================= EXP-03: joins vs hydration ================= */
+const rRate=document.getElementById('r-rate');
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){ this.t=0; this.q=0; },
+  update(dt){
+    this.t+=dt;
+    const rate=+rRate.value;
+    // join world: 18ms CPU per page on one box with 1000ms/s of budget
+    const demand=rate*18;
+    this.q=Math.max(0, this.q+(demand-1000)*dt);
+    const joinP95=0.018+this.q/1000;
+    // hydrate world: 1 mapping read + batched mget (95% hit) + parallel misses
+    const hydP95=0.001+0.0004+0.0022;
+    setM('e3.rate', rate);
+    setM('e3.join', 'DB '+Math.round(demand/10)+'%'+(demand>1000?' — MELTING':'')+' · p95 '+(joinP95>=1? joinP95.toFixed(1)+'s' : Math.round(joinP95*1000)+'ms'));
+    setM('e3.hyd', 'shards ~'+(rate*5/128).toFixed(1)+'% each · p95 4ms');
+    setM('e3.cache', '95% HITS · 0.3ms BATCHED MGET');
+    this._d={rate, demand, joinP95};
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const d=this._d; if(!d) return;
+    // left: the join
+    const sat=d.demand>1000;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('ONE RELATIONAL DATABASE', W*0.25, 30);
+    ctx.strokeStyle= sat? CSS.fault : CSS.a; ctx.lineWidth=2;
+    ctx.strokeRect(W*0.25-90, 44, 180, 92);
+    ctx.lineWidth=1;
+    ctx.fillStyle= sat? CSS.fault : CSS.ink;
+    ctx.fillText('SELECT … FROM boards', W*0.25, 68);
+    ctx.fillText('JOIN pins JOIN users', W*0.25, 84);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('18ms CPU · CANNOT SHARD', W*0.25, 102);
+    if(sat){
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('QUEUE: '+(this.q/1000).toFixed(1)+'s OF WORK', W*0.25, 122);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('EVERY TABLE MUST LIVE ON THIS ONE MACHINE', W*0.25, 158);
+    // right: hydration
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('MAPPING TABLE → 100 IDS → CACHE WALL → SHARDS', W*0.72, 30);
+    // cache wall
+    ctx.strokeStyle=CSS.b; ctx.lineWidth=2;
+    ctx.strokeRect(W*0.72-130, 44, 260, 30);
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.b; ctx.fillText('MEMCACHED — 95% OF LOOKUPS DIE HERE', W*0.72, 63);
+    // shard grid
+    const gc=16, gw=260/gc;
+    for(let i=0;i<32;i++){
+      const x=W*0.72-130+(i%gc)*gw, y=92+Math.floor(i/gc)*24;
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(x, y, gw-3, 20);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('128 SHARD-SLICES (32 DRAWN) · ~'+(d.rate*5/128).toFixed(1)+'% LOAD EACH', W*0.72, 152);
+    // misses trickle
+    for(let i=0;i<5;i++){
+      const u=(this.t*1.5+i/5)%1;
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(W*0.72-100+i*50, 74+u*18, 2, 0, 7); ctx.fill();
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('SAME '+d.rate+' PAGE VIEWS/s INTO BOTH WORLDS', W/2, H-40);
+    ctx.fillText('A JOIN IS CHEAPER — UNTIL THE ONLY MACHINE THAT CAN RUN IT IS FULL', W/2, H-16);
+  }
+};
+e3.reset();
+rRate.addEventListener('input',()=>setM('e3.rate', rRate.value));
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

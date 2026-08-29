@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Swipe — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 29</p>
+  <h1>The Swipe</h1>
+  <p class="dek">Dating is local — a user in California never needs a London profile —
+  so Tinder cut the world itself into shards: map cells sized so that Tokyo's tile is
+  tiny and Wyoming's is enormous, and every one holds about the same number of people.
+  Underneath, 1.6 billion daily swipes flow through a stream where a match is not a
+  database join but an O(1) cache probe — and the "It's a Match!" moment arrives as a
+  five-byte nudge down a WebSocket that replaced two-second polling from every open
+  phone on Earth.</p>
+  <p class="marginal">Everything below is honestly simulated: the map cells come from a
+  real density-adaptive subdivision of a synthetic world, the cell-size dial traces a
+  genuine cost minimum (fan-out overhead vs index size — the model is stated in the
+  note), the double-swipe race is a true check-then-insert interleaving, and the
+  polling arithmetic is division.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The world, cut to fit its people — equal people, unequal land</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:300px" role="img" aria-label="A synthetic world map of user dots with six dense metros; a quadtree subdivides until every cell holds roughly equal users, producing tiny tiles over cities and huge ones over empty land; ambient queries draw their search circles and light the one to three cells they touch"></canvas>
+  <div class="exp-metrics">
+    <span>CELLS<b data-m="hero.cells">–</b></span>
+    <span>QUERY FAN-OUT<b data-m="hero.fan">–</b></span>
+    <span>REAL THING<b>S2 CELLS · LEVEL 7-8 · ~22-45mi</b></span>
+  </div>
+  <figcaption class="exp-note">Google's S2 library maps the sphere onto cells along a
+  space-filling curve, so nearby places get nearby IDs and "which cells cover this
+  circle?" is cheap arithmetic. Tinder sizes the cells by population — small where
+  people cluster, vast where they don't — so every shard carries similar load. Watch
+  the ambient queries: most search circles live inside one cell; near a border they
+  fan to two or three, never to the world. Episode 9 used hexagons to <em>match</em>
+  drivers inside one city; this is the other geographic trick — using the map to
+  <em>shard</em> a planet-wide index.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>One index for Earth, or a dial with a sweet spot</h2>
+  <p>Tinder's original design kept every profile in one Elasticsearch index — and every
+  query paid for the whole planet's index structures to find neighbors within a few
+  miles. Geosharding fixed it (the published result: roughly 20× the query capacity
+  from the same hardware) — but it opened a genuinely interesting dial. Make cells too
+  big and each query rummages through an oversized index again. Make them too small
+  and every search circle straddles borders, fanning out to many shards, each charging
+  fixed per-shard overhead and a merge. Somewhere in between is a real minimum — not a
+  metaphor, a curve — and the slider below traces it against this world's actual
+  geometry.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">The cell-size dial — fan-out vs index size, a true U-curve</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-cap">Users per cell</label>
+      <input type="range" id="r-cap" min="15" max="400" value="80" step="5">
+      <output data-m="e1.size">80</output></span>
+    <span>QUERY COST = PER-SHARD OVERHEAD × SHARDS + INDEX COST ∝ (SHARD USERS)^0.8</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:300px" role="img" aria-label="The map re-subdivides as the users-per-cell slider moves, while a cost curve computed from three hundred sampled queries shows total query cost against cell size: high at tiny cells from border fan-out, high at huge cells from index size, with a marked minimum in between and a global-index reference line far above"></canvas>
+  <div class="exp-metrics">
+    <span>AVG QUERY COST<b data-m="e1.cost">–</b></span>
+    <span>SHARDS PER QUERY<b data-m="e1.fan">–</b></span>
+    <span>VS ONE GLOBAL INDEX<b data-m="e1.cap">–</b></span>
+  </div>
+  <figcaption class="exp-note">The curve is measured, not sketched: three hundred
+  density-weighted sample queries run against the actual subdivision at each cell
+  size. Left of the minimum, tiny cells mean a typical search circle touches four,
+  six, eight shards — each charging its fixed overhead and a merge. Right of it,
+  bloated cells drag every query through big-index costs again (modeled as
+  users^0.8 — tree and segment effects). Tinder tunes exactly this trade, and one
+  more that doesn't fit on the chart: shards from opposite longitudes share hardware,
+  so Tokyo's peak evening rides on London's quiet night.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Two right swipes, eighty milliseconds apart</h2>
+  <p>The write side is a river: over a billion and a half swipes a day. Left swipes
+  flow to cheap archive storage. A right swipe asks one question — <em>did they
+  already like me?</em> — and the obvious implementation is a read-modify-write:
+  check the likes store, then insert my like. But "check then insert" has a seam, and
+  the sweetest moment in the product lives exactly on it: two people swiping right on
+  <em>each other</em> at nearly the same instant. Both checks run before either
+  insert lands. Both see nothing. Both likes are recorded, no match is ever created,
+  and neither person will ever know. Tinder's pipeline closes the seam by
+  serializing: swipes flow through a stream partitioned by the <em>pair</em>, one
+  worker owns each pair's order, and the second swipe — even a millisecond later —
+  always sees the first.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">The mutual-swipe race — check-then-insert vs the pair-keyed stream</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-stream"> pair-keyed stream — one worker serializes each pair's swipes</label>
+    <span>30 SWIPES/s · A SIMULTANEOUS MUTUAL PAIR EVERY FEW SECONDS · SAME SWIPES BOTH WAYS</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:300px" role="img" aria-label="Swipes flow left to an archive and right through match processing; in check-then-insert mode two simultaneous right swipes on each other both check before either insert lands and the match is silently never created, while the pair-keyed stream serializes them so every mutual like becomes a match"></canvas>
+  <div class="exp-metrics">
+    <span>SWIPES<b data-m="e2.swipes">0</b></span>
+    <span>MATCHES<b data-m="e2.matches">0</b></span>
+    <span>MATCHES SILENTLY LOST<b class="bad" data-m="e2.missed">0</b></span>
+    <span>THE PROBE<b data-m="e2.probe">O(1) LIKES-CACHE LOOKUP · 0.3ms</b></span>
+  </div>
+  <figcaption class="exp-note">Watch the race panel when a simultaneous pair fires:
+  in check-then-insert mode you can read the fatal interleaving line by line — two
+  checks, two inserts, zero matches, and the counter of silently lost matches ticks
+  up a heartbreak nobody will ever report as a bug. Flip on the <em>stream</em>: the
+  same two swipes arrive at one worker in <em>some</em> order, and whichever runs
+  second finds the first's like in the cache. Exactly the read-think-commit seam from
+  Airbnb's calendar in episode 22 — but here both racers want to lose to each other,
+  and serialization is what lets them.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Anything new? Anything new? Anything new?</h2>
+  <p>Until 2019, every open Tinder app asked the server "anything new?" every two
+  seconds — and the answer was almost always no. The arithmetic of polite polling is
+  brutal: half your users' request rate exists to deliver silence. The replacement
+  holds one WebSocket per open app, and when something actually happens — a match, a
+  message — a gateway pushes a tiny protobuf <strong>Nudge</strong>: not the data,
+  just "something's new," after which the client fetches through the normal API.
+  Nudges are best-effort on purpose: a lost one is healed by the next event or by a
+  slow fallback sync, which keeps the realtime tier stateless and forgiving.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">Two-second polling vs the nudge — silence, priced</span>
+    <span class="exp-run"><button class="btn" data-run="e3">PAUSE</button><button class="btn" data-reset="e3">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-apps">Open apps</label>
+      <input type="range" id="r-apps" min="10" max="500" value="200" step="10">
+      <output data-m="e3.apps">200K</output></span>
+    <span class="ctl"><label for="r-loss">Nudge loss</label>
+      <input type="range" id="r-loss" min="0" max="20" value="2" step="1">
+      <output data-m="e3.loss">2%</output></span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:280px" role="img" aria-label="Split screen: hundreds of thousands of phones polling every two seconds generate a hundred thousand requests per second that almost all answer nothing, against a quiet wall of WebSockets where only real events flow as tiny nudges; server counts and delivery latency are compared, including the fallback that heals lost nudges"></canvas>
+  <div class="exp-metrics">
+    <span>SERVER TRAFFIC<b class="bad" data-m="e3.req">–</b></span>
+    <span>FLEET<b data-m="e3.srv">–</b></span>
+    <span>DELIVERY<b data-m="e3.stale">–</b></span>
+  </div>
+  <figcaption class="exp-note">At 200K open apps, polling is 100,000 requests a second
+  — 99.8% of which exist to say "nothing yet" — and a fleet sized for silence. The
+  nudge world's message rate is the <em>event</em> rate: a few hundred a second, plus
+  the honest costs the note refuses to hide: every socket holds ~20KB of server
+  memory, and a lost nudge (drag the loss slider) isn't retransmitted — it's healed
+  within a minute by the fallback sync, a bounded staleness the design accepts on
+  purpose. Notify-then-fetch: the realtime tier carries the news, never the
+  goods.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What the swipe teaches</h2>
+  <p>Tinder's stack is a tour of this series' greatest hits wearing one product:
+  Kafka partitioned by user so a moving profile's updates replay in order (episode
+  4's log, keeping episode 22's promise), Elasticsearch sharded by the planet itself,
+  a match pipeline that turned a join into a stream plus a cache (episode 17's
+  shield, pointed at romance), and a realtime tier that learned WhatsApp's lesson
+  about connections and Slack's about edges. The ranking beneath — swipe-embedding
+  vectors since 2017, deep models and kNN after the Elasticsearch 8 migration — rides
+  on the same geosharded index, re-validated years later: 12% of CPU with geosharding
+  against a projected 50% without.</p>
+  <p>The keeper: <strong>when your queries are local, shard by the world — cut cells
+  to equal people, accept the border fan-out, and let geography do the load
+  balancing. And never let a race decide whether two people who chose each other get
+  to know it.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Tinder Engineering — <a href="https://medium.com/tinder-engineering/geosharded-recommendations-part-1-sharding-approach-d5d54e0ec77a">Geosharded Recommendations, Parts 1–3</a>, 2019 — S2 cells, shard sizing, border fan-out, Kafka-ordered consistency.</li>
+    <li>D. Dyankov — <a href="https://medium.com/tinder-engineering/how-tinder-delivers-your-matches-and-messages-at-scale-504049f22ce0">How Tinder delivers your matches and messages at scale</a>, 2019 — Keepalive, protobuf Nudges, the end of 2-second polling.</li>
+    <li>Life at Tinder — <a href="https://www.lifeattinder.com/blog/tinders-migration-to-elasticsearch-8">Tinder's migration to Elasticsearch 8</a> — latency gains, kNN ranking, geosharding re-validated (12% vs 50% CPU).</li>
+    <li>ByteByteGo — <a href="https://blog.bytebytego.com/p/how-tinder-recommends-to-75-million">How Tinder Recommends to 75 Million Users</a>, 2024, and systemdesign.one — <a href="https://newsletter.systemdesign.one/p/tinder-architecture">1.6 Billion Swipes per Day</a>, 2024 — cell sizes, the ~20× capacity figure, swipe pipeline and Likes cache (secondary syntheses of Tinder's posts).</li>
+    <li>MLconf 2017 — <a href="https://mlconf.com/sessions/personalized-user-recommendations-at-tinder-the-t/">TinVec: swipe-based user embeddings</a>.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · The finale: <b>Wikipedia — the encyclopedia that serves the world on donations</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+
+/* ---------- the synthetic world (shared) ---------- */
+function makeWorld(){
+  const rng=mulberry32(7);
+  const metros=[[0.18,0.30],[0.34,0.62],[0.52,0.25],[0.68,0.55],[0.82,0.30],[0.62,0.80]];
+  const pts=[];
+  for(let i=0;i<2200;i++){
+    if(rng()<0.75){
+      const m=metros[Math.floor(rng()*6)];
+      pts.push({x:Math.min(0.99,Math.max(0.01,m[0]+(rng()+rng()+rng()-1.5)*0.055)),
+                y:Math.min(0.99,Math.max(0.01,m[1]+(rng()+rng()+rng()-1.5)*0.055))});
+    } else pts.push({x:rng(), y:rng()});
+  }
+  return {pts, rng};
+}
+function quadtree(pts, cap){
+  const cells=[];
+  const split=(x,y,w,h,ids,depth)=>{
+    if(ids.length<=cap || depth>=7){ cells.push({x,y,w,h,n:ids.length,ids}); return; }
+    const hw=w/2, hh=h/2;
+    const q=[[],[],[],[]];
+    for(const i of ids){
+      const p=pts[i];
+      q[(p.x>=x+hw?1:0)+(p.y>=y+hh?2:0)].push(i);
+    }
+    split(x,y,hw,hh,q[0],depth+1); split(x+hw,y,hw,hh,q[1],depth+1);
+    split(x,y+hh,hw,hh,q[2],depth+1); split(x+hw,y+hh,hw,hh,q[3],depth+1);
+  };
+  split(0,0,1,1,pts.map((_,i)=>i),0);
+  return cells;
+}
+function cellsTouching(cells, cx, cy, r){
+  return cells.filter(c=>{
+    const nx=Math.max(c.x, Math.min(cx, c.x+c.w));
+    const ny=Math.max(c.y, Math.min(cy, c.y+c.h));
+    return (nx-cx)*(nx-cx)+(ny-cy)*(ny-cy) <= r*r;
+  });
+}
+const SCALE=75e6/2200;   // synthetic users → real users
+
+/* ================= HERO: the world, cut to fit ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  reset(){ this.t=0;
+    this.world=makeWorld();
+    this.cells=quadtree(this.world.pts, 60);
+    this.rng=mulberry32(9);
+    // fan-out census from 60 density-weighted queries at a typical (~10mi) radius
+    let one=0, few=0, many=0;
+    for(let i=0;i<60;i++){
+      const p=this.world.pts[Math.floor(this.rng()*2200)];
+      const n=cellsTouching(this.cells, p.x, p.y, 0.009).length;
+      if(n===1) one++; else if(n<=3) few++; else many++;
+    }
+    this.census=[one, few, many];
+    this.newQuery(); },
+  newQuery(){
+    const p=this.world.pts[Math.floor(this.rng()*2200)];
+    this.q={x:p.x, y:p.y, r:this.rng()<0.85? 0.009 : 0.05};
+    this.qCells=cellsTouching(this.cells, this.q.x, this.q.y, this.q.r);
+    this.qAt=this.t;
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t-this.qAt>2.4) this.newQuery();
+    setM('hero.cells', this.cells.length+' — TINY OVER METROS, HUGE OVER NOTHING');
+    setM('hero.fan', '1 SHARD: '+Math.round(this.census[0]/60*100)+'% · 2-3: '+Math.round(this.census[1]/60*100)+'% · 4+: '+Math.round(this.census[2]/60*100)+'%');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const mw=W-80, mh=H-58, mx=40, my=20;
+    const X=x=>mx+x*mw, Y=y=>my+y*mh;
+    // cells
+    for(const c of this.cells){
+      const lit=this.qCells.includes(c);
+      ctx.strokeStyle= lit? CSS.traffic : CSS.line;
+      ctx.globalAlpha= lit? 1 : .5;
+      ctx.strokeRect(X(c.x), Y(c.y), c.w*mw, c.h*mh);
+      ctx.globalAlpha=1;
+      if(lit){ ctx.fillStyle=CSS.traffic; ctx.globalAlpha=.12; ctx.fillRect(X(c.x), Y(c.y), c.w*mw, c.h*mh); ctx.globalAlpha=1; }
+    }
+    // users
+    for(const p of this.world.pts){
+      ctx.fillStyle='#3E5570'; ctx.globalAlpha=.7;
+      ctx.fillRect(X(p.x), Y(p.y), 1.4, 1.4);
+    }
+    ctx.globalAlpha=1;
+    // query circle
+    ctx.strokeStyle=CSS.traffic; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(X(this.q.x), Y(this.q.y), this.q.r*mw, 0, 7); ctx.stroke();
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.traffic;
+    ctx.beginPath(); ctx.arc(X(this.q.x), Y(this.q.y), 2.6, 0, 7); ctx.fill();
+    ctx.textAlign='left';
+    ctx.fillText(this.qCells.length+' SHARD'+(this.qCells.length>1?'S':''), Math.min(W-80, X(this.q.x)+10), Y(this.q.y)-8);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('EVERY CELL ≈ EQUAL PEOPLE · A SEARCH CIRCLE TOUCHES ITS NEIGHBORHOOD, NEVER THE WORLD', W/2, H-14);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: the cell-size U-curve ================= */
+const rCap=document.getElementById('r-cap');
+const S_LIST=[15,25,40,60,80,120,180,260,400];
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){ this.t=0;
+    this.world=makeWorld();
+    this.rng=mulberry32(13);
+    // 300 density-weighted sample query points
+    this.samples=Array.from({length:300},()=>this.world.pts[Math.floor(this.rng()*2200)]);
+    // measure the curve
+    this.curve=S_LIST.map(S=>{
+      const cells=quadtree(this.world.pts, S);
+      let cost=0, fan=0;
+      for(const p of this.samples){
+        const touched=cellsTouching(cells, p.x, p.y, 0.015);
+        fan+=touched.length;
+        let c=3 + (touched.length-1)*6;
+        for(const cell of touched) c += Math.pow(Math.max(1,cell.n)*SCALE, 0.8)*8.5e-5;
+        cost+=c;
+      }
+      return {S, cost:cost/300, fan:fan/300, cells:cells.length};
+    });
+    this.globalCost=3 + Math.pow(75e6, 0.8)*8.5e-5;
+    this.lastS=-1; this.refresh(); },
+  refresh(){
+    const S=+rCap.value;
+    if(S===this.lastS) return;
+    this.lastS=S;
+    this.cells=quadtree(this.world.pts, S);
+    // interpolate on the measured curve
+    let lo=this.curve[0], hi=this.curve[this.curve.length-1];
+    for(let i=0;i<this.curve.length-1;i++)
+      if(S>=this.curve[i].S && S<=this.curve[i+1].S){ lo=this.curve[i]; hi=this.curve[i+1]; break; }
+    const u=(S-lo.S)/Math.max(1,(hi.S-lo.S));
+    this.cur={S, cost:lo.cost+(hi.cost-lo.cost)*u, fan:lo.fan+(hi.fan-lo.fan)*u};
+  },
+  update(dt){
+    this.t+=dt;
+    this.refresh();
+    setM('e1.size', this.cur.S+' (≈'+(this.cur.S*SCALE/1e6).toFixed(1)+'M REAL)');
+    setM('e1.cost', this.cur.cost.toFixed(1)+'ms');
+    setM('e1.fan', this.cur.fan.toFixed(1)+' AVG');
+    setM('e1.cap', '×'+Math.round(this.globalCost/this.cur.cost)+' — GLOBAL WOULD BE '+Math.round(this.globalCost)+'ms');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    // left: the map at current S
+    const mw=W*0.46, mh=H-64, mx=30, my=22;
+    const X=x=>mx+x*mw, Y=y=>my+y*mh;
+    for(const c of this.cells){
+      ctx.strokeStyle=CSS.line; ctx.globalAlpha=.55;
+      ctx.strokeRect(X(c.x), Y(c.y), c.w*mw, c.h*mh);
+      ctx.globalAlpha=1;
+    }
+    for(const p of this.world.pts){
+      ctx.fillStyle='#3E5570'; ctx.globalAlpha=.6;
+      ctx.fillRect(X(p.x), Y(p.y), 1.2, 1.2);
+    }
+    ctx.globalAlpha=1;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText(this.cells.length+' CELLS AT '+this.cur.S+' USERS EACH', mx, H-26);
+    // right: the measured curve
+    const gx0=W*0.56, gx1=W-40, gy0=36, gy1=H-64;
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(gx0, gy0, gx1-gx0, gy1-gy0);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('AVG QUERY COST vs CELL SIZE — MEASURED ON THIS WORLD', gx0, gy0-8);
+    const maxC=Math.max(...this.curve.map(c=>c.cost))*1.2;
+    const GX=S=>gx0+ (Math.log(S/15)/Math.log(400/15)) * (gx1-gx0);
+    const GY=c=>gy1-(c/maxC)*(gy1-gy0-8);
+    ctx.strokeStyle=CSS.b; ctx.lineWidth=1.8;
+    ctx.beginPath();
+    this.curve.forEach((c,i)=>{ if(i===0) ctx.moveTo(GX(c.S), GY(c.cost)); else ctx.lineTo(GX(c.S), GY(c.cost)); });
+    ctx.stroke(); ctx.lineWidth=1;
+    // labels at ends, tucked under the curve
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('FAN-OUT', gx0+6, GY(this.curve[0].cost)+18);
+    ctx.fillText('PAIN', gx0+6, GY(this.curve[0].cost)+30);
+    ctx.textAlign='right';
+    ctx.fillText('BIG-INDEX', gx1-6, GY(this.curve[this.curve.length-1].cost)+18);
+    ctx.fillText('PAIN', gx1-6, GY(this.curve[this.curve.length-1].cost)+30);
+    // marker
+    ctx.fillStyle=CSS.traffic;
+    ctx.beginPath(); ctx.arc(GX(this.cur.S), GY(this.cur.cost), 4.5, 0, 7); ctx.fill();
+    ctx.textAlign='center';
+    ctx.fillText(this.cur.cost.toFixed(0)+'ms', GX(this.cur.S), GY(this.cur.cost)-12);
+    // global reference
+    ctx.strokeStyle=CSS.fault; ctx.setLineDash([4,3]);
+    const gyRef=Math.max(gy0+8, GY(Math.min(maxC*0.95,this.globalCost)));
+    ctx.beginPath(); ctx.moveTo(gx0, gyRef); ctx.lineTo(gx1, gyRef); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=CSS.fault; ctx.textAlign='left';
+    ctx.fillText('ONE GLOBAL INDEX ≈ '+Math.round(this.globalCost)+'ms (OFF THE CHART)', gx0+8, gyRef+14);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('BOTH ENDS OF THE DIAL HURT — THE MINIMUM IS GEOMETRY, NOT TASTE', W/2, H-14);
+  }
+};
+e1.reset();
+rCap.addEventListener('input',()=>e1.refresh());
+
+/* ================= EXP-02: the mutual-swipe race ================= */
+const tStream=document.getElementById('t-stream');
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  rng: mulberry32(23),
+  reset(){ this.t=0; this.nextSwipe=0; this.nextPair=2;
+    this.likes=new Set(); this.pending=[];   // naive in-flight inserts
+    this.sLikes=new Set();
+    this.swipes=0; this.matches=0; this.missed=0; this.rights=0;
+    this.trace=null; this.matchFlash=-9; },
+  key(a,b){ return a+'>'+b; },
+  processNaive(a,b){
+    // check committed likes only; insert lands 120ms later
+    const mutual=this.likes.has(this.key(b,a));
+    this.pending.push({k:this.key(a,b), at:this.t+0.12});
+    return mutual;
+  },
+  processStream(a,b){
+    // serialized per pair: record, then check — atomic
+    this.sLikes.add(this.key(a,b));
+    return this.sLikes.has(this.key(b,a));
+  },
+  update(dt){
+    this.t+=dt;
+    // commit naive pending inserts
+    this.pending=this.pending.filter(p=>{
+      if(this.t>=p.at){ this.likes.add(p.k); return false; }
+      return true; });
+    const stream=tStream.checked;
+    while(this.nextSwipe<=this.t){
+      this.nextSwipe+=1/30;
+      this.swipes++;
+      if(this.rng()<0.55) continue;          // left swipe → archive
+      this.rights++;
+      const a=Math.floor(this.rng()*400), b=Math.floor(this.rng()*400);
+      if(a===b) continue;
+      const mN=this.processNaive(a,b);
+      const mS=this.processStream(a,b);
+      if(stream? mS : mN){ this.matches++; this.matchFlash=this.t; }
+      if(mS && !mN && !stream){ /* naive missed one that stream caught */ }
+    }
+    // engineered simultaneous mutual pair
+    if(this.t>=this.nextPair){
+      this.nextPair=this.t+3.5;
+      const a=400+Math.floor(this.rng()*100), b=600+Math.floor(this.rng()*100);
+      this.swipes+=2; this.rights+=2;
+      const mN1=this.processNaive(a,b);
+      const mN2=this.processNaive(b,a);      // both checks run before either insert commits
+      const mS1=this.processStream(a,b);
+      const mS2=this.processStream(b,a);     // serialized: the second always sees the first
+      const naiveGot=mN1||mN2, streamGot=mS1||mS2;
+      if(stream){ if(streamGot){ this.matches++; this.matchFlash=this.t; } }
+      else { if(naiveGot){ this.matches++; this.matchFlash=this.t; } else this.missed++; }
+      this.trace={a, b, naiveGot, at:this.t};
+    }
+    setM('e2.swipes', this.swipes.toLocaleString('en-US'));
+    setM('e2.matches', this.matches);
+    setM('e2.missed', tStream.checked? '0 — STRUCTURALLY' : String(this.missed));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const stream=tStream.checked;
+    const cy=H*0.36;
+    // swipe river
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('1.6B SWIPES/DAY (SCALED: 30/s)', 30, 32);
+    ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+    ctx.beginPath(); ctx.moveTo(30, cy); ctx.lineTo(W*0.30, cy); ctx.stroke();
+    ctx.globalAlpha=1;
+    for(let i=0;i<5;i++){
+      const u=(this.t*1.6+i/5)%1;
+      ctx.fillStyle= i%2? CSS.traffic : '#5A7A94';
+      ctx.beginPath(); ctx.arc(30+u*(W*0.30-30), cy-4+((i*37)%9), 2.2, 0, 7); ctx.fill();
+    }
+    // left pipe to archive
+    ctx.strokeStyle='#3A4A5C';
+    ctx.beginPath(); ctx.moveTo(W*0.30, cy); ctx.lineTo(W*0.40, cy+52); ctx.stroke();
+    ctx.strokeRect(W*0.40, cy+40, 100, 26);
+    ctx.fillStyle='#5A7A94'; ctx.textAlign='center';
+    ctx.fillText('S3 — LEFTS (55%)', W*0.40+50, cy+57);
+    // right path to worker + cache
+    ctx.strokeStyle=CSS.traffic;
+    ctx.beginPath(); ctx.moveTo(W*0.30, cy); ctx.lineTo(W*0.44, cy-26); ctx.stroke();
+    ctx.strokeStyle= stream? CSS.traffic : CSS.line;
+    ctx.lineWidth= stream? 2:1;
+    ctx.strokeRect(W*0.44, cy-46, 148, 40);
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.ink;
+    ctx.fillText(stream? 'STREAM · PAIR-KEYED' : 'APP SERVERS ×2', W*0.44+74, cy-30);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText(stream? 'ONE WORKER PER PAIR' : 'CHECK … THEN INSERT', W*0.44+74, cy-14);
+    // likes cache
+    ctx.strokeStyle=CSS.b;
+    ctx.strokeRect(W*0.72, cy-46, 120, 40);
+    ctx.fillStyle=CSS.b;
+    ctx.fillText('LIKES CACHE', W*0.72+60, cy-30);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('O(1) PROBE', W*0.72+60, cy-14);
+    // race trace panel
+    if(this.trace && this.t-this.trace.at<3.4){
+      const tx=W*0.30, ty=H*0.60;
+      ctx.strokeStyle= this.trace.naiveGot||stream? CSS.traffic : CSS.fault;
+      ctx.strokeRect(tx, ty, W*0.62-30, 84);
+      ctx.textAlign='left';
+      if(stream){
+        ctx.fillStyle=CSS.muted;
+        ctx.fillText('ALICE→BOB and BOB→ALICE · 80ms APART · SAME PARTITION', tx+12, ty+18);
+        ctx.fillStyle=CSS.b;
+        ctx.fillText('1. worker records ALICE→BOB', tx+12, ty+36);
+        ctx.fillText('2. worker sees it while processing BOB→ALICE', tx+12, ty+52);
+        ctx.fillStyle=CSS.traffic;
+        ctx.fillText('→ MATCH ✓ · 2 NUDGES · BOTH PHONES IN ~180ms', tx+12, ty+70);
+      } else {
+        ctx.fillStyle=CSS.muted;
+        ctx.fillText('ALICE→BOB and BOB→ALICE · 80ms APART · TWO SERVERS', tx+12, ty+18);
+        ctx.fillStyle=CSS.fault;
+        ctx.fillText('1. A checks: nothing   2. B checks: nothing', tx+12, ty+36);
+        ctx.fillText('3. both inserts land 120ms later', tx+12, ty+52);
+        ctx.fillText('→ MUTUAL LIKE EXISTS · MATCH NEVER CREATED · NOBODY KNOWS', tx+12, ty+70);
+      }
+    }
+    if(this.t-this.matchFlash<1.2){
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='left';
+      ctx.font='12px ui-monospace, Menlo, monospace';
+      ctx.fillText('✦ IT\'S A MATCH', 40, H*0.66);
+      ctx.font='10px ui-monospace, Menlo, monospace';
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText(stream? 'THE PAIR KEY IS THE LOCK — ORDER EXISTS, SO THE SECOND SWIPE ALWAYS KNOWS'
+                       : 'CHECK-THEN-INSERT HAS A SEAM, AND THE BEST MOMENT IN THE PRODUCT LIVES ON IT', W/2, H-12);
+  }
+};
+e2.reset();
+
+/* ================= EXP-03: polling vs nudge ================= */
+const rApps=document.getElementById('r-apps');
+const rLoss=document.getElementById('r-loss');
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){ this.t=0; this.nudgeAt=1; },
+  update(dt){
+    this.t+=dt;
+    const N=+rApps.value*1000, loss=+rLoss.value;
+    const polls=N/2;
+    const events=N*0.0008;
+    const emptyPct=(100*(1-events/polls)).toFixed(1);
+    const pollSrv=Math.ceil(polls/4000);
+    const sockSrv=Math.max(1, Math.ceil(N/100000));
+    if(this.t>=this.nudgeAt) this.nudgeAt=this.t+2.6;
+    setM('e3.apps', (N/1000)+'K');
+    setM('e3.loss', loss+'%');
+    setM('e3.req', 'polling '+Math.round(polls).toLocaleString('en-US')+'/s ('+emptyPct+'% say "nothing") vs nudges '+Math.round(events).toLocaleString('en-US')+'/s');
+    setM('e3.srv', pollSrv+' SERVERS vs '+sockSrv+' (+'+(N*20/1e6).toFixed(1)+'GB SOCKET RAM)');
+    setM('e3.stale', 'nudge p99 ~180ms · lost '+loss+'% heal ≤60s via fallback sync');
+    this._d={N, polls, events, pollSrv, sockSrv};
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const d=this._d; if(!d) return;
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2, 14); ctx.lineTo(W/2, H-14); ctx.stroke();
+    const world=(x0, title, isPoll)=>{
+      const cx=x0+W*0.25;
+      ctx.fillStyle= isPoll? CSS.a : CSS.b; ctx.textAlign='center';
+      ctx.fillText(title, cx, 28);
+      // phones
+      const shout=isPoll && (this.t%2)<0.35;
+      for(let i=0;i<24;i++){
+        const x=cx-88+(i%8)*25, y=48+Math.floor(i/8)*30;
+        ctx.strokeStyle= isPoll? (shout? CSS.a : CSS.line) : CSS.line;
+        ctx.strokeRect(x, y, 17, 24);
+        if(isPoll && shout){
+          ctx.fillStyle=CSS.a;
+          ctx.fillText('?', x+8, y-3);
+        }
+      }
+      // server wall
+      const srv= isPoll? d.pollSrv : d.sockSrv;
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(( isPoll? Math.round(d.polls).toLocaleString('en-US')+' REQ/s' : Math.round(d.events)+' MSG/s'), cx, 152);
+      for(let i=0;i<Math.min(25,srv);i++){
+        const x=cx-78+(i%13)*12, y=164+Math.floor(i/13)*14;
+        ctx.fillStyle= isPoll? CSS.a : CSS.b;
+        ctx.fillRect(x, y, 9, 10);
+      }
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(srv+' SERVER'+(srv>1?'S':''), cx, 206);
+      if(!isPoll){
+        // a nudge drops
+        const u=Math.min(1, (this.t-this.nudgeAt+2.6)/0.5);
+        if(u>0 && u<1){
+          ctx.fillStyle=CSS.traffic;
+          ctx.beginPath(); ctx.arc(cx, 48+u*80, 3, 0, 7); ctx.fill();
+          ctx.fillText('NUDGE — 5 BYTES', cx, 40);
+        }
+        ctx.fillStyle=CSS.muted;
+        ctx.fillText('SILENCE UNTIL SOMETHING IS TRUE', cx, 226);
+      } else {
+        ctx.fillStyle=CSS.muted;
+        ctx.fillText('EVERY 2s, FROM EVERY OPEN APP', cx, 226);
+      }
+    };
+    world(0, 'POLLING (PRE-2019)', true);
+    world(W/2, 'KEEPALIVE + NUDGE', false);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('NOTIFY, THEN FETCH — THE REALTIME TIER CARRIES THE NEWS, NEVER THE GOODS', W/2, H-14);
+  }
+};
+e3.reset();
+rApps.addEventListener('input',()=>setM('e3.apps', rApps.value+'K'));
+rLoss.addEventListener('input',()=>setM('e3.loss', rLoss.value+'%'));
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

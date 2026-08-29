@@ -37,8 +37,11 @@ real fix, and the sliders are yours.
 | 24 | [The Drop — Shopify](episodes/shopify.html) | Same hardware, cut two ways: a shared DB breaks every shop, pods contain the fire; the Storefront Renderer's 45ms p75 emerges from its caches; the microservices tax, compounded honestly |
 | 25 | [The Onsale — Ticketmaster](episodes/ticketmaster.html) | 14M people, 2M seats: the TTL hold that hurts on both ends; the waiting-room lottery that beats the bots; a cache wall protecting a 1970s VAX core |
 | 26 | [The Front Page — Reddit](episodes/reddit.html) | The real hot formula live; precompute-everything vs sort-on-read; Wilson confidence vs the old giants; r/place as one 4-bit bitfield |
+| 27 | [The Board — Pinterest](episodes/pinterest.html) | The 64-bit ID that routes itself; the feed as a scored pool, not a timeline; real Pixie random walks with the restart dial; the join that can't shard vs 100 key lookups |
+| 28 | [The Graph — LinkedIn](episodes/linkedin.html) | Fan-out on read done seriously: the slowest of 12 partitions sets the pace; push melts when every employer is a celebrity; scoring at the leaves; the atomic swap with zero mixed reads |
+| 29 | [The Swipe — Tinder](episodes/tinder.html) | The world cut to equal people (a measured U-curve picks the cell size); the simultaneous-swipe race cured by a pair-keyed stream; polling priced against a 5-byte nudge |
 
-**The wider world is underway** (26 of 29 systems). Next: **Pinterest shards billions of pins**.
+**The wider world is nearly done** (29 systems live). The finale: **Wikipedia**.
 
 ## Structure
 
