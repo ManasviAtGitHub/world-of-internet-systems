@@ -202,10 +202,10 @@
       <li><a class="ep" href="#/dropbox" data-ep="dropbox">The Folder · Dropbox</a></li>
       <li><a class="ep" href="#/airbnb" data-ep="airbnb">The Calendar · Airbnb</a></li>
       <li><a class="ep" href="#/stripe" data-ep="stripe">The Charge · Stripe</a></li>
-      <li><span class="soon">Shopify<i>NEXT</i></span></li>
-      <li><span class="soon">Ticketmaster<i>SOON</i></span></li>
-      <li><span class="soon">Reddit<i>SOON</i></span></li>
-      <li><span class="soon">Pinterest<i>SOON</i></span></li>
+      <li><a class="ep" href="#/shopify" data-ep="shopify">The Drop · Shopify</a></li>
+      <li><a class="ep" href="#/ticketmaster" data-ep="ticketmaster">The Onsale · Ticketmaster</a></li>
+      <li><a class="ep" href="#/reddit" data-ep="reddit">The Front Page · Reddit</a></li>
+      <li><span class="soon">Pinterest<i>NEXT</i></span></li>
       <li><span class="soon">LinkedIn<i>SOON</i></span></li>
       <li><span class="soon">Tinder<i>SOON</i></span></li>
       <li><span class="soon">Wikipedia<i>SOON</i></span></li>
@@ -213,7 +213,7 @@
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">23</span> SYSTEMS LIVE · 29 RESEARCHED<br>
+    <span id="live-count">26</span> SYSTEMS LIVE · 29 RESEARCHED<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -410,6 +410,31 @@
           touches a charge; and the version time machine that walks 2011's API out of
           2026's, gate by dated gate.</span>
         </a>
+        <a class="card" href="#/shopify">
+          <span class="k">EP 24 · The wider world</span>
+          <span class="t">The Drop — Shopify</span>
+          <span class="d">A celebrity drop vs the same hardware cut two ways: one shared
+          database breaks every shop, twelve pods contain the fire to one cell; the
+          Storefront Renderer's 45ms p75 emerges from its cache mix; and the
+          microservices tax charged honestly — per-hop latency and failure,
+          compounded.</span>
+        </a>
+        <a class="card" href="#/ticketmaster">
+          <span class="k">EP 25 · The wider world</span>
+          <span class="t">The Onsale — Ticketmaster</span>
+          <span class="d">14 million people, 2 million seats: the hold with a countdown
+          (a TTL dial that hurts on both ends), the waiting-room lottery that strips
+          bots of their only advantage, and a wall of caches protecting a 1970s VAX
+          engine that must never sell a seat twice.</span>
+        </a>
+        <a class="card" href="#/reddit">
+          <span class="k">EP 26 · The wider world</span>
+          <span class="t">The Front Page — Reddit</span>
+          <span class="d">The open-sourced hot formula running live (ten times the votes
+          buys exactly one ladder rung); precompute-everything vs sort-on-read at 100
+          views per vote; Wilson confidence beating raw score against old giant
+          comments; and r/place rebuilt as one 4-bit-per-pixel bitfield.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -460,6 +485,9 @@ const EPISODES = {
   'dropbox':           {title:'EP 21 — The Folder · Dropbox',         file:'episodes/dropbox.html'},
   'airbnb':            {title:'EP 22 — The Calendar · Airbnb',        file:'episodes/airbnb.html'},
   'stripe':            {title:'EP 23 — The Charge · Stripe',          file:'episodes/stripe.html'},
+  'shopify':           {title:'EP 24 — The Drop · Shopify',           file:'episodes/shopify.html'},
+  'ticketmaster':      {title:'EP 25 — The Onsale · Ticketmaster',    file:'episodes/ticketmaster.html'},
+  'reddit':            {title:'EP 26 — The Front Page · Reddit',      file:'episodes/reddit.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');

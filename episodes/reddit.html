@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Front Page — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 26</p>
+  <h1>The Front Page</h1>
+  <p class="dek">Reddit's front page is not a query — it's a cached answer. A tiny team
+  serving billions of pageviews learned to store the same data a hundred ways, compute
+  every ranking before anyone asks, and even serve deliberately wrong vote counts to
+  poison the spambots' feedback loops. And because Reddit open-sourced itself in 2008,
+  its ranking math became the most-studied feed formula on the internet. This episode
+  runs that formula for real, pits three comment sorts against statistical truth, and
+  rebuilds r/place's million-pixel canvas out of a single half-megabyte value.</p>
+  <p class="marginal">Everything below is honestly simulated: the hero runs Reddit's
+  actual open-sourced hot formula (time ladder compressed ×1000), the comment duel
+  computes real Wilson confidence intervals on streaming votes, and the r/place numbers
+  are the arithmetic of a 4-bit-per-pixel bitfield versus a row per pixel.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The hot algorithm, actually running — log votes vs the time ladder</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:300px" role="img" aria-label="A live front page reranks as votes stream in, scored by Reddit's real open-sourced formula: log base ten of net votes plus creation time divided by the ladder constant, so a new post with a dozen votes can outrank a half-day-old post with hundreds"></canvas>
+  <div class="exp-metrics">
+    <span>VOTES/S<b data-m="hero.rate">–</b></span>
+    <span>THE LADDER<b data-m="hero.ladder">12.5h → 45s (×1000)</b></span>
+    <span>UPSET WATCH<b data-m="hero.upset">–</b></span>
+  </div>
+  <figcaption class="exp-note">The formula on screen is the one from Reddit's
+  open-sourced <code>_sorts.pyx</code>:
+  <code>log10(max(1,|net|)) + sign · t_created/45000</code>. Votes count
+  logarithmically — the first 10 are worth as much as the next 100, which are worth the
+  next 1,000 — while <em>creation time</em> adds a rung every 12.5 hours. So a newborn
+  post needs only a tenth of the votes to beat one a rung older, and no yesterday-story
+  can squat on the front page forever. Watch the upset counter: every flip it reports
+  is the ladder doing exactly that.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Never sort at read time</h2>
+  <p>Reddit's founding scaling insight (Steve Huffman's 2010 lessons): views outnumber
+  votes a hundred to one, so do the expensive thing on the <em>rare</em> event. When a
+  vote lands, offline queue workers recompute every listing that link belongs to, in
+  every sort order — hot, new, top-by-hour/day/week, controversial, ~15 orderings, on
+  the order of a hundred cached variants per link — and store the resulting ID lists.
+  A pageview then fetches a precomputed list and hydrates it: a key lookup, not a
+  sort. "Wasting disk and memory is better than making users wait." It's the same
+  read-side bet as Twitter's timelines back in episode 3, applied to rankings instead
+  of feeds — and the slider below shows exactly when the bet pays.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Sort on read vs precompute on write — the 100:1 bet</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-ratio">Views per vote</label>
+      <input type="range" id="r-ratio" min="10" max="300" value="100" step="10">
+      <output data-m="e1.ratio">100</output></span>
+    <label class="toggle"><input type="checkbox" id="t-pre"> precompute — votes rebuild all 15 sort orders; views just fetch</label>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:280px" role="img" aria-label="Votes and pageviews hit a server: sorting at read time burns twelve milliseconds per view and saturates the machine as the view ratio climbs; precomputing on votes multiplies write work fifteenfold but makes every view a sub-millisecond cache fetch"></canvas>
+  <div class="exp-metrics">
+    <span>SERVER LOAD<b class="bad" data-m="e1.load">–</b></span>
+    <span>PAGE P95<b data-m="e1.p95">–</b></span>
+    <span>WRITE AMPLIFICATION<b data-m="e1.amp">–</b></span>
+  </div>
+  <figcaption class="exp-note">The trade is visible in both directions. Precompute pays
+  ×15 on every vote — that's real work, honestly charged — and in exchange every view
+  costs a third of a millisecond. Slide the ratio down to 10:1 and sort-on-read is
+  perfectly healthy; slide it to Reddit's reality and the sorting server crosses 100%
+  and its p95 leaves the solar system, while the precompute world idles at single-digit
+  load. Denormalization isn't a preference — it's a bet on which event is rare, and
+  Reddit's traffic decided the bet.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>5-for-5 versus 87-of-110</h2>
+  <p>Comment sorting has a subtler enemy than load: <em>statistics</em>. Sort by raw
+  score and early votes tyrannize — a comment posted at the right minute snowballs.
+  Sort by upvote ratio and a comment with five-for-five beats one with 87-of-110,
+  which is obviously wrong: five votes is luck, a hundred and ten is evidence. Reddit's
+  2009 "best" sort (the blog post came with an xkcd author's blessing) ranks by the
+  <strong>lower bound of the Wilson confidence interval</strong>: what's the worst this
+  comment's true approval could plausibly be, given the votes so far? Few votes → wide
+  interval → cautious rank. The experiment runs all three sorts against comments whose
+  true quality is known to the simulator and hidden from the sorters.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Raw score vs ratio vs Wilson — who finds the truly best comment?</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span>12 COMMENTS · TRUE QUALITY HIDDEN FROM THE SORTERS · VOTES ARE BERNOULLI DRAWS</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:300px" role="img" aria-label="Twelve comments accumulate live votes; each has a hidden true quality and a Wilson confidence interval that narrows as votes arrive; markers show which comment each sorting strategy currently ranks first, and Wilson's lower bound finds the true best far more often than raw score"></canvas>
+  <div class="exp-metrics">
+    <span>VOTES CAST<b data-m="e2.n">0</b></span>
+    <span>TOP-1 ACCURACY (20s WINDOW)<b data-m="e2.acc">–</b></span>
+    <span>THE CLASSIC DUEL<b data-m="e2.duel">–</b></span>
+  </div>
+  <figcaption class="exp-note">Every interval you see is genuinely computed
+  (z = 1.96) and narrows honestly as evidence arrives — and half of all votes go to
+  whatever raw-sort is currently showing, which is the snowball that makes this hard.
+  Raw score keeps crowning the old giants: magnitude isn't quality, and a 780-vote 70%
+  comment out-scores a brilliant latecomer forever. The naive ratio keeps falling for
+  three-for-three flukes. Wilson's lower bound asks the only fair question — "how good
+  is this <em>at worst</em>?" — so the giants cap out at their true mediocrity while
+  the latecomer's bar climbs past them on modest evidence. Ranking by confidence
+  instead of enthusiasm: fifteen lines of math, shipped in 2009, still under every
+  "best" toggle on the site.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>A million pixels in one value</h2>
+  <p>April Fools' 2017: one shared 1000×1000 canvas, millions of users, one pixel each
+  per five minutes. The naive design is a database table — a million rows of (x, y,
+  color, user, timestamp) — and it dies on arithmetic: reading the full canvas is a
+  million-row scan, and every new viewer needs one. Reddit's design fit the whole
+  board in <strong>one Redis bitfield</strong>: 16 colors = 4 bits per pixel, one
+  million pixels = 500 kilobytes. The entire canvas is a single GET (cacheable at the
+  CDN); a pixel write is a single <code>BITFIELD SET</code>; and each placement fans
+  out to viewers as a few bytes over WebSockets. Seventy-two hours, sixteen million
+  pixels, ninety thousand concurrent painters — on a data structure the size of a
+  small image.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">r/place, rebuilt — a table of rows vs one bitfield</span>
+    <span class="exp-run"><button class="btn" data-run="e3">PAUSE</button><button class="btn" data-reset="e3">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-bit" checked> bitfield — the whole canvas is one 4-bit-per-pixel value</label>
+    <span>THIS DEMO: 64×64 · THE REAL THING: 1000×1000 = 500KB</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:300px" role="img" aria-label="A live 64 by 64 canvas painted by simulated users; metrics compare storing it as one two-kilobyte bitfield served in a single cacheable fetch against four thousand database rows costing a hundred times more to read, with per-pixel updates fanned to viewers as five-byte deltas"></canvas>
+  <div class="exp-metrics">
+    <span>PIXELS PLACED<b data-m="e3.px">0</b></span>
+    <span>CANVAS AT REST<b data-m="e3.size">–</b></span>
+    <span>NEW VIEWER PAYS<b data-m="e3.view">–</b></span>
+    <span>EACH PLACEMENT PUSHES<b data-m="e3.delta">–</b></span>
+  </div>
+  <figcaption class="exp-note">Untick the bitfield and read the same canvas as rows:
+  a 64×64 toy already costs a 4,096-row scan and fifty times the bytes; at the real
+  1000×1000 that's a million-row query per curious visitor versus one 500KB blob the
+  CDN can hand out all day. The write path is the same trick in reverse — a placement
+  is one <code>BITFIELD SET</code> plus a five-byte delta broadcast, so ninety thousand
+  watchers stay in sync for less bandwidth than one row-scan. The whole system is one
+  well-chosen data structure wearing a WebSocket.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Two tables, and the lies that protect the truth</h2>
+  <p>Two more pieces of Reddit lore belong on the record. First, the schema: nearly
+  everything — link, comment, account, subreddit — lives in two Postgres tables, a
+  <code>thing</code> table (id, ups, downs, dates) and a <code>data</code> table of
+  key-value rows. No joins, no <code>ALTER TABLE</code> on ten million rows to ship a
+  feature, trivially shardable — consistency enforced in application code, and famous
+  enough to be a koan: "Reddit's database has two tables." Second, the fuzzing: the
+  vote counts you see are deliberately perturbed. A spammer who buys two hundred bot
+  votes can't tell whether they were counted, discarded, or fuzzed away — the display
+  lies so the ranking can stay honest. It's a rare and beautiful inversion: serving
+  wrong numbers on purpose, as a security mechanism.</p>
+  <p>The keeper: <strong>Reddit scaled by refusing to compute anything twice or at the
+  moment of need — every ranking precomputed, every structure denormalized, every
+  read a lookup — and by knowing exactly which numbers were sacred (the true scores)
+  and which could lie (the displayed ones).</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>HighScalability — <a href="https://highscalability.com/7-lessons-learned-while-building-reddit-to-270-million-page/">7 Lessons Learned While Building Reddit to 270 Million Page Views</a>, 2010 (Steve Huffman's lessons: thing model, precompute everything, queues).</li>
+    <li>reddit-archive — <a href="https://github.com/reddit-archive/reddit/wiki/architecture-overview">Architecture Overview</a> and the <a href="https://github.com/reddit-archive/reddit">open-sourced codebase</a> (including <code>_sorts.pyx</code>); formula walkthrough: <a href="https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9">Salihefendic, How Reddit ranking algorithms work</a>.</li>
+    <li>Reddit blog — <a href="https://redditblog.com/2009/10/15/reddits-new-comment-sorting-system/">reddit's new comment sorting system</a>, 2009 — the Wilson-score "best" sort.</li>
+    <li>N. Williams — <a href="https://www.infoq.com/presentations/reddit-architecture-evolution/">The Evolution of Reddit.com's Architecture</a>, QCon SF 2017 — sharded vote queues, comment-tree fastlane, ~330M MAU.</li>
+    <li>Reddit Engineering — <a href="https://redditblog.com/2017/04/13/how-we-built-rplace/">How We Built r/Place</a>, 2017 — the Redis bitfield, CDN snapshots, WebSocket fanout.</li>
+    <li>Vote fuzzing: <a href="https://www.reddit.com/r/announcements/comments/5gvd6b/scores_on_posts_are_about_to_start_going_up/">the 2016 score-display announcement</a> — mechanics deliberately undocumented.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next in the wider world: <b>Pinterest shards billions of pins</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+function fmtMs(s){
+  if(s>=1) return s.toFixed(1)+'s';
+  if(s>=0.001) return (s*1000).toFixed(s<0.01?2:0)+'ms';
+  return (s*1000).toFixed(2)+'ms';
+}
+
+/* ================= HERO: the hot algorithm, live ================= */
+const LADDER=45;   // 45,000s compressed x1000
+function hotScore(net, born){
+  const s=Math.sign(net)||0;
+  return Math.log10(Math.max(1, Math.abs(net))) + s*born/LADDER;
+}
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(7),
+  reset(){ this.t=0; this.posts=[]; this.nextPost=0; this.pid=1;
+    this.upsets=0; this.lastUpset='—'; this.voteAcc=0; this.rate=12;
+    for(let i=0;i<6;i++) this.spawn(-40+i*8); },
+  spawn(born){
+    this.posts.push({id:this.pid++, born: born!==undefined? born:this.t,
+      net: born!==undefined? Math.round(this.rng()*300):1,
+      q: 0.3+this.rng()*0.7});
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.nextPost){ this.nextPost=this.t+7; this.spawn(); }
+    if(this.posts.length>13) this.posts.sort((a,b)=>hotScore(b.net,b.born)-hotScore(a.net,a.born)).pop();
+    // votes stream, weighted by quality
+    this.voteAcc+=this.rate*dt;
+    while(this.voteAcc>=1){
+      this.voteAcc--;
+      const totalQ=this.posts.reduce((s,p)=>s+p.q,0);
+      let r=this.rng()*totalQ;
+      for(const p of this.posts){ r-=p.q; if(r<=0){ p.net++; break; } }
+    }
+    const ranked=[...this.posts].sort((a,b)=>hotScore(b.net,b.born)-hotScore(a.net,a.born));
+    // upset watch: a post outranking one with >=10x its votes
+    for(let i=0;i<ranked.length-1;i++){
+      for(let j=i+1;j<ranked.length;j++){
+        if(ranked[j].net>=ranked[i].net*10 && ranked[i].net>=5){
+          const rungs=((ranked[i].born-ranked[j].born)/LADDER).toFixed(1);
+          this.lastUpset=ranked[i].net+' votes over '+ranked[j].net+' — '+rungs+' rungs newer';
+          i=ranked.length; break;
+        }
+      }
+    }
+    this._ranked=ranked;
+    setM('hero.rate', this.rate);
+    setM('hero.upset', this.lastUpset);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const ranked=this._ranked||[];
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('HOT = log10(max(1,|net|)) + sign · t_created/45000   (LADDER COMPRESSED ×1000)', 30, 26);
+    ranked.slice(0,10).forEach((p,i)=>{
+      const y=48+i*24;
+      ctx.fillStyle= i<3? CSS.traffic : CSS.muted; ctx.textAlign='right';
+      ctx.fillText('#'+(i+1), 52, y+4);
+      // votes bar (log)
+      const w=Math.max(3, Math.log10(Math.max(1,p.net))/3.2*(W*0.34));
+      ctx.fillStyle=CSS.a;
+      ctx.fillRect(66, y-6, w, 12);
+      ctx.fillStyle=CSS.ink; ctx.textAlign='left';
+      ctx.fillText(p.net+' votes', 74+w, y+4);
+      const age=this.t-p.born;
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('age '+age.toFixed(0)+'s ('+(age/LADDER).toFixed(2)+' rungs)', W*0.55, y+4);
+      ctx.fillStyle=CSS.b;
+      ctx.fillText('hot '+hotScore(p.net,p.born).toFixed(3), W*0.79, y+4);
+    });
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('A RUNG EVERY 45s — TEN TIMES THE VOTES BUYS EXACTLY ONE RUNG', W/2, H-12);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: precompute vs sort-on-read ================= */
+const rRatio=document.getElementById('r-ratio');
+const tPre=document.getElementById('t-pre');
+const VOTES=3, CAP=2000;   // votes/s; server budget in ms of CPU per second
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){ this.t=0; this.q=0; },
+  update(dt){
+    this.t+=dt;
+    const R=+rRatio.value, pre=tPre.checked;
+    const views=VOTES*R;
+    let demand, base;
+    if(pre){ demand=views*0.3 + VOTES*15*2; base=0.0005; this.q=Math.max(0,this.q-CAP*dt); }
+    else { demand=views*12 + VOTES*0.5; base=0.012; }
+    if(!pre) this.q=Math.max(0, this.q+(demand-CAP)*dt);
+    const wait=this.q/CAP;
+    setM('e1.ratio', R);
+    setM('e1.load', (pre?'precompute ':'sort-on-read ')+Math.round(demand/CAP*100)+'%'+(demand>CAP?' — SATURATED':''));
+    setM('e1.p95', fmtMs(base*2.5+wait));
+    setM('e1.amp', pre? '×15 SORT ORDERS · ~100 CACHED COPIES/LINK' : '×1 (AND THE READER PAYS FOR IT)');
+    this._d={demand, pre, R, wait};
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const d=this._d; if(!d) return;
+    const cy=H*0.44;
+    // sources
+    ctx.fillStyle=CSS.traffic; ctx.textAlign='left';
+    ctx.fillText('VOTES · '+VOTES+'/s', 30, cy-42);
+    ctx.fillStyle=CSS.b;
+    ctx.fillText('VIEWS · '+(VOTES*d.R)+'/s', 30, cy+30);
+    for(let i=0;i<3;i++){ ctx.fillStyle=CSS.traffic; ctx.beginPath(); ctx.arc(40+i*14, cy-28, 2.4, 0, 7); ctx.fill(); }
+    for(let i=0;i<10;i++){ ctx.fillStyle=CSS.b; ctx.globalAlpha=.7; ctx.beginPath(); ctx.arc(36+(i%5)*13, cy+42+Math.floor(i/5)*12, 2, 0, 7); ctx.fill(); }
+    ctx.globalAlpha=1;
+    if(d.pre){
+      // vote -> 15 sort lists; views -> cache
+      const lx=W*0.36;
+      for(let i=0;i<15;i++){
+        const x=lx+(i%5)*54, y=cy-64+Math.floor(i/5)*26;
+        ctx.strokeStyle=CSS.a;
+        ctx.strokeRect(x, y, 46, 18);
+      }
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('15 SORT ORDERS, REBUILT PER VOTE (×15 WRITE COST — HONESTLY CHARGED)', lx, cy+24);
+      ctx.strokeStyle=CSS.b; ctx.lineWidth=2;
+      ctx.strokeRect(lx, cy+40, 264, 34);
+      ctx.lineWidth=1;
+      ctx.fillStyle=CSS.b;
+      ctx.fillText('PRECOMPUTED ID LISTS (CACHE/CASSANDRA)', lx+10, cy+61);
+      ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+      ctx.beginPath(); ctx.moveTo(90, cy-28); ctx.lineTo(lx, cy-30); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(100, cy+48); ctx.lineTo(lx, cy+56); ctx.stroke();
+      ctx.globalAlpha=1;
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='left';
+      ctx.fillText('A VIEW = ONE KEY LOOKUP · 0.3ms', lx+280, cy+61);
+    } else {
+      const sat=d.demand>CAP;
+      ctx.strokeStyle= sat? CSS.fault : CSS.a; ctx.lineWidth=2;
+      ctx.strokeRect(W*0.40, cy-52, 220, 104);
+      ctx.lineWidth=1;
+      ctx.fillStyle= sat? CSS.fault : CSS.ink; ctx.textAlign='center';
+      ctx.fillText('THE DATABASE', W*0.40+110, cy-28);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('ORDER BY hot(ups,downs,age)', W*0.40+110, cy-10);
+      ctx.fillText('12ms OF CPU, EVERY VIEW', W*0.40+110, cy+8);
+      if(sat){ ctx.fillStyle=CSS.fault; ctx.fillText('QUEUE: '+d.wait.toFixed(1)+'s OF WORK', W*0.40+110, cy+30); }
+      ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+      ctx.beginPath(); ctx.moveTo(90, cy-28); ctx.lineTo(W*0.40, cy-20); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(100, cy+48); ctx.lineTo(W*0.40, cy+20); ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('DO THE EXPENSIVE THING ON THE RARE EVENT — THE SLIDER DECIDES WHICH EVENT IS RARE', W/2, H-14);
+  }
+};
+e1.reset();
+rRatio.addEventListener('input',()=>setM('e1.ratio', rRatio.value));
+
+/* ================= EXP-02: raw vs ratio vs wilson ================= */
+function wilsonLB(ups, n){
+  if(n===0) return 0;
+  const z=1.96, p=ups/n;
+  return (p + z*z/(2*n) - z*Math.sqrt((p*(1-p) + z*z/(4*n))/n)) / (1 + z*z/n);
+}
+function wilsonUB(ups, n){
+  if(n===0) return 1;
+  const z=1.96, p=ups/n;
+  return (p + z*z/(2*n) + z*Math.sqrt((p*(1-p) + z*z/(4*n))/n)) / (1 + z*z/n);
+}
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0;
+    const rng=mulberry32(19);
+    // three old giants that soaked up a busy thread's traffic, nine young comments
+    // (including the truly best one, posted late) — the scenario "best" was built for
+    this.cs=[];
+    const olds=[[0.62,520],[0.70,780],[0.66,640]];
+    for(const [q,n] of olds) this.cs.push({q, n, ups:Math.round(n*q)});
+    const youngQ=[0.95,0.58,0.74,0.61,0.83,0.68,0.77,0.56,0.88];
+    for(const q of youngQ){ const n=Math.floor(rng()*7); this.cs.push({q, n, ups:Math.round(n*q)}); }
+    for(let i=this.cs.length-1;i>0;i--){ const j=Math.floor(rng()*(i+1)); [this.cs[i],this.cs[j]]=[this.cs[j],this.cs[i]]; }
+    this.best=this.cs.indexOf(this.cs.reduce((b,c)=>c.q>b.q?c:b));
+    this.rng=rng; this.acc={raw:[], ratio:[], wil:[]};
+    this.nextVote=0; this.nextSample=0.5; this.votes=0; },
+  update(dt){
+    this.t+=dt;
+    while(this.nextVote<=this.t){
+      this.nextVote+=1/10;
+      // position bias: half the votes go to whatever raw-sort is showing on top
+      let c;
+      if(this.rng()<0.5){
+        const top=[...this.cs].sort((a,b)=>(2*b.ups-b.n)-(2*a.ups-a.n)).slice(0,3);
+        c=top[Math.floor(this.rng()*3)];
+      } else c=this.cs[Math.floor(this.rng()*12)];
+      c.n++; if(this.rng()<c.q) c.ups++;
+      this.votes++;
+    }
+    const pick=f=>{ let bi=0, bv=-Infinity; this.cs.forEach((c,i)=>{ const v=f(c); if(v>bv){bv=v;bi=i;} }); return bi; };
+    const rawPick=pick(c=>2*c.ups-c.n);
+    const ratioPick=pick(c=>c.n? c.ups/c.n : 0);
+    const wilPick=pick(c=>wilsonLB(c.ups, c.n));
+    while(this.nextSample<=this.t){
+      this.nextSample+=0.25;
+      this.acc.raw.push(rawPick===this.best?1:0);
+      this.acc.ratio.push(ratioPick===this.best?1:0);
+      this.acc.wil.push(wilPick===this.best?1:0);
+      for(const k in this.acc) if(this.acc[k].length>80) this.acc[k].shift();
+    }
+    const pct=a=>a.length? Math.round(a.reduce((s,x)=>s+x,0)/a.length*100):0;
+    setM('e2.n', this.votes.toLocaleString('en-US'));
+    setM('e2.acc', 'raw '+pct(this.acc.raw)+'% · ratio '+pct(this.acc.ratio)+'% · wilson '+pct(this.acc.wil)+'%');
+    const rp=this.cs[ratioPick], wp=this.cs[wilPick];
+    setM('e2.duel', rp.ups+'/'+rp.n+' ('+(rp.n?Math.round(rp.ups/rp.n*100):0)+'%) vs '+wp.ups+'/'+wp.n+' — WILSON TAKES THE EVIDENCE');
+    this._picks={rawPick, ratioPick, wilPick};
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const p=this._picks||{};
+    const x0=140, x1=W-190;
+    const X=v=>x0+v*(x1-x0);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('WILSON 95% INTERVAL PER COMMENT — NARROWS AS EVIDENCE ARRIVES', x0, 24);
+    ctx.textAlign='left';
+    ctx.fillText('0%', x0, 40);
+    ctx.textAlign='right';
+    ctx.fillText('100%', x1, 40);
+    this.cs.forEach((c,i)=>{
+      const y=54+i*19;
+      const lb=wilsonLB(c.ups,c.n), ub=wilsonUB(c.ups,c.n);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+      ctx.fillText(c.ups+'/'+c.n, x0-8, y+4);
+      // interval
+      ctx.strokeStyle=CSS.b;
+      ctx.beginPath(); ctx.moveTo(X(lb), y); ctx.lineTo(X(ub), y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(X(lb), y-3); ctx.lineTo(X(lb), y+3); ctx.stroke();
+      // point estimate
+      if(c.n){ ctx.fillStyle=CSS.b; ctx.beginPath(); ctx.arc(X(c.ups/c.n), y, 2.4, 0, 7); ctx.fill(); }
+      // true quality tick
+      ctx.strokeStyle=CSS.a; ctx.globalAlpha=.8;
+      ctx.beginPath(); ctx.moveTo(X(c.q), y-5); ctx.lineTo(X(c.q), y+5); ctx.stroke();
+      ctx.globalAlpha=1;
+      // pick markers
+      ctx.textAlign='left';
+      let tags='';
+      if(i===p.rawPick) tags+='R ';
+      if(i===p.ratioPick) tags+='% ';
+      if(i===p.wilPick) tags+='W ';
+      if(i===this.best) tags+='★';
+      ctx.fillStyle= i===this.best? CSS.traffic : CSS.muted;
+      ctx.fillText(tags, x1+12, y+4);
+    });
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('R = RAW PICK', x1+58, 54);
+    ctx.fillText('% = RATIO PICK', x1+58, 70);
+    ctx.fillText('W = WILSON PICK', x1+58, 86);
+    ctx.fillStyle=CSS.traffic;
+    ctx.fillText('★ = TRUE BEST', x1+58, 102);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('AMBER TICK = HIDDEN TRUE QUALITY · WILSON RANKS BY THE LEFT END OF THE BAR', (x0+x1)/2, H-14);
+  }
+};
+e2.reset();
+
+/* ================= EXP-03: r/place ================= */
+const tBit=document.getElementById('t-bit');
+const GRID=64;
+const PAL=['#0C1622','#FFFFFF','#E4604E','#F2A93B','#3B9EBD','#C48224','#7E93AB','#2ECC71',
+           '#9B59B6','#E67E22','#1ABC9C','#34495E','#F1C40F','#E91E63','#00BCD4','#8BC34A'];
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){ this.t=0; this.px=0;
+    const rng=mulberry32(29);
+    this.grid=new Uint8Array(GRID*GRID);
+    this.walkers=Array.from({length:6},()=>({
+      x:Math.floor(rng()*GRID), y:Math.floor(rng()*GRID),
+      c:1+Math.floor(rng()*15)}));
+    this.rng=rng; this.acc=0; this.viewers=214; this.nextViewer=4; },
+  update(dt){
+    this.t+=dt;
+    this.acc+=40*dt;
+    while(this.acc>=1){
+      this.acc--;
+      const w=this.walkers[Math.floor(this.rng()*6)];
+      w.x=(w.x+Math.floor(this.rng()*3)-1+GRID)%GRID;
+      w.y=(w.y+Math.floor(this.rng()*3)-1+GRID)%GRID;
+      if(this.rng()<0.02) w.c=1+Math.floor(this.rng()*15);
+      this.grid[w.y*GRID+w.x]=w.c;
+      this.px++;
+    }
+    if(this.t>=this.nextViewer){ this.nextViewer=this.t+4; this.viewers+=Math.floor(this.rng()*9)-2; this.joinFlash=this.t; }
+    const bit=tBit.checked;
+    setM('e3.px', this.px.toLocaleString('en-US'));
+    setM('e3.size', bit? '2KB (4,096 PX × 4 BITS)' : '205KB (4,096 ROWS × ~50B)');
+    setM('e3.view', bit? '2KB · ONE GET, CDN-CACHED' : '205KB · A 4,096-ROW SCAN');
+    setM('e3.delta', bit? '5 BYTES (x, y, color)' : '~64 BYTES OF ROW JSON');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const bit=tBit.checked;
+    const cell=Math.min(4, (H-64)/GRID);
+    const gx=40, gy=34;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('THE CANVAS — 64×64, 16 COLORS, ONE PIXEL PER USER', gx, 24);
+    for(let y=0;y<GRID;y++) for(let x=0;x<GRID;x++){
+      const c=this.grid[y*GRID+x];
+      if(!c) continue;
+      ctx.fillStyle=PAL[c];
+      ctx.fillRect(gx+x*cell, gy+y*cell, cell, cell);
+    }
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(gx, gy, GRID*cell, GRID*cell);
+    // right column: the data structure
+    const rx=gx+GRID*cell+40;
+    if(bit){
+      ctx.fillStyle=CSS.b;
+      ctx.fillText('REDIS BITFIELD', rx, 46);
+      ctx.strokeStyle=CSS.b;
+      ctx.strokeRect(rx, 54, Math.min(300, W-rx-30), 18);
+      for(let i=0;i<24;i++){
+        const c=this.grid[Math.floor(i*GRID*GRID/24)];
+        ctx.fillStyle=PAL[c]||'#131F2E';
+        ctx.fillRect(rx+2+i*12, 56, 10, 14);
+      }
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('ONE VALUE · 4 BITS/PIXEL', rx, 88);
+      ctx.fillText('WRITE = BITFIELD SET (ONE OP)', rx, 104);
+      ctx.fillText('READ = ONE GET → CDN', rx, 120);
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('REAL THING: 1M PX = 500KB', rx, 144);
+    } else {
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('PIXELS TABLE', rx, 46);
+      ['x  y  color  user  ts','12 07 #E46.. u/abc 16:04','12 08 #F2A.. u/def 16:04','13 08 #3B9.. u/ghi 16:05','… 4,093 MORE ROWS'].forEach((l,i)=>{
+        ctx.fillStyle= i===0? CSS.muted : '#5A7A94';
+        ctx.fillText(l, rx, 64+i*15);
+      });
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('EVERY CANVAS READ WALKS THEM ALL', rx, 150);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('VIEWERS: '+this.viewers, rx, 176);
+    if(this.t-(this.joinFlash||-9)<2){
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('+ NEW VIEWER — PAYS '+(bit?'2KB':'205KB'), rx, 192);
+    }
+    ctx.fillStyle=CSS.b;
+    ctx.fillText('DELTAS → WEBSOCKETS → ALL VIEWERS', rx, 216);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('THE WHOLE SYSTEM IS ONE WELL-CHOSEN DATA STRUCTURE WEARING A WEBSOCKET', W/2, H-12);
+  }
+};
+e3.reset();
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

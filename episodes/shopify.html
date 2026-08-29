@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Drop — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 24</p>
+  <h1>The Drop</h1>
+  <p class="dek">Shopify's defining workload is a stampede with a credit card: a celebrity
+  drop aims the internet at one shop, and Black Friday aims it at all of them — $5.1
+  million in sales per minute at the 2025 peak, 284 million requests per minute at the
+  edge. What's underneath is the internet's loudest argument for boring architecture:
+  one Ruby on Rails monolith, sliced into isolated pods of shops so that a fire stays in
+  its cell, with exactly one piece — the read path — carved out and rebuilt for speed.
+  This episode burns a pod, splits the paths, and prices the microservices tax.</p>
+  <p class="marginal">Everything below is honestly simulated: the shared-database
+  collapse and the pod firewall come from the same queue arithmetic with the same total
+  hardware, the storefront p75 emerges from a real cache-hit distribution, and the
+  monolith-vs-microservices numbers are per-hop latency and failure probability,
+  compounded — not adjectives.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The platform — a grid of pods, and the Black Friday wave</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:280px" role="img" aria-label="Twelve isolated pods each holding shops with their own databases; ambient traffic flows through the Sorting Hat router; periodically a Black Friday wave multiplies traffic tenfold across every pod while sales-per-minute and requests-per-minute gauges surge toward their published peaks"></canvas>
+  <div class="exp-metrics">
+    <span>EDGE REQUESTS/MIN<b data-m="hero.rpm">–</b></span>
+    <span>SALES/MIN<b data-m="hero.gmv">–</b></span>
+    <span>PLATFORM<b data-m="hero.state">–</b></span>
+    <span>BFCM 2024–25 PEAKS<b>284M RPM · $5.1M/MIN</b></span>
+  </div>
+  <figcaption class="exp-note">Every shop lives in exactly one pod — a fully isolated
+  slice with its own MySQL, Redis, and memcached — and the <em>Sorting Hat</em> router
+  stamps each request with the pod that owns its shop before the app ever runs. The app
+  is written as if there's one database; the router decides which universe executes the
+  request. When the wave arrives (it always arrives — BFCM preparation starts in March,
+  with five full-platform load tests at 200M requests/minute), it lands on twelve small
+  problems instead of one enormous one.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>One shop on fire, eleven sleeping soundly</h2>
+  <p>Here is multi-tenancy's nightmare arithmetic. Put every shop in one big shared
+  database — even a very big one — and a single celebrity drop can demand more writes
+  than the whole cluster serves. Queues don't care whose writes they hold: the moment
+  the shared queue forms, <em>every</em> shop's checkout slows, and a sneaker drop in
+  Los Angeles breaks a florist in Ghent. Shopify's answer (2015, after vertical scaling
+  hit its ceiling) was to make the shard boundary a <strong>failure</strong> boundary:
+  pods own their datastores outright, so the same hardware, cut into twelve cells,
+  turns a platform outage into one shop's very bad — and survivable — afternoon. The
+  hot shop's buyers wait in a throttled checkout line; orders complete at exactly the
+  pod's capacity; nobody else notices.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Blast radius — one shared database vs twelve pods, same hardware</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e1-drop">CELEBRITY DROP ON SHOP #7 · 25s</button>
+      <button class="btn" data-run="e1">PAUSE</button>
+      <button class="btn" data-reset="e1">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-pods" checked> pod architecture — every shop's data lives in exactly one isolated pod</label>
+    <span>TOTAL WRITE CAPACITY 6,000/s EITHER WAY · THE ONLY CHOICE IS HOW TO CUT IT</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:300px" role="img" aria-label="A celebrity drop multiplies one shop's checkout writes fifty-fold; with one shared database every shop's checkout queues behind the hot one and platform latency climbs into seconds; with pods the fire is contained to pod seven whose buyers wait in a throttled line while eleven pods stay at normal load"></canvas>
+  <div class="exp-metrics">
+    <span>SHOPS AT NORMAL SPEED<b data-m="e1.healthy">–</b></span>
+    <span>INNOCENT SHOP CHECKOUT P95<b class="bad" data-m="e1.inn">–</b></span>
+    <span>HOT SHOP<b data-m="e1.hot">–</b></span>
+    <span>HOT-SHOP ORDERS/S<b data-m="e1.sold">–</b></span>
+  </div>
+  <figcaption class="exp-note">Fire the drop in the shared world: total demand exceeds
+  total capacity, one queue forms, and the florist's p95 climbs right alongside the
+  sneaker shop's — the innocent-shop meter is the whole argument. Flip on <em>pods</em>
+  and fire it again: pod 7 saturates, its buyers enter a checkout queue (orders still
+  complete at the pod's full 500/s), and the other eleven pods never leave 30% load.
+  Isolation didn't add capacity — it added a wall, and the wall is what you were
+  actually missing. The deep story of that checkout line — holds, lotteries, and
+  fairness under a 100× stampede — is the next episode.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Carve out the reads, keep the monolith</h2>
+  <p>During a drop, page views outnumber checkouts a hundred to one — and for fifteen
+  years both ran through the same Rails monolith. Every browse burned a worker that a
+  checkout needed. Shopify's fix (2019–2020) was surgical, not doctrinal: extract
+  exactly one thing — storefront rendering, the read-only path — into a purpose-built
+  app, the <strong>Storefront Renderer</strong>, with layered caching: hottest data
+  in-process, frequent data in a key-value store, the rest computed. It shipped by
+  shadow-verifying its responses against the monolith's for months, then took over with
+  p75 under ~45ms — four times faster — while checkout kept the monolith to
+  itself.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">The read/write split — browsers and buyers stop sharing a fate</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-mix">Page views per checkout</label>
+      <input type="range" id="r-mix" min="50" max="500" value="200" step="10">
+      <output data-m="e2.mix">200</output></span>
+    <label class="toggle"><input type="checkbox" id="t-sfr"> storefront renderer — reads served by a dedicated cached app</label>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="Page views and checkouts share one monolith worker pool until browse traffic saturates it and both latencies climb; splitting reads onto the cached Storefront Renderer drops storefront p75 to about forty-five milliseconds and leaves the monolith nearly idle for checkouts"></canvas>
+  <div class="exp-metrics">
+    <span>STOREFRONT P75<b class="bad" data-m="e2.p75">–</b></span>
+    <span>CHECKOUT P95<b data-m="e2.co">–</b></span>
+    <span>LOAD<b data-m="e2.load">–</b></span>
+    <span>CACHE (SFR)<b data-m="e2.cache">–</b></span>
+  </div>
+  <figcaption class="exp-note">The p75 numbers here aren't typed in — they fall out of
+  the cache-hit distribution: 60% of renders hit the in-memory layer (~10ms), 30% the
+  key-value layer (~40ms), 10% compute from scratch. Slide the browse ratio up in the
+  shared world and watch both meters drown together — the monolith doesn't distinguish
+  a window-shopper from a buyer with a full cart. Split them and the renderer eats half
+  a thousand views per checkout without blinking while the monolith idles at 1%,
+  waiting for money. Not microservices — <em>one</em> incision, exactly where the
+  workload divides.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The tax the network charges</h2>
+  <p>The obvious question: why isn't Shopify a thousand microservices? Their 2019
+  answer — "Deconstructing the Monolith" — became the canonical defense of staying put:
+  they reorganized ~6,000 classes into business-domain components and built
+  <strong>Packwerk</strong>, tooling that fails CI when one component reaches into
+  another's internals. Modularity, without distribution. Because distribution has a
+  price you pay on <em>every request</em>: an in-process call costs microseconds and
+  fails approximately never; a network hop costs milliseconds and fails at some rate
+  that compounds across every hop in the chain. The experiment below charges that tax
+  honestly — and the note admits what the monolith gives up in return.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">Walls vs wires — the same checkout, priced both ways</span>
+    <span class="exp-run"><button class="btn" data-run="e3">PAUSE</button><button class="btn" data-reset="e3">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-net">Per-hop network failure</label>
+      <input type="range" id="r-net" min="5" max="100" value="30" step="5">
+      <output data-m="e3.net">0.30%</output></span>
+    <span>ONE CHECKOUT = ORDERS → INVENTORY → SHIPPING → BILLING</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:300px" role="img" aria-label="The same four-domain checkout runs as in-process calls inside a modular monolith with Packwerk-enforced walls, and as four microservices joined by network hops; per-hop latency jitter and failure probability compound so the distributed version is slower, fails more, and needs four coordinated deploys per feature"></canvas>
+  <div class="exp-metrics">
+    <span>CHECKOUT P99<b data-m="e3.p99">–</b></span>
+    <span>FAILED CHECKOUTS<b class="bad" data-m="e3.fail">–</b></span>
+    <span>DEPLOYS PER FEATURE<b data-m="e3.deploys">–</b></span>
+    <span>BOUNDARY VIOLATIONS STOPPED BY CI<b data-m="e3.ci">–</b></span>
+  </div>
+  <figcaption class="exp-note">Same four domains, same order of operations. The
+  monolith's calls are function calls: the whole flow costs fractions of a millisecond
+  and only dies if the process dies. The microservice version pays three network hops:
+  jittered milliseconds that stack in the tail, and a failure rate that compounds —
+  slide it up and watch checkouts die of arithmetic. The walls still exist in the
+  monolith; they're just enforced by CI (the counter is Packwerk saying <em>no</em>)
+  instead of by TCP. Honest closing caveat: wires buy real things — independent
+  scaling, language freedom, team autonomy at the org sizes of a Google. Shopify's
+  claim was never "wires are wrong" — it's that at their shape, the walls were free and
+  the wires weren't.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Rehearsing the flood</h2>
+  <p>The part with no simulation: BFCM readiness is a nine-month engineering season.
+  Capacity models start in March; a "What Could Go Wrong" census feeds game days where
+  engineers inject real faults into production-like systems; the internal load
+  generator, Genghis, fires five-plus full-platform scale tests a year — 200 million
+  requests per minute across three cloud regions in 2025. The weekend itself reads like
+  a launch: 10.5 trillion database queries, 1.17 trillion writes, a MySQL fleet peaking
+  past 19 million queries per second, five-nines uptime. The flood is scheduled; so is
+  the practice.</p>
+  <p>The keeper: <strong>Shopify scaled by choosing its cuts — shops into pods for
+  isolation, reads from writes for speed, components behind walls instead of services
+  behind wires — and rehearsing the one day a year the internet aims at it.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>X. Denis — <a href="https://shopify.engineering/a-pods-architecture-to-allow-shopify-to-scale">A Pods Architecture to Allow Shopify to Scale</a>, Shopify Engineering, 2018 — pods, Sorting Hat, Pod Mover.</li>
+    <li>K. Westeinde — <a href="https://shopify.engineering/deconstructing-monolith-designing-software-maximizes-developer-productivity">Deconstructing the Monolith</a>, 2019 — the modular-monolith doctrine, ~6,000 classes, Wedge/Packwerk.</li>
+    <li>Shopify Engineering — <a href="https://shopify.engineering/how-shopify-reduced-storefront-response-times-rewrite">How Shopify Reduced Storefront Response Times with a Rewrite</a>, 2020 — Storefront Renderer, cache layers, ~45ms p75, shadow verification.</li>
+    <li>Shopify Engineering — <a href="https://shopify.engineering/bfcm-readiness-2025">How we prepare Shopify for BFCM</a>, 2025 — Genghis, game days, 200M rpm scale tests; BFCM stats: <a href="https://www.shopify.com/news/bfcm-data-2024">2024 data</a> (284M rpm, 1.17T writes) and <a href="https://www.shopify.com/investors/press-releases/shopify-merchants-achieve-record-breaking-146-billion-black">2025 release</a> ($14.6B, $5.1M/min).</li>
+    <li>Shopify Engineering — <a href="https://shopify.engineering/horizontally-scaling-the-rails-backend-of-shop-app-with-vitess">Vitess for the Shop app</a>, 2024, and <a href="https://shopify.engineering/mysql-database-shard-balancing-terabyte-scale">Shard Balancing at terabyte scale</a>.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next in the wider world: <b>the onsale — 14 million people, 2 million seats</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+function fmtMs(s){
+  if(s>=1) return s.toFixed(1)+'s';
+  return Math.round(s*1000)+'ms';
+}
+
+/* ================= HERO: the pod grid and the wave ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(3),
+  reset(){ this.t=0; this.waveAt=8; },
+  wave(){ const w=this.t-this.waveAt; return (w>=0 && w<9)? Math.sin(w/9*Math.PI):0; },
+  update(dt){
+    this.t+=dt;
+    if(this.t-this.waveAt>30) this.waveAt=this.t+2;
+    const w=this.wave();
+    const rpm=(24+260*w)*(0.95+this.rng()*0.1);
+    const gmv=(0.4+4.7*w)*(0.95+this.rng()*0.1);
+    setM('hero.rpm', Math.round(rpm)+'M');
+    setM('hero.gmv', '$'+gmv.toFixed(1)+'M');
+    setM('hero.state', w>0.25? 'THE WAVE — EVERY POD LIT' : 'AMBIENT COMMERCE');
+    this._w=w;
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const w=this._w||0;
+    // sorting hat
+    ctx.strokeStyle=CSS.traffic;
+    ctx.beginPath();
+    ctx.moveTo(W/2-26, 44); ctx.lineTo(W/2, 18); ctx.lineTo(W/2+26, 44);
+    ctx.closePath(); ctx.stroke();
+    ctx.fillStyle=CSS.traffic; ctx.textAlign='center';
+    ctx.fillText('SORTING HAT', W/2, 58);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('REQUEST → WHICH SHOP? → WHICH POD?', W/2, 72);
+    // pods 4x3
+    const pw=150, ph=44, gx=W/2-2*pw-15, gy=96;
+    for(let i=0;i<12;i++){
+      const col=i%4, row=Math.floor(i/4);
+      const x=gx+col*(pw+10), y=gy+row*(ph+14);
+      const load=0.3+0.62*w+(this.rng()-0.5)*0.05;
+      ctx.strokeStyle= load>0.8? CSS.a : CSS.line;
+      ctx.strokeRect(x, y, pw, ph);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('POD '+(i+1), x+8, y+15);
+      ctx.fillText('MYSQL·REDIS·MC', x+8, y+29);
+      // load bar
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(x+8, y+34, pw-16, 5);
+      ctx.fillStyle= load>0.8? CSS.a : CSS.b;
+      ctx.fillRect(x+8, y+34, (pw-16)*Math.min(1,load), 5);
+      // traffic particle from hat
+      if(this.rng()<0.3+w){
+        const u=(this.t*2+i*0.37)%1;
+        ctx.fillStyle=CSS.traffic; ctx.globalAlpha=.7;
+        ctx.beginPath(); ctx.arc(W/2+(x+pw/2-W/2)*u, 58+(y-58)*u, 1.8, 0, 7); ctx.fill();
+        ctx.globalAlpha=1;
+      }
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('EVERY SHOP IN EXACTLY ONE POD · STATELESS TIERS SHARED, DATA NEVER', W/2, H-14);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: blast radius ================= */
+const tPods=document.getElementById('t-pods');
+const PODCAP=500, PODS=12, NORM=150, HOTPOD=6;   // pod 7 (index 6)
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(11),
+  reset(){ this.t=0; this.dropUntil=-1;
+    this.sharedQ=0; this.hotQ=0; },
+  drop(){ if(this.t>=this.dropUntil) this.dropUntil=this.t+25; },
+  update(dt){
+    this.t+=dt;
+    const pods=tPods.checked, dropping=this.t<this.dropUntil;
+    const hotDemand=dropping? 5000:0;
+    if(pods){
+      this.sharedQ=Math.max(0, this.sharedQ-6000*dt);
+      // hot pod: its own queue, throttled admission
+      const inn=NORM;
+      this.hotQ=Math.max(0, this.hotQ+(hotDemand+NORM-PODCAP)*dt);
+      this._innP95=0.04;
+      this._hotWait=this.hotQ/PODCAP;
+      this._sold=dropping||this.hotQ>1? PODCAP : NORM;
+      this._healthy=dropping||this.hotQ>1? 11:12;
+    } else {
+      const total=NORM*PODS+hotDemand;
+      this.sharedQ=Math.max(0, this.sharedQ+(total-6000)*dt);
+      this.hotQ=0;
+      this._innP95=0.04+this.sharedQ/6000;   // everyone waits behind the shared queue
+      this._hotWait=this.sharedQ/6000;
+      this._sold= this.sharedQ>1? 6000*(hotDemand? hotDemand/total:0) : (dropping?0:NORM);
+      this._healthy= this.sharedQ>10? 0:12;
+    }
+    setM('e1.healthy', this._healthy+'/12 PODS'+(pods?'':' (ONE SHARED DB)'));
+    setM('e1.inn', fmtMs(this._innP95)+(!pods&&this.sharedQ>10?' AND CLIMBING':''));
+    setM('e1.hot', this.hotQ>1? Math.round(this.hotQ).toLocaleString('en-US')+' BUYERS IN LINE · ~'+fmtMs(this._hotWait)+' WAIT'+(dropping?'':' · DRAINING')
+                  : (this.t<this.dropUntil? 'DROP IN PROGRESS':'quiet'));
+    setM('e1.sold', Math.round(this._sold).toLocaleString('en-US'));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const pods=tPods.checked, dropping=this.t<this.dropUntil;
+    if(pods){
+      const pw=176, ph=50, gx=W/2-2*pw-18, gy=46;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText('TWELVE PODS · 500 WRITES/s EACH', W/2, 28);
+      for(let i=0;i<12;i++){
+        const col=i%4, row=Math.floor(i/4);
+        const x=gx+col*(pw+12), y=gy+row*(ph+16);
+        const hot=i===HOTPOD && (dropping||this.hotQ>1);
+        ctx.strokeStyle= hot? CSS.fault : CSS.line;
+        ctx.lineWidth= hot? 2:1;
+        ctx.strokeRect(x, y, pw, ph);
+        ctx.lineWidth=1;
+        ctx.fillStyle= hot? CSS.fault : CSS.muted; ctx.textAlign='left';
+        ctx.fillText(hot? 'POD 7 🔥 THE DROP' : 'POD '+(i+1), x+8, y+16);
+        const load= hot? 1 : 0.3;
+        ctx.strokeStyle=CSS.line;
+        ctx.strokeRect(x+8, y+24, pw-16, 6);
+        ctx.fillStyle= hot? CSS.fault : CSS.b;
+        ctx.fillRect(x+8, y+24, (pw-16)*load, 6);
+        ctx.fillStyle= hot? CSS.a : '#3A4A5C';
+        ctx.fillText(hot? Math.round(this.hotQ).toLocaleString('en-US')+' QUEUED @500/s' : '30% · NORMAL', x+8, y+42);
+      }
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText('THE FIRE HAS A CELL — ELEVEN PODS NEVER HEAR ABOUT THE DROP', W/2, H-14);
+    } else {
+      const cy=H*0.46;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText('ONE SHARED CLUSTER · 6,000 WRITES/s TOTAL', W/2, 28);
+      const sat=this.sharedQ>10;
+      ctx.strokeStyle= sat? CSS.fault : CSS.b;
+      ctx.lineWidth=2;
+      ctx.strokeRect(W/2-110, cy-52, 220, 104);
+      ctx.lineWidth=1;
+      ctx.fillStyle= sat? CSS.fault : CSS.ink;
+      ctx.fillText(sat? 'ONE DATABASE — ONE QUEUE' : 'ONE DATABASE', W/2, cy-30);
+      // shared queue bulge
+      const qw=Math.min(200, this.sharedQ/150);
+      if(qw>2){
+        ctx.fillStyle=CSS.fault; ctx.globalAlpha=.6;
+        ctx.fillRect(W/2-qw/2, cy-14, qw, 24);
+        ctx.globalAlpha=1;
+        ctx.fillStyle=CSS.ink;
+        ctx.fillText(Math.round(this.sharedQ).toLocaleString('en-US')+' WRITES QUEUED', W/2, cy+2);
+      }
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('ALL 12,000 SHOPS SHARE THIS LINE', W/2, cy+36);
+      // shops around it
+      for(let i=0;i<24;i++){
+        const a=i/24*Math.PI*2;
+        const x=W/2+Math.cos(a)*250, y=cy+Math.sin(a)*95;
+        const isHot=i===5;
+        ctx.fillStyle= isHot&&dropping? CSS.fault : sat? CSS.a : CSS.b;
+        ctx.beginPath(); ctx.arc(x, y, isHot&&dropping?5:2.6, 0, 7); ctx.fill();
+        if(isHot&&dropping){ ctx.fillStyle=CSS.fault; ctx.textAlign='center'; ctx.fillText('THE DROP', x, y-10); }
+      }
+      ctx.fillStyle= sat? CSS.fault : CSS.muted; ctx.textAlign='center';
+      ctx.fillText(sat? 'A SNEAKER DROP IN L.A. IS BREAKING A FLORIST IN GHENT' : 'FINE — UNTIL SOMEONE FAMOUS TWEETS', W/2, H-14);
+    }
+  }
+};
+e1.reset();
+document.querySelector('[data-act="e1-drop"]').addEventListener('click',()=>e1.drop());
+
+/* ================= EXP-02: the read/write split ================= */
+const rMix=document.getElementById('r-mix');
+const tSfr=document.getElementById('t-sfr');
+const CO_RATE=30;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0; this.q=0; },
+  update(dt){
+    this.t+=dt;
+    const mix=+rMix.value, split=tSfr.checked;
+    const views=CO_RATE*mix;
+    // work units (1 unit = 1 second of one worker)
+    if(!split){
+      const demand=views*0.18 + CO_RATE*0.25;
+      const cap=800;
+      this.q=Math.max(0, this.q+(demand-cap)*dt);          // seconds of queued work
+      const rho=Math.min(0.999, demand/cap);
+      const wait=Math.min(30, this.q/cap + (rho<0.98? rho/(1-rho)*0.09 : 0));
+      this._p75=0.18+wait;
+      this._co=0.25+wait;
+      this._load='MONOLITH '+Math.round(demand/cap*100)+'%'+(demand>cap?' — QUEUEING':'');
+      this._cache='— (no renderer)';
+    } else {
+      this.q=Math.max(0, this.q-800*dt);
+      const sfrDemand=views*(0.6*0.01+0.3*0.04+0.1*0.12);
+      const sfrCap=900;
+      this._p75=0.04*(1+Math.max(0,sfrDemand/sfrCap-0.8));
+      this._co=0.05;
+      this._load='SFR '+Math.round(sfrDemand/sfrCap*100)+'% · MONOLITH '+Math.round(CO_RATE*0.25/800*100)+'%';
+      this._cache='60% MEM · 30% KV · 10% COMPUTED';
+    }
+    setM('e2.mix', mix);
+    setM('e2.p75', fmtMs(this._p75));
+    setM('e2.co', fmtMs(this._co));
+    setM('e2.load', this._load);
+    setM('e2.cache', this._cache);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const split=tSfr.checked, mix=+rMix.value;
+    const cy=H*0.44;
+    // browsers + buyers
+    ctx.fillStyle=CSS.b; ctx.textAlign='left';
+    ctx.fillText('BROWSERS · '+(CO_RATE*mix).toLocaleString('en-US')+'/s', 30, cy-46);
+    for(let i=0;i<10;i++){
+      ctx.fillStyle=CSS.b; ctx.globalAlpha=.7;
+      ctx.beginPath(); ctx.arc(44+(i%5)*16, cy-30+Math.floor(i/5)*14, 2.2, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    ctx.fillStyle=CSS.traffic;
+    ctx.fillText('BUYERS · '+CO_RATE+'/s', 30, cy+26);
+    for(let i=0;i<4;i++){
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(44+i*16, cy+38, 2.6, 0, 7); ctx.fill();
+    }
+    if(split){
+      // SFR box + monolith box
+      ctx.strokeStyle=CSS.b; ctx.lineWidth=2;
+      ctx.strokeRect(W*0.44, cy-64, 190, 52);
+      ctx.lineWidth=1;
+      ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+      ctx.fillText('STOREFRONT RENDERER', W*0.44+95, cy-44);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('MEM → KV → COMPUTE', W*0.44+95, cy-28);
+      ctx.strokeStyle=CSS.a; ctx.lineWidth=2;
+      ctx.strokeRect(W*0.44, cy+8, 190, 52);
+      ctx.lineWidth=1;
+      ctx.fillStyle=CSS.ink;
+      ctx.fillText('SHOPIFY CORE (RAILS)', W*0.44+95, cy+28);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('CHECKOUT · ORDERS · MONEY', W*0.44+95, cy+44);
+      ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+      ctx.beginPath(); ctx.moveTo(130, cy-32); ctx.lineTo(W*0.44, cy-40); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(110, cy+36); ctx.lineTo(W*0.44, cy+34); ctx.stroke();
+      ctx.globalAlpha=1;
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='left';
+      ctx.fillText('p75 ~'+fmtMs(this._p75||0.04)+' — 4× THE OLD PATH', W*0.44+210, cy-38);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('MONOLITH KEPT FOR MONEY — 1% BUSY', W*0.44+210, cy+34);
+    } else {
+      const hot=this._p75>0.4;
+      ctx.strokeStyle= hot? CSS.fault : CSS.a; ctx.lineWidth=2;
+      ctx.strokeRect(W*0.44, cy-44, 190, 88);
+      ctx.lineWidth=1;
+      ctx.fillStyle= hot? CSS.fault : CSS.ink; ctx.textAlign='center';
+      ctx.fillText('THE MONOLITH', W*0.44+95, cy-20);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('RENDERS AND CHECKOUTS', W*0.44+95, cy-4);
+      ctx.fillText('SHARE ONE WORKER POOL', W*0.44+95, cy+12);
+      if(hot){ ctx.fillStyle=CSS.fault; ctx.fillText('QUEUE FORMING', W*0.44+95, cy+32); }
+      ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+      ctx.beginPath(); ctx.moveTo(130, cy-32); ctx.lineTo(W*0.44, cy-10); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(110, cy+36); ctx.lineTo(W*0.44, cy+10); ctx.stroke();
+      ctx.globalAlpha=1;
+      ctx.fillStyle= hot? CSS.fault : CSS.muted; ctx.textAlign='left';
+      ctx.fillText(hot? 'BROWSE IS STARVING CHECKOUT' : 'SHARED FATE — FINE AT LOW RATIOS', W*0.44+210, cy);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('READS OUTNUMBER WRITES '+mix+':1 — THE ONLY QUESTION IS WHETHER THEY SHARE A FATE', W/2, H-14);
+  }
+};
+e2.reset();
+rMix.addEventListener('input',()=>setM('e2.mix', rMix.value));
+
+/* ================= EXP-03: walls vs wires ================= */
+const rNet=document.getElementById('r-net');
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  rng: mulberry32(31),
+  reset(){ this.t=0; this.monoL=[]; this.microL=[];
+    this.monoN=0; this.monoF=0; this.microN=0; this.microF=0;
+    this.ci=0; this.nextCi=4; this.lastReq=0; },
+  p(){ return +rNet.value/10000; },
+  update(dt){
+    this.t+=dt;
+    // simulate a batch of checkouts per frame
+    const reqs=Math.round(120*dt);
+    for(let i=0;i<reqs;i++){
+      // monolith: 4 in-process calls
+      this.monoN++;
+      const ml=0.0002+this.rng()*0.0003;
+      this.monoL.push(ml); if(this.monoL.length>2000) this.monoL.shift();
+      if(this.rng()<0.00001) this.monoF++;
+      // microservices: 3 network hops between 4 services
+      this.microN++;
+      let lat=0.002, failed=false;
+      for(let h=0;h<3;h++){
+        lat+=0.003+expRand(this.rng, 0.002)+0.002;
+        if(this.rng()<this.p()) failed=true;
+      }
+      if(failed) this.microF++;
+      else { this.microL.push(lat); if(this.microL.length>2000) this.microL.shift(); }
+    }
+    if(this.t>=this.nextCi){ this.nextCi=this.t+3+this.rng()*5; this.ci++; this.ciFlash=this.t; }
+    const p99=a=>{ if(a.length<50) return NaN; const s=[...a].sort((x,y)=>x-y); return s[Math.floor(s.length*0.99)]; };
+    const mp=p99(this.monoL), ip=p99(this.microL);
+    setM('e3.net', (this.p()*100).toFixed(2)+'%');
+    setM('e3.p99', (isNaN(mp)?'–':(mp*1000).toFixed(2)+'ms')+' vs '+(isNaN(ip)?'–':(ip*1000).toFixed(1)+'ms'));
+    setM('e3.fail', (this.monoF/Math.max(1,this.monoN)*100).toFixed(3)+'% vs '+(this.microF/Math.max(1,this.microN)*100).toFixed(2)+'%');
+    setM('e3.deploys', '1 vs 4 (COORDINATED)');
+    setM('e3.ci', this.ci+' (PACKWERK SAID NO)');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const DOM=['ORDERS','INVENTORY','SHIPPING','BILLING'];
+    // top: modular monolith
+    ctx.fillStyle=CSS.a; ctx.textAlign='left';
+    ctx.fillText('MODULAR MONOLITH — WALLS ENFORCED BY CI', 40, 34);
+    ctx.strokeStyle=CSS.a; ctx.lineWidth=2;
+    ctx.strokeRect(40, 44, W-80, 62);
+    ctx.lineWidth=1;
+    const bw=(W-120)/4;
+    DOM.forEach((d,i)=>{
+      const x=50+i*(bw+8);
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(x, 54, bw, 42);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText(d, x+bw/2, 72);
+      ctx.fillText('component', x+bw/2, 86);
+      if(i<3){
+        ctx.fillStyle=CSS.traffic;
+        ctx.fillText('→ µs', x+bw+4, 78);
+      }
+    });
+    if(this.t-(this.ciFlash||-9)<1.6){
+      ctx.fillStyle=CSS.fault; ctx.textAlign='right';
+      ctx.fillText('✗ CI: ORDERS REACHED INTO BILLING INTERNALS — BLOCKED', W-44, 34);
+    }
+    // bottom: microservices
+    ctx.fillStyle=CSS.b; ctx.textAlign='left';
+    ctx.fillText('MICROSERVICES — WALLS ENFORCED BY TCP', 40, 148);
+    DOM.forEach((d,i)=>{
+      const x=50+i*(bw+8);
+      ctx.strokeStyle=CSS.b;
+      ctx.strokeRect(x, 158, bw, 42);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText(d, x+bw/2, 176);
+      ctx.fillText('service · deploy', x+bw/2, 190);
+      if(i<3){
+        // wobbly wire
+        ctx.strokeStyle=CSS.line;
+        ctx.beginPath();
+        ctx.moveTo(x+bw, 179);
+        ctx.quadraticCurveTo(x+bw+4, 172+((this.t*7+i)%1)*10, x+bw+8, 179);
+        ctx.stroke();
+        ctx.fillStyle= this.rng()<this.p()*40? CSS.fault : CSS.muted;
+        ctx.fillText('~ms · p='+(this.p()*100).toFixed(2)+'%', x+bw+4, 214);
+      }
+    });
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('SAME CHECKOUT · 3 BOUNDARY CROSSINGS — ONE WORLD PAYS IN NANOSECONDS, THE OTHER IN PROBABILITY', W/2, H-40);
+    ctx.fillText('WIRES BUY AUTONOMY AND SCALE — SHOPIFY\'S CLAIM IS ONLY THAT AT THEIR SHAPE, WALLS WERE FREE', W/2, H-16);
+  }
+};
+e3.reset();
+rNet.addEventListener('input',()=>setM('e3.net', (+rNet.value/100).toFixed(2)+'%'));
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

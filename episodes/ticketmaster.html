@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Onsale — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 25</p>
+  <h1>The Onsale</h1>
+  <p class="dek">Selling seats is the purest concurrency problem on the internet: every
+  seat is unique, demand outstrips supply ten to a hundred times over, the entire sale
+  happens in minutes on purpose — and every double-sell is a lawsuit. On November 15,
+  2022, the Eras Tour onsale put the numbers on record: 3.5 billion requests in a day,
+  four times Ticketmaster's previous peak, against roughly two million sellable seats.
+  This episode runs the machinery that makes an intentional thundering herd survivable:
+  the hold with a countdown, the lottery that beats the bots, and the wall of caches
+  protecting a 1970s engine.</p>
+  <p class="marginal">Honesty note: Ticketmaster publishes far less engineering detail
+  than this series' other subjects. The waiting room, random queue assignment, throttled
+  admission, ~10-minute holds, and the VAX-era core are disclosed; the lock and cache
+  mechanics simulated here are standard reservation-system patterns, labeled as such —
+  every collapse and recovery below is still real queue arithmetic.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The funnel of fairness — 14 million hopefuls, one seat each</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:280px" role="img" aria-label="A funnel narrows fourteen million hopefuls to three and a half million registered fans, one and a half million invite codes, a few hundred shoppers admitted at once, and two million seats sold; dots flow through each narrowing stage"></canvas>
+  <div class="exp-metrics">
+    <span>REGISTERED (VERIFIED FAN)<b data-m="hero.reg">3.5M</b></span>
+    <span>INVITE CODES<b data-m="hero.coded">1.5M</b></span>
+    <span>SHOPPING RIGHT NOW<b data-m="hero.now">–</b></span>
+    <span>SEATS SOLD<b data-m="hero.sold">–</b></span>
+  </div>
+  <figcaption class="exp-note">The fight is won before the sale: Verified Fan
+  registration opens days early, scoring filters bots and scalpers, and invite codes go
+  to a subset sized to inventory (historically ~40% of coded fans buy ~3 tickets each —
+  1.5M codes ≈ 2M seats). At sale time the waiting room admits <em>a few hundred
+  shoppers at once</em>, so an inventory system built for bounded concurrency never
+  meets the millions. Demand isn't served; it's shaped, throttled, and rationed — days
+  before 10:00:00 AM.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The hold with a countdown</h2>
+  <p>A seat is not a quantity — it's a specific chair, and a human needs minutes to
+  decide while holding it. The reservation pattern [standard, with the ~10-minute hold
+  disclosed]: choosing seats grants an exclusive, <em>expiring</em> claim —
+  <code>AVAILABLE → HELD(expires) → SOLD</code>, with a sweeper returning abandoned
+  holds to the pool. The alternative — optimistic checkout, verify at commit — means
+  two fans can both fill in card details for seat 14F and one finds out <em>after</em>
+  typing their CVV. Ticketing chooses pessimistic holds because the item is unique and
+  the human is slow. But the TTL is a genuine dial with pain on both ends: too short
+  and holds expire mid-payment; too long and abandoned carts strangle the supply.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Seat 14F, twice — holds with TTL vs finding out at checkout</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button><button class="btn" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-ttl">Hold TTL</label>
+      <input type="range" id="r-ttl" min="5" max="30" value="12" step="1">
+      <output data-m="e1.ttl">12s</output></span>
+    <label class="toggle"><input type="checkbox" id="t-holds" checked> pessimistic holds — picking a seat locks it while you pay</label>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:300px" role="img" aria-label="A seat map where admitted shoppers place expiring holds and pay; without holds several shoppers pay for the same seat and lose it card-in-hand; with holds conflicts are impossible but a short TTL expires holds mid-payment and a long one leaves abandoned seats locked idle"></canvas>
+  <div class="exp-metrics">
+    <span>SOLD<b data-m="e1.sold">0</b></span>
+    <span>LOST CARD-IN-HAND<b class="bad" data-m="e1.late">0</b></span>
+    <span>EXPIRED MID-PAYMENT<b class="bad" data-m="e1.mid">0</b></span>
+    <span>OPEN INVENTORY LOCKED IDLE<b data-m="e1.ghost">–</b></span>
+  </div>
+  <figcaption class="exp-note">Uncheck <em>holds</em> and watch the cruelest failure
+  mode: shoppers pay for seats that look free and lose them at the last instant — the
+  red counter is fans with card in hand. Re-check it: that counter is structurally
+  zero, and the pain moves into the dial. Slide the TTL to 5 seconds: payments outlive
+  their holds and fans lose seats <em>mid-checkout</em>. Slide it to 30: abandoners'
+  ghosts lock a third of the open map. The disclosed ~10 minutes is a tuned compromise
+  between those two metrics — long enough to type a card number, short enough that
+  abandonment returns seats while the sale is still alive. <em>(Hold-state machine:
+  standard pattern; the ~10-minute hold: disclosed.)</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The lottery at the gate</h2>
+  <p>Now the herd itself. A first-come sale is a <em>latency race</em>, and latency
+  races have a permanent champion: the bot, reacting in 30 milliseconds from a
+  datacenter next door, versus a human reading a screen in two seconds. Open the gates
+  at 10:00:00 and speed decides everything — plus millions of simultaneous arrivals
+  crush the inventory tier. The disclosed design breaks both problems at once:
+  everyone in the waiting room at sale time gets a <strong>random</strong> position
+  (arriving 20 minutes early buys nothing), and the resulting FIFO queue admits a few
+  hundred shoppers at a time. Randomization converts the race bots always win into a
+  lottery weighted only by headcount; throttling means the fragile tier sees bounded
+  concurrency no matter how many millions wait.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">10:00:00 AM — the stampede vs the shuffled queue</span>
+    <span class="exp-run">
+      <button class="btn primary" data-act="e2-open">OPEN THE SALE</button>
+      <button class="btn" data-run="e2">PAUSE</button>
+      <button class="btn" data-reset="e2">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-room"> waiting room — random positions at open, admission throttled to 300</label>
+    <span>1,500 FANS (20% BOTS AT 30ms) · 900 SEATS · SAME CROWD BOTH WAYS</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:300px" role="img" aria-label="At sale open a crowd of humans and faster bots either stampedes directly into the inventory system, which overloads and hands most tickets to bots, or waits in a shuffled queue admitted three hundred at a time, keeping load flat and bot share down to their share of the crowd"></canvas>
+  <div class="exp-metrics">
+    <span>TICKETS TO BOTS<b class="bad" data-m="e2.bots">–</b></span>
+    <span>SESSIONS ERRORING<b class="bad" data-m="e2.err">–</b></span>
+    <span>PEAK CONCURRENCY<b data-m="e2.conc">–</b></span>
+    <span>SALE<b data-m="e2.state">–</b></span>
+  </div>
+  <figcaption class="exp-note">Open the sale without the room: the concurrency gauge
+  spikes into the thousands, errors cascade Eras-style, retries feed the herd — and the
+  bots, who reached the door first by three-quarters of a second, walk away with most
+  of the seats. Reset, arm the <em>waiting room</em>, open it again with the identical
+  crowd: random shuffle at T-0, three hundred shoppers at a time, load flat, errors
+  near zero — and the bots' take collapses to roughly their share of the crowd, because
+  a lottery doesn't care how fast you can click. (What actually happened in November
+  2022: bots and uninvited traffic showed up at 4× the previous record anyway — 15% of
+  interactions failed. The queue was the survivor, not the casualty.)</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Bedrock: protect the engine that cannot scale</h2>
+  <p>At the bottom of all of it sits a fact almost too good to be true: the system of
+  record for seat inventory is a lineal descendant of Ticketmaster's original ticketing
+  engine — written largely in VAX assembly on a custom OS in the late 1970s, running
+  today under software emulation, wrapped by Java APIs and deployed around by
+  Kubernetes. It is fast, it is correct, and it is <em>one machine's worth of
+  throughput, forever</em>. The architecture around it exists to spend that scarce
+  resource only on what matters: writes. Seat-map reads — millions of fans refreshing
+  — are served from cached snapshots that regenerate every couple of seconds. The cost
+  is honesty on the map: the seat you're looking at may have died seconds ago, which is
+  exactly why your click sometimes bounces politely and the purchase never
+  lies. <em>[Core: disclosed. Cache mechanics: standard pattern.]</em></p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">The strata — reads deflected, writes drilled to 1970s bedrock</span>
+    <span class="exp-run"><button class="btn" data-run="e3">PAUSE</button><button class="btn" data-reset="e3">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-wrap" checked> wrap the core — cached seat maps + admission-throttled writes</label>
+    <span>CORE CAPACITY: 100 OPS/s — FIXED IN 1976, NON-NEGOTIABLE</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:300px" role="img" aria-label="A geological cross-section: Kubernetes and Java layers above a 1970s VAX core with fixed capacity; unwrapped, five thousand map reads per second drill down and saturate the core so ticket sales collapse; wrapped, reads deflect at a snapshot cache seconds stale and the core serves only writes at healthy load"></canvas>
+  <div class="exp-metrics">
+    <span>CORE LOAD<b class="bad" data-m="e3.core">–</b></span>
+    <span>TICKETS/MIN<b data-m="e3.tput">–</b></span>
+    <span>SEAT-MAP STALENESS<b data-m="e3.stale">–</b></span>
+    <span>STALE-MAP CLICK BOUNCES<b data-m="e3.bounce">–</b></span>
+  </div>
+  <figcaption class="exp-note">Unwrap the core and the arithmetic is instant death:
+  5,000 map reads a second against 100 total operations means writes get one percent of
+  the engine and the sale crawls at ~70 tickets a minute — the map is perfectly live
+  and perfectly useless. Wrapped, the snapshot cache eats every read for one core op
+  per rebuild; the engine spends itself on writes and the sale runs at full speed. The
+  trade is printed on the staleness meter: your map is up to two seconds in the past,
+  so a few clicks a minute bounce onto seats that just died — cheap, polite, and paid
+  <em>before</em> money enters the picture. Fifty years of wrappers, one invariant
+  untouched: the core never sells a seat twice.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>What the onsale teaches</h2>
+  <p>Ticketing's lesson generalizes to every drop, launch, and registration day on the
+  internet — which is why the waiting room became a product category (Queue-it,
+  Cloudflare Waiting Room) and the reservation-with-TTL pattern shows up in airline
+  seat maps and hotel checkouts. Demand you cannot serve, you must shape: move the
+  fight earlier (registration and scoring), replace races with lotteries (bots lose
+  their only advantage), meter the herd into bounded concurrency, and let an expiring
+  claim — not a payment failure — be the way a human loses a seat.</p>
+  <p>The keeper: <strong>when supply is fixed and demand arrives as a vertical wall,
+  the system's job is not to be fast — it's to be fair, bounded, and incapable of
+  selling the same chair twice, in that order.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Ticketmaster — <a href="https://business.ticketmaster.com/press-release/taylor-swift-the-eras-tour-onsale-explained/">The Eras Tour Onsale Explained</a>, Nov 2022 — 3.5B requests (4× prior peak), 3.5M registered, 1.5M codes, 2M sold, ~15% of interactions erroring.</li>
+    <li>Ticketmaster — <a href="https://blog.ticketmaster.com/how-ticketmaster-queue-works/">How the Ticketmaster Queue Works</a>, updated 2025 — random assignment at open, throttled admission (a few hundred shoppers), ~10-minute holds, bot flags.</li>
+    <li>USENIX LISA17 — <a href="https://www.usenix.org/sites/default/files/conference/protected-files/lisa17_slides_osborn.pdf">VAX to K8s: Ticketmaster's Transformation to Cloud Native DevOps</a>, 2017 — the VAX-assembly Host under emulation, wrapped and deployed around; corroborated by <a href="https://www.computerweekly.com/news/450416287/How-to-apply-DevOps-practices-to-legacy-IT">Computer Weekly</a>.</li>
+    <li>Linux.com/CNCF — <a href="https://www.linux.com/news/ticketmaster-chooses-kubernetes-stay-ahead-competition/">Ticketmaster Chooses Kubernetes</a>, 2016 — 22K VMs, 7 datacenters, early K8s adoption.</li>
+    <li>Queue-it — <a href="https://queue-it.com/blog/virtual-waiting-room/">Virtual Waiting Rooms</a> — the general waiting-room pattern (used here for the standard-pattern material, not Ticketmaster internals).</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · Next in the wider world: <b>Reddit precomputes the front page</b></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function expRand(rng, mean){ return -Math.log(1 - rng()) * mean; }
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+
+/* ================= HERO: the funnel of fairness ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(5),
+  reset(){ this.t=0; this.sold=0; },
+  update(dt){
+    this.t+=dt;
+    if(this.sold<2000000) this.sold+=24000*dt;
+    else if(this.t>0 && this._holdT===undefined) this._holdT=this.t+3;
+    if(this._holdT && this.t>this._holdT){ this.sold=0; this._holdT=undefined; }
+    setM('hero.now', Math.round(285+Math.sin(this.t*1.3)*18+this.rng()*10));
+    setM('hero.sold', Math.min(2000000, Math.round(this.sold)).toLocaleString('en-US'));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const stages=[
+      ['14M HOPEFULS', 1,     'DEMAND'],
+      ['3.5M REGISTERED', 0.72,'VERIFIED FAN SCORING'],
+      ['1.5M INVITE CODES', 0.5,'SIZED TO INVENTORY'],
+      ['~300 SHOPPING AT ONCE', 0.24,'RANDOM QUEUE + THROTTLE'],
+      ['2M SEATS', 0.12,  'ONE HOLD EACH'],
+    ];
+    const y0=44, y1=H-56;
+    const cx=W/2;
+    stages.forEach((s,i)=>{
+      const y=y0+(y1-y0)*i/(stages.length-1);
+      const w=s[1]*(W-160);
+      ctx.strokeStyle= i===3? CSS.traffic : CSS.line;
+      ctx.strokeRect(cx-w/2, y-13, w, 26);
+      ctx.fillStyle= i===3? CSS.traffic : CSS.ink; ctx.textAlign='center';
+      ctx.fillText(s[0], cx, y+4);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText(s[2], cx+w/2+14, y+4);
+      if(i<stages.length-1){
+        const ny=y0+(y1-y0)*(i+1)/(stages.length-1);
+        ctx.strokeStyle=CSS.line; ctx.globalAlpha=.5;
+        ctx.beginPath(); ctx.moveTo(cx-w/2, y+13); ctx.lineTo(cx-stages[i+1][1]*(W-160)/2, ny-13); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx+w/2, y+13); ctx.lineTo(cx+stages[i+1][1]*(W-160)/2, ny-13); ctx.stroke();
+        ctx.globalAlpha=1;
+      }
+    });
+    // falling dots
+    for(let i=0;i<16;i++){
+      const u=(this.t*0.35+i/16)%1;
+      const y=y0+(y1-y0)*u;
+      const stage=u*(stages.length-1);
+      const wHere=(stages[Math.floor(stage)][1]+(stages[Math.min(4,Math.floor(stage)+1)][1]-stages[Math.floor(stage)][1])*(stage%1))*(W-160);
+      const x=cx+((i*761%100)/100-0.5)*wHere*0.85;
+      ctx.fillStyle=CSS.traffic; ctx.globalAlpha=.7;
+      ctx.beginPath(); ctx.arc(x, y, 1.8, 0, 7); ctx.fill();
+      ctx.globalAlpha=1;
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('EVERY NARROWING IS A MECHANISM — SCORING, LOTTERY, THROTTLE, HOLD', W/2, H-16);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: holds with TTL ================= */
+const rTtl=document.getElementById('r-ttl');
+const tHolds=document.getElementById('t-holds');
+const ROWS=10, COLS=24, NSEAT=ROWS*COLS;
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(13),
+  reset(){ this.t=0;
+    this.seats=Array.from({length:NSEAT},()=>({st:'A', exp:0, payer:null}));
+    this.shoppers=[]; this.nextS=0.3; this.sid=1;
+    this.sold=0; this.late=0; this.mid=0; this.section=1; },
+  ttl(){ return +rTtl.value; },
+  update(dt){
+    this.t+=dt;
+    const holds=tHolds.checked;
+    // expire holds
+    for(const s of this.seats)
+      if(s.st==='H' && this.t>=s.exp) { s.st='A'; s.payer=null; }
+    // new shopper
+    if(this.t>=this.nextS){
+      this.nextS=this.t+0.2;
+      const avail=[];
+      this.seats.forEach((s,i)=>{ if(holds? s.st==='A' : s.st!=='S') avail.push(i); });
+      if(avail.length){
+        // fans prefer the front: take the best of three random candidates
+        let pick=avail[Math.floor(this.rng()*avail.length)];
+        for(let k=0;k<2;k++){ const c=avail[Math.floor(this.rng()*avail.length)]; if(c<pick) pick=c; }
+        const abandon=this.rng()<0.3;
+        const payDur=Math.min(20, 3+expRand(this.rng, 3));
+        const id=this.sid++;
+        if(holds){
+          const s=this.seats[pick];
+          s.st='H'; s.exp=this.t+this.ttl(); s.payer=id; s.willAbandon=abandon;
+        }
+        this.shoppers.push({id, seat:pick, done:this.t+payDur, abandon});
+      }
+    }
+    // payments complete
+    this.shoppers=this.shoppers.filter(sh=>{
+      if(this.t<sh.done) return true;
+      const s=this.seats[sh.seat];
+      if(sh.abandon) return false;                    // walked away; hold expires on its own
+      if(holds){
+        if(s.st==='H' && s.payer===sh.id){ s.st='S'; this.sold++; }
+        else this.mid++;                              // hold expired under them mid-payment
+      } else {
+        if(s.st!=='S'){ s.st='S'; this.sold++; }
+        else this.late++;                             // card in hand, seat gone
+      }
+      return false;
+    });
+    // open the next section when this one is nearly gone
+    const open=this.seats.filter(s=>s.st!=='S').length;
+    if(open<24){
+      this.section++;
+      for(const s of this.seats){ s.st='A'; s.payer=null; }
+      this.shoppers=[];
+    }
+    const held=this.seats.filter(s=>s.st==='H').length;
+    const notSold=this.seats.filter(s=>s.st!=='S').length;
+    setM('e1.ttl', this.ttl()+'s');
+    setM('e1.sold', this.sold);
+    setM('e1.late', this.late);
+    setM('e1.mid', this.mid);
+    setM('e1.ghost', holds? Math.round(held/Math.max(1,notSold)*100)+'%' : '0% (nothing is ever held)');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const holds=tHolds.checked;
+    const cs=Math.min(26, (W-320)/COLS), gx=40, gy=58;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('SECTION '+this.section+' — '+NSEAT+' SEATS · SHOPPERS ADMITTED AT 5/s', gx, 32);
+    for(let i=0;i<NSEAT;i++){
+      const x=gx+(i%COLS)*cs, y=gy+Math.floor(i/COLS)*22;
+      const s=this.seats[i];
+      if(s.st==='S'){ ctx.fillStyle=CSS.b; ctx.fillRect(x, y, cs-4, 18); }
+      else if(s.st==='H'){
+        ctx.strokeStyle=CSS.traffic;
+        ctx.strokeRect(x, y, cs-4, 18);
+        const frac=Math.max(0,(s.exp-this.t)/this.ttl());
+        ctx.fillStyle=CSS.a;
+        ctx.fillRect(x, y+18-4, (cs-4)*frac, 4);
+      } else {
+        ctx.strokeStyle='#22334A';
+        ctx.strokeRect(x, y, cs-4, 18);
+      }
+    }
+    // legend + shopper feed
+    const lx=gx+COLS*cs+26;
+    ctx.textAlign='left';
+    ctx.strokeStyle='#22334A'; ctx.strokeRect(lx, 58, 16, 12);
+    ctx.fillStyle=CSS.muted; ctx.fillText('AVAILABLE', lx+24, 68);
+    ctx.strokeStyle=CSS.traffic; ctx.strokeRect(lx, 80, 16, 12);
+    ctx.fillStyle=CSS.muted; ctx.fillText('HELD (TTL BAR)', lx+24, 90);
+    ctx.fillStyle=CSS.b; ctx.fillRect(lx, 102, 16, 12);
+    ctx.fillStyle=CSS.muted; ctx.fillText('SOLD', lx+24, 112);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('PAYING NOW: '+this.shoppers.filter(s=>!s.abandon).length, lx, 140);
+    ctx.fillText('ABANDONING: '+this.shoppers.filter(s=>s.abandon).length, lx, 156);
+    if(!holds){
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('NO LOCKS — SEVERAL', lx, 184);
+      ctx.fillText('FANS CAN BE PAYING', lx, 198);
+      ctx.fillText('FOR THE SAME SEAT', lx, 212);
+    } else {
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('ONE ACTIVE HOLD', lx, 184);
+      ctx.fillText('PER SEAT — ALWAYS', lx, 198);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText(holds? 'AVAILABLE → HELD('+this.ttl()+'s) → SOLD · EXPIRY SWEEPS ABANDONED HOLDS BACK'
+                      : 'AVAILABLE → (EVERYONE SEES FREE) → FIRST COMMIT WINS · THE REST FIND OUT AT THE WORST MOMENT', W/2, H-14);
+  }
+};
+e1.reset();
+rTtl.addEventListener('input',()=>setM('e1.ttl', rTtl.value+'s'));
+
+/* ================= EXP-02: the stampede vs the queue ================= */
+const tRoom=document.getElementById('t-room');
+const POP=1500, BOTS=300, TICKETS=900, ADMIT=300, SESS=2.5;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0; this.opened=false; this.openAt=2;
+    const rng=mulberry32(23);
+    this.agents=Array.from({length:POP},(_,i)=>({
+      bot:i<BOTS,
+      lat: i<BOTS? 0.03+rng()*0.05 : 0.6+expRand(rng, 1.2),
+      state:'wait', retryAt:0,
+    }));
+    // pre-shuffled lottery order (what the room would assign)
+    this.order=this.agents.map((_,i)=>i);
+    for(let i=this.order.length-1;i>0;i--){ const j=Math.floor(rng()*(i+1)); [this.order[i],this.order[j]]=[this.order[j],this.order[i]]; }
+    this.rng=rng;
+    this.tickets=TICKETS; this.botTix=0; this.humTix=0;
+    this.sessions=[]; this.err=0; this.done=0; this.concPeak=0;
+    this.admitIdx=0; this.soldOutAt=null; },
+  open(){ if(!this.opened){ this.opened=true; this.openAt=this.t; } },
+  update(dt){
+    this.t+=dt;
+    if(!this.opened && this.t>=2) this.open();
+    const room=tRoom.checked;
+    if(this.opened && this.tickets>0){
+      if(!room){
+        // stampede: agents arrive by latency; retries rejoin.
+        // bots script their checkout (fast sessions) and hammer retries;
+        // humans read error pages and hesitate.
+        for(const a of this.agents){
+          const dur=a.bot? 0.7 : SESS+this.rng();
+          if(a.state==='wait' && this.t>=this.openAt+a.lat){ a.state='in'; this.sessions.push({a, end:this.t+dur}); }
+          if(a.state==='retry' && this.t>=a.retryAt){ a.state='in'; this.sessions.push({a, end:this.t+dur}); }
+        }
+      } else {
+        // lottery order, admission keeps concurrency at ADMIT
+        while(this.sessions.length<ADMIT && this.admitIdx<this.order.length){
+          const a=this.agents[this.order[this.admitIdx++]];
+          if(a.state!=='wait') continue;
+          a.state='in'; a.admitAt=this.t;
+          this.sessions.push({a, end:this.t+SESS});
+        }
+      }
+    }
+    const conc=this.sessions.length;
+    this.concPeak=Math.max(this.concPeak, conc);
+    const pErr= room? 0.005 : Math.min(0.85, Math.max(0, (conc-ADMIT)/1200));
+    this.sessions=this.sessions.filter(s=>{
+      if(this.t<s.end) return true;
+      this.done++;
+      if(this.rng()<pErr){
+        this.err++;
+        s.a.state='retry';
+        s.a.retryAt=this.t+(s.a.bot? 0.12+this.rng()*0.15 : 2+this.rng()*2.5);
+        return false;
+      }
+      if(this.tickets>0){
+        const take=Math.min(this.tickets, 1+(this.rng()<0.5?1:0));
+        this.tickets-=take;
+        if(s.a.bot) this.botTix+=take; else this.humTix+=take;
+        if(this.tickets<=0 && this.soldOutAt===null) this.soldOutAt=this.t-this.openAt;
+      }
+      // in the open stampede a scalper bot just switches to its next stolen
+      // account; in the room, one invite code = one admission
+      if(s.a.bot && !tRoom.checked){ s.a.state='retry'; s.a.retryAt=this.t+0.25; }
+      else s.a.state='served';
+      return false;
+    });
+    const totTix=this.botTix+this.humTix;
+    setM('e2.bots', totTix? Math.round(this.botTix/totTix*100)+'% ('+this.botTix+' of '+totTix+')':'–');
+    setM('e2.err', this.done? Math.round(this.err/this.done*100)+'%':'–');
+    setM('e2.conc', this.concPeak.toLocaleString('en-US'));
+    setM('e2.state', !this.opened? 'DOORS AT 10:00:00' : this.tickets>0? this.tickets+' SEATS LEFT' : 'SOLD OUT IN '+(this.soldOutAt||0).toFixed(1)+'s');
+    this._conc=conc;
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const room=tRoom.checked;
+    // crowd
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('THE CROWD — 1,200 HUMANS + 300 BOTS (RED)', 30, 30);
+    let wi=0;
+    for(let i=0;i<this.agents.length;i+=8){
+      const a=this.agents[i];
+      if(a.state!=='wait'){ wi++; continue; }
+      const x=36+(wi%22)*11, y=46+Math.floor(wi/22)*11;
+      ctx.fillStyle= a.bot? CSS.fault : CSS.b; ctx.globalAlpha=.8;
+      ctx.beginPath(); ctx.arc(x, y, 2.2, 0, 7); ctx.fill();
+      wi++;
+    }
+    ctx.globalAlpha=1;
+    // gate
+    const gx=W*0.42;
+    ctx.strokeStyle= room? CSS.traffic : CSS.line;
+    ctx.lineWidth= room? 2:1;
+    ctx.strokeRect(gx, 46, 140, 120);
+    ctx.lineWidth=1;
+    ctx.fillStyle= room? CSS.traffic : CSS.muted; ctx.textAlign='center';
+    ctx.fillText(room? 'WAITING ROOM' : 'NO GATE', gx+70, 66);
+    ctx.fillStyle=CSS.muted;
+    if(room){
+      ctx.fillText('SHUFFLE AT T-0', gx+70, 84);
+      ctx.fillText('ADMIT 300 AT A TIME', gx+70, 100);
+      ctx.fillText('SPEED BUYS NOTHING', gx+70, 116);
+    } else {
+      ctx.fillText('FIRST COME,', gx+70, 84);
+      ctx.fillText('FIRST SERVED —', gx+70, 100);
+      ctx.fillText('A RACE BOTS WIN', gx+70, 116);
+    }
+    // inventory service
+    const ix=W*0.70;
+    const overloaded=this._conc>ADMIT*1.5;
+    ctx.strokeStyle= overloaded? CSS.fault : CSS.b;
+    ctx.strokeRect(ix, 46, 170, 120);
+    ctx.fillStyle= overloaded? CSS.fault : CSS.ink;
+    ctx.fillText(overloaded? 'INVENTORY — MELTING' : 'INVENTORY SYSTEM', ix+85, 66);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('BUILT FOR ~300', ix+85, 84);
+    ctx.fillText('CONCURRENT SHOPPERS', ix+85, 100);
+    // concurrency gauge
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(ix+16, 116, 138, 12);
+    const cfrac=Math.min(1, (this._conc||0)/1500);
+    ctx.fillStyle= overloaded? CSS.fault : CSS.b;
+    ctx.fillRect(ix+17, 117, 136*cfrac, 10);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('NOW: '+(this._conc||0), ix+85, 146);
+    // arrows
+    ctx.strokeStyle=CSS.line; ctx.globalAlpha=.6;
+    ctx.beginPath(); ctx.moveTo(285, 106); ctx.lineTo(gx, 106); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(gx+140, 106); ctx.lineTo(ix, 106); ctx.stroke();
+    ctx.globalAlpha=1;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText(room? 'THE HERD IS ABSORBED BY THE CHEAP TIER — THE FRAGILE TIER SEES A TRICKLE'
+                     : 'THE HERD HITS THE FRAGILE TIER DIRECTLY — AND RETRIES FEED IT', W/2, H-40);
+    ctx.fillText('SAME 1,500 FANS · SAME 900 SEATS · SAME DICE', W/2, H-16);
+  }
+};
+e2.reset();
+document.querySelector('[data-act="e2-open"]').addEventListener('click',()=>e2.open());
+tRoom.addEventListener('change',()=>e2.reset());
+
+/* ================= EXP-03: the strata ================= */
+const tWrap=document.getElementById('t-wrap');
+const CORE=100, WRITES=60, READS=5000;
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  rng: mulberry32(31),
+  reset(){ this.t=0; this.snapAge=0; this.sold=0; this.bounces=0; },
+  update(dt){
+    this.t+=dt;
+    const wrap=tWrap.checked;
+    if(wrap){
+      this.snapAge+=dt;
+      if(this.snapAge>=2) this.snapAge=0;
+      const rate=WRITES;                                   // core serves all writes
+      this.sold+=rate*dt;
+      // stale-map bounces: picks colliding with seats sold inside the snapshot age
+      this.bounces+=rate*0.03*dt*60/60;
+      this._core=Math.round((WRITES+0.5)/CORE*100)+'% — HEALTHY';
+      this._tput=rate*60;
+      this._stale='≤2.0s (SNAPSHOT AGE '+this.snapAge.toFixed(1)+'s)';
+      this._bounce=Math.round(WRITES*0.03*60)+'/MIN — REPICK, CHEAP';
+    } else {
+      const writeShare=WRITES/(WRITES+READS);
+      const rate=CORE*writeShare;
+      this.sold+=rate*dt;
+      this._core='SATURATED — '+(WRITES+READS).toLocaleString('en-US')+' DEMAND / '+CORE+' CAPACITY';
+      this._tput=rate*60;
+      this._stale='0s — LIVE, AND USELESS';
+      this._bounce='–';
+    }
+    setM('e3.core', this._core);
+    setM('e3.tput', Math.round(this._tput).toLocaleString('en-US'));
+    setM('e3.stale', this._stale);
+    setM('e3.bounce', this._bounce);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const wrap=tWrap.checked;
+    const layers=[
+      ['KUBERNETES / CLOUD (2016+)', '#22334A'],
+      ['JAVA API LAYERS (2000s)', '#22334A'],
+      wrap? ['SNAPSHOT CACHE — REBUILT EVERY 2s (1 CORE OP)', null] : null,
+      ['EMULATOR (REPLACED THE HARDWARE)', '#22334A'],
+      ['VAX HOST · 1976 · ASSEMBLY · 100 OPS/s', null],
+    ].filter(Boolean);
+    const lh=(H-100)/layers.length;
+    layers.forEach((l,i)=>{
+      const y=36+i*lh;
+      const isCore=i===layers.length-1;
+      const isCache=wrap && i===2;
+      ctx.strokeStyle= isCore? CSS.a : isCache? CSS.traffic : CSS.line;
+      ctx.lineWidth= isCore||isCache? 2:1;
+      ctx.strokeRect(70, y, W-260, lh-8);
+      ctx.lineWidth=1;
+      ctx.fillStyle= isCore? CSS.a : isCache? CSS.traffic : CSS.muted;
+      ctx.textAlign='left';
+      ctx.fillText(l[0], 84, y+lh/2);
+    });
+    const coreY=36+(layers.length-1)*lh;
+    // reads arrow
+    const readsDeep=!wrap;
+    const cacheY=wrap? 36+2*lh : coreY;
+    ctx.strokeStyle= readsDeep? CSS.fault : CSS.b; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(W-160, 20); ctx.lineTo(W-160, (readsDeep? coreY:cacheY)+lh/2-8);
+    ctx.lineTo(70+(W-260), (readsDeep? coreY:cacheY)+lh/2-4); ctx.stroke();
+    ctx.lineWidth=1;
+    ctx.fillStyle= readsDeep? CSS.fault : CSS.b; ctx.textAlign='left';
+    ctx.fillText('5,000 MAP READS/s', W-152, 30);
+    ctx.fillText(readsDeep? '→ DRILL TO BEDROCK' : '→ DEFLECTED AT CACHE', W-152, 44);
+    // writes arrow
+    ctx.strokeStyle=CSS.traffic; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(40, 20); ctx.lineTo(40, coreY+lh/2-8); ctx.lineTo(70, coreY+lh/2-8); ctx.stroke();
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.traffic;
+    ctx.fillText('60 WRITES/s', 12, 14);
+    // core load bar
+    const load= wrap? (WRITES+0.5)/CORE : 1;
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(70, coreY+lh-16, W-260, 6);
+    ctx.fillStyle= wrap? CSS.b : CSS.fault;
+    ctx.fillRect(70, coreY+lh-16, (W-260)*Math.min(1,load), 6);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText(wrap? 'THE ENGINE SPENDS ITSELF ONLY ON WHAT MATTERS: WRITES'
+                     : 'WRITES GET 1% OF THE ENGINE — THE SALE CRAWLS AT ~70 TICKETS/MIN', W/2, H-14);
+  }
+};
+e3.reset();
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

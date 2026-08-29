@@ -34,8 +34,11 @@ real fix, and the sliders are yours.
 | 21 | [The Folder — Dropbox](episodes/dropbox.html) | A file is a list of hashes: whole-file sync drowns where blocks nap; the teammate's copy costs 0 bytes; LAN sync makes the office the CDN; replicate-fresh vs erasure-code-cold race a repair |
 | 22 | [The Calendar — Airbnb](episodes/airbnb.html) | Two guests race one calendar (atomic commit vs the checkout window; iCal stays racy); the Monorail split by 1% comparison; the two-sided ranker that asks if the host will say yes |
 | 23 | [The Charge — Stripe](episodes/stripe.html) | Exactly once over an at-least-once wire: the idempotency key vs blind retries; the four-layer bouncer that never sheds a charge; the version time machine serving 2011 fresh from 2026 |
+| 24 | [The Drop — Shopify](episodes/shopify.html) | Same hardware, cut two ways: a shared DB breaks every shop, pods contain the fire; the Storefront Renderer's 45ms p75 emerges from its caches; the microservices tax, compounded honestly |
+| 25 | [The Onsale — Ticketmaster](episodes/ticketmaster.html) | 14M people, 2M seats: the TTL hold that hurts on both ends; the waiting-room lottery that beats the bots; a cache wall protecting a 1970s VAX core |
+| 26 | [The Front Page — Reddit](episodes/reddit.html) | The real hot formula live; precompute-everything vs sort-on-read; Wilson confidence vs the old giants; r/place as one 4-bit bitfield |
 
-**The wider world is underway** (23 of 29 systems). Next: **Shopify survives the drop**.
+**The wider world is underway** (26 of 29 systems). Next: **Pinterest shards billions of pins**.
 
 ## Structure
 
