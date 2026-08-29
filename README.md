@@ -52,6 +52,22 @@ real fix, and the sliders are yours.
 - `research/` — the sourced research base behind the series: 29 systems across three
   tiers, every scale number carrying its year and source URL
 
+## The toolbox — DSA, under fire
+
+A revision tier connecting classic data structures to the 30 systems above. Each
+piece: interview card, a live honestly-implemented structure, a predict-before-run
+experiment (measurement gated on committing to a call), production stories with
+episode backlinks, and a revision card. Format contract: `TOOLBOX.md`.
+
+| Piece | Structure | The rep |
+|---|---|---|
+| The Filter | Bloom filters | call the false-positive rate at 8 bits/key |
+| The Heap | binary heap | call the comparison bill for top-100 of 1M |
+| The LSM Tree | log-structured merge tree | call the write amplification, fanout 10, 3 levels |
+
+Planned: the hash table, the trie, the skip list, HyperLogLog, Count-Min, the
+B-tree, LRU eviction, and the queue as capstone.
+
 ## The rules of the series
 
 1. **Simulations are honest** — queueing behavior emerges from real arithmetic

@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The LSM Tree — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  /* toolbox cards: the interview card + the revision card */
+  .tbx{border:1px solid var(--rule);background:var(--card);border-radius:6px;
+    padding:18px 20px 15px;margin:26px 0;font-size:15px}
+  .tbx .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-text);
+    text-transform:uppercase;display:block;margin-bottom:10px}
+  .tbx ul{list-style:none;margin:0 0 14px;padding:0}
+  .tbx li{margin:.5em 0;padding-left:20px;position:relative}
+  .tbx li::before{content:"→";position:absolute;left:0;top:1px;
+    font-family:var(--mono);font-size:12px;color:var(--accent-text)}
+  .tbx .met{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .tbx dl{display:grid;grid-template-columns:max-content 1fr;gap:7px 16px;
+    margin:0;border-top:1px solid var(--rule);padding-top:12px}
+  .tbx dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-text);padding-top:2px;white-space:nowrap}
+  .tbx dd{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .btn.picked{border-color:var(--traffic);color:var(--traffic)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .exp-note a{color:var(--series-b)}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Toolbox</p>
+  <h1>The LSM Tree</h1>
+  <p class="dek">The structure that made writes cheap by refusing to edit anything. It
+  never updates a byte in place: it appends to RAM, sorts there, flushes immutable sorted
+  files, and quietly re-merges them forever. That bargain — sequential-only disk writes,
+  paid for later in "compaction" — is the engine under Discord's trillion messages
+  (ScyllaDB), LinkedIn's feed (RocksDB), and half the storage engines this series has
+  touched. The bill it defers has a name: write amplification. Predict it before you run
+  it. That's the rep.</p>
+  <p class="marginal">Everything below computes for real: the machines are actual LSM
+  trees holding sorted integer runs — every flush, merge and compaction below moves real
+  keys and counts real bytes. No write amplification number on this page is scripted.</p>
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <div class="tbx">
+    <span class="k">The interview card — where you've ground this before</span>
+    <ul>
+      <li>"Design a write-heavy key-value store." · "Why are Cassandra writes so fast?"</li>
+      <li>"What is write amplification, and why is it eating your SSDs?"</li>
+      <li>"Where do Bloom filters actually live in a database?" (You built one in <a href="../index.html#/bloom" target="_top">The Filter</a> — this is its home address.)</li>
+    </ul>
+    <dl>
+      <dt>Pattern</dt><dd>append-only · sorted immutable runs · k-way merge</dd>
+      <dt>Space</dt><dd>levels grow ×10; leveled keeps total ≈ 1.1× the data</dd>
+      <dt>Time</dt><dd>write O(1) amortized (append + background merge) · read probes O(levels) files, Bloom-shielded</dd>
+      <dt>The catch</dt><dd>write amplification — every byte is rewritten at each level it descends, ≈ fanout per level</dd>
+    </dl>
+  </div>
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">A real LSM tree digesting a write stream — flushes, levels, compactions</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:300px" role="img" aria-label="A memtable bar fills and flushes into level-zero run chips; compactions merge runs downward into wider levels while byte counters track user data against total disk writes"></canvas>
+  <div class="exp-metrics">
+    <span>USER DATA WRITTEN<b data-m="hero.user">0 MB</b></span>
+    <span>DISK BYTES WRITTEN<b data-m="hero.disk">0 MB</b></span>
+    <span>WRITE AMP (WINDOWED)<b data-m="hero.wa">–</b></span>
+    <span>IN-PLACE FILE EDITS<b data-m="hero.inv">0 — EVERY RUN IMMUTABLE</b></span>
+  </div>
+  <figcaption class="exp-note">Watch the rhythm: the memtable fills in RAM and flushes as
+  a sorted run; four runs at level 0 trigger a merge into level 1; level 1 overflows into
+  level 2 ten-files-at-a-time. Nothing is ever edited — <em>data only moves by being
+  rewritten somewhere new</em> — which is why the disk counter runs ahead of the user
+  counter. The gap between those two numbers is the whole economics of this structure.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The bargain</h2>
+  <p>A disk (even an SSD) loves sequential writes and punishes random ones —
+  <a href="../index.html#/the-log-kafka" target="_top">the Kafka episode</a> was built on
+  that single fact. A B-tree pays the random-write price on every update: find the page,
+  edit it in place. The LSM tree refuses: updates go to a sorted structure in RAM, and the
+  disk only ever receives <em>large, sequential, immutable</em> files. Reads got more
+  complicated — a key could now live in any level — and that is exactly the disease
+  <a href="../index.html#/bloom" target="_top">The Filter</a> treats: one Bloom filter per
+  run turns "probe every file" into "probe the one that matters."</p>
+  <p>But the deferred bill is real. When level 1 overflows, one of its files is merged
+  into the ~10 overlapping files of level 2 — rewriting roughly eleven bytes to move one.
+  Every level charges that toll again. So here is the prediction: <strong>a leveled LSM
+  tree, fanout 10, three levels deep. In steady state, how many bytes hit the disk for
+  every byte you write?</strong> Commit, then watch a real one count.</p>
+</div>
+
+<figure class="exp" id="p-rep">
+  <figcaption class="exp-head">
+    <span class="exp-id">REP-01</span>
+    <span class="exp-title">Call the write amplification — fanout 10, three levels, 400K keys</span>
+    <span class="exp-run">
+      <button class="btn" data-act="p0">~3×</button>
+      <button class="btn" data-act="p1">~10×</button>
+      <button class="btn" data-act="p2">~30×</button>
+      <button class="btn" data-act="p3">~100×</button>
+      <button class="btn danger" data-reset="rep">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-rep" style="height:300px" role="img" aria-label="A gated experiment: after you commit to a write-amplification prediction, 400,000 keys stream through a real leveled LSM tree while per-level byte bars grow and a log-scale ruler compares your call to the measured ratio"></canvas>
+  <div class="exp-metrics">
+    <span>YOUR CALL<b data-m="rep.call">–</b></span>
+    <span>KEYS ACCEPTED<b data-m="rep.keys">0</b></span>
+    <span>DISK / USER<b data-m="rep.disk">–</b></span>
+    <span>WRITE AMP (WINDOWED)<b data-m="rep.wa">–</b></span>
+    <span>VERDICT<b data-m="rep.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">The per-level bars are the receipt: level 3 receives the
+  same keys as level 1 — but pays ~10× the bytes to file them, because every descent
+  re-merges the neighborhood. The pocket line: <em>write amplification ≈ fanout per deep
+  level — ten per level, and you chose how many levels.</em> RocksDB's own tuning guide
+  quotes 10–30× for leveled compaction; you just measured why.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Two ways to pay the same bill</h2>
+  <p>Compaction strategy is the knob real operators fight about, and
+  <a href="../index.html#/discord" target="_top">the Guild episode</a>'s ScyllaDB exposes
+  it directly. <strong>Size-tiered</strong> compaction merges runs of similar size when
+  enough pile up — lazy, cheap on writes, but old versions of a key linger in many
+  overlapping runs, so space balloons and reads probe more files.
+  <strong>Leveled</strong> compaction (RocksDB's default style for read-heavy work) keeps
+  each level as one sorted, non-overlapping range — tight space, few probes, but the
+  merge toll is charged eagerly. Below, both strategies eat the identical update
+  stream — same keys, same order — and every number is measured off the real runs.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Size-tiered vs leveled — one update stream, two compaction bills</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button>
+    <button class="btn danger" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-keys">Distinct keys (update heat)</label>
+      <input type="range" id="r-keys" min="5000" max="80000" value="20000" step="5000">
+      <output id="o-keys">20000</output></div>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:280px" role="img" aria-label="Two LSM machines side by side digest the same update stream: size-tiered accumulates overlapping runs of many sizes while leveled keeps tight sorted levels; live counters compare write amplification, space amplification and files probed per read"></canvas>
+  <div class="exp-metrics">
+    <span>WRITE AMP<b data-m="e1.wa">–</b></span>
+    <span>SPACE AMP<b data-m="e1.space">–</b></span>
+    <span>CANDIDATE FILES / READ<b data-m="e1.probe">–</b></span>
+    <span>STREAM<b data-m="e1.stream">–</b></span>
+  </div>
+  <figcaption class="exp-note">Neither is free: tiered writes less and hoards more (dead
+  versions of hot keys pile up across runs); leveled scrubs continuously and reads
+  clean. Drag the slider down — a hotter update stream widens tiered's space bill because
+  more of what it stores is already stale. This is the actual dial ScyllaDB and Cassandra
+  operators turn, and why <a href="../index.html#/discord" target="_top">the Guild
+  episode</a>'s message store and <a href="../index.html#/linkedin" target="_top">the
+  Graph episode</a>'s RocksDB made different default choices.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>You can't outrun the invoice</h2>
+  <p>Every byte you ingest obligates the machine to ~WA bytes of future merge work. If
+  writes arrive faster than compaction bandwidth can pay that debt, level 0 piles up —
+  and real engines respond by <em>stalling your writes</em>. RocksDB ships exactly this:
+  when L0 files cross a threshold, ingestion is throttled, then stopped. The experiment
+  below gives a real LSM tree a fixed compaction budget and hands you the ingest dial.
+  There is a hard ceiling on sustained throughput, it equals
+  <em>budget ÷ write&nbsp;amplification</em>, and no burst schedule negotiates with it.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">The write stall — ingest against a fixed compaction budget</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button>
+    <button class="btn danger" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-ingest">Offered writes</label>
+      <input type="range" id="r-ingest" min="200" max="1500" value="400" step="100">
+      <output id="o-ingest">400</output> keys/s</div>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:270px" role="img" aria-label="A throughput chart of offered versus accepted writes: while compaction keeps pace they track together, but past the budget level-zero runs pile up, a stall lamp lights, and accepted throughput collapses to the compaction ceiling"></canvas>
+  <div class="exp-metrics">
+    <span>OFFERED<b data-m="e2.offered">0</b>/s</span>
+    <span>ACCEPTED<b data-m="e2.accepted">0</b>/s</span>
+    <span>WRITE STALLS<b data-m="e2.stalls">0</b></span>
+    <span>L0 RUNS<b data-m="e2.l0">0</b></span>
+  </div>
+  <figcaption class="exp-note">Push the dial past ~550/s and watch the machine tell the
+  truth: L0 fills, the stall lamp lights, and accepted throughput flattens at
+  <em>compaction budget ÷ write amp</em> no matter what you offer. This is the storage
+  twin of every collapse in the series — a hidden ρ = 1 line, the same law
+  <a href="../index.html#/load-balancing" target="_top">the Load Balancer episode</a>
+  met at 95% utilization. Provisioning an LSM store means provisioning
+  <em>compaction</em>, not writes.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The keeper</h2>
+  <p>The keeper: <strong>the LSM tree converts random writes into sequential ones by
+  never editing anything — and charges you write amplification, roughly fanout per
+  level, on a deferred invoice called compaction.</strong> Fast writes, Bloom-shielded
+  reads, and a hard throughput ceiling at budget ÷ WA: that's the whole personality of
+  the storage engine under half this series.</p>
+
+  <div class="tbx">
+    <span class="k">The revision card — for the you that comes back in three months</span>
+    <ul>
+      <li>Why are LSM writes fast? <span class="met">(append + RAM sort + sequential flush — nothing is ever edited in place)</span></li>
+      <li>Where does write amplification come from, and how big is it? <span class="met">(each level descent re-merges the neighborhood: ~fanout per level — you measured ~30×)</span></li>
+      <li>Size-tiered vs leveled: what do you buy, what do you pay? <span class="met">(tiered: cheap writes, bloated space, more probes · leveled: eager merges, tight space, clean reads)</span></li>
+      <li>Why does every LSM engine ship Bloom filters? <span class="met">(a key could be in any level — The Filter turns probe-everything into probe-one)</span></li>
+      <li>What caps sustained ingest? <span class="met">(compaction budget ÷ WA — the stall lamp, not the disk's write speed)</span></li>
+    </ul>
+    <dl>
+      <dt>Seen under fire</dt><dd><a href="../index.html#/discord" target="_top">The Guild · Discord</a> ·
+      <a href="../index.html#/linkedin" target="_top">The Graph · LinkedIn</a> ·
+      <a href="../index.html#/the-log-kafka" target="_top">The Log · Kafka</a> ·
+      <a href="../index.html#/bloom" target="_top">The Filter · Bloom</a></dd>
+    </dl>
+  </div>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Patrick O'Neil, Edward Cheng, Dieter Gawlick, Elizabeth O'Neil — <a href="https://www.cs.umb.edu/~poneil/lsmtree.pdf">"The Log-Structured Merge-Tree (LSM-Tree)"</a>, Acta Informatica, 1996.</li>
+    <li>RocksDB wiki — <a href="https://github.com/facebook/rocksdb/wiki/Leveled-Compaction">Leveled Compaction</a> and <a href="https://github.com/facebook/rocksdb/wiki/Write-Stalls">Write Stalls</a> (the L0 thresholds and the 10–30× figure).</li>
+    <li>ScyllaDB docs — <a href="https://docs.scylladb.com/manual/stable/architecture/compaction/compaction-strategies.html">Choosing a Compaction Strategy</a> (size-tiered vs leveled trade-offs in production terms).</li>
+    <li>Discord Engineering — <a href="https://discord.com/blog/how-discord-stores-trillions-of-messages">"How Discord stores trillions of messages"</a> (the ScyllaDB migration behind the Guild episode).</li>
+    <li>Martin Kleppmann — <em>Designing Data-Intensive Applications</em>, ch. 3 (SSTables and LSM-trees, the cleanest written treatment).</li>
+  </ul>
+</div>
+
+<footer class="col">
+  <hr class="foot-rule">
+    <p class="next">World of Internet Systems · The Toolbox — next instruments on the bench: <b>the hash table, the trie, the skip list…</b> · <a href="../index.html" target="_top">back to the index</a></p>
+</footer>
+</main>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const ENTRY=64; // bytes per entry, for display
+const mb = keys => (keys*ENTRY/1e6).toFixed(2)+' MB';
+
+/* ---------- real sorted-run machinery ---------- */
+function mergeTwo(a,b){ // both sorted asc; dedupe (an update supersedes)
+  const out=new Int32Array(a.length+b.length);
+  let i=0,j=0,k=0,last=NaN;
+  while(i<a.length||j<b.length){
+    let v;
+    if(j>=b.length || (i<a.length && a[i]<=b[j])) v=a[i++]; else v=b[j++];
+    if(v!==last){ out[k++]=v; last=v; }
+  }
+  return out.subarray(0,k);
+}
+const mergeAll = runs => runs.reduce((acc,r)=>acc?mergeTwo(acc,r):r, null) || new Int32Array(0);
+function partition(arr, size){
+  const files=[];
+  for(let i=0;i<arr.length;i+=size) files.push(arr.slice(i, Math.min(arr.length,i+size)));
+  return files;
+}
+const lo=f=>f[0], hi=f=>f[f.length-1];
+
+/* a leveled LSM tree: L0 overlapping runs, deeper levels sorted+partitioned */
+function makeLeveled(cfg){ // {mem, l0max, file, caps:[...]} caps in keys, last level uncapped
+  return {
+    mem:[], L0:[], L:cfg.caps.map(()=>[]).concat([[]]),
+    user:0, disk:0, flushes:0, compactions:0, lastEvent:null, perLevel:[0,0,0,0,0],
+    rrs:cfg.caps.map(()=>0), // round-robin compaction pick per level, like real engines
+    write(k, t){
+      this.mem.push(k); this.user++;
+      if(this.mem.length>=cfg.mem) this.flush(t);
+    },
+    flush(t){
+      this.mem.sort((a,b)=>a-b);
+      const run=mergeTwo(Int32Array.from(this.mem), new Int32Array(0)); // dedupe pass
+      this.mem=[];
+      this.L0.push(run); this.disk+=run.length; this.perLevel[0]+=run.length;
+      this.flushes++; this.lastEvent={lv:0,t};
+      if(this.L0.length>=cfg.l0max) this.compactL0(t);
+    },
+    compactL0(t){
+      const merged=mergeAll([...this.L0, ...this.L[0]]);
+      this.L0=[];
+      this.L[0]=partition(merged, cfg.file);
+      this.disk+=merged.length; this.perLevel[1]+=merged.length;
+      this.compactions++; this.lastEvent={lv:1,t};
+      this.spill(0,t);
+    },
+    spill(li,t){
+      while(this.L[li].reduce((s,f)=>s+f.length,0) > cfg.caps[li]){
+        const f=this.L[li].splice(this.rrs[li]++ % this.L[li].length, 1)[0];
+        const nxt=this.L[li+1], keep=[], over=[];
+        for(const g of nxt){ (hi(g)>=lo(f) && lo(g)<=hi(f)) ? over.push(g) : keep.push(g); }
+        const merged=mergeAll([f,...over]);
+        const files=partition(merged, cfg.file);
+        this.L[li+1]=keep.concat(files).sort((x,y)=>lo(x)-lo(y));
+        this.disk+=merged.length; this.perLevel[li+2]+=merged.length;
+        this.compactions++; this.lastEvent={lv:li+2,t};
+        if(li+1<cfg.caps.length) this.spill(li+1,t);
+      }
+    },
+    levelKeys(li){ return (li<0? this.L0 : this.L[li]).reduce((s,f)=>s+f.length,0); },
+    totalStored(){ let s=this.mem.length; s+=this.levelKeys(-1); for(let i=0;i<this.L.length;i++) s+=this.levelKeys(i); return s; },
+    probeCount(key){ // candidate files a point read must consider
+      let n=0;
+      for(const r of this.L0) if(key>=lo(r)&&key<=hi(r)) n++;
+      for(const lev of this.L) for(const f of lev) if(key>=lo(f)&&key<=hi(f)) n++;
+      return n+1; // +1 memtable
+    },
+  };
+}
+
+/* a size-tiered LSM: merge ~4 similar-sized runs when they pile up */
+function makeTiered(cfg){ // {mem, k}
+  return {
+    mem:[], runs:[], user:0, disk:0, flushes:0, compactions:0, lastEvent:null,
+    write(k,t){ this.mem.push(k); this.user++; if(this.mem.length>=cfg.mem) this.flush(t); },
+    flush(t){
+      this.mem.sort((a,b)=>a-b);
+      const run=mergeTwo(Int32Array.from(this.mem), new Int32Array(0));
+      this.mem=[]; this.runs.push(run); this.disk+=run.length; this.flushes++;
+      this.lastEvent={t};
+      this.maybeMerge(t);
+    },
+    maybeMerge(t){
+      for(;;){
+        const buckets=new Map();
+        this.runs.forEach((r,i)=>{
+          const b=Math.floor(Math.log2(Math.max(1,r.length/cfg.mem)));
+          if(!buckets.has(b)) buckets.set(b,[]);
+          buckets.get(b).push(i);
+        });
+        let did=false;
+        for(const [,idxs] of buckets){
+          if(idxs.length>=cfg.k){
+            const grab=idxs.slice(0,cfg.k);
+            const merged=mergeAll(grab.map(i=>this.runs[i]));
+            this.runs=this.runs.filter((_,i)=>!grab.includes(i));
+            this.runs.push(merged);
+            this.disk+=merged.length; this.compactions++; did=true;
+            break;
+          }
+        }
+        if(!did) break;
+      }
+    },
+    totalStored(){ return this.mem.length + this.runs.reduce((s,r)=>s+r.length,0); },
+    probeCount(key){
+      let n=0;
+      for(const r of this.runs) if(key>=lo(r)&&key<=hi(r)) n++;
+      return n+1;
+    },
+  };
+}
+
+/* windowed write-amp meter: WA over the trailing `span` user keys */
+function waMeter(span){
+  const snaps=[];
+  return {
+    sample(user,disk){
+      snaps.push({user,disk});
+      while(snaps.length>2 && user-snaps[0].user>span) snaps.shift();
+    },
+    value(){
+      if(snaps.length<2) return NaN;
+      const a=snaps[0], b=snaps[snaps.length-1];
+      return b.user>a.user ? (b.disk-a.disk)/(b.user-a.user) : NaN;
+    },
+  };
+}
+
+/* shared level-row painter */
+function drawChips(ctx, files, x0, x1, y, color, flash){
+  let x=x0;
+  for(let i=0;i<files.length;i++){
+    const w=Math.max(5, Math.min(60, files[i].length/60));
+    if(x+w>x1){
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('+'+(files.length-i), x+2, y+10);
+      return;
+    }
+    ctx.fillStyle=color; ctx.globalAlpha=flash?1:0.75;
+    ctx.fillRect(x, y, w, 13); ctx.globalAlpha=1;
+    x+=w+3;
+  }
+}
+
+/* ================= HERO ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  reset(){
+    this.t=0; this.rng=mulberry32(7);
+    this.db=makeLeveled({mem:240, l0max:4, file:240, caps:[2400, 24000]});
+    this.wam=waMeter(8000);
+    this.acc=0;
+    // never a blank first paint: pre-fill one flush worth
+    for(let i=0;i<250;i++) this.db.write((this.rng()*16777216)|0, 0);
+  },
+  update(dt){
+    this.t+=dt;
+    this.acc+=dt*300;
+    while(this.acc>=1){ this.acc--; this.db.write((this.rng()*16777216)|0, this.t); }
+    this.wam.sample(this.db.user, this.db.disk);
+    const wa=this.wam.value();
+    const warm=isNaN(wa)||wa<1.05; // early on most keys still sit in RAM — a sub-1 ratio would just confuse
+    setM('hero.user', mb(this.db.user));
+    setM('hero.disk', mb(this.db.disk));
+    setM('hero.wa', warm?'warming up…':'×'+wa.toFixed(1)+' and climbing with depth');
+    setM('hero.inv', '0 — EVERY RUN IMMUTABLE');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const x0=86, x1=W-190;
+    const rows=[
+      {label:'MEM',  y:44},
+      {label:'L0',   y:92},
+      {label:'L1',   y:140},
+      {label:'L2',   y:188},
+    ];
+    const ev=this.db.lastEvent, evAge=ev? this.t-ev.t : 99;
+    // memtable bar
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    rows.forEach(r=>ctx.fillText(r.label, 16, r.y+10));
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(x0, rows[0].y, 180, 13);
+    ctx.fillStyle=CSS.traffic;
+    ctx.fillRect(x0+1, rows[0].y+1, 178*Math.min(1,this.db.mem.length/240), 11);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('SORTED IN RAM · FLUSHES AT 240 KEYS', x0+190, rows[0].y+10);
+    drawChips(ctx, this.db.L0,   x0, x1, rows[1].y, CSS.traffic, ev&&ev.lv===0&&evAge<0.5);
+    drawChips(ctx, this.db.L[0], x0, x1, rows[2].y, CSS.a,       ev&&ev.lv===1&&evAge<0.5);
+    drawChips(ctx, this.db.L[1], x0, x1, rows[3].y, CSS.b,       ev&&ev.lv===2&&evAge<0.5);
+    // right: the two counters that matter
+    ctx.textAlign='right';
+    ctx.fillStyle=CSS.muted; ctx.fillText('USER', W-16, 52);
+    ctx.fillStyle=CSS.ink;   ctx.font='15px ui-monospace,Menlo,monospace';
+    ctx.fillText(mb(this.db.user), W-16, 70);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    ctx.fillStyle=CSS.muted; ctx.fillText('DISK', W-16, 108);
+    ctx.fillStyle=CSS.traffic; ctx.font='15px ui-monospace,Menlo,monospace';
+    ctx.fillText(mb(this.db.disk), W-16, 126);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const wa=this.wam.value(), warm=isNaN(wa)||wa<1.05;
+    ctx.fillStyle=CSS.muted; ctx.fillText('WRITE AMP', W-16, 164);
+    ctx.fillStyle=warm?CSS.muted:CSS.ink; ctx.font='15px ui-monospace,Menlo,monospace';
+    ctx.fillText(warm?'–':'×'+wa.toFixed(1), W-16, 182);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('FLUSHES '+this.db.flushes+' · COMPACTIONS '+this.db.compactions, 16, H-36);
+    ctx.textAlign='center';
+    ctx.fillText('NOTHING IS EVER EDITED — DATA MOVES ONLY BY BEING REWRITTEN SOMEWHERE NEW', W/2, H-14);
+  },
+};
+hero.reset();
+
+/* ================= REP-01: call the write amp ================= */
+const R_TOTAL=400000;
+const ROPTS=[3,10,30,100], ROPTL=['~3×','~10×','~30×','~100×'];
+const rep = {
+  cv: document.getElementById('c-rep'),
+  reset(){
+    this.t=0; this.picked=null; this.phase='idle';
+    this.rng=mulberry32(19);
+    this.db=makeLeveled({mem:500, l0max:4, file:500, caps:[5000, 50000]});
+    this.wam=waMeter(100000);
+    this.verdict='–';
+    document.querySelectorAll('[data-act^="p"]').forEach(b=>b.classList.remove('picked'));
+    this.pushMetrics();
+  },
+  choose(i){
+    if(this.picked!==null) return;
+    this.picked=i; this.phase='run';
+    document.querySelectorAll('[data-act^="p"]')[i]?.classList?.add('picked');
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.phase==='run'){
+      let n=0;
+      while(n<12000 && this.db.user<R_TOTAL){ this.db.write((this.rng()*16777216)|0, this.t); n++; }
+      this.wam.sample(this.db.user, this.db.disk);
+      if(this.db.user>=R_TOTAL){
+        this.phase='done';
+        const meas=this.wam.value(), call=ROPTS[this.picked];
+        const ratio=Math.max(meas,call)/Math.min(meas,call);
+        this.verdict = ratio<1.8 ? 'CALLED IT — ~FANOUT PER LEVEL'
+          : call<meas ? 'LOW ×'+ratio.toFixed(1)+' — EVERY LEVEL CHARGES ~FANOUT'
+          : 'HIGH ×'+ratio.toFixed(1)+' — ONLY '+this.db.L.length+' LEVELS DEEP';
+      }
+    }
+    this.pushMetrics();
+  },
+  pushMetrics(){
+    const wa=this.wam.value();
+    setM('rep.call', this.picked===null?'–':ROPTL[this.picked]);
+    setM('rep.keys', this.db.user>=R_TOTAL? '400K / 400K · DONE' : (this.db.user/1000).toFixed(0)+'K / 400K');
+    setM('rep.disk', mb(this.db.disk)+' / '+mb(this.db.user));
+    setM('rep.wa', isNaN(wa)?'–':'×'+wa.toFixed(1));
+    setM('rep.verdict', this.verdict);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    if(this.phase==='idle'){
+      ctx.textAlign='center';
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('COMMIT FIRST — THE MACHINE RUNS WHEN YOU CALL THE WRITE AMP', W/2, H/2-16);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('LEVELED COMPACTION · FANOUT 10 · MEMTABLE → L1 → L2 → L3 · 400,000 KEYS INCOMING', W/2, H/2+4);
+      ctx.fillText('HOW MANY BYTES HIT THE DISK PER BYTE YOU WRITE? PREDICT, THEN COUNT', W/2, H/2+22);
+      return;
+    }
+    // per-level byte bars — the receipt
+    const names=['L0 FLUSH','→ L1','→ L2','→ L3'];
+    const per=this.db.perLevel;
+    const maxB=Math.max(1,...per.slice(0,4));
+    const bx=120, bw=W-320;
+    ctx.textAlign='left';
+    for(let i=0;i<4;i++){
+      const y=30+i*30;
+      ctx.fillStyle=CSS.muted; ctx.fillText(names[i], 16, y+10);
+      ctx.strokeStyle=CSS.line; ctx.strokeRect(bx, y, bw, 13);
+      ctx.fillStyle=[CSS.traffic,CSS.a,CSS.b,'#7FBF7A'][i];
+      ctx.fillRect(bx+1, y+1, (bw-2)*(per[i]/maxB), 11);
+      ctx.fillStyle=CSS.ink; ctx.textAlign='left';
+      ctx.fillText(mb(per[i]), bx+bw+10, y+10);
+    }
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('BYTES WRITTEN, BY DESTINATION — SAME KEYS, RESOLD AT EVERY FLOOR', 16, 160);
+    // log ruler 1x..300x
+    const ry=H-64, x0=60, x1=W-30;
+    const X=v=>x0+(x1-x0)*Math.log10(Math.max(1,v))/2.48;
+    ctx.strokeStyle=CSS.line; ctx.beginPath(); ctx.moveTo(x0,ry); ctx.lineTo(x1,ry); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    [[1,'1×'],[3,'3×'],[10,'10×'],[30,'30×'],[100,'100×'],[300,'300×']].forEach(([v,l])=>{
+      ctx.beginPath(); ctx.moveTo(X(v),ry-4); ctx.lineTo(X(v),ry+4); ctx.stroke();
+      ctx.fillText(l, X(v), ry+18);
+    });
+    ctx.textAlign='left'; ctx.fillText('WRITE AMPLIFICATION (LOG SCALE)', x0, ry-34);
+    const dot=(v,col,label,dy)=>{
+      if(!v||isNaN(v)) return;
+      const x=Math.max(x0,Math.min(x1,X(v)));
+      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x, ry, 4, 0, 7); ctx.fill();
+      ctx.textAlign= x>W-150 ? 'right':'left';
+      ctx.fillText(label, x+(x>W-150?-8:8), ry+dy);
+    };
+    dot(ROPTS[this.picked], CSS.fault, 'YOUR CALL '+ROPTL[this.picked], -10);
+    const wa=this.wam.value();
+    if(this.phase==='done') dot(wa, CSS.traffic, 'MEASURED ×'+wa.toFixed(1), -22);
+    ctx.textAlign='center'; ctx.fillStyle= this.phase==='done'? CSS.traffic:CSS.muted;
+    ctx.fillText(this.phase==='done'
+      ? 'MEASURED OFF REAL MERGES — RocksDB\'S TUNING GUIDE QUOTES 10–30× FOR EXACTLY THIS SHAPE'
+      : 'DIGESTING '+(this.db.user/1000).toFixed(0)+'K KEYS — EVERY MERGE BYTE IS BEING COUNTED', W/2, H-14);
+  },
+};
+rep.reset();
+[0,1,2,3].forEach(i=>{
+  document.querySelector('[data-act="p'+i+'"]').addEventListener('click',()=>rep.choose(i));
+});
+
+/* ================= EXP-01: tiered vs leveled, paired ================= */
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){
+    this.t=0; this.rng=mulberry32(29);
+    this.ks=+document.getElementById('r-keys').value;
+    this.tdb=makeTiered({mem:500, k:4});
+    this.ldb=makeLeveled({mem:500, l0max:4, file:500, caps:[5000, 50000]});
+    this.written=[]; this.acc=0; this.probeT=0; this.probes={t:[],l:[]};
+  },
+  update(dt){
+    this.t+=dt;
+    const ks=+document.getElementById('r-keys').value;
+    document.getElementById('o-keys').textContent=ks;
+    if(ks!==this.ks){ this.reset(); return; }
+    this.acc+=dt*4000;
+    while(this.acc>=1){
+      this.acc--;
+      const k=(this.rng()*this.ks)|0;   // update-heavy: same keyspace forever
+      this.tdb.write(k,this.t); this.ldb.write(k,this.t);
+      if(this.written.length<256) this.written.push(k);
+      else if(this.rng()<0.01) this.written[(this.rng()*256)|0]=k;
+    }
+    if(this.t>this.probeT && this.written.length>10){
+      this.probeT=this.t+0.12;
+      const k=this.written[(this.rng()*this.written.length)|0];
+      this.probes.t.push(this.tdb.probeCount(k));
+      this.probes.l.push(this.ldb.probeCount(k));
+      if(this.probes.t.length>60){ this.probes.t.shift(); this.probes.l.shift(); }
+    }
+    const avg=a=>a.length? (a.reduce((s,x)=>s+x,0)/a.length):NaN;
+    // lifetime WA is the fair A/B here: both engines started together on one stream
+    const twa=this.tdb.user>5000? this.tdb.disk/this.tdb.user : NaN;
+    const lwa=this.ldb.user>5000? this.ldb.disk/this.ldb.user : NaN;
+    const tsp=this.tdb.totalStored()/this.ks, lsp=this.ldb.totalStored()/this.ks;
+    const fmt=v=>isNaN(v)?'–':'×'+v.toFixed(1);
+    setM('e1.wa', 'T '+fmt(twa)+' · L '+fmt(lwa));
+    setM('e1.space', this.tdb.user>this.ks? 'T ×'+tsp.toFixed(2)+' · L ×'+lsp.toFixed(2) : 'warming up…');
+    setM('e1.probe', 'T '+(avg(this.probes.t)||0).toFixed(1)+' · L '+(avg(this.probes.l)||0).toFixed(1));
+    setM('e1.stream', '4K updates/s · '+(this.ks/1000)+'K distinct keys · both worlds');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2, 14); ctx.lineTo(W/2, H-34); ctx.stroke();
+    const half=(x0, title, col, drawStack)=>{
+      ctx.textAlign='left'; ctx.fillStyle=col;
+      ctx.fillText(title, x0, 24);
+      drawStack(x0);
+    };
+    half(16, 'SIZE-TIERED — MERGE PEERS WHEN THEY PILE UP', CSS.a, x0=>{
+      const runs=[...this.tdb.runs].sort((a,b)=>b.length-a.length);
+      for(let i=0;i<Math.min(9,runs.length);i++){
+        const y=42+i*22;
+        const w=Math.max(6, Math.min(W/2-60, runs[i].length/160));
+        ctx.fillStyle=CSS.a; ctx.globalAlpha=0.8;
+        ctx.fillRect(x0+44, y, w, 12); ctx.globalAlpha=1;
+        ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+        ctx.fillText((runs[i].length/1000).toFixed(1)+'K', x0, y+10);
+      }
+      if(this.tdb.runs.length>9){
+        ctx.fillStyle=CSS.muted; ctx.fillText('+'+(this.tdb.runs.length-9)+' RUNS', x0, 42+9*22+8);
+      }
+    });
+    half(W/2+16, 'LEVELED — ONE SORTED RANGE PER LEVEL', CSS.b, x0=>{
+      const rows=[['L0',this.ldb.L0],['L1',this.ldb.L[0]],['L2',this.ldb.L[1]],['L3',this.ldb.L[2]]];
+      rows.forEach(([label,files],i)=>{
+        const y=42+i*40;
+        ctx.fillStyle=CSS.muted; ctx.textAlign='left'; ctx.fillText(label, x0, y+10);
+        drawChips(ctx, files, x0+34, W-24, y, CSS.b, false);
+      });
+    });
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME UPDATE STREAM INTO BOTH — TIERED HOARDS STALE VERSIONS, LEVELED PAYS MERGES TO SCRUB THEM', W/2, H-14);
+  },
+};
+e1.reset();
+
+/* ================= EXP-02: the write stall ================= */
+const BUDGET=8000, STALL_AT=8, RESUME_AT=4;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){
+    this.t=0; this.rng=mulberry32(37);
+    this.db=makeLeveled({mem:400, l0max:4, file:400, caps:[4000, 40000]});
+    // budgeted compaction: L0 merges wait for bandwidth
+    this.db.compactL0=function(){ /* disabled — e2 pays for merges explicitly */ };
+    this.debt=0;            // merge keys owed before next L0->L1 apply
+    this.stalled=false; this.stalls=0;
+    this.acc=0; this.offered=0; this.accepted=0;
+    this.hist=[]; this.bucket={o:0,a:0}; this.bucketT=0;
+  },
+  applyCompaction(){
+    const db=this.db;
+    const merged=mergeAll([...db.L0, ...db.L[0]]);
+    db.L0=[];
+    db.L[0]=partition(merged, 400);
+    db.disk+=merged.length; db.compactions++;
+    db.spill(0,this.t);
+  },
+  update(dt){
+    this.t+=dt;
+    const rate=+document.getElementById('r-ingest').value;
+    document.getElementById('o-ingest').textContent=rate;
+    // offered stream
+    this.acc+=dt*rate;
+    while(this.acc>=1){
+      this.acc--;
+      this.offered++; this.bucket.o++;
+      if(this.stalled) continue;             // the engine said no
+      this.db.write((this.rng()*16777216)|0, this.t);
+      this.accepted++; this.bucket.a++;
+    }
+    // stall hysteresis, like RocksDB's L0 thresholds
+    if(!this.stalled && this.db.L0.length>=STALL_AT){ this.stalled=true; this.stalls++; }
+    if(this.stalled && this.db.L0.length<=RESUME_AT) this.stalled=false;
+    // budgeted compaction bandwidth
+    this.debt-=dt*BUDGET;
+    if(this.db.L0.length>=4 && this.debt<=0){
+      const before=this.db.disk;
+      this.applyCompaction();
+      this.debt+=this.db.disk-before;        // exact bytes this merge cascade cost
+    }
+    if(this.t>=this.bucketT){
+      this.bucketT=this.t+0.25;
+      this.hist.push({o:this.bucket.o*4, a:this.bucket.a*4, s:this.stalled});
+      if(this.hist.length>80) this.hist.shift();
+      this.bucket={o:0,a:0};
+    }
+    const recent=this.hist.slice(-12);
+    const avg=f=>recent.length? Math.round(recent.reduce((s,x)=>s+f(x),0)/recent.length):0;
+    setM('e2.offered', ''+avg(x=>x.o));
+    setM('e2.accepted', ''+avg(x=>x.a));
+    setM('e2.stalls', ''+this.stalls);
+    setM('e2.l0', this.db.L0.length+(this.stalled?' — STALLED':''));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    // L0 depth + stall lamp
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('L0 RUNS WAITING FOR COMPACTION (STALL AT '+STALL_AT+')', 16, 24);
+    for(let i=0;i<STALL_AT+2;i++){
+      const filled=i<this.db.L0.length;
+      ctx.strokeStyle= i>=STALL_AT? CSS.fault : CSS.line;
+      ctx.strokeRect(16+i*24, 32, 20, 13);
+      if(filled){ ctx.fillStyle= i>=STALL_AT-1? CSS.fault : CSS.traffic; ctx.fillRect(17+i*24, 33, 18, 11); }
+    }
+    ctx.textAlign='right';
+    if(this.stalled){ ctx.fillStyle=CSS.fault; ctx.fillText('■ WRITES STALLED', W-16, 42); }
+    else { ctx.fillStyle=CSS.muted; ctx.fillText('□ ACCEPTING', W-16, 42); }
+    // throughput chart: offered line vs accepted area, last 20s
+    const cy0=66, cy1=H-40, cx0=46, cx1=W-16;
+    const ymax=1600;
+    const Y=v=>cy1-(cy1-cy0)*Math.min(1,v/ymax);
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(cx0, cy0, cx1-cx0, cy1-cy0);
+    ctx.textAlign='right'; ctx.fillStyle=CSS.muted;
+    [0,800,1600].forEach(v=>ctx.fillText(''+v, cx0-6, Y(v)+3));
+    const n=this.hist.length;
+    if(n>1){
+      const X=i=>cx0+(cx1-cx0)*(i/(80-1));
+      // stall shading
+      for(let i=0;i<n;i++) if(this.hist[i].s){
+        ctx.fillStyle='rgba(228,96,78,0.12)';
+        ctx.fillRect(X(i), cy0, (cx1-cx0)/79+1, cy1-cy0);
+      }
+      // accepted area
+      ctx.fillStyle='rgba(59,158,189,0.35)';
+      ctx.beginPath(); ctx.moveTo(X(0), cy1);
+      for(let i=0;i<n;i++) ctx.lineTo(X(i), Y(this.hist[i].a));
+      ctx.lineTo(X(n-1), cy1); ctx.closePath(); ctx.fill();
+      // offered line
+      ctx.strokeStyle=CSS.traffic; ctx.beginPath();
+      for(let i=0;i<n;i++){ const x=X(i), y=Y(this.hist[i].o); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }
+      ctx.stroke();
+    }
+    ctx.textAlign='left'; ctx.fillStyle=CSS.traffic; ctx.fillText('— OFFERED', cx0+8, cy0+14);
+    ctx.fillStyle=CSS.b; ctx.fillText('▮ ACCEPTED', cx0+90, cy0+14);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('CEILING ≈ BUDGET ÷ WRITE AMP', cx0+8, cy0+30);
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('COMPACTION BANDWIDTH IS FIXED — PAST THE CEILING, THE ENGINE DEFENDS ITSELF BY REFUSING YOU', W/2, H-14);
+  },
+};
+e2.reset();
+
+/* ---------- wiring ---------- */
+const sims={hero,rep,e1,e2}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('rep','p-rep'); register('e1','p-e1'); register('e2','p-e2');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','rep','e1','e2']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

@@ -128,8 +128,8 @@ REP question, production anchors, and pocket line before build starts.
 | Piece | Hero shows | REP asks | Production stories (anchors) | Pocket line |
 |---|---|---|---|---|
 | **The Filter** ✅ | Bloom filter filling; dark bit = certain no | FP rate at 8 bits/key? | LSM absent-key seeks (The Guild, The Graph); one-hit-wonder admission (The Edge) | FP ≈ 0.62 per bit per key |
-| **The Heap** | Live sift-up/sift-down; parent-beats-children invariant | Comparisons for top-100 of 1M: sort vs heap? | k-way merge of 12 partition lists (The Graph, The Timeline); top-K pools (The Board) | top-k of n is n·log k — and log 100 ≈ 7 |
-| **The LSM Tree** | Memtable → flush → sorted runs → compaction, live | Write amplification after N flushes? | ScyllaDB under raids (The Guild); RocksDB feeds (The Graph); pairs with The Filter | sequential wins 100×; compaction is the invoice |
+| **The Heap** ✅ | Live sift-up/sift-down; parent-beats-children invariant | Comparisons for top-100 of 1M: sort vs heap? | k-way merge of 12 partition lists (The Graph, The Timeline); top-K pools (The Board) | top-k of n is n·log k — and log 100 ≈ 7 |
+| **The LSM Tree** ✅ | Memtable → flush → sorted runs → compaction, live | Write amplification after N flushes? | ScyllaDB under raids (The Guild); RocksDB feeds (The Graph); pairs with The Filter | sequential wins 100×; compaction is the invoice |
 | **The Hash Table** | Buckets filling; birthday collisions; a live resize storm | Load factor where probe length doubles? | the memcached wall (The Board); O(1) likes (The Swipe) | expected probes ≈ 1/(1−α) |
 | **The Trie** | Character-edge walk; longest-prefix match live | Nodes shared by 1,000 words vs flat storage? | longest-prefix routing (The Border runs one already); autocomplete | cost = key length, not table size |
 | **The Skip List** | Coin-flipped express lanes thinning geometrically | Expected levels at 1M entries? | Redis sorted sets / leaderboards (The Front Page) | a linked list with log n express lanes |

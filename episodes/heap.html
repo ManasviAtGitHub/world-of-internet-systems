@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Heap — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  /* toolbox cards: the interview card + the revision card */
+  .tbx{border:1px solid var(--rule);background:var(--card);border-radius:6px;
+    padding:18px 20px 15px;margin:26px 0;font-size:15px}
+  .tbx .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-text);
+    text-transform:uppercase;display:block;margin-bottom:10px}
+  .tbx ul{list-style:none;margin:0 0 14px;padding:0}
+  .tbx li{margin:.5em 0;padding-left:20px;position:relative}
+  .tbx li::before{content:"→";position:absolute;left:0;top:1px;
+    font-family:var(--mono);font-size:12px;color:var(--accent-text)}
+  .tbx .met{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .tbx dl{display:grid;grid-template-columns:max-content 1fr;gap:7px 16px;
+    margin:0;border-top:1px solid var(--rule);padding-top:12px}
+  .tbx dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-text);padding-top:2px;white-space:nowrap}
+  .tbx dd{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .btn.picked{border-color:var(--traffic);color:var(--traffic)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .exp-note a{color:var(--series-b)}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Toolbox</p>
+  <h1>The Heap</h1>
+  <p class="dek">The structure that answers "what matters most right now?" without ever
+  sorting anything. It's been working for you this whole series: merging LinkedIn's twelve
+  partition lists into one feed, picking Pinterest's top pins out of a firehose, deciding
+  which timer fires next inside the Go runtime. A heap makes exactly one promise — the
+  root wins — and that single, deliberately lazy promise is why it's everywhere. Predict
+  first, then run it. That's the rep.</p>
+  <p class="marginal">Everything below computes for real: the hero is a genuine binary
+  min-heap whose invariant is re-verified sixty times a second, the comparison race really
+  sorts a million numbers against a real streaming heap and counts every comparison, and
+  both schedulers eat the same seeded job stream.</p>
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <div class="tbx">
+    <span class="k">The interview card — where you've ground this before</span>
+    <ul>
+      <li>"Kth largest element in a stream." · "Top-K frequent words."</li>
+      <li>"Merge k sorted lists." (You will meet it below, wearing production clothes.)</li>
+      <li>"Find the median of a running stream." (Two heaps leaning against each other.)</li>
+    </ul>
+    <dl>
+      <dt>Pattern</dt><dd>priority · partial order · streaming top-K</dd>
+      <dt>Space</dt><dd>O(n), flat in an array — no pointers, parent lives at (i−1)&gt;&gt;1</dd>
+      <dt>Time</dt><dd>peek O(1) · push/pop O(log n) · build O(n)</dd>
+      <dt>The catch</dt><dd>only the root is ordered — a heap is not sorted, and finding anything else in it is O(n)</dd>
+    </dl>
+  </div>
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">One promise, kept sixty times a second — a real min-heap under fire</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:300px" role="img" aria-label="A binary tree of numbered nodes; pushed items bubble up along an amber path, popped roots pull a blue sift-down path, and the parent-child invariant is checked every frame"></canvas>
+  <div class="exp-metrics">
+    <span>OPS<b data-m="hero.ops">0</b></span>
+    <span>COMPARISONS<b data-m="hero.cmp">0</b></span>
+    <span>LAST OP<b data-m="hero.last">–</b></span>
+    <span>INVARIANT VIOLATIONS<b data-m="hero.viol">0 — CHECKED EVERY FRAME</b></span>
+  </div>
+  <figcaption class="exp-note">Watch what a push actually is: drop the item in the first
+  free slot, then let it <em>bubble up</em> past bigger parents — never more than
+  log₂ n swaps. A pop swaps the last leaf into the root and sifts it down the same
+  bounded path. Everything between the root and the leaves stays deliberately,
+  profitably unsorted — and the invariant checker rereads the whole array every frame
+  to prove the promise is never broken.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The array trick</h2>
+  <p>The drawing above shows a tree; the memory underneath is a flat array. Node
+  <code>i</code>'s children live at <code>2i+1</code> and <code>2i+2</code>, its parent at
+  <code>(i−1)&gt;&gt;1</code> — the shape is arithmetic, so there are no pointers to chase,
+  no allocations per node, and the whole structure walks cache lines instead of the wilds
+  of RAM. This is why heaps back real production hot paths: the Go runtime keeps every
+  pending timer in one, and your OS has one at the core of its event loops.</p>
+  <p>The second thing worth re-learning: building a heap from n existing items is
+  <strong>O(n)</strong>, not O(n log n). Sift-down work is proportional to a node's height,
+  and almost all nodes are leaves with height zero — the sum telescopes. Interviewers love
+  this because the "obvious" answer is wrong by a log factor.</p>
+  <p>Now the prediction. A million random numbers stream past and you want the top 100.
+  The blunt way is to sort everything. The heap way keeps a min-heap of just 100: each
+  arriving item is compared against the root — the <em>weakest</em> member of the current
+  elite — and only replaces it if it's bigger. Sorting a million items costs about twenty
+  million comparisons. <strong>What does the heap way cost?</strong> Commit before you
+  run. The textbook answer, n·log k, is one of the four buttons — and it is not what the
+  meter will say.</p>
+</div>
+
+<figure class="exp" id="p-rep">
+  <figcaption class="exp-head">
+    <span class="exp-id">REP-01</span>
+    <span class="exp-title">Top-100 of 1,000,000 — call the heap's comparison bill</span>
+    <span class="exp-run">
+      <button class="btn" data-act="p0">~20M</button>
+      <button class="btn" data-act="p1">~7M</button>
+      <button class="btn" data-act="p2">~1M</button>
+      <button class="btn" data-act="p3">~100K</button>
+      <button class="btn danger" data-reset="rep">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-rep" style="height:300px" role="img" aria-label="Two racing lanes — a full merge sort of one million numbers and a size-100 min-heap stream — with live comparison counters and a log-scale ruler showing your call against the measured result"></canvas>
+  <div class="exp-metrics">
+    <span>YOUR CALL<b data-m="rep.call">–</b></span>
+    <span>SORT COMPARISONS<b data-m="rep.sort">0</b></span>
+    <span>HEAP COMPARISONS<b data-m="rep.heap">0</b></span>
+    <span>TOP-100 MATCH<b data-m="rep.same">–</b></span>
+    <span>VERDICT<b data-m="rep.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">The famous bound n·log k is the <em>worst case</em> — it
+  bills every item for a full sift. The measured truth: almost every item loses to the
+  root in <em>one</em> comparison and vanishes. Only the ~k·ln(n/k) ≈ 900 items that ever
+  belong in the elite pay the log. The pocket line: <em>top-k of n costs one comparison
+  per item, plus the log only for the few that matter — about n, not n·log k.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>Where you already met it</h2>
+  <p>Open <a href="../index.html#/linkedin" target="_top">the Graph episode</a> and watch
+  its hero again afterwards: a feed read scatters to twelve partitions, each returns its
+  own time-sorted list, and the aggregator merges them. That merge is LeetCode's "merge k
+  sorted lists" running at hundreds of thousands of requests per second — and the whole
+  reason it's cheap is a twelve-slot heap. The same shape sits inside
+  <a href="../index.html#/twitter-timeline" target="_top">the Timeline episode</a>'s home
+  timeline assembly and behind every "top posts" ranking in
+  <a href="../index.html#/reddit" target="_top">the Front Page episode</a>.</p>
+  <p>The experiment below runs the production version honestly: twelve sorted partition
+  lists, two merge strategies, same data. The naive way concatenates all 2,400 posts and
+  sorts them — paying for everything that <em>exists</em>. The heap way holds one head per
+  partition and pops the freshest forty — paying only for what you <em>take</em>.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Merge twelve sorted partitions — pay for what you take, not what exists</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button>
+    <button class="btn danger" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-take">Feed size taken</label>
+      <input type="range" id="r-take" min="10" max="200" value="40" step="10">
+      <output id="o-take">40</output></div>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:280px" role="img" aria-label="Twelve sorted partition columns feed a twelve-slot min-heap that emits a merged feed; comparison counters contrast the heap merge against concatenate-and-sort"></canvas>
+  <div class="exp-metrics">
+    <span>CONCAT+SORT<b data-m="e1.naive">0</b> cmp/refresh</span>
+    <span>HEAP MERGE<b data-m="e1.heap">0</b> cmp/refresh</span>
+    <span>ADVANTAGE<b data-m="e1.ratio">–</b></span>
+    <span>FEEDS IDENTICAL<b data-m="e1.same">–</b></span>
+  </div>
+  <figcaption class="exp-note">Both strategies emit the exact same feed — the meter proves
+  it every refresh. But the sort pays ~n·log n for all 2,400 posts while the heap pays
+  ~log 12 ≈ 3.6 comparisons <em>per item taken</em>. Drag the slider: the heap's bill
+  scales with the feed size; the sort's bill doesn't move, because it never noticed you
+  only wanted forty. This is <a href="../index.html#/linkedin" target="_top">the Graph
+  episode</a>'s scatter-gather, measured.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Priority is a policy, and order is the whole policy</h2>
+  <p>A queue answers "who's next?" with <em>whoever arrived first</em>. A heap lets you
+  answer with anything you can compare — and in production the comparison that matters
+  most is <strong>the deadline</strong>. <a href="../index.html#/slack" target="_top">The
+  Workspace episode</a> watched a job queue wedge when a flood of bulk work parked in
+  front of urgent work; this is that story, isolated. Same jobs, same arrival times, same
+  server speed — the only difference between the two worlds below is the data structure
+  holding the backlog.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">FIFO vs the deadline heap — same jobs, only the order differs</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button>
+    <button class="btn danger" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-burst">Bulk burst size</label>
+      <input type="range" id="r-burst" min="100" max="500" value="250" step="50">
+      <output id="o-burst">250</output></div>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:270px" role="img" aria-label="Two server lanes eating the same job stream; periodic bulk bursts pile up in both queues, and urgent jobs miss deadlines behind the FIFO backlog while the deadline heap serves them first"></canvas>
+  <div class="exp-metrics">
+    <span>URGENT MISSES · FIFO<b data-m="e2.fifo">0%</b></span>
+    <span>URGENT MISSES · HEAP<b data-m="e2.edf">0%</b></span>
+    <span>QUEUE DEPTH F/H<b data-m="e2.depth">0 / 0</b></span>
+    <span>BULK MAX WAIT · HEAP<b data-m="e2.bulk">0s</b></span>
+  </div>
+  <figcaption class="exp-note">Every burst, the FIFO lane makes urgent jobs stand behind
+  hundreds of bulk jobs — head-of-line blocking, the same disease as
+  <a href="../index.html#/slack" target="_top">the Workspace episode</a>'s wedge. The heap
+  serves earliest-deadline-first and urgent work sails through. Read the honest price on
+  the right: bulk max wait grows in the heap world. Priority doesn't create capacity —
+  <em>it chooses who absorbs the wait</em>. Push the burst past capacity and watch both
+  worlds drown; no data structure outruns arithmetic.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The keeper</h2>
+  <p>The keeper: <strong>a heap is the cheapest possible answer to "who's next?" — O(1)
+  to ask, log n to maintain, and totally unsorted everywhere the question doesn't
+  reach.</strong> When you see top-K, merge-K, soonest-deadline, or nearest-anything in an
+  interview, the heap is the shape of the answer; when you see scatter-gather feeds, timer
+  wheels, or schedulers in production, it was already there.</p>
+
+  <div class="tbx">
+    <span class="k">The revision card — for the you that comes back in three months</span>
+    <ul>
+      <li>Why is a heap deliberately not sorted? <span class="met">(sorting costs log n per op everywhere; the heap pays it only at the root)</span></li>
+      <li>Top-k of n: where does the work actually go? <span class="met">(one root check per item; only ~k·ln(n/k) items ever sift — you watched ~1M, not 7M)</span></li>
+      <li>Merge k sorted lists: what does the bill scale with? <span class="met">(what you take × log k — the sort never noticed you wanted only 40)</span></li>
+      <li>What does a priority heap not give you? <span class="met">(capacity — it only chooses who absorbs the wait, and bulk paid it)</span></li>
+    </ul>
+    <dl>
+      <dt>Seen under fire</dt><dd><a href="../index.html#/linkedin" target="_top">The Graph · LinkedIn</a> ·
+      <a href="../index.html#/twitter-timeline" target="_top">The Timeline · Twitter</a> ·
+      <a href="../index.html#/reddit" target="_top">The Front Page · Reddit</a> ·
+      <a href="../index.html#/slack" target="_top">The Workspace · Slack</a></dd>
+    </dl>
+  </div>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>J. W. J. Williams — "Algorithm 232: Heapsort", <em>Communications of the ACM</em>, 1964 (the original array-embedded heap).</li>
+    <li>Cormen, Leiserson, Rivest, Stein — <em>Introduction to Algorithms</em>, ch. 6 (build-heap is O(n): the height-sum argument).</li>
+    <li>LinkedIn Engineering — <a href="https://www.linkedin.com/blog/engineering/archive/followfeed-linkedin-s-feed-made-faster-and-smarter">"FollowFeed: LinkedIn's feed made faster and smarter"</a> (the scatter-gather merge in production).</li>
+    <li>Go runtime — <a href="https://go.dev/src/runtime/time.go">runtime/time.go</a> (every pending timer in Go lives in a per-P quaternary min-heap).</li>
+    <li>Python docs — <a href="https://docs.python.org/3/library/heapq.html">heapq</a>, including <code>heapq.merge</code> and the annotated top-K notes.</li>
+  </ul>
+</div>
+
+<footer class="col">
+  <hr class="foot-rule">
+    <p class="next">World of Internet Systems · NEXT IN THE TOOLBOX → <a href="../index.html#/lsm-tree" target="_top">The LSM Tree</a> · <b>the structure that made writes cheap by refusing to edit anything</b></p>
+</footer>
+</main>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const expRand=(rng,rate)=>-Math.log(1-rng())/rate;
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const fmtK = n => n>=1e6 ? (n/1e6).toFixed(2)+'M' : n>=1e3 ? (n/1e3).toFixed(1)+'K' : ''+n;
+
+/* ---------- a real binary min-heap with a comparison meter ---------- */
+function makeHeap(cmpCounter){
+  const h=[];
+  const less=(a,b)=>{ cmpCounter.n++; return a<b; };
+  return {
+    a:h,
+    size(){ return h.length; },
+    peek(){ return h[0]; },
+    push(v){
+      h.push(v); let i=h.length-1; const path=[i];
+      while(i>0){
+        const p=(i-1)>>1;
+        if(less(h[i],h[p])){ [h[i],h[p]]=[h[p],h[i]]; i=p; path.push(i); }
+        else break;
+      }
+      return path;
+    },
+    pop(){
+      const top=h[0], last=h.pop();
+      const path=[0];
+      if(h.length){ h[0]=last; let i=0;
+        for(;;){
+          const l=2*i+1, r=2*i+2; let m=i;
+          if(l<h.length && less(h[l],h[m])) m=l;
+          if(r<h.length && less(h[r],h[m])) m=r;
+          if(m===i) break;
+          [h[i],h[m]]=[h[m],h[i]]; i=m; path.push(i);
+        }
+      }
+      return {top, path};
+    },
+    valid(){ // the invariant, re-verified from scratch
+      for(let i=1;i<h.length;i++) if(h[(i-1)>>1]>h[i]) return false;
+      return true;
+    },
+  };
+}
+
+/* ================= HERO: the living heap ================= */
+const HCAP=31;
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(11),
+  reset(){
+    this.t=0; this.cmp={n:0}; this.h=makeHeap(this.cmp);
+    this.ops=0; this.viol=0; this.checks=0;
+    this.nextPush=0.1; this.nextPop=0.9;
+    this.glow=null; this.lastTxt='–';
+    for(let i=0;i<12;i++) this.h.push(1+Math.floor(this.rng()*99)); // never a blank first paint
+    this.ops+=12;
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.nextPush){
+      this.nextPush=this.t+0.34;
+      if(this.h.size()<HCAP){
+        const v=1+Math.floor(this.rng()*99);
+        const path=this.h.push(v);
+        this.glow={idxs:path, color:CSS.traffic, at:this.t};
+        this.lastTxt='push '+v+' ↑ '+(path.length-1)+' swaps (max 4)';
+        this.ops++;
+      }
+    }
+    if(this.t>=this.nextPop && this.h.size()>5){
+      this.nextPop=this.t+0.42;
+      const {top, path}=this.h.pop();
+      this.glow={idxs:path, color:CSS.b, at:this.t};
+      this.lastTxt='pop '+top+' ↓ '+(path.length-1)+' swaps (max 4)';
+      this.ops++;
+    }
+    this.checks++;
+    if(!this.h.valid()) this.viol++;   // never fires — the metric is the proof
+    setM('hero.ops', ''+this.ops);
+    setM('hero.cmp', fmtK(this.cmp.n));
+    setM('hero.last', this.lastTxt);
+    setM('hero.viol', this.viol+' — CHECKED EVERY FRAME ('+fmtK(this.checks)+')');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const a=this.h.a, n=a.length;
+    const pos=i=>{
+      const lv=Math.floor(Math.log2(i+1));
+      const k=i-((1<<lv)-1);
+      const x=24+(W-48)*((k+0.5)/(1<<lv));
+      return {x, y:46+lv*46};
+    };
+    // edges first
+    ctx.strokeStyle=CSS.line; ctx.lineWidth=1;
+    for(let i=1;i<n;i++){
+      const c=pos(i), p=pos((i-1)>>1);
+      ctx.beginPath(); ctx.moveTo(p.x,p.y+9); ctx.lineTo(c.x,c.y-9); ctx.stroke();
+    }
+    const glowSet=new Set(), glowAge=this.glow? this.t-this.glow.at : 99;
+    if(this.glow && glowAge<0.9) this.glow.idxs.forEach(i=>glowSet.add(i));
+    for(let i=0;i<n;i++){
+      const {x,y}=pos(i);
+      const hot=glowSet.has(i);
+      ctx.fillStyle=CSS.panel;
+      ctx.strokeStyle= i===0 ? CSS.traffic : hot? this.glow.color : CSS.line;
+      ctx.lineWidth= hot||i===0 ? 1.6 : 1;
+      ctx.beginPath(); ctx.roundRect(x-15,y-10,30,20,3); ctx.fill(); ctx.stroke();
+      ctx.fillStyle= i===0? CSS.traffic : hot? this.glow.color : CSS.ink;
+      ctx.textAlign='center'; ctx.fillText(''+a[i], x, y+3);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.textAlign='left';
+    ctx.fillText('PEEK = O(1) — THE ROOT IS ALWAYS THE MIN', 16, 22);
+    ctx.textAlign='right';
+    ctx.fillText(this.h.size()+' ITEMS · 5 LEVELS · SWAPS ≤ log₂ n', W-16, 22);
+    ctx.textAlign='center';
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('THE ONLY PROMISE: PARENT ≤ CHILDREN · EVERYTHING ELSE STAYS UNSORTED ON PURPOSE', W/2, H-14);
+  },
+};
+hero.reset();
+
+/* ================= REP-01: the comparison race ================= */
+const RN=1000000, RK=100;
+const OPTS=[2e7, 7e6, 1e6, 1e5];
+const OPTL=['~20M','~7M','~1M','~100K'];
+const rep = {
+  cv: document.getElementById('c-rep'),
+  reset(){
+    this.t=0; this.picked=null; this.phase='idle';
+    const rng=mulberry32(77);
+    this.src=new Int32Array(RN);
+    for(let i=0;i<RN;i++) this.src[i]=(rng()*2147483647)|0;
+    // sort lane state
+    this.sA=this.src.slice(); this.sB=new Int32Array(RN);
+    this.width=1; this.lo=0; this.sortCmp=0; this.sortDone=false; this.sortMoved=0;
+    // heap lane state
+    this.hCmp={n:0}; this.hp=makeHeap(this.hCmp); this.hi=0; this.heapDone=false;
+    this.same=null; this.verdict='–';
+    document.querySelectorAll('[data-act^="p"]').forEach(b=>b.classList.remove('picked'));
+    this.pushMetrics();
+  },
+  choose(i){
+    if(this.picked!==null) return;
+    this.picked=i; this.phase='run';
+    document.querySelectorAll('[data-act^="p"]')[i]?.classList?.add('picked');
+  },
+  stepSort(budget){ // bottom-up merge sort, honestly counted, in slices
+    let spent=0;
+    while(spent<budget && !this.sortDone){
+      const lo=this.lo, mid=Math.min(lo+this.width,RN), hi=Math.min(lo+2*this.width,RN);
+      let i=lo,j=mid,k=lo;
+      while(i<mid&&j<hi){ this.sortCmp++; spent++;
+        this.sB[k++]= this.sA[i]<=this.sA[j] ? this.sA[i++] : this.sA[j++]; }
+      while(i<mid) this.sB[k++]=this.sA[i++];
+      while(j<hi)  this.sB[k++]=this.sA[j++];
+      this.sortMoved+=hi-lo;
+      this.lo=hi;
+      if(this.lo>=RN){
+        const t=this.sA; this.sA=this.sB; this.sB=t;
+        this.lo=0; this.width*=2;
+        if(this.width>=RN) this.sortDone=true;
+      }
+    }
+  },
+  stepHeap(items){
+    let done=0;
+    while(done<items && this.hi<RN){
+      const v=this.src[this.hi++]; done++;
+      if(this.hp.size()<RK) this.hp.push(v);
+      else { this.hCmp.n++; if(v>this.hp.peek()){ // one comparison — the common fate
+          this.hp.a[0]=v; // replace root, sift down
+          let i=0; const h=this.hp.a;
+          for(;;){ const l=2*i+1,r=2*i+2; let m=i;
+            if(l<h.length){ this.hCmp.n++; if(h[l]<h[m]) m=l; }
+            if(r<h.length){ this.hCmp.n++; if(h[r]<h[m]) m=r; }
+            if(m===i) break; [h[i],h[m]]=[h[m],h[i]]; i=m; }
+        } }
+    }
+    if(this.hi>=RN) this.heapDone=true;
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.phase==='run'){
+      if(!this.sortDone) this.stepSort(700000);
+      if(!this.heapDone) this.stepHeap(40000);
+      if(this.sortDone && this.heapDone){
+        this.phase='done';
+        const top=Array.from(this.sA.slice(RN-RK)).sort((x,y)=>x-y);
+        const mine=Array.from(this.hp.a).sort((x,y)=>x-y);
+        this.same = top.every((v,i)=>v===mine[i]);
+        const call=OPTS[this.picked], meas=this.hCmp.n;
+        const ratio=Math.max(call,meas)/Math.min(call,meas);
+        this.verdict = ratio<2 ? 'CALLED IT — ~ONE COMPARISON PER ITEM'
+          : (call===7e6 ? 'n·log k IS THE WORST CASE, NOT THE BILL'
+          : 'OFF BY ×'+ratio.toFixed(0)+' — THE ROOT CHECK DOMINATES');
+      }
+    }
+    this.pushMetrics();
+  },
+  pushMetrics(){
+    setM('rep.call', this.picked===null?'–':OPTL[this.picked]);
+    setM('rep.sort', fmtK(this.sortCmp));
+    setM('rep.heap', fmtK(this.hCmp.n));
+    setM('rep.same', this.same===null?'–':(this.same?'IDENTICAL ✓':'MISMATCH ✗'));
+    setM('rep.verdict', this.verdict);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    if(this.phase==='idle'){
+      ctx.textAlign='center';
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('COMMIT FIRST — THE RACE RUNS WHEN YOU PICK A NUMBER', W/2, H/2-16);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('1,000,000 RANDOM NUMBERS · TOP 100 WANTED · SORTING COSTS ~20M COMPARISONS', W/2, H/2+4);
+      ctx.fillText('WHAT DOES THE SIZE-100 MIN-HEAP PAY? NO SPECTATING — PREDICT, THEN MEASURE', W/2, H/2+22);
+      return;
+    }
+    const lane=(y,label,col,progress,cmp,done)=>{
+      ctx.textAlign='left'; ctx.fillStyle=CSS.muted; ctx.fillText(label, 16, y-8);
+      ctx.strokeStyle=CSS.line; ctx.strokeRect(16, y, W-32, 16);
+      ctx.fillStyle=col; ctx.fillRect(17, y+1, (W-34)*progress, 14);
+      ctx.textAlign='right'; ctx.fillStyle=done?col:CSS.ink;
+      ctx.fillText(fmtK(cmp)+' COMPARISONS'+(done?' · DONE':''), W-16, y-8);
+    };
+    const sortProg=Math.min(1, (Math.log2(Math.max(2,this.width))*RN+this.lo)/(20*RN));
+    lane(40, 'THE SORT WAY — MERGE SORT, ALL 1,000,000', CSS.b, this.sortDone?1:sortProg, this.sortCmp, this.sortDone);
+    lane(92, 'THE HEAP WAY — MIN-HEAP OF 100, STREAMING', CSS.traffic, this.hi/RN, this.hCmp.n, this.heapDone);
+    // log ruler 1e5..1e8
+    const ry=H-74, x0=60, x1=W-30;
+    const X=v=>x0+(x1-x0)*(Math.log10(v)-5)/3;
+    ctx.strokeStyle=CSS.line; ctx.beginPath(); ctx.moveTo(x0,ry); ctx.lineTo(x1,ry); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    [[1e5,'100K'],[1e6,'1M'],[1e7,'10M'],[1e8,'100M']].forEach(([v,l])=>{
+      ctx.beginPath(); ctx.moveTo(X(v),ry-4); ctx.lineTo(X(v),ry+4); ctx.stroke();
+      ctx.fillText(l, X(v), ry+18);
+    });
+    ctx.textAlign='left'; ctx.fillText('COMPARISONS (LOG SCALE)', x0, ry-30);
+    const dot=(v,col,label,dy)=>{
+      if(v<=0) return;
+      const x=Math.max(x0,Math.min(x1,X(v)));
+      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x, ry, 4, 0, 7); ctx.fill();
+      ctx.textAlign= x>W-140 ? 'right':'left';
+      ctx.fillText(label, x+(x>W-140?-8:8), ry+dy);
+    };
+    if(this.picked!==null) dot(OPTS[this.picked], CSS.fault, 'YOUR CALL '+OPTL[this.picked], -10);
+    if(this.heapDone) dot(this.hCmp.n, CSS.traffic, 'HEAP '+fmtK(this.hCmp.n), -22);
+    if(this.sortDone) dot(this.sortCmp, CSS.b, 'SORT '+fmtK(this.sortCmp), -34);
+    ctx.textAlign='center'; ctx.fillStyle= this.phase==='done'? CSS.traffic : CSS.muted;
+    ctx.fillText(this.phase==='done'
+      ? 'ONLY ~900 OF 1,000,000 ITEMS EVER ENTERED THE ELITE — EVERYONE ELSE LOST TO THE ROOT IN ONE COMPARISON'
+      : 'RACING — EVERY COMPARISON IS COUNTED AS IT HAPPENS', W/2, H-14);
+  },
+};
+rep.reset();
+[0,1,2,3].forEach(i=>{
+  document.querySelector('[data-act="p'+i+'"]').addEventListener('click',()=>rep.choose(i));
+});
+
+/* ================= EXP-01: the k-way merge ================= */
+const P=12, PL=200;
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){
+    this.t=0; this.rng=mulberry32(23);
+    this.take=+document.getElementById('r-take').value;
+    this.cycle=0; this.reveal=0;
+    this.naiveCmp=0; this.heapCmp=0; this.same=null; this.feed=[];
+    this.parts=[]; this.heads=null;
+    this.newRound();
+  },
+  newRound(){
+    // 12 partitions, each sorted oldest-age-first (ascending integer age = newest first)
+    this.parts=[];
+    for(let p=0;p<P;p++){
+      const col=[]; let ts=this.rng()*4;
+      for(let i=0;i<PL;i++){ ts+=expRand(this.rng, 0.8); col.push(Math.round(ts*1e6)); }
+      this.parts.push(col);
+    }
+    const take=this.take;
+    // naive: concat + full merge sort, counted
+    const all=[]; this.parts.forEach(col=>col.forEach(ts=>all.push(ts)));
+    let cmp=0;
+    const ms=arr=>{
+      if(arr.length<2) return arr;
+      const mid=arr.length>>1, L=ms(arr.slice(0,mid)), R=ms(arr.slice(mid)), out=[];
+      let i=0,j=0;
+      while(i<L.length&&j<R.length){ cmp++; out.push(L[i]<=R[j]?L[i++]:R[j++]); }
+      while(i<L.length) out.push(L[i++]);
+      while(j<R.length) out.push(R[j++]);
+      return out;
+    };
+    const sortedAll=ms(all);
+    this.naiveCmp=cmp;
+    const naiveFeed=sortedAll.slice(0,take);
+    // heap: 12 heads, pop `take` times, counted — partition id rides in the low 4 bits
+    const hc={n:0}, hp=makeHeap(hc);
+    const idx=new Array(P).fill(0);
+    const enc=(ts,p)=>ts*16+p;
+    for(let p=0;p<P;p++) hp.push(enc(this.parts[p][0],p));
+    const heapFeed=[];
+    for(let k=0;k<take;k++){
+      const {top}=hp.pop();
+      const pReal=top%16, tsReal=(top-pReal)/16;
+      heapFeed.push(tsReal);
+      const nx=++idx[pReal];
+      if(nx<PL) hp.push(enc(this.parts[pReal][nx],pReal));
+    }
+    this.heapCmp=hc.n;
+    this.same = naiveFeed.every((v,i)=>v===heapFeed[i]);
+    this.feed=heapFeed; this.reveal=0; this.heads=idx;
+    this.cycle++;
+  },
+  update(dt){
+    this.t+=dt;
+    const tk=+document.getElementById('r-take').value;
+    document.getElementById('o-take').textContent=tk;
+    if(tk!==this.take){ this.take=tk; this.newRound(); }
+    this.reveal=Math.min(this.take, this.reveal+dt*this.take/1.6);
+    if(this.t>2.6){ this.t=0; this.newRound(); }
+    setM('e1.naive', fmtK(this.naiveCmp));
+    setM('e1.heap', ''+this.heapCmp);
+    setM('e1.ratio', '×'+Math.round(this.naiveCmp/Math.max(1,this.heapCmp))+' fewer');
+    setM('e1.same', this.same?'IDENTICAL ✓':'MISMATCH ✗');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const top=38, bot=H-40;
+    // left: 12 partition columns
+    const lx=16, lw=W*0.34-16, cw=lw/P;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('12 SORTED PARTITIONS', lx, 24);
+    for(let p=0;p<P;p++){
+      const x=lx+p*cw;
+      ctx.strokeStyle=CSS.line; ctx.strokeRect(x+1, top, cw-3, bot-top);
+      const consumed=this.heads? this.heads[p]:0;
+      for(let i=0;i<9;i++){
+        const y=top+5+i*((bot-top-10)/9);
+        ctx.fillStyle= i===0 ? CSS.traffic : (i<consumed/6? CSS.line : CSS.b);
+        ctx.globalAlpha= i===0?1:0.45;
+        ctx.fillRect(x+4, y, Math.max(2,cw-9), 3);
+        ctx.globalAlpha=1;
+      }
+    }
+    // center: heap of 12 heads
+    const hx=W*0.38, hw=W*0.22;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('MIN-HEAP OF 12 HEADS', hx+hw/2, 24);
+    const rows=[1,2,4,5]; let i12=0;
+    rows.forEach((cnt,r)=>{
+      for(let c=0;c<cnt;c++,i12++){
+        const x=hx+hw*((c+0.5)/cnt), y=top+14+r*((bot-top-24)/4);
+        ctx.strokeStyle= i12===0? CSS.traffic : CSS.line;
+        ctx.beginPath(); ctx.roundRect(x-9,y-6,18,12,2); ctx.stroke();
+        if(i12===0){ ctx.fillStyle=CSS.traffic; ctx.fillRect(x-6,y-3,12,6); }
+      }
+    });
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(lx+lw+4, (top+bot)/2); ctx.lineTo(hx-6, (top+bot)/2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(hx+hw+6, (top+bot)/2); ctx.lineTo(W*0.66-8, (top+bot)/2); ctx.stroke();
+    // right: the feed
+    const fx=W*0.66, fw=W-16-fx;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('THE FEED — TOP '+this.take, fx, 24);
+    const shown=Math.min(10, Math.floor(this.reveal));
+    for(let i=0;i<shown;i++){
+      const y=top+6+i*17;
+      ctx.fillStyle=CSS.traffic; ctx.globalAlpha=1-i*0.07;
+      ctx.fillRect(fx, y, fw*0.72, 9); ctx.globalAlpha=1;
+    }
+    if(this.reveal>10){
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('+'+(Math.floor(this.reveal)-10)+' MORE · '+(this.same?'MATCHES THE FULL SORT ✓':'✗'), fx, top+6+10*17+12);
+    }
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME FEED OUT OF BOTH STRATEGIES — ONLY THE COMPARISON BILL DIFFERS', W/2, H-14);
+  },
+};
+e1.reset();
+
+/* ================= EXP-02: FIFO vs the deadline heap ================= */
+const SRATE=30, ARR_BULK=16.5, ARR_URG=1.5, DL_URG=1.5, DL_BULK=12, BURST_EVERY=25;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){
+    this.t=0; this.rng=mulberry32(41);
+    this.burst=+document.getElementById('r-burst').value;
+    this.nextBulk=0.05; this.nextUrg=0.4; this.nextBurst=6; this.jobSeq=0;
+    this.f={q:[], credit:0, urgHist:[], missFlash:0};
+    this.h={cmp:{n:0}, credit:0, urgHist:[], missFlash:0, bulkMax:0};
+    this.h.pq=makeHeap(this.h.cmp);
+    this.hMeta=new Map(); // deadline-key -> job (paired stream, two containers)
+    // seed one job so the first paint is alive
+    this.spawn('bulk');
+  },
+  spawn(kind){
+    const j={kind, at:this.t, dl:this.t+(kind==='urgent'?DL_URG:DL_BULK), id:this.jobSeq++};
+    this.f.q.push(j);
+    const key=j.dl+j.id*1e-9;
+    this.h.pq.push(key); this.hMeta.set(key, {...j});
+  },
+  serveF(){
+    const j=this.f.q.shift(); if(!j) return;
+    if(j.kind==='urgent'){
+      const miss=this.t>j.dl?1:0;
+      this.f.urgHist.push(miss); if(this.f.urgHist.length>120) this.f.urgHist.shift();
+      if(miss) this.f.missFlash=this.t;
+    }
+  },
+  serveH(){
+    if(!this.h.pq.size()) return;
+    const {top}=this.h.pq.pop();
+    const j=this.hMeta.get(top); this.hMeta.delete(top);
+    if(!j) return;
+    if(j.kind==='urgent'){
+      const miss=this.t>j.dl?1:0;
+      this.h.urgHist.push(miss); if(this.h.urgHist.length>120) this.h.urgHist.shift();
+      if(miss) this.h.missFlash=this.t;
+    } else {
+      this.h.bulkMax=Math.max(this.h.bulkMax*0.999, this.t-j.at);
+    }
+  },
+  update(dt){
+    this.t+=dt;
+    const b=+document.getElementById('r-burst').value;
+    document.getElementById('o-burst').textContent=b;
+    this.burst=b;
+    while(this.t>=this.nextBulk){ this.nextBulk+=expRand(this.rng,ARR_BULK); this.spawn('bulk'); }
+    while(this.t>=this.nextUrg){ this.nextUrg+=expRand(this.rng,ARR_URG); this.spawn('urgent'); }
+    if(this.t>=this.nextBurst){
+      this.nextBurst+=BURST_EVERY;
+      for(let i=0;i<this.burst;i++) this.spawn('bulk');
+    }
+    this.f.credit+=dt*SRATE; this.h.credit+=dt*SRATE;
+    while(this.f.credit>=1){ this.f.credit--; this.serveF(); }
+    while(this.h.credit>=1){ this.h.credit--; this.serveH(); }
+    const rate=hist=>hist.length<10?0:Math.round(100*hist.reduce((a,x)=>a+x,0)/hist.length);
+    setM('e2.fifo', rate(this.f.urgHist)+'%');
+    setM('e2.edf', rate(this.h.urgHist)+'%');
+    setM('e2.depth', this.f.q.length+' / '+this.h.pq.size());
+    setM('e2.bulk', this.h.bulkMax.toFixed(1)+'s');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const rate=hist=>hist.length<10?0:Math.round(100*hist.reduce((a,x)=>a+x,0)/hist.length);
+    const lane=(y,label,depth,urgCount,missPct,flashAt,col)=>{
+      ctx.textAlign='left'; ctx.fillStyle=CSS.muted; ctx.fillText(label, 16, y-10);
+      // server box
+      ctx.strokeStyle=col; ctx.strokeRect(16, y, 40, 26);
+      ctx.fillStyle=col; ctx.textAlign='center'; ctx.fillText('30/s', 36, y+16);
+      // queue bar
+      const qw=Math.min(W-260, depth*1.1);
+      ctx.fillStyle=CSS.line; ctx.fillRect(64, y+6, qw, 14);
+      ctx.fillStyle=CSS.traffic;
+      for(let i=0;i<Math.min(urgCount,40);i++) ctx.fillRect(64+((i*37)%Math.max(8,qw)), y+6, 2, 14);
+      ctx.fillStyle=CSS.ink; ctx.textAlign='left';
+      ctx.fillText(depth+' QUEUED', 64+qw+8, y+16);
+      // miss meter
+      const bad=missPct>10;
+      ctx.textAlign='right';
+      ctx.fillStyle= bad? CSS.fault : col;
+      ctx.font='16px ui-monospace,Menlo,monospace';
+      ctx.fillText(missPct+'%', W-16, y+18);
+      ctx.font='10px ui-monospace,Menlo,monospace';
+      ctx.fillStyle=CSS.muted; ctx.fillText('URGENT MISSES', W-16, y-4);
+      if(this.t-flashAt<0.4){ ctx.fillStyle=CSS.fault; ctx.fillRect(64, y+22, qw, 2); }
+    };
+    const fUrg=this.f.q.filter(j=>j.kind==='urgent').length;
+    let hUrg=0; this.hMeta.forEach(j=>{ if(j.kind==='urgent') hUrg++; });
+    lane(52,  'FIFO — SERVED IN ARRIVAL ORDER', this.f.q.length, fUrg, rate(this.f.urgHist), this.f.missFlash, CSS.a);
+    lane(150, 'DEADLINE HEAP — EARLIEST DEADLINE FIRST', this.h.pq.size(), hUrg, rate(this.h.urgHist), this.h.missFlash, CSS.b);
+    const tb=Math.max(0, this.nextBurst-this.t);
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('NEXT BULK BURST OF '+this.burst+' IN '+tb.toFixed(0)+'s', 16, H-32);
+    ctx.textAlign='center';
+    ctx.fillText('SAME JOBS, SAME DICE, SAME SERVER SPEED — ONLY THE BACKLOG\'S DATA STRUCTURE DIFFERS', W/2, H-14);
+  },
+};
+e2.reset();
+
+/* ---------- wiring ---------- */
+const sims={hero,rep,e1,e2}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('rep','p-rep'); register('e1','p-e1'); register('e2','p-e2');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','rep','e1','e2']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

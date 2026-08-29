@@ -86,3 +86,11 @@ The episode says so explicitly; never re-introduce a "cost minimum" framing for 
 4. Serve locally + probe painted pixels via `getImageData` (artifact iframes may lay out
    late; every episode needs the ResizeObserver relayout self-heal — see the bottom of
    either episode's script).
+
+## The toolbox pieces
+
+`bloom.html`, `heap.html`, `lsm-tree.html` follow the same design system plus the
+`.tbx` card component (interview + revision cards with a label/value facts grid)
+and the REP mechanic: the experiment refuses to measure until the reader commits
+to a prediction, then grades the call against the measured value. Verified with
+the same pipeline (harness32/33 in the scratchpad follow the harness31 pattern).

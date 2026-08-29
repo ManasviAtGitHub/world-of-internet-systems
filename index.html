@@ -216,8 +216,8 @@
     <summary>The toolbox — DSA, under fire</summary>
     <ul>
       <li><a class="ep" href="#/bloom" data-ep="bloom">The Filter · Bloom</a></li>
-      <li><span class="soon">The Heap<i>IDEA</i></span></li>
-      <li><span class="soon">The LSM Tree<i>IDEA</i></span></li>
+      <li><a class="ep" href="#/heap" data-ep="heap">The Heap</a></li>
+      <li><a class="ep" href="#/lsm-tree" data-ep="lsm-tree">The LSM Tree</a></li>
       <li><span class="soon">The Hash Table<i>IDEA</i></span></li>
       <li><span class="soon">The Trie<i>IDEA</i></span></li>
       <li><span class="soon">The Skip List<i>IDEA</i></span></li>
@@ -489,6 +489,39 @@
         </a>
       </div>
 
+      <h2>The toolbox — DSA, under fire</h2>
+      <p>The revision tier: one classic data structure per piece, honestly simulated,
+      with a prediction to commit to before anything runs — and backlinks to every
+      episode where you already met the structure working.</p>
+      <div class="cards">
+        <a class="card" href="#/bloom">
+          <span class="k">The toolbox</span>
+          <span class="t">The Filter — Bloom filters</span>
+          <span class="d">A bit array that's allowed to lie in exactly one direction.
+          Watch a real filter fill and its false positives hunt the formula; call the
+          error rate at 8 bits/key before the meter runs; then the two production
+          stories — the disk seeks it saves under every LSM store, and the CDN
+          admission trick that skips one-hit wonders.</span>
+        </a>
+        <a class="card" href="#/heap">
+          <span class="k">The toolbox</span>
+          <span class="t">The Heap</span>
+          <span class="d">One promise — the root wins — kept sixty times a second. Call
+          the comparison bill for top-100 of a million before the race runs (n·log k is
+          a trap); merge twelve sorted partitions and pay for what you take, not what
+          exists; then FIFO vs the deadline heap on one job stream.</span>
+        </a>
+        <a class="card" href="#/lsm-tree">
+          <span class="k">The toolbox</span>
+          <span class="t">The LSM Tree</span>
+          <span class="d">Fast writes by refusing to edit anything — and a deferred
+          invoice called compaction. Call the write amplification of a three-level
+          machine, then watch 400,000 real keys get resold at every floor; size-tiered
+          vs leveled on one stream; and the write stall that caps ingest at
+          budget ÷ WA.</span>
+        </a>
+      </div>
+
       <h2>The rules of the series</h2>
       <p><strong>The simulations are honest.</strong> Queues, latencies, and collapses emerge
       from the same arithmetic that governs real datacenters — Poisson arrivals, service
@@ -545,6 +578,8 @@ const EPISODES = {
   'tinder':            {title:'The Swipe · Tinder',           file:'episodes/tinder.html'},
   'wikipedia':         {title:'The Encyclopedia · Wikipedia', file:'episodes/wikipedia.html'},
   'bloom':             {title:'The Filter · Bloom Filters', file:'episodes/bloom.html'},
+  'heap':              {title:'The Heap', file:'episodes/heap.html'},
+  'lsm-tree':          {title:'The LSM Tree', file:'episodes/lsm-tree.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');
