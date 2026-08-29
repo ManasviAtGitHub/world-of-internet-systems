@@ -208,12 +208,12 @@
       <li><a class="ep" href="#/pinterest" data-ep="pinterest">The Board · Pinterest</a></li>
       <li><a class="ep" href="#/linkedin" data-ep="linkedin">The Graph · LinkedIn</a></li>
       <li><a class="ep" href="#/tinder" data-ep="tinder">The Swipe · Tinder</a></li>
-      <li><span class="soon">Wikipedia<i>FINALE</i></span></li>
+      <li><a class="ep" href="#/wikipedia" data-ep="wikipedia">The Encyclopedia · Wikipedia</a></li>
     </ul>
   </details>
 
   <div class="nav-foot">
-    <span id="live-count">29</span> SYSTEMS LIVE · THE FINALE REMAINS<br>
+    <span id="live-count">30</span> SYSTEMS · THE SERIES IS COMPLETE<br>
     <a href="https://github.com/ManasviAtGitHub/world-of-internet-systems">SOURCE ON GITHUB</a>
   </div>
 </nav>
@@ -234,7 +234,7 @@
       sequence of live experiments where the naive design visibly collapses, one switch
       applies the real fix, and the sliders are yours.</p>
 
-      <h2>The episodes so far</h2>
+      <h2>The thirty episodes</h2>
       <div class="cards">
         <a class="card" href="#/load-balancing">
           <span class="k">EP 01 · Internet plumbing</span>
@@ -461,6 +461,15 @@
           of check-then-insert, cured by a pair-keyed stream; and two-second polling
           priced against a five-byte nudge.</span>
         </a>
+        <a class="card" href="#/wikipedia">
+          <span class="k">EP 30 · The Finale</span>
+          <span class="t">The Encyclopedia — Wikipedia</span>
+          <span class="d">The site that shouldn't be possible: 296 billion pageviews on
+          $3.4M of hosting. The read:write funnel; purge-don't-expire (the fix must
+          vanish NOW — run the vandalism incident in both worlds); replicate the hits,
+          partition the tail; and one template edit dirtying two million pages, paid
+          for lazily. Plus the closing of the whole series.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -517,6 +526,7 @@ const EPISODES = {
   'pinterest':         {title:'EP 27 — The Board · Pinterest',        file:'episodes/pinterest.html'},
   'linkedin':          {title:'EP 28 — The Graph · LinkedIn',         file:'episodes/linkedin.html'},
   'tinder':            {title:'EP 29 — The Swipe · Tinder',           file:'episodes/tinder.html'},
+  'wikipedia':         {title:'EP 30 — The Encyclopedia · Wikipedia', file:'episodes/wikipedia.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');

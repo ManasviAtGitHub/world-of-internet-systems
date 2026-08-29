@@ -40,8 +40,9 @@ real fix, and the sliders are yours.
 | 27 | [The Board — Pinterest](episodes/pinterest.html) | The 64-bit ID that routes itself; the feed as a scored pool, not a timeline; real Pixie random walks with the restart dial; the join that can't shard vs 100 key lookups |
 | 28 | [The Graph — LinkedIn](episodes/linkedin.html) | Fan-out on read done seriously: the slowest of 12 partitions sets the pace; push melts when every employer is a celebrity; scoring at the leaves; the atomic swap with zero mixed reads |
 | 29 | [The Swipe — Tinder](episodes/tinder.html) | The world cut to equal people (a measured U-curve picks the cell size); the simultaneous-swipe race cured by a pair-keyed stream; polling priced against a 5-byte nudge |
+| 30 | [The Encyclopedia — Wikipedia](episodes/wikipedia.html) | The finale: the read:write funnel; purge-don't-expire (the vandalism incident, both worlds); replicate the hits / partition the tail; a 2M-page blast radius paid lazily — and the series' closing argument |
 
-**The wider world is nearly done** (29 systems live). The finale: **Wikipedia**.
+**THE SERIES IS COMPLETE** — 30 systems, honestly simulated: every collapse collapsed by arithmetic, every fix fixed the arithmetic.
 
 ## Structure
 

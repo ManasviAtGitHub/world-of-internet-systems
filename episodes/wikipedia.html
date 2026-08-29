@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Encyclopedia — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · Episode 30 · The Finale</p>
+  <h1>The Encyclopedia</h1>
+  <p class="dek">The last system in this series is the one that shouldn't be possible: a
+  top-10 website — 296 billion pageviews in 2024, a billion devices a month — running on
+  about 1,300 servers and a hosting bill of $3.4 million, operated by a nonprofit whose
+  runbooks are a public wiki. Wikipedia works because its workload is merciful in one
+  dimension (about 600 reads for every write) and brutal in another: any page can change
+  at any second, and when vandalism is fixed it must vanish <em>now</em>, from every
+  cache on Earth. This finale runs the funnel, the purge, the two cache physics, and the
+  million-page blast radius of editing one template.</p>
+  <p class="marginal">Everything below is honestly simulated: the funnel's survival
+  counts multiply through published hit rates, both purge worlds serve the same
+  vandalism timeline, the cache-physics numbers are load and capacity arithmetic, and
+  the re-parse storm drains at a real fleet's real rate.</p>
+  <hr class="rule">
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The funnel — 10,000 requests enter, a trickle reaches the database</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:300px" role="img" aria-label="A river of ten thousand requests per second narrows through the cache layers: ninety percent absorbed at the edge CDN, most of the rest at ParserCache and memcached, until only tens per second reach MariaDB — while sixteen edits per second enter at the narrow end"></canvas>
+  <div class="exp-metrics">
+    <span>ENTERING<b data-m="hero.in">–</b></span>
+    <span>ABSORBED AT THE EDGE<b data-m="hero.cdn">–</b></span>
+    <span>REACHING MARIADB<b data-m="hero.db">–</b></span>
+    <span>EDITS<b data-m="hero.edits">–</b></span>
+  </div>
+  <figcaption class="exp-note">The layers, top to bottom: GeoDNS to the nearest of 7
+  sites; Varnish in RAM and Apache Traffic Server on disk absorb ~90% of everything;
+  ParserCache (rendered HTML, kept for weeks) and memcached absorb most of what leaks
+  through; MariaDB — sections s1–s8, English Wikipedia alone on s1 — sees the residue.
+  The database tier is sized for the funnel's <em>narrow end</em>, not its mouth: that
+  single fact is why a few hundred database servers carry a top-10 site, and why the
+  whole architecture is really one idea — never do the same work twice.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Purge, don't expire</h2>
+  <p>Most CDNs accept staleness: set a TTL, let the edge serve old copies until the
+  clock runs out. Wikipedia can't. When someone defaces a page and a volunteer fixes it
+  thirty seconds later, "the fix will propagate within 24 hours" is not an answer.
+  So every edit sends <strong>explicit purge messages</strong> to every cache node on
+  every continent — the old HTML is hunted down and deleted worldwide within seconds —
+  with conservative TTLs kept only as a backstop against lost purges. The experiment
+  below runs the same incident in both worlds, and it's honest about the symmetry:
+  purging also makes the <em>vandalism</em> visible faster. Freshness cuts both ways;
+  what you're buying is control after the fix.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">The vandalism incident — TTL world vs purge world, same timeline</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e1-vandal">VANDALIZE THE PAGE (A VOLUNTEER FIXES IT IN 30s)</button>
+      <button class="btn" data-run="e1">PAUSE</button>
+      <button class="btn" data-reset="e1">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <span class="ctl"><label for="r-ttl">Cache TTL</label>
+      <input type="range" id="r-ttl" min="10" max="60" value="30" step="5">
+      <output data-m="e1.ttl">30s (≈ hours, compressed)</output></span>
+    <span>7 SITES · 400 VIEWS/s ON THIS PAGE · BOTH WORLDS SEE THE SAME EDITS</span>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:300px" role="img" aria-label="Two rows of seven cache sites serve the same page through a vandalism-and-fix timeline: in the TTL world each site picks up and drops versions only when its timer expires, so the defaced copy lingers long after the fix; in the purge world purge messages race to all sites and the vandalism vanishes worldwide seconds after the volunteer saves"></canvas>
+  <div class="exp-metrics">
+    <span>VANDALIZED VIEWS SERVED<b class="bad" data-m="e1.vv">–</b></span>
+    <span>SERVED AFTER THE FIX<b class="bad" data-m="e1.lv">–</b></span>
+    <span>LINGERED AFTER FIX<b data-m="e1.linger">–</b></span>
+    <span>PURGES DELIVERED<b data-m="e1.purge">–</b></span>
+  </div>
+  <figcaption class="exp-note">Watch the row of sites after the volunteer saves. In the
+  purge world, seven messages race out and every site is clean within a couple of
+  seconds — the after-the-fix counter barely moves. In the TTL world the fix can only
+  arrive the way everything arrives: by expiry — so sites that cached the defacement
+  keep serving it for up to a full TTL <em>after it was fixed</em>, and the counter of
+  views-after-fix scales directly with the slider. The TTL stays in production as a
+  backstop, not a strategy: event-driven invalidation over a time-based safety net is
+  the single most instructive cache design in public documentation.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Two cache physics</h2>
+  <p>Inside each site, the edge is two tiers with opposite philosophies.
+  <strong>Varnish</strong>, in RAM at the front, holds the <em>hits</em> — and holds
+  them on <em>every</em> node, because when an article goes viral you want all eight
+  machines serving it at memory speed, not one unlucky owner melting (episode 17's hot
+  partition, wearing a cache). <strong>Apache Traffic Server</strong>, on disk behind,
+  holds the <em>long tail</em> — hash-partitioned so each URL lives on exactly one
+  node, because fifty million obscure articles need capacity, and replicating them
+  eight times would divide it by eight. Replication for popularity, partitioning for
+  capacity: the experiment lets you turn off either tier and watch which failure you
+  bought.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Replicate the hits, partition the tail — turn off either and see why</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button><button class="btn" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-front" checked> ram front tier — the hot set replicated on every node</label>
+    <label class="toggle"><input type="checkbox" id="t-part" checked> disk back tier — the tail partitioned, one copy per url</label>
+    <span>8 NODES · A VIRAL ARTICLE AT 3,000/s + A 10,000-URL TAIL AT 2,000/s</span>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="Eight cache nodes with RAM and disk tiers face a viral article and a long tail: with both tiers the viral load spreads evenly and the tail fits once across the partitioned disks; removing the RAM tier melts the one node that owns the viral URL; removing partitioning replicates the same small set everywhere and the tail misses hammer the origin"></canvas>
+  <div class="exp-metrics">
+    <span>HOTTEST NODE<b class="bad" data-m="e2.hot">–</b></span>
+    <span>TAIL HIT RATE<b data-m="e2.tail">–</b></span>
+    <span>ORIGIN SEES<b class="bad" data-m="e2.origin">–</b></span>
+    <span>VERDICT<b data-m="e2.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">Both tiers on: the viral storm splits eight ways
+  (375/s each — boring), and the ten-thousand-article tail fits comfortably once
+  across the partitioned disks. Untick the RAM front: the storm has one owner again,
+  and that node is at 270% of capacity while its seven neighbors idle. Re-tick it and
+  untick partitioning instead: now every disk holds the same popular slice, total
+  capacity divides by eight, and 80% of the tail misses through to an origin built for
+  a trickle. Neither tier is optional — they answer different questions, and the CDN
+  serving you this page right now almost certainly does both.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>One template, two million pages</h2>
+  <p>A wiki page isn't a file — it's a program. Wikitext pulls in templates, which pull
+  in other templates and Lua modules, and rendering it all to HTML is the most
+  expensive step in the stack (which is why ParserCache keeps the result for weeks).
+  The nightmare scenario is written into that design: edit one popular infobox
+  template and <em>two million pages are suddenly wrong</em>. Re-parsing them all
+  immediately would burn hours of the entire parser fleet while every ordinary page
+  render queues behind the storm. MediaWiki's answer: invalidation is instant and
+  free — mark everything dirty — but re-rendering is <strong>lazy</strong>. Pages
+  someone actually views get re-parsed on demand (that reader pays one parse, once);
+  the job queue re-parses the cold tail in the background at whatever rate the fleet
+  can spare. The edit's cost is real, but it's paid where and when it matters.</p>
+</div>
+
+<figure class="exp" id="p-e3">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-03</span>
+    <span class="exp-title">The blast radius — re-parse two million pages, now or lazily</span>
+    <span class="exp-run">
+      <button class="btn danger" data-act="e3-edit">EDIT THE INFOBOX TEMPLATE · 2M PAGES DEPEND</button>
+      <button class="btn" data-run="e3">PAUSE</button>
+      <button class="btn" data-reset="e3">RESET</button>
+    </span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-lazy"> lazy re-parse — mark dirty now, render on view + background queue</label>
+    <span>PARSER FLEET 200 PAGES/s · 300 VIEWS/s ON DEPENDENTS · 1s HERE = 100s REAL</span>
+  </div>
+  <canvas class="sim" id="c-e3" style="height:280px" role="img" aria-label="Editing one template dirties two million dependent pages; in synchronous mode the whole fleet saturates for hours and every ordinary page render waits behind the storm, while in lazy mode viewed pages re-render on demand in a couple hundred milliseconds and a throttled background queue drains the cold tail invisibly over hours"></canvas>
+  <div class="exp-metrics">
+    <span>PAGES STILL DIRTY<b data-m="e3.queue">–</b></span>
+    <span>PARSER FLEET<b class="bad" data-m="e3.fleet">–</b></span>
+    <span>READER P95<b class="bad" data-m="e3.lat">–</b></span>
+    <span>CLEANUP<b data-m="e3.eta">–</b></span>
+  </div>
+  <figcaption class="exp-note">Fire the edit in synchronous mode: two million parse
+  jobs land at once, the fleet pins at 100% for hours, and — the real crime — every
+  ordinary reader's render waits behind the backlog, so one template edit becomes a
+  site-wide incident. Reset, arm <em>lazy</em>, fire it again: readers who hit a
+  dirty page pay ~200ms exactly once, everyone else never notices, and the throttled
+  queue grinds the cold tail down over hours with headroom to spare. Same total work,
+  same fleet. The difference is the series' oldest lesson wearing its last costume:
+  <em>when</em> you do the work decides who suffers for it.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The budget with a log axis</h2>
+  <p>Now the punchline that makes Wikipedia the right finale. The Wikimedia
+  Foundation's entire annual budget is about $189 million; the actual internet-hosting
+  line inside it is roughly <strong>$3.4 million</strong>. Alphabet's capital
+  expenditure in 2024 — one year of building — was about <strong>$52.5 billion</strong>:
+  four orders of magnitude, for the same planet of users. The gap isn't magic and it
+  isn't martyrdom; it's the architecture on this page. When 600 reads share every
+  write, when 90% of requests die at the edge, when the parse is cached for weeks and
+  invalidation is an event instead of a timer, the marginal pageview costs
+  approximately nothing — and an encyclopedia can be run on donations. Frugality
+  wasn't the constraint on the design; it was the design. And uniquely on the entire
+  internet, you can check all of it: the CDN docs, the incident postmortems, the
+  datacenter-switchover runbook (drilled routinely, reads never stopping) are a public
+  wiki.</p>
+
+  <h2>The series, closed</h2>
+  <p>Thirty systems, and the same handful of truths kept surfacing wearing different
+  uniforms. The queue that grows without bound whenever arrivals outrun service — we
+  met it in episode 1's single server and again today in a parser fleet. The wall
+  that turns a catastrophe into a bad afternoon: pods, partitions, bulkheads,
+  geoshards. Precompute for the read-heavy: timelines, sort orders, feeds, and now an
+  encyclopedia's HTML. Exactly-once as memory, not hope: idempotency keys, pair-keyed
+  streams, atomic swaps. The boring-technology dividend, paid to Pinterest and Shopify
+  and Wikipedia alike. And under all of it, this series' own method: <strong>a design
+  you cannot simulate honestly is a design you do not yet understand.</strong> Every
+  collapse on these pages collapsed by arithmetic; every fix fixed the arithmetic.
+  That was the point.</p>
+  <p>The keeper, for the finale and the series: <strong>the internet's greatest
+  systems are not the ones with the most machines — they are the ones that arranged
+  for almost all the work to never need doing.</strong></p>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Wikitech — <a href="https://wikitech.wikimedia.org/wiki/CDN">Wikimedia CDN</a> (HAProxy/Varnish/ATS, TTLs, purge behavior) and <a href="https://techblog.wikimedia.org/2020/11/25/wikimedias-cdn-the-road-to-ats/">The Road to ATS</a>, 2020 — the official, public ops documentation.</li>
+    <li>Meta-Wiki — <a href="https://meta.wikimedia.org/wiki/Wikimedia_servers">Wikimedia servers</a> — the full stack and the 7 sites; E. Bernhardson et al. — <a href="https://media.ccc.de/v/36c3-10592-infrastructure_of_wikipedia">Infrastructure of Wikipedia</a>, 36C3 2019 — ~1,300 servers, ~90% edge hit rate.</li>
+    <li>Wikitech — <a href="https://wikitech.wikimedia.org/wiki/Performance/Multi-DC_MediaWiki">Multi-DC MediaWiki</a>, 2022, and <a href="https://wikitech.wikimedia.org/wiki/Switch_Datacenter">Switch Datacenter</a> — active-active reads and the drilled switchover runbook.</li>
+    <li><a href="https://en.wikipedia.org/wiki/Wikipedia:Statistics">Wikipedia:Statistics</a> and <a href="https://stats.wikimedia.org/">Wikistats</a> — 296B pageviews (2024), ~16 edits/s; <a href="https://wikimediafoundation.org/news/2025/10/17/new-user-trends-on-wikipedia/">~1B unique devices</a>.</li>
+    <li>WMF — <a href="https://foundation.wikimedia.org/wiki/Resolution:Approving_the_Wikimedia_Foundation_2024-2025_Annual_Plan_and_Budget">FY2024–25 budget ($188.75M)</a> and <a href="https://wikimediafoundation.org/about/financial-reports/">audited financials</a> (~$3.4M hosting); Alphabet 2024 capex ~$52.5B via <a href="https://abc.xyz/investor/">investor filings</a>.</li>
+    <li>HighScalability — <a href="https://highscalability.com/wikimedia-architecture/">Wikimedia architecture</a>, 2007 — the ~350-server LAMP+Squid era this all grew from.</li>
+  </ul>
+
+  <footer>
+    <hr class="foot-rule">
+    <p class="next">World of Internet Systems · <b>THE SERIES IS COMPLETE</b> — 30 systems, honestly simulated · <a href="../index.html" style="color:var(--link)">back to the index</a></p>
+  </footer>
+</div>
+</main>
+
+<noscript><div class="col"><p>These are live simulations — enable JavaScript to run the experiments.</p></div></noscript>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+function fmtS(s){
+  if(s>=3600) return (s/3600).toFixed(1)+'h';
+  if(s>=60) return (s/60).toFixed(1)+' min';
+  if(s>=1) return s.toFixed(1)+'s';
+  return Math.round(s*1000)+'ms';
+}
+
+/* ================= HERO: the funnel ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  rng: mulberry32(3),
+  reset(){ this.t=0; },
+  update(dt){
+    this.t+=dt;
+    setM('hero.in', '10,000 REQ/s (296B PAGEVIEWS/YR)');
+    setM('hero.cdn', '~90% — VARNISH (RAM) + ATS (DISK)');
+    setM('hero.db', '~40 REQ/s — 0.4% OF THE RIVER');
+    setM('hero.edits', '16/s — ~600 READS PER WRITE');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const cx=W*0.44;
+    const layers=[
+      {y:36,  hw:0.40, label:'10,000 REQ/s — GeoDNS → NEAREST OF 7 SITES', surv:'10,000/s'},
+      {y:96,  hw:0.26, label:'VARNISH + ATS — ~90% ABSORBED AT THE EDGE',  surv:'1,000/s'},
+      {y:156, hw:0.13, label:'ParserCache + MEMCACHED — RENDERED HTML, KEPT WEEKS', surv:'~150/s'},
+      {y:216, hw:0.045,label:'MariaDB s1–s8 — THE NARROW END', surv:'~40/s'},
+    ];
+    // funnel walls
+    ctx.strokeStyle=CSS.line;
+    for(let i=0;i<layers.length-1;i++){
+      const a=layers[i], b=layers[i+1];
+      ctx.beginPath(); ctx.moveTo(cx-a.hw*W, a.y+12); ctx.lineTo(cx-b.hw*W, b.y-2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+a.hw*W, a.y+12); ctx.lineTo(cx+b.hw*W, b.y-2); ctx.stroke();
+    }
+    layers.forEach((l,i)=>{
+      ctx.strokeStyle= i===3? CSS.a : CSS.b;
+      ctx.lineWidth= i===3? 2 : 1.5;
+      ctx.beginPath(); ctx.moveTo(cx-l.hw*W, l.y); ctx.lineTo(cx+l.hw*W, l.y); ctx.stroke();
+      ctx.lineWidth=1;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText(l.label, cx-l.hw*W, l.y-8);
+      ctx.fillStyle= i===3? CSS.a : CSS.b; ctx.textAlign='right';
+      ctx.fillText(l.surv, Math.min(W-14, cx+layers[0].hw*W+8), l.y+4);
+    });
+    // particles falling through, most dying at each layer
+    for(let i=0;i<44;i++){
+      const u=(this.t*0.25+i/44)%1;
+      const seed=(i*2654435761%1000)/1000;
+      // how deep this particle survives (10% pass edge, ~15% of those pass parser)
+      const depth= seed<0.004? 3 : seed<0.015? 2 : seed<0.1? 1 : 0.62;
+      const maxY= depth>=3? 250 : depth>=2? 210 : depth>=1? 150 : 92;
+      const y=36+u*(maxY-36);
+      if(y>=maxY-4 && depth<3) continue;   // absorbed
+      const hw= y<96? 0.40-(y-36)/60*0.14 : y<156? 0.26-(y-96)/60*0.13 : 0.13-(y-156)/60*0.085;
+      const x=cx+(seed-0.5)*2*hw*W*0.92;
+      ctx.fillStyle= y>216? CSS.a : CSS.traffic;
+      ctx.globalAlpha=.8;
+      ctx.beginPath(); ctx.arc(x, y, 1.8, 0, 7); ctx.fill();
+      ctx.globalAlpha=1;
+    }
+    // edits entering at the side
+    ctx.fillStyle=CSS.fault; ctx.textAlign='left';
+    ctx.fillText('16 EDITS/s →', 20, 232);
+    const eu=(this.t*0.8)%1;
+    ctx.beginPath(); ctx.arc(96+eu*(cx-0.045*W-100), 236, 2.2, 0, 7); ctx.fill();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('WRITES CANNOT BE CACHED — THEY GO STRAIGHT TO THE NARROW END, AND THEN THE PURGES FAN BACK OUT', W/2, H-14);
+  }
+};
+hero.reset();
+
+/* ================= EXP-01: purge vs TTL ================= */
+const rTtl=document.getElementById('r-ttl');
+const SITES=['eqiad','codfw','esams','ulsfo','eqsin','drmrs','magru'];
+const SHARE=[0.25,0.2,0.15,0.12,0.1,0.1,0.08];
+const VIEWS=400;
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  rng: mulberry32(11),
+  reset(){ this.t=0; this.phase='clean'; this.vandalAt=-1; this.fixAt=-1;
+    this.ttlSites=SITES.map(()=>({ver:0, next:this.rng()*this.ttl()}));
+    this.purgeSites=SITES.map(()=>({ver:0, pending:null}));
+    this.vv={ttl:0, purge:0}; this.lv={ttl:0, purge:0};
+    this.purges=0; this.lastCleanT=-1; this.autoAt=3; },
+  ttl(){ return +rTtl.value; },
+  vandalize(){ if(this.phase==='clean'){ this.phase='vandal'; this.vandalAt=this.t; this.fixAt=this.t+30;
+    for(const s of this.purgeSites){ s.pending={ver:1, at:this.t+0.3+this.rng()*1.5}; this.purges++; } } },
+  truth(){ return this.phase==='clean'? (this.fixAt>0?2:0) : 1; },
+  update(dt){
+    this.t+=dt;
+    if(this.autoAt && this.t>=this.autoAt){ this.autoAt=0; this.vandalize(); }
+    if(this.phase==='vandal' && this.t>=this.fixAt){
+      this.phase='clean';
+      for(const s of this.purgeSites){ s.pending={ver:2, at:this.t+0.3+this.rng()*1.5}; this.purges++; }
+    }
+    const truth=this.truth();
+    // TTL world: refresh only on expiry
+    this.ttlSites.forEach(s=>{
+      if(this.t>=s.next){ s.ver=truth; s.next=this.t+this.ttl(); }
+    });
+    // purge world: purge messages land
+    this.purgeSites.forEach(s=>{
+      if(s.pending && this.t>=s.pending.at){ s.ver=s.pending.ver; s.pending=null; }
+    });
+    // count vandalized views
+    SITES.forEach((_,i)=>{
+      const v=VIEWS*SHARE[i]*dt;
+      if(this.ttlSites[i].ver===1){ this.vv.ttl+=v; if(this.fixAt>0&&this.t>this.fixAt) this.lv.ttl+=v; }
+      if(this.purgeSites[i].ver===1){ this.vv.purge+=v; if(this.fixAt>0&&this.t>this.fixAt) this.lv.purge+=v; }
+    });
+    // linger measurement
+    const ttlDirty=this.ttlSites.some(s=>s.ver===1);
+    const purgeDirty=this.purgeSites.some(s=>s.ver===1);
+    if(this.fixAt>0 && this.t>this.fixAt){
+      if(ttlDirty) this._ttlLinger=this.t-this.fixAt;
+      if(purgeDirty) this._purgeLinger=this.t-this.fixAt;
+    }
+    setM('e1.ttl', this.ttl()+'s (≈ hours, compressed)');
+    setM('e1.vv', 'ttl '+Math.round(this.vv.ttl).toLocaleString('en-US')+' vs purge '+Math.round(this.vv.purge).toLocaleString('en-US'));
+    setM('e1.lv', 'ttl '+Math.round(this.lv.ttl).toLocaleString('en-US')+' vs purge '+Math.round(this.lv.purge).toLocaleString('en-US'));
+    setM('e1.linger', 'ttl '+(this._ttlLinger? fmtS(this._ttlLinger):'–')+' vs purge '+(this._purgeLinger? fmtS(this._purgeLinger):'–'));
+    setM('e1.purge', this.purges+' ('+(this.purges? '≤2s each':'–')+')');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const row=(y, name, sites, isPurge)=>{
+      ctx.fillStyle= isPurge? CSS.b : CSS.a; ctx.textAlign='left';
+      ctx.fillText(name, 30, y-24);
+      sites.forEach((s,i)=>{
+        const x=30+i*((W-60)/7);
+        const col= s.ver===1? CSS.fault : s.ver===2? CSS.b : '#3A5068';
+        ctx.strokeStyle=col; ctx.lineWidth= s.ver===1? 2:1;
+        ctx.strokeRect(x, y-14, (W-60)/7-12, 40);
+        ctx.lineWidth=1;
+        ctx.fillStyle=col; ctx.textAlign='center';
+        const cxx=x+((W-60)/7-12)/2;
+        ctx.fillText(SITES[i], cxx, y+2);
+        ctx.fillText(s.ver===1? 'DEFACED' : s.ver===2? 'FIXED ✓' : 'CLEAN', cxx, y+18);
+        // purge in flight
+        if(isPurge && s.pending){
+          ctx.fillStyle=CSS.traffic;
+          const u=1-Math.max(0,(s.pending.at-this.t)/1.8);
+          ctx.beginPath(); ctx.arc(cxx, y-24+u*8, 2.4, 0, 7); ctx.fill();
+        }
+        // ttl countdown bar
+        if(!isPurge){
+          const frac=Math.max(0,(s.next-this.t)/this.ttl());
+          ctx.strokeStyle=CSS.line;
+          ctx.strokeRect(x, y+30, (W-60)/7-12, 4);
+          ctx.fillStyle='#5A7A94';
+          ctx.fillRect(x, y+30, ((W-60)/7-12)*frac, 4);
+        }
+      });
+    };
+    row(70,  'TTL WORLD — CHANGES ARRIVE ONLY BY EXPIRY', this.ttlSites, false);
+    row(180, 'PURGE WORLD — EDITS HUNT DOWN EVERY COPY', this.purgeSites, true);
+    // timeline status
+    ctx.textAlign='center';
+    if(this.phase==='vandal'){
+      ctx.fillStyle=CSS.fault;
+      ctx.fillText('PAGE DEFACED — VOLUNTEER FIXES IN '+Math.max(0,this.fixAt-this.t).toFixed(0)+'s', W/2, H-34);
+    } else if(this.fixAt>0){
+      ctx.fillStyle=CSS.b;
+      ctx.fillText('FIXED AT T+30s — NOW WATCH WHO IS STILL SERVING THE DEFACEMENT', W/2, H-34);
+    } else {
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('A POPULAR PAGE, CACHED CLEAN AT ALL 7 SITES', W/2, H-34);
+    }
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME PAGE · SAME EDITS · THE ONLY DIFFERENCE IS HOW CACHES LEARN THE TRUTH', W/2, H-12);
+  }
+};
+e1.reset();
+document.querySelector('[data-act="e1-vandal"]').addEventListener('click',()=>e1.vandalize());
+rTtl.addEventListener('input',()=>setM('e1.ttl', rTtl.value+'s (≈ hours, compressed)'));
+
+/* ================= EXP-02: two cache physics ================= */
+const tFront=document.getElementById('t-front');
+const tPart=document.getElementById('t-part');
+const NODES=8, NODECAP=1200, VIRAL=3000, TAIL=2000, TAILURLS=10000, DISK=2000;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){ this.t=0; },
+  update(dt){
+    this.t+=dt;
+    const front=tFront.checked, part=tPart.checked;
+    const tailPer=TAIL/NODES;
+    const hotOwner= front? VIRAL/NODES : VIRAL;   // spread or one owner
+    const hottest=hotOwner+tailPer;
+    const tailHit= part? 0.97 : DISK/TAILURLS;
+    const origin=Math.round(TAIL*(1-tailHit)) + (front? 8 : 8);
+    setM('e2.hot', Math.round(hottest).toLocaleString('en-US')+'/s OF '+NODECAP.toLocaleString('en-US')+(hottest>NODECAP? ' — MELTING ('+Math.round(hottest/NODECAP*100)+'%)':' — FINE'));
+    setM('e2.tail', Math.round(tailHit*100)+'% SERVED FROM DISK');
+    setM('e2.origin', origin.toLocaleString('en-US')+'/s'+(origin>1000?' — HAMMERED (BUILT FOR A TRICKLE)':''));
+    setM('e2.verdict', front&&part? 'REPLICATE THE HITS · PARTITION THE TAIL' :
+      front? 'CAPACITY ÷ 8 — THE TAIL FELL OUT' : 'THE STORM HAS ONE OWNER');
+    this._d={front, part, hottest, tailHit, origin};
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const d=this._d; if(!d) return;
+    const nw=(W-120)/NODES;
+    // viral beam
+    ctx.fillStyle=CSS.traffic; ctx.textAlign='left';
+    ctx.fillText('VIRAL ARTICLE · 3,000/s', 60, 26);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('+ 10,000-URL TAIL · 2,000/s', 280, 26);
+    for(let i=0;i<NODES;i++){
+      const x=60+i*nw, hot= !d.front && i===2;
+      // beam
+      if(d.front || i===2){
+        ctx.strokeStyle=CSS.traffic; ctx.globalAlpha= d.front? .35 : .9;
+        ctx.lineWidth= d.front? 1.5 : 3;
+        ctx.beginPath(); ctx.moveTo(130, 32); ctx.lineTo(x+nw/2-6, 56); ctx.stroke();
+        ctx.lineWidth=1; ctx.globalAlpha=1;
+      }
+      // RAM tier
+      ctx.strokeStyle= d.front? CSS.traffic : '#22334A';
+      ctx.strokeRect(x, 56, nw-12, 26);
+      ctx.fillStyle= d.front? CSS.traffic : '#3A4A5C'; ctx.textAlign='center';
+      ctx.fillText(d.front? 'RAM·HOT' : 'RAM OFF', x+(nw-12)/2, 73);
+      // disk tier
+      const over= hot;
+      ctx.strokeStyle= over? CSS.fault : CSS.b;
+      ctx.lineWidth= over? 2:1;
+      ctx.strokeRect(x, 90, nw-12, 46);
+      ctx.lineWidth=1;
+      ctx.fillStyle= over? CSS.fault : CSS.b;
+      ctx.fillText('DISK', x+(nw-12)/2, 106);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText(d.part? 'URLS '+(i*1250).toLocaleString('en-US').slice(0,5)+'…' : 'SAME 2K', x+(nw-12)/2, 122);
+      // load bar
+      const load= (d.front? VIRAL/NODES : (i===2? VIRAL:0)) + TAIL/NODES;
+      const frac=Math.min(1, load/ (NODECAP*2.9));
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(x, 144, nw-12, 7);
+      ctx.fillStyle= load>NODECAP? CSS.fault : CSS.b;
+      ctx.fillRect(x, 144, (nw-12)*frac, 7);
+      if(load>NODECAP){ ctx.fillStyle=CSS.fault; ctx.fillText('🔥', x+(nw-12)/2, 168); }
+    }
+    // origin
+    const oy=H-72;
+    const hammered=d.origin>1000;
+    ctx.strokeStyle= hammered? CSS.fault : CSS.line;
+    ctx.lineWidth= hammered? 2:1;
+    ctx.strokeRect(W/2-110, oy, 220, 34);
+    ctx.lineWidth=1;
+    ctx.fillStyle= hammered? CSS.fault : CSS.muted; ctx.textAlign='center';
+    ctx.fillText(hammered? 'ORIGIN — '+d.origin.toLocaleString('en-US')+'/s OF MISSES' : 'ORIGIN — '+d.origin+'/s (A TRICKLE)', W/2, oy+21);
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('POPULARITY WANTS REPLICATION · CAPACITY WANTS PARTITIONING · THE EDGE DOES BOTH', W/2, H-14);
+  }
+};
+e2.reset();
+
+/* ================= EXP-03: the template blast radius ================= */
+const tLazy=document.getElementById('t-lazy');
+const DEPS=2000000, FLEET=200, DEPVIEWS=300;   // real per-second rates; 1s sim = 100s real
+const e3 = {
+  cv: document.getElementById('c-e3'),
+  reset(){ this.t=0; this.dirty=0; this.edited=false; this.editAt=-1; },
+  edit(){ if(!this.edited){ this.edited=true; this.editAt=this.t; this.dirty=DEPS; } },
+  update(dt){
+    this.t+=dt;
+    const lazy=tLazy.checked;
+    const realDt=dt*100;
+    let fleet=0.18, lat=0.05;               // ambient parsing + fast renders
+    if(this.dirty>0){
+      if(lazy){
+        const onView=Math.min(this.dirty/10, DEPVIEWS*0.2);   // views hitting dirty pages
+        const bg=FLEET*0.75-onView;                            // throttled: keep 25% headroom
+        this.dirty=Math.max(0, this.dirty-(onView+Math.max(0,bg))*realDt);
+        fleet=0.75; lat=0.21;
+      } else {
+        this.dirty=Math.max(0, this.dirty-FLEET*realDt);
+        fleet=1.0; lat=this.dirty/FLEET;                       // every render waits behind the storm
+      }
+    }
+    const etaS=this.dirty/( (lazy? FLEET*0.75 : FLEET) );
+    setM('e3.queue', this.dirty>0? (this.dirty/1e6).toFixed(2)+'M' : (this.edited? '0 — DONE':'0 (EDIT PENDING)'));
+    setM('e3.fleet', Math.round(fleet*100)+'%'+(fleet>=1?' — STORM':''));
+    setM('e3.lat', this.dirty>0? (tLazy.checked? '210ms (ONE PARSE, ONCE)' : fmtS(lat)+' — EVERY RENDER WAITS') : '50ms');
+    setM('e3.eta', this.dirty>0? '~'+fmtS(etaS)+(tLazy.checked? ' IN THE BACKGROUND — INVISIBLE':' OF SITE-WIDE PAIN') : (this.edited? 'COMPLETE':'–'));
+    this._d={lazy, fleet, lat};
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.clearRect(0,0,W,H);
+    ctx.font='10px ui-monospace, Menlo, monospace';
+    const d=this._d||{};
+    // template + blast radius
+    ctx.strokeStyle=CSS.traffic; ctx.lineWidth=2;
+    ctx.strokeRect(50, 44, 150, 44);
+    ctx.lineWidth=1;
+    ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+    ctx.fillText('{{Infobox person}}', 125, 62);
+    ctx.fillStyle= this.edited? CSS.fault : CSS.muted;
+    ctx.fillText(this.edited? 'EDITED — 2M PAGES DIRTY' : 'ONE TEMPLATE · 2M PAGES', 125, 78);
+    // radius rings
+    if(this.edited){
+      const frac=1-this.dirty/DEPS;
+      for(let r=0;r<3;r++){
+        ctx.strokeStyle=CSS.fault; ctx.globalAlpha=.3-(r*0.08);
+        ctx.beginPath(); ctx.arc(125, 66, 30+r*22, 0, 7); ctx.stroke();
+        ctx.globalAlpha=1;
+      }
+      // dirty bar
+      ctx.strokeStyle=CSS.line;
+      ctx.strokeRect(50, 128, W-100, 16);
+      ctx.fillStyle=CSS.b;
+      ctx.fillRect(51, 129, (W-102)*frac, 14);
+      ctx.fillStyle=CSS.fault; ctx.globalAlpha=.5;
+      ctx.fillRect(51+(W-102)*frac, 129, (W-102)*(1-frac), 14);
+      ctx.globalAlpha=1;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('RE-PARSED '+Math.round(frac*100)+'%', 50, 160);
+      ctx.textAlign='right';
+      ctx.fillText((this.dirty/1e6).toFixed(2)+'M STILL DIRTY', W-50, 160);
+    }
+    // fleet gauge
+    const gy=H-84;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('PARSER FLEET (200 PAGES/s)', 50, gy-8);
+    ctx.strokeStyle=CSS.line;
+    ctx.strokeRect(50, gy, 260, 14);
+    ctx.fillStyle= (d.fleet||0)>=1? CSS.fault : CSS.b;
+    ctx.fillRect(51, gy+1, 258*Math.min(1,d.fleet||0), 12);
+    ctx.fillStyle= (d.fleet||0)>=1? CSS.fault : CSS.muted;
+    ctx.fillText((d.fleet>=1? '100% — EVERYONE ELSE WAITS' : Math.round((d.fleet||0)*100)+'% — HEADROOM KEPT'), 320, gy+11);
+    // reader lane
+    const ry=gy+40;
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('A READER OPENS AN ORDINARY PAGE →', 50, ry);
+    const bad= this.dirty>0 && !d.lazy;
+    ctx.fillStyle= bad? CSS.fault : CSS.traffic;
+    ctx.fillText(bad? 'WAITS '+fmtS(d.lat||0)+' BEHIND THE STORM' : (this.dirty>0? 'SERVED IN ~210ms (PARSES ITS OWN PAGE, ONCE)' : 'SERVED IN 50ms'), 290, ry);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('INVALIDATION IS FREE — RE-RENDERING IS THE COST · LAZY MEANS PAYING IT WHERE IT MATTERS', W/2, H-12);
+  }
+};
+e3.reset();
+document.querySelector('[data-act="e3-edit"]').addEventListener('click',()=>e3.edit());
+tLazy.addEventListener('change',()=>e3.reset());
+
+/* ---------- wiring ---------- */
+const sims={hero,e1,e2,e3}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('e1','p-e1'); register('e2','p-e2'); register('e3','p-e3');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','e1','e2','e3']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

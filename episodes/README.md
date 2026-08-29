@@ -45,8 +45,9 @@ outer shell first. The artifact URLs below predate this change and still work.
 | 27 | The Board (Pinterest) | `pinterest.html` | Pages only |
 | 28 | The Graph (LinkedIn) | `linkedin.html` | Pages only |
 | 29 | The Swipe (Tinder) | `tinder.html` | Pages only |
+| 30 | The Encyclopedia (Wikipedia) | `wikipedia.html` | Pages only |
 
-Flagship and plumbing tiers complete; the wider world is nearly done. Next planned: **Wikipedia — the finale**.
+**THE SERIES IS COMPLETE** — 30 episodes, every one harnessed to ALL CHECKS PASS before shipping.
 
 Extractor gotcha (learned on EP14): the awk script-extraction drops any JS line
 containing a literal `<script>` token (e.g. inside a canvas-label string) — avoid
