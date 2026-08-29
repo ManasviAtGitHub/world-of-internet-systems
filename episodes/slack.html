@@ -96,7 +96,7 @@
 <body>
 <main>
 <div class="col">
-  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 18</p>
+  <p class="eyebrow">World of Internet Systems · The Wider World</p>
   <h1>The Workspace</h1>
   <p class="dek">Slack is proudly boring on the outside — a PHP monolith and MySQL, the
   stack of a 2004 blog. The interesting part is the nervous system grafted onto it: a
@@ -128,7 +128,7 @@
   <figcaption class="exp-note">Slowed ×4 so you can watch; the clock is honest. Note the
   order: the webapp <em>persists the message before any fan-out</em> — so the entire
   real-time plane is allowed to be lossy and restartable (a dead channel server is swapped
-  in under 20 seconds and clients reconcile from history). Consistent hashing (episode 2's
+  in under 20 seconds and clients reconcile from history). Consistent hashing (the Hash Ring episode's
   ring) decides which one channel server owns the channel; gateways subscribe on behalf of
   their connected users. At peak a single channel-server host handles ~16 million
   channels.</figcaption>
@@ -238,7 +238,7 @@
   freezing solid was not. The dam was also the powerhouse, and the flood shut down both.</p>
   <p>The fix is a model of incremental re-architecture: don't rewrite the workers — put
   <strong>Kafka in front</strong>. Kafkagate accepts enqueues onto a durable, disk-backed
-  log (episode 4's log, wearing a hard hat); JQRelay meters jobs into Redis only as fast
+  log (the Kafka episode's log, wearing a hard hat); JQRelay meters jobs into Redis only as fast
   as Redis has room; the worker fleet never learns anything changed. Spikes become lag.
   Lag drains.</p>
 </div>
@@ -273,12 +273,12 @@
   overboard. Now reset, arm <em>kafka</em>, same spike: Redis never crosses 60%, workers
   never stall, the excess piles up as disk-backed lag — and lag drains at spare capacity,
   which you can watch. Failure converted into delay: the same trade the log bought in
-  episode 4, retrofitted without touching a single worker.</figcaption>
+  the Kafka episode, retrofitted without touching a single worker.</figcaption>
 </figure>
 
 <div class="col">
   <h2>The slow escape from the workspace shard</h2>
-  <p>One story this episode leaves in prose, because episode 16 already ran its physics:
+  <p>One story this episode leaves in prose, because the Ladder episode already ran its physics:
   Slack's founding data model pinned each workspace to one master-master MySQL pair —
   clean isolation, easy scaling, until one giant customer <em>was</em> one melting
   database, and shared channels between companies had no home at all. From 2017 to 2020
@@ -303,7 +303,7 @@
 
   <footer>
     <hr class="foot-rule">
-    <p class="next">World of Internet Systems · NEXT → <a href="../index.html#/spotify" target="_top">EP 19 — The Playlist · Spotify</a> · <b>the listeners were the CDN</b></p>
+    <p class="next">World of Internet Systems · NEXT → <a href="../index.html#/spotify" target="_top">The Playlist · Spotify</a> · <b>the listeners were the CDN</b></p>
   </footer>
 </div>
 </main>

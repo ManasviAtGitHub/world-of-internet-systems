@@ -90,7 +90,7 @@
 <body>
 <main>
 <div class="col">
-  <p class="eyebrow">World of Internet Systems · Internet Plumbing · Episode 14</p>
+  <p class="eyebrow">World of Internet Systems · Internet Plumbing</p>
   <h1>The Page</h1>
   <p class="dek">"What happens when you type a URL and press Enter?" is the most famous
   question in systems interviews because the honest answer touches everything this series
@@ -124,7 +124,7 @@
   <figcaption class="exp-note">The widths are the story: the network stages — DNS and the
   handshakes — cost whole round trips while the keyboard costs ten milliseconds and parsing
   streams for free alongside. Every stage is a system from an earlier episode: stage 2 is
-  EP05's resolution walk, the route under stages 3–5 is EP08's rumor mill, and the server
+  the DNS episode's resolution walk, the route under stages 3–5 is the BGP episode's rumor mill, and the server
   behind stage 5 is everything else in this series.</figcaption>
 </figure>
 
@@ -258,12 +258,12 @@
     <li>Cloudflare — <a href="https://blog.cloudflare.com/rfc-8446-aka-tls-1-3/">A Detailed Look at RFC 8446 (TLS 1.3)</a>, 2018 (1-RTT handshake, 0-RTT and replay); and <a href="https://blog.cloudflare.com/http3-the-past-present-and-future/">HTTP/3: the past, the present, and the future</a>, 2019 (merged handshakes, head-of-line blocking).</li>
     <li>web.dev (Chrome team) — <a href="https://web.dev/articles/rendering-performance">Rendering performance</a>: the pixel pipeline, the 16.6/10 ms frame budget, the skippable stages.</li>
     <li>IETF — <a href="https://datatracker.ietf.org/doc/html/rfc8446">RFC 8446 (TLS 1.3)</a>, 2018; <a href="https://datatracker.ietf.org/doc/html/rfc9000">RFC 9000 (QUIC)</a>, 2021.</li>
-    <li>Cloudflare Learning Center — <a href="https://www.cloudflare.com/learning/dns/what-is-dns/">What is DNS?</a> (the 20–120 ms figure; see EP05 for the full machinery).</li>
+    <li>Cloudflare Learning Center — <a href="https://www.cloudflare.com/learning/dns/what-is-dns/">What is DNS?</a> (the 20–120 ms figure; see the DNS episode for the full machinery).</li>
   </ul>
 
   <footer>
     <hr class="foot-rule">
-    <p class="next">World of Internet Systems · NEXT → <a href="../index.html#/cdn-edge" target="_top">EP 15 — The Edge · CDN & Anycast</a> · <b>absorbing the flood</b></p>
+    <p class="next">World of Internet Systems · NEXT → <a href="../index.html#/cdn-edge" target="_top">The Edge · CDN & Anycast</a> · <b>absorbing the flood</b></p>
   </footer>
 </div>
 </main>
@@ -294,7 +294,7 @@ function setM(k,v){ if(M[k]) M[k].textContent = v; }
 /* ================= HERO: the scrubbable journey ================= */
 const STAGES=[
   {name:'0 · KEYPRESS', ms:10,  what:'USB polled every ~10ms; keycode → HID driver → browser'},
-  {name:'1 · DNS',      ms:30,  what:'cache walk; uncached would be 20–120ms (EP05)'},
+  {name:'1 · DNS',      ms:30,  what:'cache walk; uncached would be 20–120ms (the DNS episode)'},
   {name:'2 · TCP',      ms:40,  what:'SYN → SYN-ACK → ACK — one RTT before any data'},
   {name:'3 · TLS 1.3',  ms:40,  what:'key shares sent speculatively — one RTT (was two in 1.2)'},
   {name:'4 · HTTP',     ms:60,  what:'GET / → server thinks → HTML streams back'},

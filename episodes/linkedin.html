@@ -96,13 +96,13 @@
 <body>
 <main>
 <div class="col">
-  <p class="eyebrow">World of Internet Systems · The Wider World · Episode 28</p>
+  <p class="eyebrow">World of Internet Systems · The Wider World</p>
   <h1>The Graph</h1>
   <p class="dek">LinkedIn's feed problem was so hard that a side effect of solving it —
   Kafka, and the idea that one append-only log should be a company's circulatory system
   — became more famous than the feed. This episode runs the feed itself: the machine
   that answers "what did the 800 people and companies you follow just do?" in 140
-  milliseconds, by doing the exact opposite of what Twitter chose in episode 3 —
+  milliseconds, by doing the exact opposite of what Twitter chose in the Timeline episode —
   fan-out on <em>read</em>, with the ranking pushed all the way down into the storage
   nodes, and yesterday's heaviest computations shipped in by atomic pointer flip.</p>
   <p class="marginal">Everything below is honestly simulated: scatter-gather latency is
@@ -137,7 +137,7 @@
 
 <div class="col">
   <h2>When every celebrity is an employer</h2>
-  <p>Episode 3 watched Twitter choose push: write each tweet into every follower's
+  <p>the Timeline episode watched Twitter choose push: write each tweet into every follower's
   timeline inbox, because reads outnumber writes 60:1 and celebrities can get an escape
   hatch. LinkedIn chose the opposite — and the reason is who its "celebrities" are.
   On a professional network the mega-followed accounts aren't a handful of pop stars;
@@ -265,7 +265,7 @@
   search, monitoring, recommenders — each grew bespoke pipelines to every other, N²
   integrations all breaking differently. Kafka reframed the problem: make every data
   change an event on one replicated, partitioned commit log, and let every system be a
-  subscriber with its own bookmark. Episode 4 ran that machine's physics; this is the
+  subscriber with its own bookmark. the Kafka episode ran that machine's physics; this is the
   company that built it because the feed demanded it — and then wrote the manifesto
   ("The Log," 2013) that turned it into an industry. The numbers grew up accordingly:
   7 <em>trillion</em> messages a day through LinkedIn's Kafka by 2019, feeding
@@ -288,7 +288,7 @@
 
   <footer>
     <hr class="foot-rule">
-    <p class="next">World of Internet Systems · NEXT → <a href="../index.html#/tinder" target="_top">EP 29 — The Swipe · Tinder</a> · <b>the world cut to fit its people</b></p>
+    <p class="next">World of Internet Systems · NEXT → <a href="../index.html#/tinder" target="_top">The Swipe · Tinder</a> · <b>the world cut to fit its people</b></p>
   </footer>
 </div>
 </main>
@@ -395,7 +395,7 @@ const hero = {
     ctx.fillText(done? 'MERGED — '+Math.round(this.total*1000)+'ms (THE SLOWEST LEAF SET THE PACE)' :
       'WAITING FOR THE SLOWEST OF 12…', W*0.33, H-30);
     ctx.fillStyle=CSS.muted;
-    ctx.fillText('FAN-OUT ON READ — THE MIRROR IMAGE OF EPISODE 3', W/2, H-12);
+    ctx.fillText('FAN-OUT ON READ — THE MIRROR IMAGE OF THE TIMELINE', W/2, H-12);
   }
 };
 hero.reset();

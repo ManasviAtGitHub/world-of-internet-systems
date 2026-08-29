@@ -96,7 +96,7 @@
 <body>
 <main>
 <div class="col">
-  <p class="eyebrow">World of Internet Systems · Episode 30 · The Finale</p>
+  <p class="eyebrow">World of Internet Systems · The Finale</p>
   <h1>The Encyclopedia</h1>
   <p class="dek">The last system in this series is the one that shouldn't be possible: a
   top-10 website — 296 billion pageviews in 2024, a billion devices a month — running on
@@ -186,7 +186,7 @@
   <p>Inside each site, the edge is two tiers with opposite philosophies.
   <strong>Varnish</strong>, in RAM at the front, holds the <em>hits</em> — and holds
   them on <em>every</em> node, because when an article goes viral you want all eight
-  machines serving it at memory speed, not one unlucky owner melting (episode 17's hot
+  machines serving it at memory speed, not one unlucky owner melting (the Discord episode's hot
   partition, wearing a cache). <strong>Apache Traffic Server</strong>, on disk behind,
   holds the <em>long tail</em> — hash-partitioned so each URL lives on exactly one
   node, because fifty million obscure articles need capacity, and replicating them
@@ -288,7 +288,7 @@
   <h2>The series, closed</h2>
   <p>Thirty systems, and the same handful of truths kept surfacing wearing different
   uniforms. The queue that grows without bound whenever arrivals outrun service — we
-  met it in episode 1's single server and again today in a parser fleet. The wall
+  met it in the Load Balancer episode's single server and again today in a parser fleet. The wall
   that turns a catastrophe into a bad afternoon: pods, partitions, bulkheads,
   geoshards. Precompute for the read-heavy: timelines, sort orders, feeds, and now an
   encyclopedia's HTML. Exactly-once as memory, not hope: idempotency keys, pair-keyed

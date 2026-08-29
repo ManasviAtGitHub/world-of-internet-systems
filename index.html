@@ -215,7 +215,7 @@
   <details open>
     <summary>The toolbox — DSA, under fire</summary>
     <ul>
-      <li><a class="ep" href="#/bloom" data-ep="bloom">T-01 · The Filter · Bloom</a></li>
+      <li><a class="ep" href="#/bloom" data-ep="bloom">The Filter · Bloom</a></li>
       <li><span class="soon">The Heap<i>IDEA</i></span></li>
       <li><span class="soon">The LSM Tree<i>IDEA</i></span></li>
     </ul>
@@ -246,112 +246,112 @@
       <h2>The thirty episodes</h2>
       <div class="cards">
         <a class="card" href="#/load-balancing">
-          <span class="k">EP 01 · Internet plumbing</span>
+          <span class="k">Internet plumbing</span>
           <span class="t">The Load Balancer</span>
           <span class="d">Watch one server drown at 95% utilization, round robin betrayed by
           a secretly slow machine, a stale-data stampede — and the absurdly good fix of
           picking the less loaded of two random servers.</span>
         </a>
         <a class="card" href="#/consistent-hashing">
-          <span class="k">EP 02 · Internet plumbing</span>
+          <span class="k">Internet plumbing</span>
           <span class="t">The Hash Ring</span>
           <span class="d">Kill the same cache server in two worlds: hash-mod-N scrambles 83%
           of keys and stampedes the database; the ring hands over 17% — the provable minimum.
           Then watch virtual nodes grind the lumpy ring flat.</span>
         </a>
         <a class="card" href="#/twitter-timeline">
-          <span class="k">EP 03 · The flagships</span>
+          <span class="k">The flagships</span>
           <span class="t">The Timeline — Twitter's fan-out</span>
           <span class="d">Sixty reads for every write decide push over pull — until a
           31-million-follower tweet clogs the fanout queue for everyone. The hybrid fix, and
           why the celebrity line is a latency promise, not an efficiency optimum.</span>
         </a>
         <a class="card" href="#/the-log-kafka">
-          <span class="k">EP 04 · Internet plumbing</span>
+          <span class="k">Internet plumbing</span>
           <span class="t">The Log — Kafka</span>
           <span class="d">The same viral spike hits a direct pipeline and a log: one loses a
           thousand messages, the other converts failure into a lag chart that burns down.
           Then kill the consumer, rewind history, and watch N×M collapse to N+M.</span>
         </a>
         <a class="card" href="#/dns">
-          <span class="k">EP 05 · Internet plumbing</span>
+          <span class="k">Internet plumbing</span>
           <span class="t">The Name — DNS</span>
           <span class="d">The resolution treasure hunt, live. Turn caching off and watch the
           root melt; move a site and watch stale answers outlive the switch; then replay the
           2016 Dyn attack and watch sites die in TTL order.</span>
         </a>
         <a class="card" href="#/netflix">
-          <span class="k">EP 06 · The flagships</span>
+          <span class="k">The flagships</span>
           <span class="t">Press Play — Netflix</span>
           <span class="d">A CDN made of free boxes inside your ISP: remove it and watch the
           backbone drown; watch the appliance do its shopping at 3 AM before the premiere;
           then be the Chaos Monkey and learn why instance death is boring.</span>
         </a>
         <a class="card" href="#/whatsapp">
-          <span class="k">EP 07 · The flagships</span>
+          <span class="k">The flagships</span>
           <span class="t">The Message — WhatsApp</span>
           <span class="d">Store-and-forward vs flaky phones, the C10K wall falling to two
           million connections on one box, and group encryption that uploads once instead of
           256 times — the fifty-engineer switchboard, proven.</span>
         </a>
         <a class="card" href="#/bgp">
-          <span class="k">EP 08 · Internet plumbing</span>
+          <span class="k">Internet plumbing</span>
           <span class="t">The Border — BGP</span>
           <span class="d">Real path-vector routing on a live AS graph: cut the cables, run the
           2008 YouTube hijack duel prefix by prefix, then erase Facebook from the internet
           the way Facebook did — and watch RPKI stop the lie at the border.</span>
         </a>
         <a class="card" href="#/uber">
-          <span class="k">EP 09 · The flagships</span>
+          <span class="k">The flagships</span>
           <span class="t">The Match — Uber</span>
           <span class="d">Hexagons vs scanning the whole city, the two-second pause that
           shortens every ride, and surge pricing as a thermostat — a live marketplace on
           the H3 grid, priced-out riders counted honestly.</span>
         </a>
         <a class="card" href="#/google-search">
-          <span class="k">EP 10 · The flagships</span>
+          <span class="k">The flagships</span>
           <span class="t">The Index — Google Search</span>
           <span class="d">A real inverted index (×1,000 speedup, byte-identical answers),
           a real random surfer converging on PageRank while the keyword stuffer sinks, and
           the tail at scale — 63% of fan-out queries hit by 1% hiccups, cured by hedging.</span>
         </a>
         <a class="card" href="#/dynamo">
-          <span class="k">EP 11 · The flagships</span>
+          <span class="k">The flagships</span>
           <span class="t">The Quorum — Amazon's Dynamo</span>
           <span class="d">Turn the R+W dial and watch staleness hit exactly zero when the
           inequality holds; kill two replicas and let hinted handoff keep the cart alive;
           then split the cart and see why vector clocks beat timestamps.</span>
         </a>
         <a class="card" href="#/youtube">
-          <span class="k">EP 12 · The flagships</span>
+          <span class="k">The flagships</span>
           <span class="t">The Upload — YouTube</span>
           <span class="d">500 hours arrive every minute: chunk the tape and go live in 5
           minutes instead of 60; relive the thumbnail meltdown that made BigTable
           necessary; then watch adaptive bitrate ride out dips a fixed player can't.</span>
         </a>
         <a class="card" href="#/instagram">
-          <span class="k">EP 13 · The flagships</span>
+          <span class="k">The flagships</span>
           <span class="t">The Feed — Instagram</span>
           <span class="d">The famous 64-bit ID, minted and decoded live: kill the ID service
           nobody needed, verify sort-by-ID equals sort-by-time, and watch an ID cursor read
           a flat 20 rows while OFFSET pagination walks thousands.</span>
         </a>
         <a class="card" href="#/url-to-page">
-          <span class="k">EP 14 · Internet plumbing</span>
+          <span class="k">Internet plumbing</span>
           <span class="t">The Page — URL to pixels</span>
           <span class="d">The famous interview question with a scrubber in your hand: the
           seven-stage journey, the war on round trips (1.35s of handshakes on satellite),
           HTTP/2's head-of-line freeze vs QUIC's shrug, and the blocking script.</span>
         </a>
         <a class="card" href="#/cdn-edge">
-          <span class="k">EP 15 · Internet plumbing</span>
+          <span class="k">Internet plumbing</span>
           <span class="t">The Edge — CDN &amp; anycast</span>
           <span class="d">One IP announced from every city; the cache funnel that lets an
           origin doze at 0.4 req/s; a 31.4 Tbps storm absorbed at 6% headroom; and the 2019
           regex bomb — real engines measured, deployed two different ways.</span>
         </a>
         <a class="card" href="#/databases">
-          <span class="k">EP 16 · Internet plumbing</span>
+          <span class="k">Internet plumbing</span>
           <span class="t">The Ladder — databases at scale</span>
           <span class="d">The climb every company makes, and its three tolls: the vanishing
           comment (replication lag), the acked write that evaporated (async vs sync), and a
@@ -359,7 +359,7 @@
           watch majorities refuse to split the brain.</span>
         </a>
         <a class="card" href="#/discord">
-          <span class="k">EP 17 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Guild — Discord</span>
           <span class="d">A community is literally one Elixir process — run the mailroom
           into its quadratic wall and un-jam it with Manifold; shield a hot channel with
@@ -367,7 +367,7 @@
           Go's garbage collector quake every two minutes next to Rust's flat line.</span>
         </a>
         <a class="card" href="#/slack">
-          <span class="k">EP 18 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Workspace — Slack</span>
           <span class="d">One message's world tour in ~500ms, persist-first; the boot
           payload that grew into a truck (and the edge cache that put it on a diet); a
@@ -375,7 +375,7 @@
           the reservoir was also the turbine — until Kafka turned failure into lag.</span>
         </a>
         <a class="card" href="#/spotify">
-          <span class="k">EP 19 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Playlist — Spotify</span>
           <span class="d">The P2P era rebuilt live: the 265ms illusion (server starts,
           swarm finishes — the slider can't touch it), one byte in eleven paid for;
@@ -384,7 +384,7 @@
           audio model and this week's releases vanish from your 30.</span>
         </a>
         <a class="card" href="#/zoom">
-          <span class="k">EP 20 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Meeting — Zoom</span>
           <span class="d">Servers that refuse to watch your video: the MCU melts at ~97
           participants while the router forwards 15× more; simulcast detaches your
@@ -393,7 +393,7 @@
           hands.</span>
         </a>
         <a class="card" href="#/dropbox">
-          <span class="k">EP 21 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Folder — Dropbox</span>
           <span class="d">A file is a list of hashes: whole-file sync falls hours behind
           on the same uplink where block sync naps; a teammate's copy costs zero bytes;
@@ -402,7 +402,7 @@
           machine.</span>
         </a>
         <a class="card" href="#/airbnb">
-          <span class="k">EP 22 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Calendar — Airbnb</span>
           <span class="d">Two guests race for the same nights — widen the checkout window
           and watch doubles multiply until one transaction locks them out (iCal sync
@@ -411,7 +411,7 @@
           asking whether the host will say yes.</span>
         </a>
         <a class="card" href="#/stripe">
-          <span class="k">EP 23 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Charge — Stripe</span>
           <span class="d">Exactly once over an at-least-once wire: identical failures hit
           a blind retrier and an idempotency key — one stacks double charges, the other
@@ -420,7 +420,7 @@
           2026's, gate by dated gate.</span>
         </a>
         <a class="card" href="#/shopify">
-          <span class="k">EP 24 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Drop — Shopify</span>
           <span class="d">A celebrity drop vs the same hardware cut two ways: one shared
           database breaks every shop, twelve pods contain the fire to one cell; the
@@ -429,7 +429,7 @@
           compounded.</span>
         </a>
         <a class="card" href="#/ticketmaster">
-          <span class="k">EP 25 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Onsale — Ticketmaster</span>
           <span class="d">14 million people, 2 million seats: the hold with a countdown
           (a TTL dial that hurts on both ends), the waiting-room lottery that strips
@@ -437,7 +437,7 @@
           engine that must never sell a seat twice.</span>
         </a>
         <a class="card" href="#/reddit">
-          <span class="k">EP 26 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Front Page — Reddit</span>
           <span class="d">The open-sourced hot formula running live (ten times the votes
           buys exactly one ladder rung); precompute-everything vs sort-on-read at 100
@@ -445,7 +445,7 @@
           comments; and r/place rebuilt as one 4-bit-per-pixel bitfield.</span>
         </a>
         <a class="card" href="#/pinterest">
-          <span class="k">EP 27 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Board — Pinterest</span>
           <span class="d">The 64-bit ID that routes itself (Instagram's sorted; this one
           addresses); a home feed that's a scored pool, not a timeline — chronology's
@@ -454,7 +454,7 @@
           through the cache wall.</span>
         </a>
         <a class="card" href="#/linkedin">
-          <span class="k">EP 28 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Graph — LinkedIn</span>
           <span class="d">Fan-out on read, done seriously: the slowest of twelve
           partitions sets your feed's pace; push melts when every employer is a
@@ -463,7 +463,7 @@
           reads, ever.</span>
         </a>
         <a class="card" href="#/tinder">
-          <span class="k">EP 29 · The wider world</span>
+          <span class="k">The wider world</span>
           <span class="t">The Swipe — Tinder</span>
           <span class="d">The world cut to equal people (a measured U-curve decides the
           cell size); two right swipes eighty milliseconds apart — the silent heartbreak
@@ -471,7 +471,7 @@
           priced against a five-byte nudge.</span>
         </a>
         <a class="card" href="#/wikipedia">
-          <span class="k">EP 30 · The Finale</span>
+          <span class="k">The Finale</span>
           <span class="t">The Encyclopedia — Wikipedia</span>
           <span class="d">The site that shouldn't be possible: 296 billion pageviews on
           $3.4M of hosting. The read:write funnel; purge-don't-expire (the fix must
@@ -506,37 +506,37 @@
 'use strict';
 (() => {
 const EPISODES = {
-  'load-balancing':    {title:'EP 01 — The Load Balancer',            file:'episodes/load-balancing.html'},
-  'consistent-hashing':{title:'EP 02 — The Hash Ring',                file:'episodes/consistent-hashing.html'},
-  'twitter-timeline':  {title:'EP 03 — The Timeline · Twitter',       file:'episodes/twitter-timeline.html'},
-  'the-log-kafka':     {title:'EP 04 — The Log · Kafka',              file:'episodes/the-log-kafka.html'},
-  'dns':               {title:'EP 05 — The Name · DNS',               file:'episodes/dns.html'},
-  'netflix':           {title:'EP 06 — Press Play · Netflix',         file:'episodes/netflix.html'},
-  'whatsapp':          {title:'EP 07 — The Message · WhatsApp',       file:'episodes/whatsapp.html'},
-  'bgp':               {title:'EP 08 — The Border · BGP',             file:'episodes/bgp.html'},
-  'uber':              {title:'EP 09 — The Match · Uber',             file:'episodes/uber.html'},
-  'google-search':     {title:'EP 10 — The Index · Google Search',    file:'episodes/google-search.html'},
-  'dynamo':            {title:'EP 11 — The Quorum · Amazon Dynamo',   file:'episodes/dynamo.html'},
-  'youtube':           {title:'EP 12 — The Upload · YouTube',         file:'episodes/youtube.html'},
-  'instagram':         {title:'EP 13 — The Feed · Instagram',         file:'episodes/instagram.html'},
-  'url-to-page':       {title:'EP 14 — The Page · URL to Pixels',     file:'episodes/url-to-page.html'},
-  'cdn-edge':          {title:'EP 15 — The Edge · CDN & Anycast',     file:'episodes/cdn-edge.html'},
-  'databases':         {title:'EP 16 — The Ladder · Databases',       file:'episodes/databases.html'},
-  'discord':           {title:'EP 17 — The Guild · Discord',          file:'episodes/discord.html'},
-  'slack':             {title:'EP 18 — The Workspace · Slack',        file:'episodes/slack.html'},
-  'spotify':           {title:'EP 19 — The Playlist · Spotify',       file:'episodes/spotify.html'},
-  'zoom':              {title:'EP 20 — The Meeting · Zoom',           file:'episodes/zoom.html'},
-  'dropbox':           {title:'EP 21 — The Folder · Dropbox',         file:'episodes/dropbox.html'},
-  'airbnb':            {title:'EP 22 — The Calendar · Airbnb',        file:'episodes/airbnb.html'},
-  'stripe':            {title:'EP 23 — The Charge · Stripe',          file:'episodes/stripe.html'},
-  'shopify':           {title:'EP 24 — The Drop · Shopify',           file:'episodes/shopify.html'},
-  'ticketmaster':      {title:'EP 25 — The Onsale · Ticketmaster',    file:'episodes/ticketmaster.html'},
-  'reddit':            {title:'EP 26 — The Front Page · Reddit',      file:'episodes/reddit.html'},
-  'pinterest':         {title:'EP 27 — The Board · Pinterest',        file:'episodes/pinterest.html'},
-  'linkedin':          {title:'EP 28 — The Graph · LinkedIn',         file:'episodes/linkedin.html'},
-  'tinder':            {title:'EP 29 — The Swipe · Tinder',           file:'episodes/tinder.html'},
-  'wikipedia':         {title:'EP 30 — The Encyclopedia · Wikipedia', file:'episodes/wikipedia.html'},
-  'bloom':             {title:'T-01 — The Filter · Bloom Filters', file:'episodes/bloom.html'},
+  'load-balancing':    {title:'The Load Balancer',            file:'episodes/load-balancing.html'},
+  'consistent-hashing':{title:'The Hash Ring',                file:'episodes/consistent-hashing.html'},
+  'twitter-timeline':  {title:'The Timeline · Twitter',       file:'episodes/twitter-timeline.html'},
+  'the-log-kafka':     {title:'The Log · Kafka',              file:'episodes/the-log-kafka.html'},
+  'dns':               {title:'The Name · DNS',               file:'episodes/dns.html'},
+  'netflix':           {title:'Press Play · Netflix',         file:'episodes/netflix.html'},
+  'whatsapp':          {title:'The Message · WhatsApp',       file:'episodes/whatsapp.html'},
+  'bgp':               {title:'The Border · BGP',             file:'episodes/bgp.html'},
+  'uber':              {title:'The Match · Uber',             file:'episodes/uber.html'},
+  'google-search':     {title:'The Index · Google Search',    file:'episodes/google-search.html'},
+  'dynamo':            {title:'The Quorum · Amazon Dynamo',   file:'episodes/dynamo.html'},
+  'youtube':           {title:'The Upload · YouTube',         file:'episodes/youtube.html'},
+  'instagram':         {title:'The Feed · Instagram',         file:'episodes/instagram.html'},
+  'url-to-page':       {title:'The Page · URL to Pixels',     file:'episodes/url-to-page.html'},
+  'cdn-edge':          {title:'The Edge · CDN & Anycast',     file:'episodes/cdn-edge.html'},
+  'databases':         {title:'The Ladder · Databases',       file:'episodes/databases.html'},
+  'discord':           {title:'The Guild · Discord',          file:'episodes/discord.html'},
+  'slack':             {title:'The Workspace · Slack',        file:'episodes/slack.html'},
+  'spotify':           {title:'The Playlist · Spotify',       file:'episodes/spotify.html'},
+  'zoom':              {title:'The Meeting · Zoom',           file:'episodes/zoom.html'},
+  'dropbox':           {title:'The Folder · Dropbox',         file:'episodes/dropbox.html'},
+  'airbnb':            {title:'The Calendar · Airbnb',        file:'episodes/airbnb.html'},
+  'stripe':            {title:'The Charge · Stripe',          file:'episodes/stripe.html'},
+  'shopify':           {title:'The Drop · Shopify',           file:'episodes/shopify.html'},
+  'ticketmaster':      {title:'The Onsale · Ticketmaster',    file:'episodes/ticketmaster.html'},
+  'reddit':            {title:'The Front Page · Reddit',      file:'episodes/reddit.html'},
+  'pinterest':         {title:'The Board · Pinterest',        file:'episodes/pinterest.html'},
+  'linkedin':          {title:'The Graph · LinkedIn',         file:'episodes/linkedin.html'},
+  'tinder':            {title:'The Swipe · Tinder',           file:'episodes/tinder.html'},
+  'wikipedia':         {title:'The Encyclopedia · Wikipedia', file:'episodes/wikipedia.html'},
+  'bloom':             {title:'The Filter · Bloom Filters', file:'episodes/bloom.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');

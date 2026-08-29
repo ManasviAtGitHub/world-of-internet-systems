@@ -107,7 +107,7 @@
 <body>
 <main>
 <div class="col">
-  <p class="eyebrow">World of Internet Systems · The Toolbox · T-01 · Preview</p>
+  <p class="eyebrow">World of Internet Systems · The Toolbox · Preview</p>
   <h1>The Filter</h1>
   <p class="dek">You've revised Bloom filters before — probably from a table of formulas,
   probably twice, probably forgotten twice. This time, meet the structure where it
@@ -204,9 +204,9 @@
 <div class="col">
   <h2>Where it lives: the disk seek you didn't do</h2>
   <p>Now the production story. LSM storage engines — Cassandra and ScyllaDB under
-  <a href="../index.html#/discord" target="_top">Discord's trillion messages (EP 17)</a>,
+  <a href="../index.html#/discord" target="_top">Discord's trillion messages (The Guild)</a>,
   RocksDB under <a href="../index.html#/linkedin" target="_top">LinkedIn's feed indexes
-  (EP 28)</a> — keep data in layers of immutable sorted files. A read might have to
+  (The Graph)</a> — keep data in layers of immutable sorted files. A read might have to
   check <em>six files</em> to conclude a key doesn't exist, and in real workloads most
   lookups are for keys that don't exist (the empty channel, the user with no unread
   state). Six disk seeks to say "nothing here" is how storage engines drown. So every
@@ -237,7 +237,7 @@
   <figcaption class="exp-note">Slide the absent share to 95% — a metadata-heavy
   workload — and watch the unfiltered world cross its disk budget and start queueing:
   the classic collapse of this whole series (
-  <a href="../index.html#/load-balancing" target="_top">EP 1's</a> wall, wearing
+  <a href="../index.html#/load-balancing" target="_top">The Load Balancer's</a> wall, wearing
   SSTables). Flip the filters on: the same workload drops to ~11% disk load, because
   ~1,600 seeks a second were replaced by RAM lookups that cost nanoseconds and a few
   bytes per key. The 1% false positives are the honest tax — a hundred-odd wasted seeks
@@ -248,7 +248,7 @@
 <div class="col">
   <h2>The one-hit wonder problem</h2>
   <p>Second production story, from the edge. Back in
-  <a href="../index.html#/cdn-edge" target="_top">EP 15</a> the cache funnel absorbed
+  <a href="../index.html#/cdn-edge" target="_top">The Edge</a> the cache funnel absorbed
   90% of a CDN's traffic — but there's a dirty secret in edge caches: measured across
   real CDNs, <strong>most objects are requested exactly once</strong>. Cache
   on first touch and these one-hit wonders flood your LRU, evicting the popular objects
@@ -304,12 +304,12 @@
       <li>Why can a Bloom filter never false-negative? <span class="met">(what would a dark bit mean?)</span></li>
       <li>One number: what does each added bit-per-key buy? <span class="met">(×0.62 — you watched it)</span></li>
       <li>Why do LSM engines and Bloom filters belong together? <span class="met">(immutable files → no deletes needed)</span></li>
-      <li>When is admitting on second sight better than caching everything? <span class="met">(EP 15's funnel + this page's EXP-03)</span></li>
+      <li>When is admitting on second sight better than caching everything? <span class="met">(The Edge's funnel + this page's EXP-03)</span></li>
     </ul>
-    <p class="met">SEEN UNDER FIRE IN: <a href="../index.html#/discord" target="_top">EP 17 Discord</a> ·
-    <a href="../index.html#/linkedin" target="_top">EP 28 LinkedIn</a> ·
-    <a href="../index.html#/cdn-edge" target="_top">EP 15 The Edge</a> ·
-    <a href="../index.html#/databases" target="_top">EP 16 The Ladder</a></p>
+    <p class="met">SEEN UNDER FIRE IN: <a href="../index.html#/discord" target="_top">The Guild Discord</a> ·
+    <a href="../index.html#/linkedin" target="_top">The Graph LinkedIn</a> ·
+    <a href="../index.html#/cdn-edge" target="_top">The Edge The Edge</a> ·
+    <a href="../index.html#/databases" target="_top">The Ladder The Ladder</a></p>
   </div>
 
   <p>The keeper: <strong>a Bloom filter buys you a "no" for one bit and a few hashes,
@@ -322,12 +322,12 @@
     <li>Maggs &amp; Sitaraman — <a href="https://www.akamai.com/site/en/documents/research-paper/algorithmic-nuggets-in-content-delivery-technical-publication.pdf">Algorithmic Nuggets in Content Delivery</a>, SIGCOMM CCR 2015 — the one-hit-wonder measurement (~74% of objects) and Bloom-gated cache admission at Akamai.</li>
     <li>RocksDB — <a href="https://github.com/facebook/rocksdb/wiki/RocksDB-Bloom-Filter">Bloom Filter wiki</a> and Apache Cassandra — <a href="https://cassandra.apache.org/doc/latest/cassandra/architecture/storage-engine.html">storage engine docs</a> — per-SSTable filters, ~10 bits/key defaults.</li>
     <li>Kirsch &amp; Mitzenmacher — <a href="https://www.eecs.harvard.edu/~michaelm/postscripts/rsa2008.pdf">Less Hashing, Same Performance</a>, 2008 — the double-hashing trick this page's filter uses.</li>
-    <li>Series anchors: <a href="../index.html#/discord" target="_top">EP 17</a>, <a href="../index.html#/linkedin" target="_top">EP 28</a>, <a href="../index.html#/cdn-edge" target="_top">EP 15</a>.</li>
+    <li>Series anchors: <a href="../index.html#/discord" target="_top">The Guild</a>, <a href="../index.html#/linkedin" target="_top">The Graph</a>, <a href="../index.html#/cdn-edge" target="_top">The Edge</a>.</li>
   </ul>
 
   <footer>
     <hr class="foot-rule">
-    <p class="next">World of Internet Systems · The Toolbox is a preview — if it earns its place: <b>T-02 the heap, T-03 the LSM tree, T-04 the trie…</b> · <a href="../index.html" target="_top">back to the index</a></p>
+    <p class="next">World of Internet Systems · The Toolbox is a preview — if it earns its place: <b>the heap, the LSM tree, the trie…</b> · <a href="../index.html" target="_top">back to the index</a></p>
   </footer>
 </div>
 </main>
@@ -643,7 +643,7 @@ const e2 = {
     ctx.fillText(d.bloom? 'FILTERS: ~10 BITS/KEY OF RAM' : 'NO FILTERS: DISKS ANSWER EVERYTHING', W-248, my+10);
     ctx.textAlign='center';
     ctx.fillStyle=CSS.muted;
-    ctx.fillText('ASK THE BIT ARRAY FIRST — SEEN IN EP 17\'s SCYLLADB AND EP 28\'s ROCKSDB', W/2, H-10);
+    ctx.fillText('ASK THE BIT ARRAY FIRST — SEEN IN The Guild\'s SCYLLADB AND The Graph\'s ROCKSDB', W/2, H-10);
   }
 };
 e2.reset();
