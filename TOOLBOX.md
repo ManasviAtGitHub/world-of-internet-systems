@@ -45,11 +45,13 @@ this tier adds to the series design system.
 
 ### 2. The interview card (`.tbx`)
 - `k`-line: `The interview card — where you've ground this before`
-- Three bullets: real interview framings of this structure (the phrasings
-  people actually grind on — LeetCode/system-design idiom).
-- `met`-line: `PATTERN: … · SPACE: … · TIME: … · THE CATCH: …` — the four
-  facts a revision pass wants in ten seconds. THE CATCH is mandatory: every
-  structure has one and it's what interviews probe.
+- Three arrow-marked bullets: real interview framings of this structure (the
+  phrasings people actually grind on — LeetCode/system-design idiom).
+- Facts grid (a `<dl>`, label column + value column, ruled off from the
+  bullets): `Pattern` / `Space` / `Time` / `The catch` — the four facts a
+  revision pass wants in ten seconds. The catch is mandatory: every structure
+  has one and it's what interviews probe. Never a run-on met-line — the grid
+  is the component.
 
 ### 3. Hero — the structure, honestly built
 - A **real implementation** operating live on canvas — never a diagram of one.
@@ -93,8 +95,9 @@ The tier's defining mechanic. Contract:
 ### 6. The revision card (`.tbx`)
 - `k`-line: `The revision card — for the you that comes back in three months`
 - Three or four questions, each answerable **from something the reader just
-  watched** — not from outside reading.
-- `met`-line: `SEEN UNDER FIRE IN:` followed by the episode links.
+  watched** — not from outside reading; each with a parenthetical `.met` nudge.
+- Facts grid (same `<dl>` component as the interview card), one row:
+  `Seen under fire` → the episode links, name-based (`Title · System`).
 
 ### 7. Sources + footer
 - Sources cite the real engineering (papers, engineering blogs) exactly like

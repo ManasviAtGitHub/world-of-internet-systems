@@ -63,12 +63,19 @@
 
   /* toolbox cards: the interview card + the revision card */
   .tbx{border:1px solid var(--rule);background:var(--card);border-radius:6px;
-    padding:16px 20px;margin:26px 0;font-size:15px}
+    padding:18px 20px 15px;margin:26px 0;font-size:15px}
   .tbx .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-text);
-    text-transform:uppercase;display:block;margin-bottom:8px}
-  .tbx ul{margin:.4em 0 .2em;padding-left:1.2em}
-  .tbx li{margin:.3em 0}
+    text-transform:uppercase;display:block;margin-bottom:10px}
+  .tbx ul{list-style:none;margin:0 0 14px;padding:0}
+  .tbx li{margin:.5em 0;padding-left:20px;position:relative}
+  .tbx li::before{content:"→";position:absolute;left:0;top:1px;
+    font-family:var(--mono);font-size:12px;color:var(--accent-text)}
   .tbx .met{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .tbx dl{display:grid;grid-template-columns:max-content 1fr;gap:7px 16px;
+    margin:0;border-top:1px solid var(--rule);padding-top:12px}
+  .tbx dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-text);padding-top:2px;white-space:nowrap}
+  .tbx dd{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:1.55}
 
   .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
   .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
@@ -129,10 +136,12 @@
       <li>"Dedupe a stream too big to store." · "Have we crawled this page before?"</li>
       <li>"Reduce cache misses / avoid disk reads for keys that don't exist."</li>
     </ul>
-    <p class="met">PATTERN: hashing · bit manipulation · probability &nbsp;·&nbsp;
-    SPACE: m bits for n keys, ~10 bits/key for 1% error &nbsp;·&nbsp;
-    TIME: O(k) per op, k hash functions &nbsp;·&nbsp;
-    THE CATCH: no deletes, no false negatives, tunable false positives</p>
+    <dl>
+      <dt>Pattern</dt><dd>hashing · bit manipulation · probability</dd>
+      <dt>Space</dt><dd>m bits for n keys — ~10 bits/key buys a 1% error rate</dd>
+      <dt>Time</dt><dd>O(k) per insert or lookup, k = number of hash functions</dd>
+      <dt>The catch</dt><dd>no deletes, no false negatives, tunable false positives</dd>
+    </dl>
   </div>
 </div>
 
@@ -306,10 +315,12 @@
       <li>Why do LSM engines and Bloom filters belong together? <span class="met">(immutable files → no deletes needed)</span></li>
       <li>When is admitting on second sight better than caching everything? <span class="met">(The Edge's funnel + this page's EXP-03)</span></li>
     </ul>
-    <p class="met">SEEN UNDER FIRE IN: <a href="../index.html#/discord" target="_top">The Guild Discord</a> ·
-    <a href="../index.html#/linkedin" target="_top">The Graph LinkedIn</a> ·
-    <a href="../index.html#/cdn-edge" target="_top">The Edge The Edge</a> ·
-    <a href="../index.html#/databases" target="_top">The Ladder The Ladder</a></p>
+    <dl>
+      <dt>Seen under fire</dt><dd><a href="../index.html#/discord" target="_top">The Guild · Discord</a> ·
+      <a href="../index.html#/linkedin" target="_top">The Graph · LinkedIn</a> ·
+      <a href="../index.html#/cdn-edge" target="_top">The Edge · CDN</a> ·
+      <a href="../index.html#/databases" target="_top">The Ladder · Databases</a></dd>
+    </dl>
   </div>
 
   <p>The keeper: <strong>a Bloom filter buys you a "no" for one bit and a few hashes,
