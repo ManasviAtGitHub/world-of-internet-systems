@@ -263,7 +263,7 @@
 
   <footer>
     <hr class="foot-rule">
-    <p class="next">World of Internet Systems · Next episode — <b>The Edge: CDNs, anycast, and absorbing the flood</b></p>
+    <p class="next">World of Internet Systems · NEXT → <a href="../index.html#/cdn-edge" target="_top">EP 15 — The Edge · CDN & Anycast</a> · <b>absorbing the flood</b></p>
   </footer>
 </div>
 </main>
@@ -347,8 +347,7 @@ const hero = {
       ctx.fillStyle= active? CSS.traffic : CSS.muted;
       ctx.textAlign='center';
       const SHORT=['KEY','DNS','TCP','TLS','HTTP','PARSE','RENDER'];
-      ctx.save(); ctx.translate(x+w/2, y-8);
-      ctx.fillText(SHORT[i], 0, 0); ctx.restore();
+      ctx.fillText(SHORT[i], x+w/2, y-8);
       ctx.fillStyle=CSS.muted;
       ctx.fillText(s.ms+'ms', x+w/2, y+bh+14);
       acc+=s.ms;

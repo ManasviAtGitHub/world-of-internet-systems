@@ -279,7 +279,7 @@
 
   <footer>
     <hr class="foot-rule">
-    <p class="next">World of Internet Systems · Next episode — <b>Press Play: Netflix and the CDN inside your ISP</b></p>
+    <p class="next">World of Internet Systems · NEXT → <a href="../index.html#/netflix" target="_top">EP 06 — Press Play · Netflix</a> · <b>the CDN inside your ISP</b></p>
   </footer>
 </div>
 </main>
@@ -640,10 +640,10 @@ const e3 = {
       ctx.fillRect(x0+201, y-4, (bw-2)*rem, 8);
       if(!s.ok){
         ctx.fillStyle=CSS.fault;
-        ctx.fillText('NXDOMAIN-ish · SERVFAIL', x0+200+bw+10, y+3);
+        ctx.fillText('SERVFAIL ✕', x0+200+bw+10, y+3);
       } else if(dead){
         ctx.fillStyle=CSS.muted;
-        ctx.fillText('COASTING ON CACHE', x0+200+bw+10, y+3);
+        ctx.fillText('COASTING', x0+200+bw+10, y+3);
       }
     });
   }

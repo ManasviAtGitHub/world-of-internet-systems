@@ -273,7 +273,7 @@
 
   <footer>
     <hr class="foot-rule">
-    <p class="next">World of Internet Systems · Next episode — <b>The Quorum: Amazon's Dynamo and the shopping cart that must never fail</b></p>
+    <p class="next">World of Internet Systems · NEXT → <a href="../index.html#/dynamo" target="_top">EP 11 — The Quorum · Amazon Dynamo</a> · <b>the cart that must never fail</b></p>
   </footer>
 </div>
 </main>
@@ -722,10 +722,11 @@ const e3 = {
     ctx.setLineDash([]);
     ctx.strokeStyle=CSS.traffic;
     ctx.beginPath(); ctx.moveTo(30,Y(hedged)); ctx.lineTo(W-30,Y(hedged)); ctx.stroke();
+    // fixed stacked readouts — value-anchored labels collide when the curves cross
     ctx.fillStyle=CSS.fault; ctx.textAlign='left';
-    ctx.fillText('WAIT-FOR-ALL: '+Math.round(wall)+'ms', 34, Y(wall)-5);
+    ctx.fillText('WAIT-FOR-ALL: '+Math.round(wall)+'ms', 34, 22);
     ctx.fillStyle=CSS.traffic;
-    ctx.fillText('HEDGED: '+Math.round(hedged)+'ms', 34, Y(hedged)-5);
+    ctx.fillText('HEDGED: '+Math.round(hedged)+'ms', 34, 36);
     ctx.fillStyle=CSS.muted; ctx.textAlign='center';
     ctx.fillText('ONE QUERY = 100 SHARD LATENCIES · RED = THE 1% HICCUP', W/2, H-12);
   }

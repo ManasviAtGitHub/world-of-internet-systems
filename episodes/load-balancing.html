@@ -395,7 +395,7 @@
 
   <footer>
     <hr class="foot-rule">
-    <p class="next">World of Internet Systems · Next episode — <b>Consistent hashing: kill a server, keep the cache</b></p>
+    <p class="next">World of Internet Systems · NEXT → <a href="../index.html#/consistent-hashing" target="_top">EP 02 — The Hash Ring</a> · <b>kill a server, keep the cache</b></p>
   </footer>
 </div>
 </main>
@@ -698,8 +698,8 @@ class BinsSim {
       const y=base-6-Math.min(cur,17)*7+2;
       ctx.strokeStyle=CSS.muted; ctx.setLineDash([3,3]);
       ctx.beginPath(); ctx.moveTo(left-8,y); ctx.lineTo(left+total+8,y); ctx.stroke(); ctx.setLineDash([]);
-      ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
-      ctx.fillText('max '+cur, left+total+11, y+3);
+      ctx.textAlign='right'; ctx.fillStyle=CSS.muted;
+      ctx.fillText('max '+cur, left+total+8, y-4);
     }
     return {left,total,base,bw,gap};
   }

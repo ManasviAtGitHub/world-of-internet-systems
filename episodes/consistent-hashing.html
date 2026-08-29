@@ -282,7 +282,7 @@
 
   <footer>
     <hr class="foot-rule">
-    <p class="next">World of Internet Systems · Next episode — <b>Twitter's timeline: the fan-out problem</b></p>
+    <p class="next">World of Internet Systems · NEXT → <a href="../index.html#/twitter-timeline" target="_top">EP 03 — The Timeline · Twitter</a> · <b>the fan-out problem</b></p>
   </footer>
 </div>
 </main>
@@ -568,8 +568,8 @@ class HashLab {
     ctx.strokeStyle=CSS.line; ctx.strokeRect(x, y-8, w, 10);
     ctx.fillStyle = perSec>10 ? CSS.fault : CSS.b;
     ctx.fillRect(x+1, y-7, (w-2)*frac, 8);
-    ctx.fillStyle=CSS.muted; ctx.textAlign='right';
-    ctx.fillText(label+' '+perSec.toFixed(1)+' miss/s', x-8, y+1);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText(label+' '+perSec.toFixed(1)+' miss/s', x, y+16);
   }
   drawRing(ctx,g){
     const {x:cx,y:cy,r} = g.ringC;
