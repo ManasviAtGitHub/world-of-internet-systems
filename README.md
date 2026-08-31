@@ -66,9 +66,10 @@ episode backlinks, and a revision card. Format contract: `TOOLBOX.md`.
 | The LSM Tree | log-structured merge tree | call the write amplification, fanout 10, 3 levels |
 | The Hash Table | open addressing + chaining | call the load factor where probes hit 10x |
 | The Trie | prefix tree / radix | call how many nodes English actually needs |
+| The Skip List | randomized express lanes | call one search's bill in a million entries |
+| The Counter | HyperLogLog | call the error of 12 KB counting a million distinct |
 
-Planned: the skip list, HyperLogLog, Count-Min, the B-tree, LRU eviction, and
-the queue as capstone.
+Planned: Count-Min, the B-tree, LRU eviction, and the queue as capstone.
 
 ## The rules of the series
 

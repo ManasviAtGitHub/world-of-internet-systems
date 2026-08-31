@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Skip List — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  /* toolbox cards: the interview card + the revision card */
+  .tbx{border:1px solid var(--rule);background:var(--card);border-radius:6px;
+    padding:18px 20px 15px;margin:26px 0;font-size:15px}
+  .tbx .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-text);
+    text-transform:uppercase;display:block;margin-bottom:10px}
+  .tbx ul{list-style:none;margin:0 0 14px;padding:0}
+  .tbx li{margin:.5em 0;padding-left:20px;position:relative}
+  .tbx li::before{content:"→";position:absolute;left:0;top:1px;
+    font-family:var(--mono);font-size:12px;color:var(--accent-text)}
+  .tbx .met{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .tbx dl{display:grid;grid-template-columns:max-content 1fr;gap:7px 16px;
+    margin:0;border-top:1px solid var(--rule);padding-top:12px}
+  .tbx dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-text);padding-top:2px;white-space:nowrap}
+  .tbx dd{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .btn.picked{border-color:var(--traffic);color:var(--traffic)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .exp-note a{color:var(--series-b)}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Toolbox</p>
+  <h1>The Skip List</h1>
+  <p class="dek">A linked list that bought itself binary search with a coin. Every node
+  flips for extra height, tall nodes become express lanes, and suddenly a structure with
+  no rotations, no rebalancing, and no rules beyond "keep each lane sorted" answers in
+  O(log n). It's what Redis chose for every leaderboard and sorted set on earth, and
+  what RocksDB runs as the memtable inside the LSM tree you already met. The balance
+  isn't maintained — it's <em>probable</em>, and that turns out to be an upgrade.
+  Predict first, then run it. That's the rep.</p>
+  <p class="marginal">Everything below computes for real: the hero re-verifies its lane
+  invariant every frame, the REP builds an actual million-entry skip list in typed
+  arrays and counts every comparison of every search, and both duels run real
+  structures on identical operation streams.</p>
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <div class="tbx">
+    <span class="k">The interview card — where you've ground this before</span>
+    <ul>
+      <li>"Design a structure with O(log n) insert <em>and</em> ordered range scans." (Then defend your balancing.)</li>
+      <li>"How does Redis implement sorted sets?" (ZADD, ZRANK, ZRANGEBYSCORE — this page.)</li>
+      <li>"Why would you pick a skip list over a red-black tree?" (No rotations — and the coins are private.)</li>
+    </ul>
+    <dl>
+      <dt>Pattern</dt><dd>sorted linked list · randomized express lanes · probabilistic balance</dd>
+      <dt>Space</dt><dd>O(n) — expected 2 pointers per node at p = ½</dd>
+      <dt>Time</dt><dd>search/insert/delete O(log n) expected · range scan = walk the base lane</dd>
+      <dt>The catch</dt><dd>the balance is a probability, not a guarantee — but the coins never look at your keys, so no input can rig them</dd>
+    </dl>
+  </div>
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">Express lanes from coin flips — a real skip list working</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:290px" role="img" aria-label="Horizontal lanes of a live skip list: the base lane holds every value, each higher lane thins by half, searches glow along a staircase path from the top lane down, and inserts show their coin flips"></canvas>
+  <div class="exp-metrics">
+    <span>ENTRIES<b data-m="hero.n">0</b></span>
+    <span>LANE CENSUS<b data-m="hero.census">–</b></span>
+    <span>SEARCH COST (LAST 32)<b data-m="hero.steps">–</b></span>
+    <span>LANE INVARIANT<b data-m="hero.inv">VIOLATIONS 0</b></span>
+  </div>
+  <figcaption class="exp-note">Watch a search: start in the top lane, ride right while
+  the next value is still too small, drop a lane, repeat — a staircase that skips most
+  of the list. Watch an insert: the coin flips decide its height (<em>heads, heads,
+  tails → two lanes</em>), and nothing else about the structure moves. The invariant
+  checker re-walks every lane every frame: each lane sorted, each lane a subset of the
+  one below. That's the entire rulebook.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Where the logarithm comes from</h2>
+  <p>Read the lane census above: each lane holds about half the one below, so ~log₂ n
+  lanes exist, and a search does a couple of hops per lane before dropping. No algorithm
+  enforces that halving — the coin's ½ probability <em>is</em> the enforcement. So price
+  it: <strong>a million entries in a skip list — how many comparisons does one search
+  actually cost?</strong> The pure-binary-search instinct says log₂(1,000,000) ≈ 20.
+  The linked-list doubter says you'll crawl half a million. Commit to a button; then
+  this page builds a real million-entry skip list and runs two thousand real searches
+  through it, counting every comparison.</p>
+</div>
+
+<figure class="exp" id="p-rep">
+  <figcaption class="exp-head">
+    <span class="exp-id">REP-01</span>
+    <span class="exp-title">One search in a million entries — call the comparison bill</span>
+    <span class="exp-run">
+      <button class="btn" data-act="p0">~20</button>
+      <button class="btn" data-act="p1">~40</button>
+      <button class="btn" data-act="p2">~1,000</button>
+      <button class="btn" data-act="p3">~500K</button>
+      <button class="btn danger" data-reset="rep">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-rep" style="height:300px" role="img" aria-label="After you commit, a million-entry skip list builds in typed arrays; lane occupancy bars halve geometrically, and a log ruler compares your call against the measured average search cost"></canvas>
+  <div class="exp-metrics">
+    <span>YOUR CALL<b data-m="rep.call">–</b></span>
+    <span>BUILT<b data-m="rep.built">0 / 1M</b></span>
+    <span>MEASURED SEARCH<b data-m="rep.steps">–</b></span>
+    <span>TALLEST TOWER<b data-m="rep.tallest">–</b></span>
+    <span>VERDICT<b data-m="rep.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">The measured bill runs about <em>2·log₂ n</em>, not
+  log₂ n — each lane charges an expected extra hop before you drop. Still: a million
+  entries, ~40 comparisons, zero rebalancing ever performed. And note the tallest
+  tower: ~20 lanes, right at log₂ n — the record-holder among a million geometric coin
+  runs. Remember that number; <a href="../index.html#/counter" target="_top">The
+  Counter</a> builds an entire counting algorithm out of it. The pocket line: <em>a
+  skip list is a linked list with log n express lanes, rented for two pointers a
+  node.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The leaderboard, which is to say: Redis</h2>
+  <p>Every "top players", "top posts", "top anything" list you've used runs on a sorted
+  structure taking a firehose of score <em>updates</em> while staying instantly
+  rankable — <a href="../index.html#/reddit" target="_top">the Front Page episode</a>'s
+  listings are this shape at planetary scale. Redis implements every sorted set as a
+  skip list (paired with a hash for O(1) score lookups), and its author's stated
+  reasons are exactly an interviewer's follow-ups: as fast as a balanced tree, far
+  simpler to implement, and range operations are just a walk. Below, the honest duel:
+  a sorted array (binary search finds fast, but every update <em>shifts</em>) versus a
+  real skip list, same players, same update stream, podiums cross-checked.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">The leaderboard duel — a sorted array vs the skip list, one stream</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button>
+    <button class="btn danger" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-players">Players</label>
+      <input type="range" id="r-players" min="5000" max="50000" value="20000" step="5000">
+      <output id="o-players">20000</output></div>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:270px" role="img" aria-label="Two worlds process identical score updates: the sorted array pays thousands of element shifts per update while the skip list pays a few dozen pointer steps; a live top-ten podium is verified identical from both structures"></canvas>
+  <div class="exp-metrics">
+    <span>SORTED ARRAY<b data-m="e1.array">–</b> moved/update</span>
+    <span>SKIP LIST<b data-m="e1.skip">–</b> steps/update</span>
+    <span>ADVANTAGE<b data-m="e1.ratio">–</b></span>
+    <span>PODIUMS<b data-m="e1.same">–</b></span>
+  </div>
+  <figcaption class="exp-note">The array isn't slow at <em>finding</em> — binary search
+  is 15 comparisons — it's slow at <em>changing</em>: every score update shifts, on
+  average, half the players. The skip list re-links a handful of pointers. Drag the
+  player count up and watch one meter grow with n while the other doesn't move. This is
+  why Redis sorted sets are <code>t_zset.c</code>'s skip list and not an array — and
+  why the memtable inside <a href="../index.html#/lsm-tree" target="_top">The LSM
+  Tree</a> is a skip list too: sorted order maintained under a write firehose.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The killer input, and why the coins don't care</h2>
+  <p>The classic follow-up: "why not just a binary search tree?" Because a naive BST's
+  shape is decided by <em>your input order</em> — and production input is rarely
+  random. Feed it monotonically increasing keys (timestamps, auto-increment IDs — the
+  most common keys in existence) and it degenerates into a linked list. Balanced trees
+  fix this with rotations; the skip list fixes it by construction: its shape comes from
+  coin flips the input never sees. Below, both structures eat the same insert stream —
+  flip the order and watch who cares.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Sorted input — the BST killer that the skip list never notices</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button>
+    <button class="btn danger" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-order" checked> Sorted input (timestamps, auto-increment IDs)</label>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:270px" role="img" aria-label="A naive binary search tree and a skip list ingest the same key stream; under sorted input the tree's depth profile grows into a diagonal line and its search cost explodes, while the skip list's lanes stay logarithmic"></canvas>
+  <div class="exp-metrics">
+    <span>KEYS<b data-m="e2.n">0</b></span>
+    <span>NAIVE BST SEARCH<b data-m="e2.bst">–</b> steps avg</span>
+    <span>SKIP LIST SEARCH<b data-m="e2.skip">–</b> steps avg</span>
+    <span>INPUT<b data-m="e2.mode">–</b></span>
+  </div>
+  <figcaption class="exp-note">Under sorted input the BST's depth profile is a straight
+  diagonal — every insert goes right, every search crawls. Untick the box for random
+  order and be fair: <em>the naive BST recovers completely</em>, and even beats the
+  skip list by a few steps — that's why it survives in textbooks. The lesson isn't
+  "trees bad"; it's that the BST's balance depends on luck <em>you don't control</em>,
+  while the skip list carries its own dice. Balanced trees buy the same guarantee with
+  rotation code; Pugh's pitch was that the coin is simpler.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The keeper</h2>
+  <p>The keeper: <strong>a skip list is a sorted linked list that rents log n express
+  lanes for two pointers a node — search ~2·log₂ n, no rotations ever, ranges as plain
+  walks, and a balance that no adversarial input can rig because the coins are
+  private.</strong> When the interview says leaderboard, sorted set, or "log n but
+  simple," this is the shape; inside Redis and inside every LSM memtable, it already
+  is.</p>
+
+  <div class="tbx">
+    <span class="k">The revision card — for the you that comes back in three months</span>
+    <ul>
+      <li>Where does the log come from with no balancing code? <span class="met">(each lane keeps ~half the one below — the coin is the enforcement; you read the census)</span></li>
+      <li>What's the true search bill at a million entries? <span class="met">(~40 — 2·log₂ n; a hop per lane plus the drop, measured live)</span></li>
+      <li>Why did Redis pick it over a red-black tree? <span class="met">(same asymptotics, no rotation code, ranges are just walks — antirez said exactly this)</span></li>
+      <li>What kills a naive BST but not a skip list? <span class="met">(sorted input — the most common production keystream there is; the coins never see your keys)</span></li>
+    </ul>
+    <dl>
+      <dt>Seen under fire</dt><dd><a href="../index.html#/reddit" target="_top">The Front Page · Reddit</a> ·
+      <a href="../index.html#/lsm-tree" target="_top">The LSM Tree · memtables</a> ·
+      <a href="../index.html#/linkedin" target="_top">The Graph · LinkedIn</a></dd>
+    </dl>
+  </div>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>William Pugh — <a href="https://15721.courses.cs.cmu.edu/spring2018/papers/08-oltpindexes1/pugh-skiplists-cacm1990.pdf">"Skip Lists: A Probabilistic Alternative to Balanced Trees"</a>, <em>CACM</em>, 1990.</li>
+    <li>Redis — <a href="https://github.com/redis/redis/blob/unstable/src/t_zset.c">t_zset.c</a> (sorted sets = skip list + dict), and <a href="https://news.ycombinator.com/item?id=1171423">antirez on why</a> (simplicity, memory, range ops), 2010.</li>
+    <li>RocksDB wiki — <a href="https://github.com/facebook/rocksdb/wiki/MemTable">MemTable</a> (the default memtable is a skip list).</li>
+    <li>Cormen, Leiserson, Rivest, Stein — <em>Introduction to Algorithms</em>, ch. 12–13 (the BST degeneration this page runs, and the rotation machinery skip lists decline).</li>
+  </ul>
+</div>
+
+<footer class="col">
+  <hr class="foot-rule">
+    <p class="next">World of Internet Systems · NEXT IN THE TOOLBOX → <a href="../index.html#/counter" target="_top">The Counter</a> · <b>count a million distinct things in twelve kilobytes</b></p>
+</footer>
+</main>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+
+/* ---------- a real (small, object-based) skip list ---------- */
+function makeSkip(rng, maxLvl){
+  const head={v:-Infinity, next:new Array(maxLvl).fill(null)};
+  return {
+    head, maxLvl, level:1, n:0,
+    coinHeight(){ let h=1; while(h<this.maxLvl && rng()<0.5) h++; return {h}; },
+    insert(v){
+      const upd=new Array(this.maxLvl); let x=head;
+      for(let l=this.level-1;l>=0;l--){
+        while(x.next[l] && x.next[l].v<v) x=x.next[l];
+        upd[l]=x;
+      }
+      const {h}=this.coinHeight();
+      if(h>this.level){ for(let l=this.level;l<h;l++) upd[l]=head; this.level=h; }
+      const node={v, next:new Array(h)};
+      for(let l=0;l<h;l++){ node.next[l]=upd[l].next[l]; upd[l].next[l]=node; }
+      this.n++;
+      return h;
+    },
+    search(v){
+      let x=head, steps=0; const path=[];
+      for(let l=this.level-1;l>=0;l--){
+        while(x.next[l] && x.next[l].v<v){ x=x.next[l]; steps++; path.push({v:x.v, l}); }
+        steps++; // the comparison that stops us in this lane
+        path.push({v:x.v, l, drop:true});
+      }
+      const hit=x.next[0] && x.next[0].v===v;
+      return {steps, hit, path};
+    },
+    erase(v){
+      const upd=new Array(this.maxLvl); let x=head;
+      for(let l=this.level-1;l>=0;l--){
+        while(x.next[l] && x.next[l].v<v) x=x.next[l];
+        upd[l]=x;
+      }
+      const t=x.next[0];
+      if(!t || t.v!==v) return false;
+      for(let l=0;l<this.level;l++){
+        if(upd[l].next[l]===t) upd[l].next[l]=t.next[l];
+      }
+      while(this.level>1 && !head.next[this.level-1]) this.level--;
+      this.n--;
+      return true;
+    },
+    census(){
+      const c=[];
+      for(let l=0;l<this.level;l++){
+        let k=0, x=head.next[l];
+        while(x){ k++; x=x.next[l]; }
+        c.push(k);
+      }
+      return c;
+    },
+    validate(){ // every lane sorted; every lane a subset of the lane below
+      for(let l=0;l<this.level;l++){
+        let x=head.next[l], prev=-Infinity;
+        while(x){
+          if(x.v<=prev) return false;
+          if(l>0){ // must exist in lane l-1
+            let y=head.next[l-1], found=false;
+            while(y){ if(y===x){ found=true; break; } y=y.next[l-1]; }
+            if(!found) return false;
+          }
+          prev=x.v; x=x.next[l];
+        }
+      }
+      return true;
+    },
+  };
+}
+
+/* ================= HERO ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  reset(){
+    this.t=0; this.rng=mulberry32(7);
+    this.sl=makeSkip(this.rng, 7);
+    this.viol=0; this.checks=0;
+    this.nextOp=0.3; this.show=null; this.ring=[];
+    for(let i=0;i<26;i++){ // never a blank first paint; values stay unique
+      let v; do{ v=1+((this.rng()*998)|0); }while(this.sl.search(v).hit);
+      this.sl.insert(v);
+    }
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.nextOp){
+      this.nextOp=this.t+0.55;
+      const r=this.rng();
+      if(r<0.5 && this.sl.n<64){
+        let v; do{ v=1+((this.rng()*998)|0); }while(this.sl.search(v).hit); // values stay unique
+        const before=this.sl.level;
+        const h=this.sl.insert(v);
+        this.show={kind:'ins', v, h, at:this.t, grew:this.sl.level>before};
+      } else if(r<0.82){
+        const v=1+((this.rng()*998)|0);
+        const res=this.sl.search(v);
+        this.ring.push(res.steps); if(this.ring.length>32) this.ring.shift();
+        this.show={kind:'sea', v, steps:res.steps, hit:res.hit, path:res.path, at:this.t};
+      } else if(this.sl.n>20){
+        // delete a random present value: walk base lane to a random index
+        let idx=(this.rng()*this.sl.n)|0, x=this.sl.head.next[0];
+        while(idx-->0 && x.next[0]) x=x.next[0];
+        this.sl.erase(x.v);
+        this.show={kind:'del', v:x.v, at:this.t};
+      }
+    }
+    this.checks++;
+    if(!this.sl.validate()) this.viol++;
+    const avg=this.ring.length? this.ring.reduce((a,b)=>a+b,0)/this.ring.length : NaN;
+    setM('hero.n', ''+this.sl.n);
+    setM('hero.census', this.sl.census().join(' · '));
+    setM('hero.steps', isNaN(avg)?'–':avg.toFixed(1)+' (2·log₂ '+this.sl.n+' ≈ '+(2*Math.log2(this.sl.n)).toFixed(0)+')');
+    setM('hero.inv', 'VIOLATIONS '+this.viol+' — RE-WALKED EVERY FRAME ('+this.checks+')');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const x0=40, x1=W-24;
+    const X=v=>x0+(x1-x0)*(v/1000);
+    const laneY=l=>H-52-l*34;
+    const lanes=this.sl.level;
+    const hotPath=new Map();
+    if(this.show && this.show.kind==='sea' && this.t-this.show.at<0.9)
+      this.show.path.forEach(p=>hotPath.set(p.v+'|'+p.l, true));
+    for(let l=0;l<lanes;l++){
+      const y=laneY(l);
+      ctx.strokeStyle=CSS.line; ctx.beginPath(); ctx.moveTo(x0-14,y); ctx.lineTo(x1,y); ctx.stroke();
+      ctx.textAlign='right'; ctx.fillStyle=CSS.muted; ctx.fillText('L'+l, x0-18, y+3);
+      let x=this.sl.head.next[l];
+      while(x){
+        const hot=hotPath.has(x.v+'|'+l);
+        const px=X(x.v);
+        ctx.fillStyle= hot? CSS.traffic : l===0? CSS.b : CSS.a;
+        ctx.globalAlpha= hot?1 : 0.8;
+        ctx.fillRect(px-2, y-7, 4, 14);
+        ctx.globalAlpha=1;
+        x=x.next[l];
+      }
+    }
+    // showcase label
+    if(this.show && this.t-this.show.at<1.1){
+      const s=this.show;
+      ctx.textAlign='left'; ctx.fillStyle= s.kind==='sea'? CSS.traffic : CSS.muted;
+      const txt= s.kind==='ins' ? 'INSERT '+s.v+' — COIN GAVE HEIGHT '+s.h+(s.grew?' (NEW TOP LANE!)':'')
+        : s.kind==='sea' ? 'SEARCH '+s.v+' — '+s.steps+' STEPS · '+(s.hit?'FOUND':'ABSENT')
+        : 'DELETE '+s.v+' — UNLINK, NO REBALANCE';
+      ctx.fillText(txt, 16, 24);
+      if(s.kind!=='del'){
+        const px=X(s.v);
+        ctx.strokeStyle= s.kind==='ins'? CSS.traffic : '#5A4440';
+        ctx.setLineDash([3,3]);
+        ctx.beginPath(); ctx.moveTo(px, 34); ctx.lineTo(px, H-44); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+    ctx.textAlign='right'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('X-POSITION = VALUE (0–1000)', W-16, 24);
+    ctx.textAlign='center';
+    ctx.fillText('EACH LANE KEEPS ~HALF THE ONE BELOW — THE COIN IS THE ONLY BALANCER', W/2, H-14);
+  },
+};
+hero.reset();
+
+/* ================= REP-01: a million entries, typed arrays ================= */
+const RN=1000000, RMAX=24;
+const SOPTS=[20,40,1000,500000], SOPTL=['~20','~40','~1,000','~500K'];
+const rep = {
+  cv: document.getElementById('c-rep'),
+  reset(){
+    this.t=0; this.picked=null; this.phase='idle';
+    this.rng=mulberry32(19);
+    this.vals=new Float64Array(RN+1);
+    this.heights=new Uint8Array(RN+1);
+    this.offs=new Int32Array(RN+2);
+    this.nexts=new Int32Array((RN+1)*2 + 20000); // expected 2n tower slots + ~14 sigma headroom
+    this.built=0; this.slots=0; this.level=1;
+    // node 0 is the head with full height
+    this.heights[0]=RMAX; this.offs[0]=0; this.slots=RMAX; this.vals[0]=-Infinity;
+    for(let l=0;l<RMAX;l++) this.nexts[l]=0; // 0 = null (head can't be a successor)
+    this.searchAvg=NaN; this.tallest=1; this.verdict='–';
+    document.querySelectorAll('[data-act^="p"]').forEach(b=>b.classList.remove('picked'));
+    this.pushMetrics();
+  },
+  choose(i){
+    if(this.picked!==null) return;
+    this.picked=i; this.phase='run';
+    document.querySelectorAll('[data-act^="p"]')[i]?.classList?.add('picked');
+  },
+  insert1(v){
+    let h=1; while(h<RMAX && this.rng()<0.5) h++;
+    if(h>this.tallest) this.tallest=h;
+    const id=this.built+1;
+    this.vals[id]=v; this.heights[id]=h; this.offs[id]=this.slots; this.slots+=h;
+    if(h>this.level) this.level=h;
+    // walk with update targets
+    let cur=0;
+    for(let l=this.level-1;l>=0;l--){
+      for(;;){
+        const nx=this.nexts[this.offs[cur]+l];
+        if(nx!==0 && this.vals[nx]<v) cur=nx; else break;
+      }
+      if(l<h){
+        this.nexts[this.offs[id]+l]=this.nexts[this.offs[cur]+l];
+        this.nexts[this.offs[cur]+l]=id;
+      }
+    }
+    this.built++;
+  },
+  search1(v){
+    let cur=0, steps=0;
+    for(let l=this.level-1;l>=0;l--){
+      for(;;){
+        const nx=this.nexts[this.offs[cur]+l];
+        if(nx!==0 && this.vals[nx]<v){ cur=nx; steps++; } else { steps++; break; }
+      }
+    }
+    return steps;
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.phase==='run'){
+      let n=0;
+      while(n<30000 && this.built<RN){ this.insert1(this.rng()*1e9); n++; }
+      if(this.built>=RN && isNaN(this.searchAvg)){
+        let s=0; const S=2000;
+        for(let i=0;i<S;i++) s+=this.search1(this.rng()*1e9);
+        this.searchAvg=s/S;
+        this.phase='done';
+        const call=SOPTS[this.picked], meas=this.searchAvg;
+        const ratio=Math.max(call,meas)/Math.min(call,meas);
+        this.verdict = ratio<1.8 ? 'CALLED IT — LOG N, WITH A COIN'
+          : this.picked===0 ? 'CLOSE — THAT\'S log₂ n, BUT EACH LANE CHARGES AN EXPECTED EXTRA HOP: ~2·log₂ n'
+          : call>meas ? 'HIGH ×'+ratio.toFixed(0)+' — THE LANES REALLY DO HALVE'
+          : 'LOW ×'+ratio.toFixed(0)+' — NO STRUCTURE SEARCHES A MILLION IN THAT';
+      }
+    }
+    this.pushMetrics();
+  },
+  pushMetrics(){
+    setM('rep.call', this.picked===null?'–':SOPTL[this.picked]);
+    setM('rep.built', this.built>=RN? '1M / 1M · DONE' : Math.round(this.built/1000)+'K / 1M');
+    setM('rep.steps', isNaN(this.searchAvg)?'–':this.searchAvg.toFixed(1)+' AVG (2,000 SEARCHES)');
+    setM('rep.tallest', this.built? this.tallest+' LANES (log₂ 1M ≈ 20)':'–');
+    setM('rep.verdict', this.verdict);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    if(this.phase==='idle'){
+      ctx.textAlign='center';
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('COMMIT FIRST — THE MILLION-ENTRY LIST BUILDS WHEN YOU CALL THE BILL', W/2, H/2-16);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('1,000,000 RANDOM SCORES · ONE SEARCH · EVERY COMPARISON COUNTED', W/2, H/2+4);
+      ctx.fillText('BINARY SEARCH SAYS ~20 · A LINKED LIST SAYS ~500,000 · WHAT DOES THE COIN SAY?', W/2, H/2+22);
+      return;
+    }
+    // lane occupancy: count per level from heights (cheap approximation: exact via heights)
+    const counts=new Array(Math.max(1,this.level)).fill(0);
+    // exact counts are sum over nodes of (h>=l) — track incrementally would be better; sample heights
+    // heights array is exact:
+    for(let l=0;l<this.level;l++) counts[l]=0;
+    // count in a stride to keep 60fps during build
+    const stride=Math.max(1, Math.floor(this.built/20000));
+    for(let id=1;id<=this.built;id+=stride){
+      const h=this.heights[id];
+      for(let l=0;l<h && l<counts.length;l++) counts[l]++;
+    }
+    const scale=stride;
+    const bx=110, bw=W-290;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('LANE OCCUPANCY — EACH ~HALF THE ONE BELOW', 16, 24);
+    const show=Math.min(8, this.level);
+    for(let l=0;l<show;l++){
+      const y=38+l*19;
+      const est=counts[l]*scale;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left'; ctx.fillText('L'+l, 16, y+9);
+      ctx.fillStyle= l===0? CSS.b : CSS.a;
+      const frac=est/Math.max(1,this.built);
+      ctx.fillRect(bx, y, Math.max(1,bw*frac), 10);
+      ctx.fillStyle=CSS.ink;
+      ctx.fillText(est>=1e6?(est/1e6).toFixed(2)+'M':est>=1000?Math.round(est/1000)+'K':''+est, bx+8+bw*frac, y+9);
+    }
+    if(this.level>show){
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('… UP TO L'+(this.level-1)+' — THE TALLEST TOWER OF A MILLION COINS', 16, 38+show*19+8);
+    }
+    // ruler
+    const ry=H-46, x0r=60, x1r=W-30;
+    const Xr=v=>x0r+(x1r-x0r)*(Math.log10(v)-1)/5;   // 10 .. 1e6
+    ctx.strokeStyle=CSS.line; ctx.beginPath(); ctx.moveTo(x0r,ry); ctx.lineTo(x1r,ry); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    [[10,'10'],[100,'100'],[1000,'1K'],[10000,'10K'],[100000,'100K'],[1000000,'1M']].forEach(([v,l])=>{
+      ctx.beginPath(); ctx.moveTo(Xr(v),ry-4); ctx.lineTo(Xr(v),ry+4); ctx.stroke();
+      ctx.fillText(l, Xr(v), ry+16);
+    });
+    ctx.textAlign='right'; ctx.fillText('COMPARISONS PER SEARCH (LOG)', x1r, ry-34);
+    const dot=(v,col,label,dy)=>{
+      const x=Math.max(x0r,Math.min(x1r,Xr(v)));
+      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x, ry, 4, 0, 7); ctx.fill();
+      ctx.textAlign= x>W-150?'right':'left';
+      ctx.fillText(label, x+(x>W-150?-8:8), ry+dy);
+    };
+    if(this.picked!==null) dot(SOPTS[this.picked], CSS.fault, 'YOUR CALL '+SOPTL[this.picked], -10);
+    if(!isNaN(this.searchAvg)) dot(this.searchAvg, CSS.traffic, 'MEASURED '+this.searchAvg.toFixed(0), -22);
+    ctx.textAlign='center'; ctx.fillStyle= this.phase==='done'? CSS.traffic : CSS.muted;
+    ctx.fillText(this.phase==='done'
+      ? 'A MILLION ENTRIES, ~40 COMPARISONS, ZERO REBALANCES EVER PERFORMED'
+      : 'BUILDING — '+Math.round(this.built/1000)+'K INSERTED, EVERY COIN FLIPPED FOR REAL', W/2, H-10);
+  },
+};
+rep.reset();
+[0,1,2,3].forEach(i=>{
+  document.querySelector('[data-act="p'+i+'"]').addEventListener('click',()=>rep.choose(i));
+});
+
+/* ================= EXP-01: the leaderboard duel ================= */
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){
+    this.t=0; this.rng=mulberry32(29);
+    this.np=+document.getElementById('r-players').value;
+    // both worlds: players with scores; key = score*1e6+id for uniqueness
+    this.scores=new Float64Array(this.np);
+    this.arr=[]; // sorted array of keys
+    this.sl=makeSkip(this.rng, 18);
+    for(let id=0;id<this.np;id++){
+      const sc=(this.rng()*100000)|0;
+      this.scores[id]=sc;
+      this.arr.push(sc*1e6+id);
+      this.sl.insert(sc*1e6+id);
+    }
+    this.arr.sort((a,b)=>a-b);
+    this.movRing=[]; this.stepRing=[];
+    this.nextOp=0.1; this.same=null; this.nextAudit=1.5;
+    this.podium=[];
+  },
+  binSearch(key){ // index of first >= key; comparisons not the point here (moves are)
+    let lo=0, hi=this.arr.length;
+    while(lo<hi){ const mid=(lo+hi)>>1; if(this.arr[mid]<key) lo=mid+1; else hi=mid; }
+    return lo;
+  },
+  update(dt){
+    this.t+=dt;
+    const np=+document.getElementById('r-players').value;
+    document.getElementById('o-players').textContent=np;
+    if(np!==this.np){ this.reset(); return; }
+    while(this.t>=this.nextOp){
+      this.nextOp+=1/40;
+      const id=(this.rng()*this.np)|0;
+      const oldKey=this.scores[id]*1e6+id;
+      const newSc=Math.max(0,this.scores[id]+((this.rng()*2001)|0)-800); // scores drift upward
+      const newKey=newSc*1e6+id;
+      // sorted array world: find old, remove (shift), find slot, insert (shift)
+      const i1=this.binSearch(oldKey);
+      let moves=this.arr.length-i1-1;         // elements shifted left by removal
+      this.arr.splice(i1,1);
+      const i2=this.binSearch(newKey);
+      moves+=this.arr.length-i2;              // elements shifted right by insertion
+      this.arr.splice(i2,0,newKey);
+      this.movRing.push(moves); if(this.movRing.length>120) this.movRing.shift();
+      // skip list world: erase + insert, steps counted via search cost
+      const s1=this.sl.search(oldKey).steps; this.sl.erase(oldKey);
+      const s2=this.sl.search(newKey).steps; this.sl.insert(newKey);
+      this.stepRing.push(s1+s2); if(this.stepRing.length>120) this.stepRing.shift();
+      this.scores[id]=newSc;
+    }
+    if(this.t>=this.nextAudit){ // podium audit: top-10 from BOTH structures
+      this.nextAudit=this.t+2;
+      const topA=this.arr.slice(-10).reverse();
+      // walk skip list base lane fully (audit code, not the op meter)
+      const all=[]; let x=this.sl.head.next[0];
+      while(x){ all.push(x.v); x=x.next[0]; }
+      const topS=all.slice(-10).reverse();
+      this.same=topA.every((v,i)=>v===topS[i]);
+      this.podium=topA.map(k=>({id:k%1e6, sc:Math.floor(k/1e6)}));
+    }
+    const avg=a=>a.length? a.reduce((x,y)=>x+y,0)/a.length : NaN;
+    const mv=avg(this.movRing), st=avg(this.stepRing);
+    setM('e1.array', isNaN(mv)?'–':Math.round(mv).toLocaleString('en-US'));
+    setM('e1.skip', isNaN(st)?'–':st.toFixed(0));
+    setM('e1.ratio', (isNaN(mv)||isNaN(st))?'–':'×'+Math.round(mv/st)+' fewer touches');
+    setM('e1.same', this.same===null?'–':this.same?'IDENTICAL ✓':'MISMATCH ✗');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const avg=a=>a.length? a.reduce((x,y)=>x+y,0)/a.length : 0;
+    const mv=avg(this.movRing), st=avg(this.stepRing);
+    // two meters
+    const bx=180, bw=W-420;
+    const meter=(y,label,val,maxV,col,txt)=>{
+      ctx.textAlign='left'; ctx.fillStyle=CSS.muted; ctx.fillText(label, 16, y+11);
+      ctx.strokeStyle=CSS.line; ctx.strokeRect(bx, y, bw, 15);
+      ctx.fillStyle=col;
+      ctx.fillRect(bx+1, y+1, (bw-2)*Math.min(1, val/maxV), 13);
+      ctx.fillStyle=CSS.ink;
+      ctx.fillText(txt, bx+8+(bw-2)*Math.min(1,val/maxV), y+11);
+    };
+    meter(44, 'SORTED ARRAY — ELEMENTS MOVED', mv, this.np, CSS.fault, Math.round(mv).toLocaleString('en-US')+' / UPDATE');
+    meter(84, 'SKIP LIST — POINTER STEPS', st, this.np, CSS.traffic, st.toFixed(0)+' / UPDATE');
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('BOTH BARS SHARE ONE SCALE: 0 → '+this.np.toLocaleString('en-US')+' PLAYERS', 16, 122);
+    ctx.fillText('40 SCORE UPDATES/S FLOWING THROUGH BOTH WORLDS', 16, 138);
+    // podium
+    const px=W-210;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+    ctx.fillText('TOP 10 — FROM BOTH STRUCTURES '+(this.same?'✓':''), px, 40);
+    this.podium.slice(0,8).forEach((p,i)=>{
+      const y=54+i*20;
+      ctx.fillStyle= i===0? CSS.traffic : CSS.muted;
+      ctx.fillText((i+1)+'.', px, y+10);
+      ctx.fillStyle= i===0? CSS.traffic : CSS.ink;
+      ctx.fillText('P'+p.id, px+22, y+10);
+      ctx.fillStyle=CSS.b;
+      ctx.fillText(p.sc.toLocaleString('en-US'), px+90, y+10);
+    });
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('THE ARRAY FINDS FAST AND CHANGES SLOWLY — THE LEADERBOARD IS ALL CHANGE', W/2, H-14);
+  },
+};
+e1.reset();
+
+/* ================= EXP-02: the BST killer ================= */
+const E2N=3000;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){
+    this.t=0; this.rng=mulberry32(41);
+    this.sorted=document.getElementById('t-order').checked;
+    this.bstRoot=null; this.bstN=0;
+    this.sl=makeSkip(this.rng, 16);
+    this.seq=0; this.keys=[];
+    this.acc=0; this.bstRing=[]; this.skipRing=[]; this.nextSea=0.2;
+    this.depths=[]; // insertion-order depth profile for the silhouette
+  },
+  bstInsert(v){
+    let d=0;
+    if(!this.bstRoot){ this.bstRoot={v,l:null,r:null}; this.bstN++; this.depths.push(0); return; }
+    let x=this.bstRoot;
+    for(;;){
+      d++;
+      if(v<x.v){ if(x.l) x=x.l; else { x.l={v,l:null,r:null}; break; } }
+      else { if(x.r) x=x.r; else { x.r={v,l:null,r:null}; break; } }
+    }
+    this.bstN++; this.depths.push(d);
+  },
+  bstSearch(v){
+    let x=this.bstRoot, steps=0;
+    while(x){ steps++; if(v===x.v) return steps; x= v<x.v? x.l : x.r; }
+    return steps;
+  },
+  update(dt){
+    this.t+=dt;
+    const sorted=document.getElementById('t-order').checked;
+    if(sorted!==this.sorted){ this.reset(); return; }
+    if(this.bstN<E2N){
+      this.acc+=dt*150;
+      while(this.acc>=1 && this.bstN<E2N){
+        this.acc--;
+        const v= this.sorted? ++this.seq : (this.rng()*1e9)|0;
+        this.keys.push(v);
+        this.bstInsert(v);
+        this.sl.insert(v);
+      }
+    }
+    if(this.t>=this.nextSea && this.keys.length>50){
+      this.nextSea=this.t+0.15;
+      const v=this.keys[(this.rng()*this.keys.length)|0];
+      this.bstRing.push(this.bstSearch(v)); if(this.bstRing.length>40) this.bstRing.shift();
+      this.skipRing.push(this.sl.search(v).steps); if(this.skipRing.length>40) this.skipRing.shift();
+    }
+    const avg=a=>a.length? a.reduce((x,y)=>x+y,0)/a.length : NaN;
+    setM('e2.n', this.bstN.toLocaleString('en-US')+(this.bstN>=E2N?' · FULL':''));
+    setM('e2.bst', isNaN(avg(this.bstRing))?'–':avg(this.bstRing).toFixed(0));
+    setM('e2.skip', isNaN(avg(this.skipRing))?'–':avg(this.skipRing).toFixed(0));
+    setM('e2.mode', this.sorted?'SORTED — THE KILLER':'RANDOM — THE TEXTBOOK CASE');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    // BST depth silhouette: x = insertion index, y = node depth
+    const cx0=46, cx1=W/2-24, cy0=40, cy1=H-58;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('NAIVE BST — DEPTH OF EACH INSERTED KEY', cx0, 26);
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(cx0, cy0, cx1-cx0, cy1-cy0);
+    const maxD=Math.max(20, ...this.depths);
+    ctx.fillStyle= this.sorted? CSS.fault : CSS.b;
+    const n=this.depths.length;
+    for(let i=0;i<n;i+=2){
+      const x=cx0+(cx1-cx0)*(i/E2N);
+      const y=cy1-(cy1-cy0)*(this.depths[i]/maxD);
+      ctx.fillRect(x, y, 1.6, 1.6);
+    }
+    ctx.textAlign='right'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('MAX DEPTH '+(n?Math.max(...this.depths):0), cx1-6, cy0+14);
+    // skip list lane census, right half
+    const sx0=W/2+24;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SKIP LIST — LANE CENSUS, SAME KEYS', sx0, 26);
+    const census=this.sl.census();
+    const bw2=W-30-sx0-90;
+    census.slice(0,9).forEach((c,l)=>{
+      const y=cy0+6+l*20;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left'; ctx.fillText('L'+l, sx0, y+9);
+      ctx.fillStyle= l===0? CSS.b : CSS.a;
+      ctx.fillRect(sx0+28, y, Math.max(1, bw2*c/Math.max(1,census[0])), 10);
+      ctx.fillStyle=CSS.ink;
+      ctx.fillText(''+c, sx0+34+bw2*c/Math.max(1,census[0]), y+9);
+    });
+    const avg=a=>a.length? a.reduce((x,y)=>x+y,0)/a.length : 0;
+    ctx.textAlign='left'; ctx.fillStyle= this.sorted? CSS.fault : CSS.muted;
+    ctx.fillText('BST SEARCH ~'+avg(this.bstRing).toFixed(0)+' STEPS', cx0, H-40);
+    ctx.fillStyle=CSS.traffic;
+    ctx.fillText('SKIP SEARCH ~'+avg(this.skipRing).toFixed(0)+' STEPS', sx0, H-40);
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME KEYS INTO BOTH — ONLY ONE STRUCTURE\'S SHAPE DEPENDS ON THEIR ORDER', W/2, H-14);
+  },
+};
+e2.reset();
+
+/* ---------- wiring ---------- */
+const sims={hero,rep,e1,e2}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('rep','p-rep'); register('e1','p-e1'); register('e2','p-e2');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','rep','e1','e2']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

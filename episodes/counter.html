@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Counter — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  /* toolbox cards: the interview card + the revision card */
+  .tbx{border:1px solid var(--rule);background:var(--card);border-radius:6px;
+    padding:18px 20px 15px;margin:26px 0;font-size:15px}
+  .tbx .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-text);
+    text-transform:uppercase;display:block;margin-bottom:10px}
+  .tbx ul{list-style:none;margin:0 0 14px;padding:0}
+  .tbx li{margin:.5em 0;padding-left:20px;position:relative}
+  .tbx li::before{content:"→";position:absolute;left:0;top:1px;
+    font-family:var(--mono);font-size:12px;color:var(--accent-text)}
+  .tbx .met{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .tbx dl{display:grid;grid-template-columns:max-content 1fr;gap:7px 16px;
+    margin:0;border-top:1px solid var(--rule);padding-top:12px}
+  .tbx dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-text);padding-top:2px;white-space:nowrap}
+  .tbx dd{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .btn.picked{border-color:var(--traffic);color:var(--traffic)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .exp-note a{color:var(--series-b)}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Toolbox</p>
+  <h1>The Counter</h1>
+  <p class="dek">Count a million distinct visitors in twelve kilobytes, off by less than
+  one percent — without remembering a single one of them. HyperLogLog is the structure
+  behind every "unique viewers" number at scale (Redis ships it as PFCOUNT; Google's
+  BigQuery and half the analytics industry run its descendants), and its trick is
+  gloriously indirect: it never counts anything. It watches for <em>record-breaking runs
+  of zeros</em> in hashes, because record holders know how big the crowd is. Predict
+  first, then run it. That's the rep.</p>
+  <p class="marginal">Everything below computes for real: real hashes, real registers,
+  the published estimator formula with its small-range correction — and the true
+  distinct count runs alongside every estimate, so the error you read is measured,
+  never quoted.</p>
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <div class="tbx">
+    <span class="k">The interview card — where you've ground this before</span>
+    <ul>
+      <li>"Count distinct visitors across a billion events — you don't get a billion IDs of RAM."</li>
+      <li>"Why doesn't adding the same user twice break the count?" (It <em>can't</em> — watch the replay below.)</li>
+      <li>"Uniques per shard are counted — how many uniques <em>across</em> shards?" (Sums lie; there's a merge that doesn't.)</li>
+    </ul>
+    <dl>
+      <dt>Pattern</dt><dd>hashing · leading-zero records · harmonic mean of m observers</dd>
+      <dt>Space</dt><dd>m registers × ~6 bits — 16,384 registers ≈ 12 KB for billions</dd>
+      <dt>Time</dt><dd>O(1) add · O(m) count · merge = register-wise max</dd>
+      <dt>The catch</dt><dd>it's an estimate (±1.04/√m), and it can't enumerate, delete, or answer "is X in the set" — that last one is The Filter's job</dd>
+    </dl>
+  </div>
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">Twelve kilobytes vs the truth — a real HyperLogLog, checked live</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:290px" role="img" aria-label="A heat grid of 1,024 registers brightens as visitor hashes set new leading-zero records; the estimate tracks the true distinct count alongside, and periodic replays of old visitors leave the estimate exactly unmoved"></canvas>
+  <div class="exp-metrics">
+    <span>EVENTS<b data-m="hero.events">0</b></span>
+    <span>TRUE DISTINCT<b data-m="hero.true">0</b></span>
+    <span>ESTIMATE<b data-m="hero.est">–</b></span>
+    <span>DUPLICATES CANNOT MOVE IT<b data-m="hero.replay">REPLAYS 0 · DRIFT 0</b></span>
+  </div>
+  <figcaption class="exp-note">Each visitor's hash picks one of 1,024 registers and
+  offers it a number: the length of its run of leading zeros. The register keeps only
+  its <em>record</em>. Every fifteen seconds this page replays ten thousand visitors it
+  has already seen — and the estimate does not move, because a rerun can never break its
+  own record. That's idempotence by construction, not by bookkeeping: the reason
+  double-counted events never corrupt a unique-visitors number.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Why record holders know the crowd</h2>
+  <p>Flip coins until you get heads. A run of 10 tails is a 1-in-1,024 event — so if the
+  <em>best</em> run anyone in the room has seen is 10, there were probably about a
+  thousand people flipping. Hashes make every distinct ID one such flipper (and the same
+  ID always flips the same coins — that's the idempotence). One record-holder is a
+  terrible witness — records are noisy — so HyperLogLog splits the crowd into m
+  independent rooms and blends their records with a harmonic mean. The blend has a
+  published accuracy: <strong>±1.04/√m</strong>. So price the industry default:
+  <strong>m = 16,384 registers — 12 KB, Redis's setting — counting one million distinct
+  IDs. How far off is the answer, typically?</strong> Commit; then sixteen independent
+  million-ID trials run for real and their errors land on the chart.</p>
+</div>
+
+<figure class="exp" id="p-rep">
+  <figcaption class="exp-head">
+    <span class="exp-id">REP-01</span>
+    <span class="exp-title">Call the error — sixteen trials of a million distinct, 12 KB each</span>
+    <span class="exp-run">
+      <button class="btn" data-act="p0">~0.01%</button>
+      <button class="btn" data-act="p1">~0.8%</button>
+      <button class="btn" data-act="p2">~5%</button>
+      <button class="btn" data-act="p3">~15%</button>
+      <button class="btn danger" data-reset="rep">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-rep" style="height:290px" role="img" aria-label="After you commit, sixteen independent HyperLogLog trials each digest one million distinct IDs; their signed errors land as dots on an error axis with the formula band and the measured RMS marked against your call"></canvas>
+  <div class="exp-metrics">
+    <span>YOUR CALL<b data-m="rep.call">–</b></span>
+    <span>TRIALS<b data-m="rep.trials">0 / 16</b></span>
+    <span>MEASURED RMS ERROR<b data-m="rep.rms">–</b></span>
+    <span>VERDICT<b data-m="rep.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">Sixteen million real hashes later: the errors scatter
+  inside the ±0.81% band the formula promised — for a structure that spent twelve
+  kilobytes counting a million things. Want half the error? Pay 4× the registers;
+  √m is a stubborn law. The pocket line: <em>HyperLogLog's error ≈ 1.04/√m — the
+  default 16,384 registers buy you under one percent, forever, in 12 KB.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The merge that doesn't lie</h2>
+  <p>Here's the production question that breaks naive designs: twelve servers each
+  count their own uniques — <strong>how many uniques across all twelve?</strong>
+  Summing the counters is wrong the moment one visitor touches two servers, and real
+  visitors touch several. Exact answers mean shipping the actual ID sets across the
+  network. HyperLogLog has an almost unfair answer: take the twelve register arrays
+  and keep the <em>maximum of each register</em>. A record across all rooms is just
+  the best record any room saw — so the merged sketch is <em>exactly</em> the sketch
+  of the union, still 12 KB, no IDs shipped. This is Redis's PFMERGE, and it's why
+  "uniques this week" and "uniques across the fleet" are cheap questions at
+  <a href="../index.html#/reddit" target="_top">the Front Page episode</a>'s scale.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Twelve shards, overlapping visitors — SUM lies, MAX-merge doesn't</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button>
+    <button class="btn danger" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-overlap">Shards each visitor touches</label>
+      <input type="range" id="r-overlap" min="1" max="5" value="2" step="1">
+      <output id="o-overlap">2</output> avg</div>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:270px" role="img" aria-label="Twelve shard sketches fill from an overlapping visitor stream; the naive sum of per-shard counts runs far above the truth while the register-wise max merge lands on it"></canvas>
+  <div class="exp-metrics">
+    <span>SUM OF SHARDS<b data-m="e1.sum" class="bad">–</b></span>
+    <span>MAX-MERGED HLL<b data-m="e1.hll">–</b></span>
+    <span>TRUE UNIQUES<b data-m="e1.true">–</b></span>
+    <span>WIRE COST<b data-m="e1.bytes">–</b></span>
+  </div>
+  <figcaption class="exp-note">Drag the overlap up and watch the sum float away — it
+  counts every visitor once <em>per shard touched</em>. The merged sketch stays pinned
+  to the truth at any overlap, because max-of-records is the record of the union,
+  mathematically, not approximately. The union of two sketches never needs the data
+  that built them: that one property is why sketches, not sets, run fleet-wide
+  analytics.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Why m rooms, not one</h2>
+  <p>The whole cleverness lives in the averaging, and you can watch it. A single
+  record-holder estimates the crowd as 2^record — but records jump in whole powers of
+  two and one lucky streak wrecks the reading. Sixteen rooms tame it a little.
+  A thousand and twenty-four settle it. Below, three real estimators watch the same
+  growing stream — and if the "tallest tower" phrasing sounds familiar, it should:
+  the longest zero-run among n hashes is the same random variable as the tallest
+  tower in <a href="../index.html#/skip-list" target="_top">The Skip List</a> — about
+  log₂ n. One structure balances with it; this one counts with it.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">One register vs sixteen vs a thousand — the same stream, three witnesses</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button>
+    <button class="btn danger" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="A log-scale chart tracks three live estimates of a growing distinct count: a single register jumps wildly in powers of two, sixteen registers wobble, and 1,024 registers hug the true line"></canvas>
+  <div class="exp-metrics">
+    <span>TRUE<b data-m="e2.true">0</b></span>
+    <span>ONE REGISTER<b data-m="e2.one">–</b></span>
+    <span>16 REGISTERS<b data-m="e2.m16">–</b></span>
+    <span>1,024 REGISTERS<b data-m="e2.m1024">–</b></span>
+  </div>
+  <figcaption class="exp-note">The lone register can only ever say a power of two, and
+  every new record doubles its answer on the spot — an honest witness with terrible
+  variance. Averaging m witnesses divides the noise by √m: that's the whole design,
+  and the whole bill. <em>Precision is bought in rooms, and rooms cost √m.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The keeper</h2>
+  <p>The keeper: <strong>HyperLogLog counts distinct things by remembering only the
+  best runs of leading zeros — O(1) adds that duplicates cannot move, ±1.04/√m
+  accuracy in kilobytes, and a register-wise-max merge that computes the union without
+  the data.</strong> When the interview says "count uniques at scale," this is the
+  shape; it cannot list members, cannot delete, and cannot answer membership — the
+  Filter answers that, the Counter answers "how many."</p>
+
+  <div class="tbx">
+    <span class="k">The revision card — for the you that comes back in three months</span>
+    <ul>
+      <li>Why can a duplicate never move the estimate? <span class="met">(same ID → same hash → same register, same run — a rerun can't break its own record)</span></li>
+      <li>What does m buy, and at what rate? <span class="met">(error ≈ 1.04/√m — you watched one register swing in octaves and 16,384 land under 1%)</span></li>
+      <li>Why is the fleet-wide union cheap? <span class="met">(merge = register-wise max = exactly the union's sketch; SUM overcounted by the overlap factor)</span></li>
+      <li>Which questions can't it answer? <span class="met">(membership, enumeration, deletion — cardinality only; pair it with The Filter for "have we seen X?")</span></li>
+    </ul>
+    <dl>
+      <dt>Seen under fire</dt><dd><a href="../index.html#/reddit" target="_top">The Front Page · Reddit</a> ·
+      <a href="../index.html#/youtube" target="_top">The Upload · YouTube</a> ·
+      <a href="../index.html#/bloom" target="_top">The Filter · Bloom</a> ·
+      <a href="../index.html#/skip-list" target="_top">The Skip List · the same tall tower</a></dd>
+    </dl>
+  </div>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Philippe Flajolet, Éric Fusy, Olivier Gandouet, Frédéric Meunier — <a href="https://algo.inria.fr/flajolet/Publications/FlFuGaMe07.pdf">"HyperLogLog: the analysis of a near-optimal cardinality estimation algorithm"</a>, AofA 2007 (the algorithm, the 1.04/√m constant, the corrections).</li>
+    <li>Stefan Heule, Marc Nunkesser, Alexander Hall — <a href="https://research.google/pubs/pub40671/">"HyperLogLog in Practice"</a>, EDBT 2013 (Google's HLL++: sparse mode and bias correction at scale).</li>
+    <li>Salvatore Sanfilippo — <a href="http://antirez.com/news/75">"Redis new data structure: the HyperLogLog"</a> (PFADD/PFCOUNT/PFMERGE, the 12 KB default and its engineering).</li>
+    <li>Redis docs — <a href="https://redis.io/docs/latest/develop/data-types/probabilistic/hyperloglogs/">HyperLogLog</a> (m = 16,384 registers, standard error 0.81%).</li>
+  </ul>
+</div>
+
+<footer class="col">
+  <hr class="foot-rule">
+    <p class="next">World of Internet Systems · The Toolbox — next instruments on the bench: <b>the sketch, the B-tree, the eviction…</b> · <a href="../index.html" target="_top">back to the index</a></p>
+</footer>
+</main>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const expRand=(rng,rate)=>-Math.log(1-rng())/rate;
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const mix=k=>{ let a=(k^0x9E3779B9)>>>0; a^=a>>>15; a=Math.imul(a,0x85EBCA6B)>>>0; a^=a>>>13; a=Math.imul(a,0xC2B2AE35)>>>0; a^=a>>>16; return a>>>0; };
+const fmtN=n=> n>=1e6?(n/1e6).toFixed(2)+'M' : n>=1e4?Math.round(n/1000)+'K' : n>=1000?(n/1000).toFixed(1)+'K' : ''+Math.round(n);
+
+/* ---------- a real HyperLogLog ---------- */
+function makeHLL(p){
+  const m=1<<p, regs=new Uint8Array(m);
+  return {
+    m, p, regs,
+    add(x){
+      const h=mix(x);
+      const b= p===0 ? 0 : h>>>(32-p);      // >>>32 is a no-op in JS — p=0 needs its own path
+      const rest= p===0 ? h : (h<<p)>>>0;
+      const r= rest===0 ? (32-p+1) : Math.clz32(rest)+1;
+      if(r>regs[b]) regs[b]=r;
+    },
+    count(){
+      let sum=0, zeros=0;
+      for(let j=0;j<m;j++){ sum+=Math.pow(2,-regs[j]); if(regs[j]===0) zeros++; }
+      const alpha= m>=128? 0.7213/(1+1.079/m) : m===64? 0.709 : m===32? 0.697 : m===16? 0.673 : 0.5;
+      let E=alpha*m*m/sum;
+      if(E<=2.5*m && zeros>0) E=m*Math.log(m/zeros);   // small-range (linear counting) correction
+      return E;
+    },
+  };
+}
+
+/* ================= HERO: 1,024 registers vs the truth ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  reset(){
+    this.t=0; this.rng=mulberry32(9);
+    this.h=makeHLL(10);              // m = 1024
+    this.events=0; this.nextId=1;
+    this.replays=0; this.driftMax=0;
+    this.nextReplay=15; this.replayFlash=0;
+    this.trace=null;
+    for(let i=0;i<400;i++){ this.h.add(this.nextId); this.events++; this.nextId++; } // alive at first paint
+  },
+  update(dt){
+    this.t+=dt;
+    let n=0;
+    while(n<100){ // ~3000 events/s at 30fps
+      n++;
+      this.events++;
+      let id;
+      if(this.rng()<0.55){ id=this.nextId++; }
+      else { id=1+((this.rng()*(this.nextId-1))|0); }
+      this.h.add(id);
+      if(n===1){ // narrate the first event of the frame
+        const h=mix(id), b=h>>>22, rest=(h<<10)>>>0;
+        const r= rest===0? 23 : Math.clz32(rest)+1;
+        this.trace={id, b, r, kept:this.h.regs[b]>=r, reg:this.h.regs[b]};
+      }
+    }
+    if(this.t>=this.nextReplay){ // the idempotence showcase
+      this.nextReplay+=15;
+      const before=this.h.count();
+      for(let i=0;i<10000;i++) this.h.add(1+((this.rng()*(this.nextId-1))|0));
+      const after=this.h.count();
+      this.driftMax=Math.max(this.driftMax, Math.abs(after-before));
+      this.replays++; this.replayFlash=this.t;
+    }
+    const tru=this.nextId-1, est=this.h.count();
+    const err=100*(est-tru)/tru;
+    setM('hero.events', fmtN(this.events));
+    setM('hero.true', tru.toLocaleString('en-US'));
+    setM('hero.est', Math.round(est).toLocaleString('en-US')+' ('+(err>=0?'+':'')+err.toFixed(1)+'%)');
+    setM('hero.replay', 'REPLAYS '+this.replays+' × 10K · MAX DRIFT '+Math.round(this.driftMax)+' — BY CONSTRUCTION');
+    if(tru>250000) this.reset();     // long sessions cycle cleanly
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    // register heat grid 32x32
+    const gs=Math.min(6.4, (H-110)/32), gx=16, gy=40;
+    for(let j=0;j<1024;j++){
+      const v=this.h.regs[j];
+      if(v===0) continue;
+      const x=gx+(j%32)*gs, y=gy+((j/32)|0)*gs;
+      ctx.fillStyle=CSS.traffic;
+      ctx.globalAlpha=Math.min(1, 0.1+v/18);
+      ctx.fillRect(x, y, gs-1, gs-1);
+    }
+    ctx.globalAlpha=1;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('1,024 REGISTERS — BRIGHTNESS = RECORD ZERO-RUN', gx, 28);
+    // numbers, right side
+    const rx=W-24;
+    const tru=this.nextId-1, est=this.h.count();
+    ctx.textAlign='right';
+    ctx.fillStyle=CSS.muted; ctx.fillText('TRUE DISTINCT', rx, 56);
+    ctx.fillStyle=CSS.ink; ctx.font='17px ui-monospace,Menlo,monospace';
+    ctx.fillText(tru.toLocaleString('en-US'), rx, 76);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    ctx.fillStyle=CSS.muted; ctx.fillText('ESTIMATE (0.75 KB)', rx, 108);
+    ctx.fillStyle=CSS.traffic; ctx.font='17px ui-monospace,Menlo,monospace';
+    ctx.fillText(Math.round(est).toLocaleString('en-US'), rx, 128);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const err=100*(est-tru)/Math.max(1,tru);
+    ctx.fillStyle=Math.abs(err)<5? CSS.b : CSS.fault;
+    ctx.fillText((err>=0?'+':'')+err.toFixed(2)+'% · ±3.2% EXPECTED AT m=1,024', rx, 146);
+    if(this.t-this.replayFlash<2.5 && this.replays>0){
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('REPLAYED 10,000 OLD VISITORS — UNMOVED', rx, 176);
+    }
+    // the trace line
+    if(this.trace){
+      const tr=this.trace;
+      ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+      ctx.fillText('LAST: id '+tr.id.toLocaleString('en-US')+' → REGISTER '+tr.b+' · ZERO-RUN '+tr.r+
+        (tr.kept? ' ≤ RECORD '+tr.reg+' — UNCHANGED' : ' — NEW RECORD'), 16, H-30);
+    }
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('NO IDS ARE STORED, ONLY RECORDS — THE CROWD IS INFERRED FROM ITS LUCKIEST MEMBERS', W/2, H-12);
+  },
+};
+hero.reset();
+
+/* ================= REP-01: sixteen trials, a million each ================= */
+const TRIALS=16, RDIST=1000000, RP=14; // m = 16384
+const EOPTS=[0.01,0.8,5,15], EOPTL=['~0.01%','~0.8%','~5%','~15%'];
+const rep = {
+  cv: document.getElementById('c-rep'),
+  reset(){
+    this.t=0; this.picked=null; this.phase='idle';
+    this.errs=[]; this.cur=null; this.curFed=0; this.trial=0;
+    this.verdict='–';
+    document.querySelectorAll('[data-act^="p"]').forEach(b=>b.classList.remove('picked'));
+    this.pushMetrics();
+  },
+  choose(i){
+    if(this.picked!==null) return;
+    this.picked=i; this.phase='run';
+    document.querySelectorAll('[data-act^="p"]')[i]?.classList?.add('picked');
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.phase==='run'){
+      let budget=900000;
+      while(budget>0 && this.trial<TRIALS){
+        if(!this.cur){ this.cur=makeHLL(RP); this.curFed=0; this.base=(this.trial+1)*0x2000000; }
+        const feed=Math.min(budget, RDIST-this.curFed);
+        for(let i=0;i<feed;i++) this.cur.add(this.base + this.curFed + i);
+        this.curFed+=feed; budget-=feed;
+        if(this.curFed>=RDIST){
+          const est=this.cur.count();
+          this.errs.push(100*(est-RDIST)/RDIST);
+          this.cur=null; this.trial++;
+        }
+      }
+      if(this.trial>=TRIALS && this.phase==='run'){
+        this.phase='done';
+        const rms=Math.sqrt(this.errs.reduce((s,e)=>s+e*e,0)/this.errs.length);
+        const call=EOPTS[this.picked];
+        const ratio=Math.max(call,rms)/Math.min(call,rms);
+        this.verdict = ratio<2.2 ? 'CALLED IT — 1.04/√16,384 ≈ 0.81%'
+          : call<rms ? 'TOO HOPEFUL ×'+ratio.toFixed(0)+' — √m ONLY BUYS SO MUCH'
+          : 'TOO GLOOMY ×'+ratio.toFixed(0)+' — TWELVE KILOBYTES REALLY ARE THIS GOOD';
+      }
+    }
+    this.pushMetrics();
+  },
+  pushMetrics(){
+    const rms=this.errs.length? Math.sqrt(this.errs.reduce((s,e)=>s+e*e,0)/this.errs.length):NaN;
+    setM('rep.call', this.picked===null?'–':EOPTL[this.picked]);
+    setM('rep.trials', this.trial+' / '+TRIALS+(this.phase==='done'?' · DONE':''));
+    setM('rep.rms', isNaN(rms)?'–':rms.toFixed(2)+'% (FORMULA 0.81%)');
+    setM('rep.verdict', this.verdict);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    if(this.phase==='idle'){
+      ctx.textAlign='center';
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('COMMIT FIRST — SIXTEEN MILLION HASHES RUN WHEN YOU CALL THE ERROR', W/2, H/2-16);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('m = 16,384 REGISTERS (12 KB, THE REDIS DEFAULT) · 1,000,000 DISTINCT IDS PER TRIAL', W/2, H/2+4);
+      ctx.fillText('HOW FAR OFF IS THE COUNT, TYPICALLY?', W/2, H/2+22);
+      return;
+    }
+    // error axis ±3%
+    const x0=70, x1=W-40, ay=H/2-24;
+    const X=e=>x0+(x1-x0)*((e+3)/6);
+    ctx.strokeStyle=CSS.line; ctx.beginPath(); ctx.moveTo(x0,ay); ctx.lineTo(x1,ay); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    [-3,-2,-1,0,1,2,3].forEach(v=>{
+      ctx.beginPath(); ctx.moveTo(X(v),ay-4); ctx.lineTo(X(v),ay+4); ctx.stroke();
+      ctx.fillText((v>0?'+':'')+v+'%', X(v), ay+18);
+    });
+    // formula band ±0.81
+    ctx.fillStyle='rgba(59,158,189,0.14)';
+    ctx.fillRect(X(-0.81), ay-34, X(0.81)-X(-0.81), 34);
+    ctx.fillStyle=CSS.b; ctx.textAlign='center';
+    ctx.fillText('±1.04/√m = ±0.81%', X(0), ay-40);
+    // trial dots
+    this.errs.forEach((e,i)=>{
+      const x=Math.max(x0,Math.min(x1,X(e)));
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(x, ay-10-(i%4)*7, 3, 0, 7); ctx.fill();
+    });
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SIGNED ERROR OF EACH FINISHED TRIAL', x0, 26);
+    if(this.phase==='run'){
+      ctx.fillText('TRIAL '+(this.trial+1)+' — '+fmtN(this.curFed)+' / 1M IDS HASHED', x0, 42);
+    }
+    // your call vs rms on a magnitude ruler
+    const ry=H-46;
+    const Xr=v=>x0+(x1-x0)*(Math.log10(Math.max(0.01,v))+2)/3.2; // 0.01 .. 15.8
+    ctx.strokeStyle=CSS.line; ctx.beginPath(); ctx.moveTo(x0,ry); ctx.lineTo(x1,ry); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    [[0.01,'0.01%'],[0.1,'0.1%'],[0.8,'0.8%'],[5,'5%'],[15,'15%']].forEach(([v,l])=>{
+      ctx.beginPath(); ctx.moveTo(Xr(v),ry-4); ctx.lineTo(Xr(v),ry+4); ctx.stroke();
+      ctx.fillText(l, Xr(v), ry+16);
+    });
+    ctx.textAlign='left'; ctx.fillText('ERROR MAGNITUDE (LOG)', x0, ry-28);
+    const dot=(v,col,label,dy)=>{
+      const x=Math.max(x0,Math.min(x1,Xr(v)));
+      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x, ry, 4, 0, 7); ctx.fill();
+      ctx.textAlign= x>W-160?'right':'left';
+      ctx.fillText(label, x+(x>W-160?-8:8), ry+dy);
+    };
+    if(this.picked!==null) dot(EOPTS[this.picked], CSS.fault, 'YOUR CALL '+EOPTL[this.picked], -10);
+    if(this.phase==='done'){
+      const rms=Math.sqrt(this.errs.reduce((s,e)=>s+e*e,0)/this.errs.length);
+      dot(rms, CSS.traffic, 'MEASURED RMS '+rms.toFixed(2)+'%', -22);
+    }
+    ctx.textAlign='center'; ctx.fillStyle= this.phase==='done'? CSS.traffic : CSS.muted;
+    ctx.fillText(this.phase==='done'
+      ? 'SIXTEEN MILLION REAL HASHES — THE BAND HELD'
+      : 'EVERY TRIAL IS AN INDEPENDENT 12 KB SKETCH MEETING A MILLION FRESH IDS', W/2, H-10);
+  },
+};
+rep.reset();
+[0,1,2,3].forEach(i=>{
+  document.querySelector('[data-act="p'+i+'"]').addEventListener('click',()=>rep.choose(i));
+});
+
+/* ================= EXP-01: SUM lies, MAX-merge doesn't ================= */
+const SHARDS=12, SP=12; // m=4096 per shard
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){
+    this.t=0; this.rng=mulberry32(21);
+    this.k=+document.getElementById('r-overlap').value;
+    this.hs=[]; this.shardN=new Array(SHARDS).fill(0);
+    for(let i=0;i<SHARDS;i++) this.hs.push(makeHLL(SP));
+    this.users=0; this.mergedEst=0; this.nextMerge=0.4;
+    // seed a little so the first paint is alive
+    for(let i=0;i<2000;i++) this.addUser();
+  },
+  addUser(){
+    this.users++;
+    const id=this.users;
+    // how many shards this visitor touches: mean = slider (geometric-ish, capped)
+    let k=1;
+    while(k<SHARDS && this.rng()<(this.k-1)/this.k) k++;
+    const picked=new Set();
+    while(picked.size<k) picked.add((this.rng()*SHARDS)|0);
+    picked.forEach(s=>{ this.hs[s].add(id); this.shardN[s]++; });
+  },
+  update(dt){
+    this.t+=dt;
+    const k=+document.getElementById('r-overlap').value;
+    document.getElementById('o-overlap').textContent=k;
+    if(k!==this.k){ this.reset(); return; }
+    let n=0;
+    while(n<85){ this.addUser(); n++; }   // ~2500 users/s
+    if(this.t>=this.nextMerge){
+      this.nextMerge=this.t+0.5;
+      const merged=makeHLL(SP);
+      for(let s=0;s<SHARDS;s++)
+        for(let j=0;j<merged.m;j++)
+          if(this.hs[s].regs[j]>merged.regs[j]) merged.regs[j]=this.hs[s].regs[j];
+      this.mergedEst=merged.count();
+    }
+    const sum=this.shardN.reduce((a,b)=>a+b,0);
+    const err=100*(this.mergedEst-this.users)/Math.max(1,this.users);
+    setM('e1.sum', fmtN(sum)+' — ×'+(sum/Math.max(1,this.users)).toFixed(2)+' OVER');
+    setM('e1.hll', fmtN(this.mergedEst)+' ('+(err>=0?'+':'')+err.toFixed(1)+'%)');
+    setM('e1.true', fmtN(this.users));
+    setM('e1.bytes', '12 SKETCHES × 3 KB vs '+fmtN(sum*8)+' B OF RAW IDS');
+    if(this.users>400000) this.reset();
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    // shard chips
+    const cw=(W-200)/SHARDS;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('12 SHARDS — EACH COUNTS ITS OWN VISITORS', 16, 24);
+    for(let s=0;s<SHARDS;s++){
+      const x=16+s*cw, y=36;
+      ctx.strokeStyle=CSS.line; ctx.strokeRect(x, y, cw-6, 30);
+      ctx.fillStyle=CSS.b; ctx.globalAlpha=0.35;
+      ctx.fillRect(x+1, y+1, (cw-8)*Math.min(1,this.shardN[s]/(this.users||1)), 28);
+      ctx.globalAlpha=1;
+      ctx.fillStyle=CSS.ink; ctx.textAlign='center';
+      ctx.fillText(fmtN(this.shardN[s]), x+(cw-6)/2, y+19);
+    }
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(W/2-60, 74); ctx.lineTo(W/2-60, 92); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    ctx.fillText('PFMERGE — REGISTER-WISE MAX OF ALL 12', W/2-60, 104);
+    // three verdicts
+    const sum=this.shardN.reduce((a,b)=>a+b,0);
+    const row=(y,label,val,col,note)=>{
+      ctx.textAlign='left'; ctx.fillStyle=CSS.muted; ctx.fillText(label, 16, y);
+      ctx.fillStyle=col; ctx.font='16px ui-monospace,Menlo,monospace';
+      ctx.fillText(fmtN(val), 190, y);
+      ctx.font='10px ui-monospace,Menlo,monospace';
+      ctx.fillStyle=CSS.muted; ctx.fillText(note, 300, y);
+    };
+    row(140, 'SUM OF COUNTERS', sum, CSS.fault, '— EVERY VISITOR, ONCE PER SHARD TOUCHED');
+    row(170, 'MAX-MERGED SKETCH', this.mergedEst, CSS.traffic, '— THE UNION, COMPUTED WITHOUT THE DATA');
+    row(200, 'TRUE UNIQUES', this.users, CSS.ink, '— WHAT ACTUALLY HAPPENED');
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('A RECORD ACROSS ALL ROOMS IS THE BEST RECORD ANY ROOM SAW — MAX IS THE UNION, EXACTLY', W/2, H-14);
+  },
+};
+e1.reset();
+
+/* ================= EXP-02: one register vs sixteen vs a thousand ================= */
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){
+    this.t=0; this.rng=mulberry32(33);
+    this.h1=makeHLL(0);   // m=1 — the lone witness
+    this.h16=makeHLL(4);
+    this.h1024=makeHLL(10);
+    this.n=0; this.hist=[]; this.nextSamp=0.3;
+    for(let i=0;i<300;i++) this.step();
+  },
+  step(){
+    this.n++;
+    const id=(this.rng()*4294967295)>>>0;
+    this.h1.add(id); this.h16.add(id); this.h1024.add(id);
+  },
+  oneEst(){ // a single register can only say (roughly) 2^record
+    return Math.pow(2, this.h1.regs[0]);
+  },
+  update(dt){
+    this.t+=dt;
+    let n=0; while(n<70){ this.step(); n++; }   // ~2000/s
+    if(this.t>=this.nextSamp){
+      this.nextSamp=this.t+0.3;
+      this.hist.push({n:this.n, e1:this.oneEst(), e16:this.h16.count(), e1024:this.h1024.count()});
+      if(this.hist.length>110) this.hist.shift();
+    }
+    const pct=(e)=> (e>=this.n?'+':'')+(100*(e-this.n)/this.n).toFixed(0)+'%';
+    setM('e2.true', fmtN(this.n));
+    setM('e2.one', fmtN(this.oneEst())+' ('+pct(this.oneEst())+')');
+    setM('e2.m16', fmtN(this.h16.count())+' ('+pct(this.h16.count())+')');
+    setM('e2.m1024', fmtN(this.h1024.count())+' ('+pct(this.h1024.count())+')');
+    if(this.n>350000) this.reset();
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const x0=56, x1=W-20, y0=34, y1=H-54;
+    const lo=2, hi=6.7; // log10 range 100 .. ~5M
+    const Y=v=>y1-(y1-y0)*Math.min(1,Math.max(0,(Math.log10(Math.max(100,v))-lo)/(hi-lo)));
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(x0,y0,x1-x0,y1-y0);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+    [[100,'100'],[1000,'1K'],[10000,'10K'],[100000,'100K'],[1000000,'1M']].forEach(([v,l])=>ctx.fillText(l, x0-6, Y(v)+3));
+    const n=this.hist.length;
+    if(n>1){
+      const X=i=>x0+(x1-x0)*(i/(110-1));
+      const line=(f,col,dash)=>{
+        ctx.strokeStyle=col; if(dash) ctx.setLineDash([3,3]);
+        ctx.beginPath();
+        for(let i=0;i<n;i++){ const x=X(i), y=Y(f(this.hist[i])); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }
+        ctx.stroke(); ctx.setLineDash([]);
+      };
+      line(h=>h.n, CSS.ink, true);
+      line(h=>h.e1, CSS.fault, false);
+      line(h=>h.e16, CSS.a, false);
+      line(h=>h.e1024, CSS.traffic, false);
+    }
+    ctx.textAlign='left';
+    ctx.fillStyle=CSS.ink;    ctx.fillText('· · TRUE', x0+10, y0+14);
+    ctx.fillStyle=CSS.fault;  ctx.fillText('— 1 REGISTER (OCTAVE JUMPS)', x0+70, y0+14);
+    ctx.fillStyle=CSS.a;      ctx.fillText('— 16', x0+280, y0+14);
+    ctx.fillStyle=CSS.traffic;ctx.fillText('— 1,024', x0+330, y0+14);
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME STREAM INTO ALL THREE — PRECISION IS BOUGHT IN ROOMS, AND ROOMS COST √m', W/2, H-12);
+  },
+};
+e2.reset();
+
+/* ---------- wiring ---------- */
+const sims={hero,rep,e1,e2}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('rep','p-rep'); register('e1','p-e1'); register('e2','p-e2');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','rep','e1','e2']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

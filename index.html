@@ -220,8 +220,8 @@
       <li><a class="ep" href="#/lsm-tree" data-ep="lsm-tree">The LSM Tree</a></li>
       <li><a class="ep" href="#/hash-table" data-ep="hash-table">The Hash Table</a></li>
       <li><a class="ep" href="#/trie" data-ep="trie">The Trie</a></li>
-      <li><span class="soon">The Skip List<i>IDEA</i></span></li>
-      <li><span class="soon">The Counter · HyperLogLog<i>IDEA</i></span></li>
+      <li><a class="ep" href="#/skip-list" data-ep="skip-list">The Skip List</a></li>
+      <li><a class="ep" href="#/counter" data-ep="counter">The Counter · HyperLogLog</a></li>
       <li><span class="soon">The Sketch · Count-Min<i>IDEA</i></span></li>
       <li><span class="soon">The B-Tree<i>IDEA</i></span></li>
       <li><span class="soon">The Eviction · LRU<i>IDEA</i></span></li>
@@ -538,6 +538,24 @@
           while the scan pays per table entry; then radix compression — nodes for
           decisions, bytes for spelling.</span>
         </a>
+        <a class="card" href="#/skip-list">
+          <span class="k">The toolbox</span>
+          <span class="t">The Skip List</span>
+          <span class="d">A linked list that bought binary search with a coin. Call the
+          bill for one search in a million entries (log₂ n is a near-miss); the
+          leaderboard duel where a sorted array shifts ten thousand players per update
+          and Redis's choice shifts none; and the sorted-input killer that murders naive
+          BSTs while the coins never notice.</span>
+        </a>
+        <a class="card" href="#/counter">
+          <span class="k">The toolbox</span>
+          <span class="t">The Counter — HyperLogLog</span>
+          <span class="d">Count a million distinct visitors in twelve kilobytes by
+          remembering nothing but lucky streaks. Call the error of the Redis default
+          before sixteen million real hashes grade you; watch replayed duplicates fail
+          to move the estimate — by construction; then the merge that computes a
+          fleet-wide union without shipping a single ID.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -600,6 +618,8 @@ const EPISODES = {
   'lsm-tree':          {title:'The LSM Tree', file:'episodes/lsm-tree.html'},
   'hash-table':        {title:'The Hash Table', file:'episodes/hash-table.html'},
   'trie':              {title:'The Trie', file:'episodes/trie.html'},
+  'skip-list':         {title:'The Skip List', file:'episodes/skip-list.html'},
+  'counter':           {title:'The Counter · HyperLogLog', file:'episodes/counter.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');
