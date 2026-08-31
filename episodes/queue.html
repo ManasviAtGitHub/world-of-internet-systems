@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Queue — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  /* toolbox cards: the interview card + the revision card */
+  .tbx{border:1px solid var(--rule);background:var(--card);border-radius:6px;
+    padding:18px 20px 15px;margin:26px 0;font-size:15px}
+  .tbx .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-text);
+    text-transform:uppercase;display:block;margin-bottom:10px}
+  .tbx ul{list-style:none;margin:0 0 14px;padding:0}
+  .tbx li{margin:.5em 0;padding-left:20px;position:relative}
+  .tbx li::before{content:"→";position:absolute;left:0;top:1px;
+    font-family:var(--mono);font-size:12px;color:var(--accent-text)}
+  .tbx .met{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .tbx dl{display:grid;grid-template-columns:max-content 1fr;gap:7px 16px;
+    margin:0;border-top:1px solid var(--rule);padding-top:12px}
+  .tbx dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-text);padding-top:2px;white-space:nowrap}
+  .tbx dd{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .btn.picked{border-color:var(--traffic);color:var(--traffic)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .exp-note a{color:var(--series-b)}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Toolbox · The Capstone</p>
+  <h1>The Queue</h1>
+  <p class="dek">Thirty systems, eleven instruments, one law underneath all of it. Every
+  collapse this series ever showed you — the drowning load balancer, the wedged job
+  queue, the stalled LSM, the melting cache tier — was the same denominator going to
+  zero: <strong>wait ∝ 1/(1−ρ)</strong>. Utilization ρ is the only variable, the curve
+  is a hyperbola, and the knee lives near 80%. This is the closest thing distributed
+  systems has to a law of physics, and it is the last rep in the toolbox: predict
+  first, then run it — one more time.</p>
+  <p class="marginal">Everything below computes for real: live Poisson arrivals against
+  exponential servers with the theory curves drawn beside measured values, and the REP
+  traces the whole hyperbola with two million simulated requests via the Lindley
+  recursion — the exact arithmetic every episode's collapse ran on.</p>
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <div class="tbx">
+    <span class="k">The interview card — where you've ground this before</span>
+    <ul>
+      <li>"Why did the service fall over at 85% CPU when it was fine at 70%?"</li>
+      <li>"How much headroom is enough? What does 'the p99 blew up' have to do with load?"</li>
+      <li>"One shared queue or one queue per worker?" (You already know a company built on the answer.)</li>
+    </ul>
+    <dl>
+      <dt>Pattern</dt><dd>arrivals λ · service μ · utilization ρ = λ/μ — everything else follows</dd>
+      <dt>Space</dt><dd>the queue itself grows like ρ/(1−ρ) — unbounded as ρ → 1</dd>
+      <dt>Time</dt><dd>time in system ≈ S/(1−ρ) — flat at 50%, knee at ~80%, wall at 95%</dd>
+      <dt>The catch</dt><dd>ρ isn't the whole story: variance multiplies the wait, and bursty traffic pays the multiple</dd>
+    </dl>
+  </div>
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The same machine at 50% and 90% — 1.8× the load, ~5× the pain</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:280px" role="img" aria-label="Two identical single-server queues run live: at fifty percent utilization the queue is nearly empty and requests barely wait, while at ninety percent the queue seethes and measured time in system runs about ten times the service time, matching theory"></canvas>
+  <div class="exp-metrics">
+    <span>CALM WORLD<b data-m="hero.calm">–</b></span>
+    <span>HOT WORLD<b data-m="hero.hot">–</b></span>
+    <span>SERVED<b data-m="hero.served">0</b></span>
+    <span>THEORY 1/(1−ρ)<b data-m="hero.inv">2.0× AND 10.0× — MEASURED TRACKS BOTH</b></span>
+  </div>
+  <figcaption class="exp-note">Same server, same service speed, same dice — the only
+  difference is the arrival rate. At ρ = 0.5 a request mostly finds the server free.
+  At ρ = 0.9 it finds a line, and the line itself is made of people who found a line.
+  That compounding is the hyperbola: <em>you don't pay for the load, you pay for the
+  scarcity of idleness.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The last prediction</h2>
+  <p>You've seen this curve punish thirty systems. Now put a number on it:
+  <strong>a server running at 95% utilization — how much longer does a request take,
+  compared to the same server idle?</strong> Intuition says a busy server is maybe
+  "a bit slower". Commit; then the whole curve gets traced for real — thirty-five
+  utilization levels, forty thousand simulated requests each, plus two hundred
+  thousand at exactly 95% — using the Lindley recursion, the same arithmetic every
+  collapse in this series ran on.</p>
+</div>
+
+<figure class="exp" id="p-rep">
+  <figcaption class="exp-head">
+    <span class="exp-id">REP-01</span>
+    <span class="exp-title">Call the slowdown at 95% — then trace the whole hyperbola</span>
+    <span class="exp-run">
+      <button class="btn" data-act="p0">~2×</button>
+      <button class="btn" data-act="p1">~5×</button>
+      <button class="btn" data-act="p2">~20×</button>
+      <button class="btn" data-act="p3">~100×</button>
+      <button class="btn danger" data-reset="rep">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-rep" style="height:300px" role="img" aria-label="After you commit, measured slowdown dots trace the one-over-one-minus-rho hyperbola across utilizations from thirty to ninety-eight percent on a log axis; a marker at ninety-five percent compares your call against the measured twenty-fold slowdown"></canvas>
+  <div class="exp-metrics">
+    <span>YOUR CALL<b data-m="rep.call">–</b></span>
+    <span>SWEEP<b data-m="rep.sweep">–</b></span>
+    <span>MEASURED AT 95%<b data-m="rep.meas">–</b></span>
+    <span>VERDICT<b data-m="rep.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">Read the dots off the curve you just traced: 50% costs
+  2×, 80% costs 5×, 90% costs 10×, 95% costs 20× — and 99% would cost 100×. The last
+  few percent of "efficiency" are the most expensive real estate in computing. The
+  pocket line — the series' pocket line: <em>wait multiplies by 1/(1−ρ); the knee
+  lives at ~80%, and headroom isn't waste, it's the product.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>Utilization isn't the whole story</h2>
+  <p>Two systems at the same ρ can suffer very differently, because the queue is built
+  from <em>fluctuations</em>: a perfectly regular stream at 85% would barely queue at
+  all. Kingman's formula makes it precise — wait scales with the <em>variance</em> of
+  arrivals and service, not just their rates. That's why
+  <a href="../index.html#/shopify" target="_top">the Drop episode</a>'s flash-sale
+  bursts and <a href="../index.html#/ticketmaster" target="_top">the Onsale
+  episode</a>'s stampedes hurt so far beyond their average load, and why "smoothing" —
+  batching, pacing, jitter — is a capacity strategy. Below: three worlds, same 85%
+  utilization, different shapes of randomness.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Same 85% utilization, three shapes of randomness</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button>
+    <button class="btn danger" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-burst">Burst size</label>
+      <input type="range" id="r-burst" min="2" max="20" value="10" step="1">
+      <output id="o-burst">10</output> arrivals at once</div>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:270px" role="img" aria-label="Three queues at identical eighty-five percent utilization: deterministic service waits least, exponential service matches the textbook value, and batched arrivals wait many times longer — variance multiplies the queue"></canvas>
+  <div class="exp-metrics">
+    <span>CLOCKWORK SERVICE<b data-m="e1.d">–</b></span>
+    <span>EXPONENTIAL (M/M/1)<b data-m="e1.m">–</b></span>
+    <span>BURSTY ARRIVALS<b data-m="e1.batch">–</b></span>
+    <span>UTILIZATION<b data-m="e1.rho">0.85 — ALL THREE</b></span>
+  </div>
+  <figcaption class="exp-note">Same load, three bills. Deterministic service cuts the
+  textbook wait nearly in half — no unlucky long jobs to hide behind. Batched arrivals
+  blow it up by the burst size — everyone in a burst queues behind their own
+  companions. <em>Variance is a second utilization: you can buy capacity with
+  smoothness, and bursty clients spend capacity you never provisioned.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>Why the series began with a balancer</h2>
+  <p>One more law, and it closes the loop to
+  <a href="../index.html#/load-balancing" target="_top">the very first episode</a>.
+  Four servers can share work two ways: four private queues (requests pick a server
+  and commit) or one shared queue that any free server drains. Same machines, same
+  total traffic — but in the private world, one server can drown while its neighbor
+  idles, and an idle neighbor is capacity thrown away. Pooling makes idleness
+  <em>fungible</em>. Every load balancer ever deployed is an approximation of this
+  single mathematical fact.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Four private queues vs one shared — the Load Balancer, derived</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button>
+    <button class="btn danger" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-rho">Utilization</label>
+      <input type="range" id="r-rho" min="60" max="95" value="85" step="5">
+      <output id="o-rho">85</output>%</div>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:270px" role="img" aria-label="The same arrival stream with the same service times feeds four private queues and one shared queue with four servers; the private world's waits run several times longer because idle servers cannot help other queues"></canvas>
+  <div class="exp-metrics">
+    <span>FOUR PRIVATE QUEUES<b data-m="e2.sep">–</b></span>
+    <span>ONE SHARED QUEUE<b data-m="e2.pool">–</b></span>
+    <span>POOLING GAIN<b data-m="e2.gain">–</b></span>
+    <span>SERVED<b data-m="e2.served">0</b></span>
+  </div>
+  <figcaption class="exp-note">Identical arrivals, identical service times — the only
+  difference is whether idleness can travel. In the private world a queue can starve
+  beside an idle server; the shared queue makes that impossible, and the measured wait
+  drops several-fold at the same utilization. <em>This is the whole reason load
+  balancers exist — and why the series that ends here began where it did.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The case closes</h2>
+  <p>The keeper — for this page and for the whole series: <strong>every system is a
+  queue wearing a costume. Arrivals, service, and the hyperbola 1/(1−ρ) decide who
+  waits and who collapses; variance multiplies the bill; pooling and shedding and
+  headroom are the only three ways out — and every fix in thirty episodes was one of
+  them in disguise.</strong> The toolbox is complete: eleven instruments, each honestly
+  simulated, each anchored to systems you've watched run. When you come back in three
+  months for the rep, they'll all still be here, still computing.</p>
+
+  <div class="tbx">
+    <span class="k">The revision card — for the you that comes back in three months</span>
+    <ul>
+      <li>Where's the knee, and why is it a knee? <span class="met">(1/(1−ρ) is a hyperbola — flat till ~80%, then every point of utilization doubles down; you traced it)</span></li>
+      <li>What does 95% utilization actually cost? <span class="met">(~20× the idle response time — measured on two hundred thousand requests)</span></li>
+      <li>What does variance do at fixed load? <span class="met">(multiplies the wait — clockwork halves the textbook bill, bursts pay the burst size)</span></li>
+      <li>Why is one shared queue better than four private ones? <span class="met">(idleness becomes fungible — the load balancer's entire reason, derived)</span></li>
+    </ul>
+    <dl>
+      <dt>Seen under fire</dt><dd>every episode — but especially
+      <a href="../index.html#/load-balancing" target="_top">The Load Balancer</a> ·
+      <a href="../index.html#/shopify" target="_top">The Drop</a> ·
+      <a href="../index.html#/ticketmaster" target="_top">The Onsale</a> ·
+      <a href="../index.html#/stripe" target="_top">The Charge</a></dd>
+    </dl>
+  </div>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Leonard Kleinrock — <em>Queueing Systems, Volume 1: Theory</em>, Wiley, 1975 (M/M/1, M/M/c, and the arithmetic under this whole series).</li>
+    <li>J. F. C. Kingman — "The single server queue in heavy traffic", <em>Proc. Cambridge Phil. Soc.</em>, 1961 (the variance formula EXP-01 demonstrates).</li>
+    <li>Baron Schwartz — <a href="https://www.vividcortex.com/resources/queueing-theory">"The Essential Guide to Queueing Theory"</a> (the practitioner's version of the knee).</li>
+    <li>Google — <em>Site Reliability Engineering</em>, ch. 21–22 (handling overload and addressing cascading failures — the operational face of ρ → 1).</li>
+  </ul>
+</div>
+
+<footer class="col">
+  <hr class="foot-rule">
+    <p class="next">World of Internet Systems · <b>THE TOOLBOX IS COMPLETE</b> — eleven instruments, honestly simulated · <a href="../index.html" target="_top">back to the index</a> · or <a href="../index.html#/load-balancing" target="_top">begin again at The Load Balancer</a></p>
+</footer>
+</main>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const expRand=(rng,rate)=>-Math.log(1-rng())/rate;
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+
+/* ================= HERO: two worlds, one law ================= */
+const SVC=0.1; // mean service time, seconds
+function makeWorld(rng, lam){
+  return {
+    lam, q:[], busyUntil:0, cur:null, ring:[], served:0,
+    nextArr: expRand(rng, lam),
+    step(t, rng){
+      while(this.nextArr<=t){
+        this.q.push(this.nextArr);
+        this.nextArr+=expRand(rng, this.lam);
+      }
+      while(true){
+        if(this.cur===null){
+          if(this.q.length===0) break;
+          const arr=this.q.shift();
+          this.cur={arr, done:Math.max(this.busyUntil, arr)+expRand(rng, 1/SVC)};
+          if(this.cur.done<Math.max(this.busyUntil,arr)) this.cur.done=Math.max(this.busyUntil,arr)+0.001;
+        }
+        if(this.cur.done<=t){
+          this.ring.push((this.cur.done-this.cur.arr)/SVC);
+          if(this.ring.length>300) this.ring.shift();
+          this.busyUntil=this.cur.done; this.served++; this.cur=null;
+        } else break;
+      }
+    },
+    avg(){ return this.ring.length>40? this.ring.reduce((a,b)=>a+b,0)/this.ring.length : NaN; },
+  };
+}
+const hero = {
+  cv: document.getElementById('c-hero'),
+  reset(){
+    this.t=0; this.rng=mulberry32(5);
+    this.calm=makeWorld(this.rng, 5);   // rho 0.5
+    this.hot=makeWorld(this.rng, 9);    // rho 0.9
+  },
+  update(dt){
+    this.t+=dt;
+    this.calm.step(this.t, this.rng);
+    this.hot.step(this.t, this.rng);
+    const f=v=>isNaN(v)?'…':v.toFixed(1)+'×';
+    setM('hero.calm', 'ρ 0.50 · '+f(this.calm.avg())+' SERVICE TIME');
+    setM('hero.hot', 'ρ 0.90 · '+f(this.hot.avg())+' SERVICE TIME');
+    setM('hero.served', (this.calm.served+this.hot.served).toLocaleString('en-US'));
+    setM('hero.inv', '2.0× AND 10.0× — MEASURED TRACKS BOTH');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const lane=(y,label,w,col,theory)=>{
+      ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+      ctx.fillText(label, 16, y-14);
+      // server
+      ctx.strokeStyle=col; ctx.strokeRect(16, y, 44, 30);
+      if(w.cur){ ctx.fillStyle=col; ctx.globalAlpha=0.8; ctx.fillRect(17, y+1, 42, 28); ctx.globalAlpha=1; }
+      ctx.fillStyle= w.cur? '#0C1622' : CSS.muted; ctx.textAlign='center';
+      ctx.fillText(w.cur?'BUSY':'IDLE', 38, y+19);
+      // queue dots
+      const qn=Math.min(w.q.length, 46);
+      for(let i=0;i<qn;i++){
+        ctx.fillStyle=col; ctx.globalAlpha=0.85;
+        ctx.beginPath(); ctx.arc(80+i*11, y+15, 3.6, 0, 7); ctx.fill();
+        ctx.globalAlpha=1;
+      }
+      if(w.q.length>46){ ctx.fillStyle=CSS.muted; ctx.textAlign='left'; ctx.fillText('+'+(w.q.length-46), 80+46*11, y+19); }
+      // measured vs theory
+      const avg=w.avg();
+      ctx.textAlign='right';
+      ctx.fillStyle=col; ctx.font='16px ui-monospace,Menlo,monospace';
+      ctx.fillText(isNaN(avg)?'…':avg.toFixed(1)+'×', W-16, y+14);
+      ctx.font='10px ui-monospace,Menlo,monospace';
+      ctx.fillStyle=CSS.muted; ctx.fillText('THEORY '+theory, W-16, y+30);
+    };
+    lane(56,  'ρ = 0.50 — FIVE ARRIVALS/S AGAINST TEN SERVED/S', this.calm, CSS.b, '2.0×');
+    lane(160, 'ρ = 0.90 — NINE ARRIVALS/S, SAME SERVER', this.hot, CSS.traffic, '10.0×');
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME SERVER, SAME DICE — THE LINE IS MADE OF PEOPLE WHO FOUND A LINE', W/2, H-14);
+  },
+};
+hero.reset();
+
+/* ================= REP-01: trace the hyperbola ================= */
+const QOPTS=[2,5,20,100], QOPTL=['~2×','~5×','~20×','~100×'];
+const rep = {
+  cv: document.getElementById('c-rep'),
+  reset(){
+    this.t=0; this.picked=null; this.phase='idle';
+    this.rng=mulberry32(23);
+    this.pts=[]; this.rhoIdx=0; this.meas95=NaN; this.fed95=0; this.w95=0; this.sum95=0;
+    this.verdict='–';
+    document.querySelectorAll('[data-act^="p"]').forEach(b=>b.classList.remove('picked'));
+    this.pushMetrics();
+  },
+  choose(i){
+    if(this.picked!==null) return;
+    this.picked=i; this.phase='run';
+    document.querySelectorAll('[data-act^="p"]')[i]?.classList?.add('picked');
+  },
+  lindley(rho, n){ // avg time-in-system over n requests, in service-time units
+    let W=0, sum=0;
+    for(let i=0;i<n;i++){
+      const S=-Math.log(1-this.rng());          // service, mean 1
+      const A=-Math.log(1-this.rng())/rho;      // interarrival, mean 1/rho
+      W=Math.max(0, W+S-A);                     // wait of the NEXT arrival
+      sum+=W+S;                                 // this request's time in system
+    }
+    return sum/n;
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.phase==='run'){
+      if(this.rhoIdx<35){
+        const rho=0.30+this.rhoIdx*0.02;
+        this.pts.push({rho, slow:this.lindley(rho, 40000)});
+        this.rhoIdx++;
+      } else if(this.fed95<200000){
+        // the dedicated big measurement at exactly 95%
+        let W=this.w95, sum=0; const n=50000;
+        for(let i=0;i<n;i++){
+          const S=-Math.log(1-this.rng());
+          const A=-Math.log(1-this.rng())/0.95;
+          W=Math.max(0, W+S-A);
+          sum+=W+S;
+        }
+        this.w95=W; this.sum95+=sum; this.fed95+=n;
+      } else if(this.phase==='run'){
+        this.meas95=this.sum95/this.fed95;
+        this.phase='done';
+        const call=QOPTS[this.picked];
+        const ratio=Math.max(call,this.meas95)/Math.min(call,this.meas95);
+        this.verdict = ratio<1.8 ? 'CALLED IT — HEADROOM ISN\'T WASTE, IT\'S THE PRODUCT'
+          : this.picked===1 ? 'THAT\'S 80% — THE KNEE. 95% IS WELL PAST IT'
+          : call>this.meas95 ? 'HIGH — THAT\'S THE 99% BILL; 95% "ONLY" COSTS 20×'
+          : 'LOW — A BUSY SERVER ISN\'T "A BIT SLOWER", IT\'S A HYPERBOLA';
+      }
+    }
+    this.pushMetrics();
+  },
+  pushMetrics(){
+    const last=this.pts[this.pts.length-1];
+    setM('rep.call', this.picked===null?'–':QOPTL[this.picked]);
+    setM('rep.sweep', this.phase==='idle'?'–': this.rhoIdx<35? 'ρ '+(0.30+this.rhoIdx*0.02).toFixed(2)+' — 40K REQUESTS/STEP'
+      : this.fed95<200000? '95% DEEP MEASURE — '+Math.round(this.fed95/1000)+'K / 200K' : 'DONE — 1.6M REQUESTS TOTAL');
+    setM('rep.meas', isNaN(this.meas95)?'–':this.meas95.toFixed(1)+'× (THEORY 20.0×)');
+    setM('rep.verdict', this.verdict);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    if(this.phase==='idle'){
+      ctx.textAlign='center';
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('COMMIT FIRST — THE LAW OF THE WHOLE SERIES RUNS WHEN YOU CALL IT', W/2, H/2-16);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('A SERVER AT 95% UTILIZATION — HOW MUCH SLOWER IS EACH REQUEST THAN AT IDLE?', W/2, H/2+4);
+      ctx.fillText('THE CURVE WILL BE TRACED WITH 1.6 MILLION SIMULATED REQUESTS', W/2, H/2+22);
+      return;
+    }
+    const x0=56, x1=W-30, y0=30, y1=H-58;
+    const X=r=>x0+(x1-x0)*((r-0.3)/0.7);
+    const Y=s=>y1-(y1-y0)*Math.min(1,(Math.log10(Math.max(1,s)))/2);
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(x0,y0,x1-x0,y1-y0);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+    [[1,'1×'],[2,'2×'],[5,'5×'],[10,'10×'],[20,'20×'],[50,'50×'],[100,'100×']].forEach(([v,l])=>ctx.fillText(l, x0-6, Y(v)+3));
+    ctx.textAlign='center';
+    [0.3,0.5,0.7,0.8,0.9,0.95,1.0].forEach(r=>ctx.fillText(Math.round(r*100)+'%', X(r), y1+16));
+    ctx.textAlign='left'; ctx.fillText('SLOWDOWN vs IDLE (LOG)', x0+6, y0+14);
+    ctx.textAlign='right'; ctx.fillText('UTILIZATION ρ', x1, y1+30);
+    // theory
+    ctx.strokeStyle=CSS.b; ctx.setLineDash([3,3]); ctx.beginPath();
+    for(let r=0.3;r<=0.985;r+=0.005){
+      const x=X(r), y=Y(1/(1-r));
+      r===0.3?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=CSS.b; ctx.textAlign='left'; ctx.fillText('1/(1−ρ)', X(0.62), Y(3.3));
+    // the knee
+    ctx.strokeStyle=CSS.line; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(X(0.8), y0); ctx.lineTo(X(0.8), y1); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left'; ctx.fillText('THE KNEE', X(0.8)+5, y0+14);
+    // measured dots
+    ctx.fillStyle=CSS.traffic;
+    this.pts.forEach(p=>{ ctx.beginPath(); ctx.arc(X(p.rho), Y(p.slow), 2.6, 0, 7); ctx.fill(); });
+    // the 95% verdict markers
+    if(this.picked!==null){
+      ctx.fillStyle=CSS.fault;
+      ctx.beginPath(); ctx.arc(X(0.95), Y(QOPTS[this.picked]), 4.5, 0, 7); ctx.fill();
+      ctx.textAlign='right';
+      ctx.fillText('YOUR CALL '+QOPTL[this.picked], X(0.95)-8, Y(QOPTS[this.picked])+3);
+    }
+    if(!isNaN(this.meas95)){
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(X(0.95), Y(this.meas95), 5, 0, 7); ctx.fill();
+      ctx.textAlign='right';
+      ctx.fillText('MEASURED '+this.meas95.toFixed(1)+'×', X(0.95)-9, Y(this.meas95)-8);
+    }
+    ctx.textAlign='center'; ctx.fillStyle= this.phase==='done'? CSS.traffic : CSS.muted;
+    ctx.fillText(this.phase==='done'
+      ? 'THE CURVE EVERY EPISODE LIVED UNDER — TRACED, NOT QUOTED'
+      : 'TRACING — EVERY DOT IS 40,000 SIMULATED REQUESTS', W/2, H-10);
+  },
+};
+rep.reset();
+[0,1,2,3].forEach(i=>{
+  document.querySelector('[data-act="p'+i+'"]').addEventListener('click',()=>rep.choose(i));
+});
+
+/* ================= EXP-01: three shapes of randomness ================= */
+const E1RHO=0.85;
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){
+    this.t=0; this.rng=mulberry32(31);
+    this.burst=+document.getElementById('r-burst').value;
+    this.wD=0; this.wM=0; this.wB=0; this.bLeft=0;
+    this.rD=[]; this.rM=[]; this.rB=[];
+  },
+  update(dt){
+    this.t+=dt;
+    const b=+document.getElementById('r-burst').value;
+    document.getElementById('o-burst').textContent=b;
+    if(b!==this.burst){ this.reset(); return; }
+    const push=(r,v)=>{ r.push(v); if(r.length>4000) r.shift(); };
+    for(let i=0;i<400;i++){
+      // clockwork service, poisson arrivals (M/D/1)
+      { const S=1, A=-Math.log(1-this.rng())/E1RHO;
+        this.wD=Math.max(0,this.wD+S-A); push(this.rD, this.wD+S); }
+      // exponential service (M/M/1)
+      { const S=-Math.log(1-this.rng()), A=-Math.log(1-this.rng())/E1RHO;
+        this.wM=Math.max(0,this.wM+S-A); push(this.rM, this.wM+S); }
+      // bursty arrivals: every burst-th gap is exponential, the rest arrive together
+      { const S=-Math.log(1-this.rng());
+        let A=0;
+        if(this.bLeft<=0){ A=-Math.log(1-this.rng())*this.burst/E1RHO; this.bLeft=this.burst; }
+        this.bLeft--;
+        this.wB=Math.max(0,this.wB+S-A); push(this.rB, this.wB+S); }
+    }
+    const avg=r=>r.length>500? r.reduce((a,b)=>a+b,0)/r.length : NaN;
+    const f=v=>isNaN(v)?'…':v.toFixed(1)+'×';
+    setM('e1.d', f(avg(this.rD)));
+    setM('e1.m', f(avg(this.rM))+' (THEORY 6.7×)');
+    setM('e1.batch', f(avg(this.rB))+' AT BURSTS OF '+this.burst);
+    setM('e1.rho', '0.85 — ALL THREE');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const avg=r=>r.length>500? r.reduce((a,b)=>a+b,0)/r.length : 0;
+    const rows=[
+      ['CLOCKWORK SERVICE — NO LONG JOBS TO HIDE BEHIND', avg(this.rD), CSS.b],
+      ['EXPONENTIAL — THE TEXTBOOK M/M/1', avg(this.rM), CSS.a],
+      ['BURSTS OF '+this.burst+' — EVERYONE QUEUES BEHIND THEIR COMPANIONS', avg(this.rB), CSS.fault],
+    ];
+    const bx=60, bw=W-260, maxV=Math.max(10, ...rows.map(r=>r[1]));
+    rows.forEach((r,i)=>{
+      const y=48+i*56;
+      ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+      ctx.fillText(r[0], 16, y-8);
+      ctx.strokeStyle=CSS.line; ctx.strokeRect(bx, y, bw, 18);
+      ctx.fillStyle=r[2];
+      ctx.fillRect(bx+1, y+1, (bw-2)*Math.min(1, r[1]/maxV), 16);
+      ctx.fillStyle=CSS.ink;
+      ctx.font='13px ui-monospace,Menlo,monospace';
+      ctx.fillText(r[1]? r[1].toFixed(1)+'× SERVICE':'…', bx+bw+12, y+14);
+      ctx.font='10px ui-monospace,Menlo,monospace';
+    });
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('ONE UTILIZATION, THREE BILLS — VARIANCE IS A SECOND UTILIZATION', W/2, H-14);
+  },
+};
+e1.reset();
+
+/* ================= EXP-02: pooling — the Load Balancer, derived ================= */
+const NSRV=4, MU=5; // per-server service rate
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){
+    this.t=0; this.rng=mulberry32(43);
+    this.rho=+document.getElementById('r-rho').value/100;
+    this.lam=NSRV*MU*this.rho;
+    this.nextArr=expRand(this.rng, this.lam);
+    this.sep={qs:[[],[],[],[]], busy:[0,0,0,0], ring:[], served:0};
+    this.pool={q:[], busy:[0,0,0,0], ring:[], served:0};
+  },
+  update(dt){
+    this.t+=dt;
+    const rho=+document.getElementById('r-rho').value/100;
+    document.getElementById('o-rho').textContent=Math.round(rho*100);
+    if(rho!==this.rho){ this.reset(); return; }
+    while(this.nextArr<=this.t){
+      const arr=this.nextArr;
+      this.nextArr+=expRand(this.rng, this.lam);
+      const svc=expRand(this.rng, MU);          // same service time in both worlds
+      const pick=(this.rng()*NSRV)|0;           // the private world commits blindly
+      this.sep.qs[pick].push({arr, svc});
+      this.pool.q.push({arr, svc});
+    }
+    const S=0.2; // mean service, for normalizing
+    // private queues
+    for(let s=0;s<NSRV;s++){
+      const q=this.sep.qs[s];
+      while(q.length && this.sep.busy[s]<=this.t){
+        const j=q.shift();
+        const start=Math.max(this.sep.busy[s], j.arr);
+        const done=start+j.svc;
+        this.sep.busy[s]=done;
+        this.sep.ring.push((done-j.arr)/S); if(this.sep.ring.length>1500) this.sep.ring.shift();
+        this.sep.served++;
+      }
+    }
+    // the shared queue: any free server takes the next job
+    for(;;){
+      let free=-1, ft=Infinity;
+      for(let s=0;s<NSRV;s++) if(this.pool.busy[s]<ft){ ft=this.pool.busy[s]; free=s; }
+      if(!this.pool.q.length || ft>this.t) break;
+      const j=this.pool.q[0];
+      const start=Math.max(ft, j.arr);
+      if(start>this.t) break;
+      this.pool.q.shift();
+      const done=start+j.svc;
+      this.pool.busy[free]=done;
+      this.pool.ring.push((done-j.arr)/S); if(this.pool.ring.length>1500) this.pool.ring.shift();
+      this.pool.served++;
+    }
+    const avg=r=>r.length>60? r.reduce((a,b)=>a+b,0)/r.length : NaN;
+    const sa=avg(this.sep.ring), pa=avg(this.pool.ring);
+    const f=v=>isNaN(v)?'…':v.toFixed(1)+'× SERVICE';
+    setM('e2.sep', f(sa));
+    setM('e2.pool', f(pa));
+    setM('e2.gain', (isNaN(sa)||isNaN(pa))?'–':'×'+(sa/pa).toFixed(1)+' LOWER WAIT, SAME MACHINES');
+    setM('e2.served', (this.sep.served+this.pool.served).toLocaleString('en-US'));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    // left: four private queues
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('FOUR PRIVATE QUEUES — ARRIVALS COMMIT BLINDLY', 16, 26);
+    for(let s=0;s<NSRV;s++){
+      const y=44+s*40;
+      const busy=this.sep.busy[s]>this.t;
+      ctx.strokeStyle=CSS.a; ctx.strokeRect(16, y, 34, 24);
+      if(busy){ ctx.fillStyle=CSS.a; ctx.globalAlpha=0.8; ctx.fillRect(17,y+1,32,22); ctx.globalAlpha=1; }
+      const qn=Math.min(this.sep.qs[s].length, 18);
+      for(let i=0;i<qn;i++){
+        ctx.fillStyle=CSS.a; ctx.globalAlpha=0.85;
+        ctx.beginPath(); ctx.arc(62+i*10, y+12, 3.2, 0, 7); ctx.fill(); ctx.globalAlpha=1;
+      }
+      if(this.sep.qs[s].length>18){ ctx.fillStyle=CSS.muted; ctx.textAlign='left'; ctx.fillText('+'+(this.sep.qs[s].length-18), 62+18*10, y+16); }
+    }
+    // right: the shared queue
+    const rx=W/2+30;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('ONE SHARED QUEUE — IDLENESS IS FUNGIBLE', rx, 26);
+    const qn=Math.min(this.pool.q.length, 22);
+    for(let i=0;i<qn;i++){
+      ctx.fillStyle=CSS.b; ctx.globalAlpha=0.85;
+      ctx.beginPath(); ctx.arc(rx+6+i*10, 52, 3.2, 0, 7); ctx.fill(); ctx.globalAlpha=1;
+    }
+    if(this.pool.q.length>22){ ctx.fillStyle=CSS.muted; ctx.fillText('+'+(this.pool.q.length-22), rx+6+22*10, 56); }
+    for(let s=0;s<NSRV;s++){
+      const y=76+s*32;
+      const busy=this.pool.busy[s]>this.t;
+      ctx.strokeStyle=CSS.b; ctx.strokeRect(rx, y, 34, 24);
+      if(busy){ ctx.fillStyle=CSS.b; ctx.globalAlpha=0.8; ctx.fillRect(rx+1,y+1,32,22); ctx.globalAlpha=1; }
+      ctx.fillStyle= busy? '#0C1622':CSS.muted; ctx.textAlign='center';
+      ctx.fillText(busy?'BUSY':'IDLE', rx+17, y+16);
+    }
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME ARRIVALS, SAME SERVICE TIMES — ONLY WHETHER IDLENESS CAN TRAVEL DIFFERS', W/2, H-14);
+  },
+};
+e2.reset();
+
+/* ---------- wiring ---------- */
+const sims={hero,rep,e1,e2}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('rep','p-rep'); register('e1','p-e1'); register('e2','p-e2');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','rep','e1','e2']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

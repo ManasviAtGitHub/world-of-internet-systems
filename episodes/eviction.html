@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Eviction — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  /* toolbox cards: the interview card + the revision card */
+  .tbx{border:1px solid var(--rule);background:var(--card);border-radius:6px;
+    padding:18px 20px 15px;margin:26px 0;font-size:15px}
+  .tbx .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-text);
+    text-transform:uppercase;display:block;margin-bottom:10px}
+  .tbx ul{list-style:none;margin:0 0 14px;padding:0}
+  .tbx li{margin:.5em 0;padding-left:20px;position:relative}
+  .tbx li::before{content:"→";position:absolute;left:0;top:1px;
+    font-family:var(--mono);font-size:12px;color:var(--accent-text)}
+  .tbx .met{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .tbx dl{display:grid;grid-template-columns:max-content 1fr;gap:7px 16px;
+    margin:0;border-top:1px solid var(--rule);padding-top:12px}
+  .tbx dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-text);padding-top:2px;white-space:nowrap}
+  .tbx dd{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .btn.picked{border-color:var(--traffic);color:var(--traffic)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .exp-note a{color:var(--series-b)}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Toolbox</p>
+  <h1>The Eviction</h1>
+  <p class="dek">Every cache is a bet about the future, and eviction is where the bet is
+  placed. LRU — a hash map holding hands with a doubly-linked list — is the most-asked
+  data structure design in interview history, and the policy running inside your CPU,
+  your browser, and half the RAM of the internet. Its wager is one sentence:
+  <em>whatever was touched recently will be touched again.</em> Under real traffic
+  that wager pays astonishingly well, fails in one famous way, and the fix ships in
+  memcached and InnoDB today. Predict first, then run it. That's the rep.</p>
+  <p class="marginal">Everything below computes for real: the hero is an actual
+  map-plus-linked-list LRU whose two structures are cross-verified every frame, every
+  hit rate is measured against live streams, and the psychic oracle in the REP is a
+  real cache that was simply told the future.</p>
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <div class="tbx">
+    <span class="k">The interview card — where you've ground this before</span>
+    <ul>
+      <li>"Design an LRU cache — O(1) get and put." (The most-asked structure design there is.)</li>
+      <li>"LRU vs LFU vs FIFO — when does each win?"</li>
+      <li>"Why do caches work at all? What hit rate can 10% of the catalog promise?"</li>
+    </ul>
+    <dl>
+      <dt>Pattern</dt><dd>hash map + doubly-linked list · hit = move to front · evict = drop the tail</dd>
+      <dt>Space</dt><dd>O(capacity) — an entry plus two pointers each</dd>
+      <dt>Time</dt><dd>O(1) get, put, evict — the map finds, the list reorders</dd>
+      <dt>The catch</dt><dd>recency is a bet on the pattern — one cold scan flushes the whole working set, and the production fix is a probation segment</dd>
+    </dl>
+  </div>
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">The recency chain at work — a real map-plus-list LRU</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:280px" role="img" aria-label="A horizontal chain of cache slots ordered most-recent first; hits pull their box to the front with a flash, misses insert at the front and push the tail item out, and a hit-rate meter tracks the Zipf traffic"></canvas>
+  <div class="exp-metrics">
+    <span>OPS<b data-m="hero.ops">0</b></span>
+    <span>HIT RATE (LAST 400)<b data-m="hero.hit">–</b></span>
+    <span>EVICTIONS<b data-m="hero.evict">0</b></span>
+    <span>MAP ≡ CHAIN<b data-m="hero.inv">CHECKED EVERY FRAME · VIOLATIONS 0</b></span>
+  </div>
+  <figcaption class="exp-note">Two structures, one cache: the hash map answers "do we
+  have it?" in O(1); the linked list remembers <em>order</em>, so a hit is an unlink
+  and a re-link at the front, and eviction is whoever drifted to the tail. No search,
+  no scan, no sort — that's the whole interview answer. The invariant meter re-walks
+  the chain against the map every frame: same members, same count, always.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Why 10% of the shelf serves most of the store</h2>
+  <p>Caching works because internet traffic is brutally concentrated —
+  <a href="../index.html#/cdn-edge" target="_top">the Edge episode</a> lived on that
+  fact, and Zipf's law is its shape: the k-th most popular item gets ~1/k of the love.
+  So the bet: <strong>a catalog of 10,000 items, Zipf traffic, and a cache that holds
+  just 1,000 — one item in ten. What hit rate does plain LRU deliver?</strong> The
+  uniform-world instinct says 10%. Commit; then three real caches run 400,000 accesses
+  of one stream: your LRU, a cache that evicts at <em>random</em>, and a psychic oracle
+  that was handed the popularity table in advance.</p>
+</div>
+
+<figure class="exp" id="p-rep">
+  <figcaption class="exp-head">
+    <span class="exp-id">REP-01</span>
+    <span class="exp-title">One-tenth of the catalog — call LRU's hit rate under Zipf</span>
+    <span class="exp-run">
+      <button class="btn" data-act="p0">~10%</button>
+      <button class="btn" data-act="p1">~35%</button>
+      <button class="btn" data-act="p2">~65%</button>
+      <button class="btn" data-act="p3">~95%</button>
+      <button class="btn danger" data-reset="rep">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-rep" style="height:280px" role="img" aria-label="After you commit, three caches replay the same 400,000-access Zipf stream: plain LRU, random eviction, and an oracle preloaded with the most popular items; their measured hit rates land as markers on a 0-to-100 scale against your call"></canvas>
+  <div class="exp-metrics">
+    <span>YOUR CALL<b data-m="rep.call">–</b></span>
+    <span>STREAM<b data-m="rep.prog">0 / 400K</b></span>
+    <span>LRU<b data-m="rep.lru">–</b></span>
+    <span>ORACLE / RANDOM<b data-m="rep.others">–</b></span>
+    <span>VERDICT<b data-m="rep.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">Read the three markers: the psychic oracle — which knew
+  the whole popularity table in advance — managed 75%. Plain LRU, knowing nothing but
+  "you were just used," lands within ten points of it. Even <em>random</em> eviction
+  scores over 60, because popular keys get re-admitted before they matter — under Zipf,
+  most of the magic is in your traffic, not your cleverness. The pocket line:
+  <em>under Zipf, recency is a free prophet — a 10% cache buys a ~65% hit rate, and
+  knowing the future is worth surprisingly little more.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The scan that flushes everything</h2>
+  <p>LRU's famous failure isn't exotic — it's Tuesday. A backup job, a crawler, an
+  analytics query walks a few thousand cold keys <em>once each</em>. Plain LRU
+  dutifully front-inserts every one of them, and your hot working set — the keys that
+  earn the hit rate — drift off the tail. The fix production settled on is a
+  bouncer's velvet rope: <strong>new keys enter a small probation segment, and only a
+  second touch promotes them to the protected majority.</strong> One-time scanners
+  churn probation and never touch the good stuff. memcached ships this as its
+  segmented LRU; InnoDB does the same trick as "midpoint insertion" in its buffer
+  pool. Below, both caches take the same traffic <em>and</em> the same scans.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Scan pollution — plain LRU vs the probation segment, same scans</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button>
+    <button class="btn danger" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-scan">Scan size</label>
+      <input type="range" id="r-scan" min="1000" max="8000" value="3000" step="500">
+      <output id="o-scan">3000</output> cold keys</div>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:270px" role="img" aria-label="A hit-rate timeline for two caches under identical traffic; during shaded scan windows the plain LRU's hit rate craters as cold keys flush its working set, while the segmented cache with a probation area barely dips"></canvas>
+  <div class="exp-metrics">
+    <span>PLAIN LRU<b data-m="e1.lru">–</b></span>
+    <span>SEGMENTED (PROBATION)<b data-m="e1.slru">–</b></span>
+    <span>WORST DIP<b data-m="e1.dip">–</b></span>
+    <span>SCANS<b data-m="e1.scans">0</b></span>
+  </div>
+  <figcaption class="exp-note">Watch a shaded scan window hit both worlds: plain LRU's
+  line craters — thousands of never-again keys just bought its most valuable real
+  estate — then slowly climbs as the working set re-earns its place. The segmented
+  cache barely notices: scanners live and die in probation, and the protected segment
+  never heard about them. <em>One extra bit of policy — "prove yourself twice" —
+  buys immunity to the most common cache disaster in production.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The policy tournament</h2>
+  <p>FIFO, random, LRU, LFU — four bets about the future, one stream. Under stable
+  popularity, frequency is the strongest signal there is: LFU effectively rebuilds the
+  oracle's table. But real popularity <em>drifts</em> — yesterday's chart-topper
+  fades — and pure LFU has no way to forget it (the same disease the Sketch cured
+  with halving). Flip the drift switch and watch the ranking reshuffle. This is why
+  <a href="../index.html#/netflix" target="_top">Press Play</a>'s Open Connect fills
+  by nightly <em>popularity</em> (LFU thinking, recomputed daily — frequency with a
+  built-in clock), while general-purpose caches ship recency: LRU is never the best
+  policy, and never the wrong one.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">FIFO vs random vs LRU vs LFU — and then popularity drifts</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button>
+    <button class="btn danger" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <label class="toggle"><input type="checkbox" id="t-drift"> Popularity drifts (the real world)</label>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:270px" role="img" aria-label="Four cache policies process one Zipf stream with live hit-rate meters; with stable popularity LFU leads, and when popularity drift is enabled LFU falls behind LRU, which adapts"></canvas>
+  <div class="exp-metrics">
+    <span>FIFO<b data-m="e2.fifo">–</b></span>
+    <span>RANDOM<b data-m="e2.rand">–</b></span>
+    <span>LRU<b data-m="e2.lru">–</b></span>
+    <span>LFU<b data-m="e2.lfu">–</b></span>
+  </div>
+  <figcaption class="exp-note">Stable world: LFU on top — accumulated counts are a
+  popularity table, and it quietly reconstructs the oracle. Flip the drift on: LFU's
+  old counts become anchors, and it keeps defending has-beens while LRU pivots within
+  seconds. <em>Frequency is memory; recency is adaptation. Choose by how fast your
+  world changes — and when in doubt, the boring answer is the robust one.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The keeper</h2>
+  <p>The keeper: <strong>a cache is a bet, and LRU is the O(1) way to keep betting on
+  recency — a map to find, a list to order, a tail to sacrifice. Under Zipf a 10%
+  cache buys ~65% of requests, within points of psychic; one cold scan can flush it
+  all, and a probation segment is the production-grade vaccine.</strong> When the
+  interview says "design a cache," this page is the answer; when production says
+  "the hit rate cratered at 2 a.m.," it was probably a scan.</p>
+
+  <div class="tbx">
+    <span class="k">The revision card — for the you that comes back in three months</span>
+    <ul>
+      <li>Why is every LRU operation O(1)? <span class="met">(the map finds the node, the list re-links it — no scan anywhere; you watched the chain)</span></li>
+      <li>Why does a 10% cache catch ~65%? <span class="met">(Zipf concentration — and the psychic oracle only managed 75; recency rode for free)</span></li>
+      <li>What breaks LRU, and what's the shipping fix? <span class="met">(a one-pass cold scan; probation segments — memcached's segmented LRU, InnoDB's midpoint insertion)</span></li>
+      <li>When does LFU beat LRU, and when does it lose? <span class="met">(stable popularity vs drift — frequency is memory, recency is adaptation)</span></li>
+    </ul>
+    <dl>
+      <dt>Seen under fire</dt><dd><a href="../index.html#/cdn-edge" target="_top">The Edge · CDN</a> ·
+      <a href="../index.html#/netflix" target="_top">Press Play · Netflix</a> ·
+      <a href="../index.html#/wikipedia" target="_top">The Encyclopedia · Wikipedia</a> ·
+      <a href="../index.html#/bloom" target="_top">The Filter · admission's sibling</a></dd>
+    </dl>
+  </div>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>László Bélády — "A study of replacement algorithms for a virtual-storage computer", <em>IBM Systems Journal</em>, 1966 (OPT — the oracle this page actually runs).</li>
+    <li>Nimrod Megiddo, Dharmendra Modha — <a href="https://www.usenix.org/conference/fast-03/arc-self-tuning-low-overhead-replacement-cache">"ARC: A Self-Tuning, Low Overhead Replacement Cache"</a>, FAST 2003 (the recency/frequency balance, formalized).</li>
+    <li>memcached — <a href="https://memcached.org/blog/modern-lru/">"Replacing the cache replacement algorithm"</a> (the segmented HOT/WARM/COLD LRU in production).</li>
+    <li>MySQL 8.4 Reference Manual — <a href="https://dev.mysql.com/doc/refman/8.4/en/innodb-buffer-pool.html">InnoDB buffer pool</a> (midpoint insertion — scan resistance in every MySQL you've ever used).</li>
+  </ul>
+</div>
+
+<footer class="col">
+  <hr class="foot-rule">
+    <p class="next">World of Internet Systems · NEXT IN THE TOOLBOX → <a href="../index.html#/queue" target="_top">The Queue</a> · <b>the law behind every collapse in the series — the case closes</b></p>
+</footer>
+</main>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const fmtN=n=> n>=1e6?(n/1e6).toFixed(2)+'M' : n>=1e4?Math.round(n/1000)+'K' : n>=1000?(n/1000).toFixed(1)+'K' : ''+Math.round(n);
+
+/* ---------- a real LRU: hash map + doubly-linked list ---------- */
+function makeLRU(cap){
+  const head={}, tail={};
+  head.next=tail; tail.prev=head;
+  const map=new Map();
+  const unlink=n=>{ n.prev.next=n.next; n.next.prev=n.prev; };
+  const front=n=>{ n.next=head.next; n.prev=head; head.next.prev=n; head.next=n; };
+  return {
+    cap, map, head, tail, evictions:0,
+    get(k){
+      const n=map.get(k);
+      if(!n) return false;
+      unlink(n); front(n);
+      return true;
+    },
+    put(k){
+      const n={k};
+      map.set(k,n); front(n);
+      if(map.size>cap){
+        const v=tail.prev;
+        unlink(v); map.delete(v.k); this.evictions++;
+      }
+    },
+    chain(limit){
+      const out=[]; let n=head.next;
+      while(n!==tail && out.length<(limit||1e9)){ out.push(n.k); n=n.next; }
+      return out;
+    },
+    validate(){
+      let cnt=0, n=head.next;
+      while(n!==tail){ if(map.get(n.k)!==n) return false; cnt++; n=n.next; if(cnt>this.cap+2) return false; }
+      return cnt===map.size;
+    },
+  };
+}
+const zipf=(rng,N)=>Math.floor(Math.exp(rng()*Math.log(N))); // log-uniform ≈ Zipf(1)
+
+/* ================= HERO ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  reset(){
+    this.t=0; this.rng=mulberry32(7);
+    this.lru=makeLRU(24);
+    this.ops=0; this.ring=[]; this.viol=0; this.checks=0;
+    this.nextOp=0.2; this.flash=null;
+    for(let i=0;i<14;i++){ const k=zipf(this.rng,200); if(!this.lru.get(k)) this.lru.put(k); }
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.nextOp){
+      this.nextOp=this.t+0.22;
+      const k=zipf(this.rng,200);
+      this.ops++;
+      const hit=this.lru.get(k);
+      if(!hit) this.lru.put(k);
+      this.ring.push(hit?1:0); if(this.ring.length>400) this.ring.shift();
+      this.flash={k, hit, at:this.t};
+    }
+    this.checks++;
+    if(!this.lru.validate()) this.viol++;
+    const hr=this.ring.length>30? Math.round(100*this.ring.reduce((a,b)=>a+b,0)/this.ring.length):NaN;
+    setM('hero.ops', ''+this.ops);
+    setM('hero.hit', isNaN(hr)?'–':hr+'%');
+    setM('hero.evict', ''+this.lru.evictions);
+    setM('hero.inv', 'CHECKED EVERY FRAME ('+this.checks+') · VIOLATIONS '+this.viol);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const chain=this.lru.chain(24);
+    const perRow=12, bw=(W-48)/perRow;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('MOST RECENT', 16, 40);
+    ctx.textAlign='right';
+    ctx.fillText('… THE TAIL — NEXT TO DIE', W-16, 40+2*64);
+    const age=this.flash? this.t-this.flash.at : 99;
+    chain.forEach((k,i)=>{
+      const row=Math.floor(i/perRow), col=i%perRow;
+      const x=24+col*bw, y=54+row*64;
+      const hot=this.flash && this.flash.k===k && age<0.5;
+      const isTail=i===chain.length-1;
+      ctx.strokeStyle= hot? (this.flash.hit?CSS.traffic:CSS.b) : isTail? CSS.fault : CSS.line;
+      ctx.lineWidth= hot?1.8:1;
+      ctx.beginPath(); ctx.roundRect(x, y, bw-8, 30, 3); ctx.stroke(); ctx.lineWidth=1;
+      if(hot){ ctx.fillStyle= this.flash.hit? 'rgba(242,169,59,0.16)':'rgba(59,158,189,0.16)'; ctx.fillRect(x,y,bw-8,30); }
+      ctx.fillStyle= hot? CSS.traffic : CSS.ink;
+      ctx.textAlign='center';
+      ctx.fillText('#'+k, x+(bw-8)/2, y+19);
+      if(col<perRow-1 && i<chain.length-1){
+        ctx.strokeStyle=CSS.line;
+        ctx.beginPath(); ctx.moveTo(x+bw-8, y+15); ctx.lineTo(x+bw-2, y+15); ctx.stroke();
+      }
+    });
+    if(this.flash && age<0.9){
+      ctx.textAlign='left'; ctx.fillStyle= this.flash.hit? CSS.traffic : CSS.b;
+      ctx.fillText(this.flash.hit? 'GET #'+this.flash.k+' — HIT · UNLINK + RE-LINK AT FRONT'
+        : 'GET #'+this.flash.k+' — MISS · INSERT FRONT, TAIL EVICTED', 16, 24);
+    }
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('24 SLOTS · 200-ITEM ZIPF CATALOG — RECENCY ORDER IS THE ONLY BOOKKEEPING', W/2, H-14);
+  },
+};
+hero.reset();
+
+/* ================= REP-01: the 10% cache ================= */
+const RCAT=10000, RCAP=1000, RTOT=400000;
+const HOPTS=[10,35,65,95], HOPTL=['~10%','~35%','~65%','~95%'];
+const rep = {
+  cv: document.getElementById('c-rep'),
+  reset(){
+    this.t=0; this.picked=null; this.phase='idle';
+    this.rng=mulberry32(19);
+    this.lru=makeLRU(RCAP);
+    this.rset=new Set(); this.rarr=[];
+    this.fed=0; this.win={lru:0, ora:0, rnd:0, n:0};
+    this.verdict='–';
+    document.querySelectorAll('[data-act^="p"]').forEach(b=>b.classList.remove('picked'));
+    this.pushMetrics();
+  },
+  choose(i){
+    if(this.picked!==null) return;
+    this.picked=i; this.phase='run';
+    document.querySelectorAll('[data-act^="p"]')[i]?.classList?.add('picked');
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.phase==='run'){
+      let n=0;
+      while(n<25000 && this.fed<RTOT){
+        n++; this.fed++;
+        const k=zipf(this.rng,RCAT);
+        const windowed=this.fed>RTOT-100000;
+        if(windowed) this.win.n++;
+        // the psychic oracle: statically holds the top-1000 by true popularity
+        if(k<=RCAP && windowed) this.win.ora++;
+        // plain LRU
+        if(this.lru.get(k)){ if(windowed) this.win.lru++; }
+        else this.lru.put(k);
+        // random eviction
+        if(this.rset.has(k)){ if(windowed) this.win.rnd++; }
+        else {
+          if(this.rarr.length>=RCAP){ const j=(this.rng()*this.rarr.length)|0; this.rset.delete(this.rarr[j]); this.rarr[j]=k; }
+          else this.rarr.push(k);
+          this.rset.add(k);
+        }
+      }
+      if(this.fed>=RTOT && this.phase==='run'){
+        this.phase='done';
+        const lru=100*this.win.lru/this.win.n, call=HOPTS[this.picked];
+        this.verdict = Math.abs(call-lru)<=10 ? 'CALLED IT — RECENCY RODE ZIPF FOR FREE'
+          : this.picked===0 ? '10% OF THE SHELF ≠ 10% OF THE TRAFFIC — ZIPF CONCENTRATES'
+          : call<lru ? 'LOW — POPULARITY IS MORE CONCENTRATED THAN THAT'
+          : 'HIGH — EVEN THE PSYCHIC ORACLE ONLY MANAGED 75%';
+      }
+    }
+    this.pushMetrics();
+  },
+  pushMetrics(){
+    const pct=v=>this.win.n>1000? (100*v/this.win.n).toFixed(1)+'%':'–';
+    setM('rep.call', this.picked===null?'–':HOPTL[this.picked]);
+    setM('rep.prog', this.fed>=RTOT? '400K / 400K · DONE' : fmtN(this.fed)+' / 400K');
+    setM('rep.lru', pct(this.win.lru));
+    setM('rep.others', this.win.n>1000? 'ORACLE '+pct(this.win.ora)+' · RANDOM '+pct(this.win.rnd):'–');
+    setM('rep.verdict', this.verdict);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    if(this.phase==='idle'){
+      ctx.textAlign='center';
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('COMMIT FIRST — 400,000 ACCESSES RUN WHEN YOU CALL THE HIT RATE', W/2, H/2-16);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('10,000-ITEM CATALOG · ZIPF TRAFFIC · THE CACHE HOLDS 1,000 — ONE ITEM IN TEN', W/2, H/2+4);
+      ctx.fillText('THREE CACHES WILL RUN THE SAME STREAM: LRU, RANDOM-EVICT, AND A PSYCHIC ORACLE', W/2, H/2+22);
+      return;
+    }
+    const x0=60, x1=W-40, ay=H/2+10;
+    const X=v=>x0+(x1-x0)*(v/100);
+    ctx.strokeStyle=CSS.line; ctx.beginPath(); ctx.moveTo(x0,ay); ctx.lineTo(x1,ay); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    [0,25,50,75,100].forEach(v=>{
+      ctx.beginPath(); ctx.moveTo(X(v),ay-4); ctx.lineTo(X(v),ay+4); ctx.stroke();
+      ctx.fillText(v+'%', X(v), ay+18);
+    });
+    ctx.textAlign='left'; ctx.fillText('HIT RATE — MEASURED ON THE FINAL 100K ACCESSES', x0, 26);
+    if(this.phase==='run'){
+      ctx.fillText('STREAMING — '+fmtN(this.fed)+' ACCESSES THROUGH ALL THREE CACHES', x0, 42);
+    }
+    const pct=v=>this.win.n? 100*v/this.win.n : 0;
+    const mark=(v,col,label,dy,up)=>{
+      if(this.win.n<1000) return;
+      const x=X(Math.min(100,v));
+      ctx.fillStyle=col;
+      ctx.beginPath(); ctx.arc(x, ay, 4, 0, 7); ctx.fill();
+      ctx.textAlign= x>W-170?'right':'left';
+      ctx.fillText(label, x+(x>W-170?-8:8), ay+(up?-dy:dy));
+    };
+    mark(pct(this.win.rnd), CSS.b, 'RANDOM-EVICT '+pct(this.win.rnd).toFixed(0)+'%', 34, true);
+    mark(pct(this.win.lru), CSS.traffic, 'LRU '+pct(this.win.lru).toFixed(0)+'%', 52, true);
+    mark(pct(this.win.ora), CSS.ink, 'ORACLE '+pct(this.win.ora).toFixed(0)+'%', 16, true);
+    if(this.picked!==null){
+      const x=X(HOPTS[this.picked]);
+      ctx.strokeStyle=CSS.fault; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(x, ay+8); ctx.lineTo(x, ay+34); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle=CSS.fault; ctx.textAlign= x>W-170?'right':'left';
+      ctx.fillText('YOUR CALL '+HOPTL[this.picked], x+(x>W-170?-8:8), ay+46);
+    }
+    ctx.textAlign='center'; ctx.fillStyle= this.phase==='done'? CSS.traffic : CSS.muted;
+    ctx.fillText(this.phase==='done'
+      ? 'KNOWING NOTHING BUT "JUST USED", LRU LANDED WITHIN TEN POINTS OF PSYCHIC'
+      : 'EVERY CACHE IS REAL — HITS AND EVICTIONS, NOT FORMULAS', W/2, H-14);
+  },
+};
+rep.reset();
+[0,1,2,3].forEach(i=>{
+  document.querySelector('[data-act="p'+i+'"]').addEventListener('click',()=>rep.choose(i));
+});
+
+/* ================= EXP-01: scan pollution vs the probation segment ================= */
+function makeSLRU(probCap, protCap){
+  return {
+    prob:makeLRU(probCap), prot:makeLRU(protCap),
+    get(k){
+      if(this.prot.get(k)) return true;
+      // a second touch earns promotion out of probation
+      if(this.prob.map.has(k)){
+        const n=this.prob.map.get(k);
+        n.prev.next=n.next; n.next.prev=n.prev; this.prob.map.delete(k);
+        this.prot.put(k);
+        return true;
+      }
+      return false;
+    },
+    put(k){ this.prob.put(k); },
+  };
+}
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){
+    this.t=0; this.rng=mulberry32(29);
+    this.lru=makeLRU(1000);
+    this.slru=makeSLRU(200,800);
+    this.ringL=[]; this.ringS=[];
+    this.hist=[]; this.histT=0;
+    this.scanLeft=0; this.scanKey=100000; this.nextScan=12; this.scans=0;
+    this.dipL=100; this.base=0;
+    this.warm=0;
+  },
+  update(dt){
+    this.t+=dt;
+    const scanSize=+document.getElementById('r-scan').value;
+    document.getElementById('o-scan').textContent=scanSize;
+    if(this.t>=this.nextScan){ this.nextScan+=22; this.scanLeft=scanSize; this.scans++; }
+    let n=0;
+    while(n<50){ // ~1500 ops/s
+      n++;
+      if(this.scanLeft>0 && (n%2===0)){ // the scan interleaves with normal traffic
+        this.scanLeft--;
+        const k=this.scanKey++;         // cold, sequential, never seen again
+        if(!this.lru.get(k)) this.lru.put(k);
+        if(!this.slru.get(k)) this.slru.put(k);
+        continue;                        // pollution isn't part of the workload metric
+      }
+      const k=zipf(this.rng,10000);
+      const h1=this.lru.get(k); if(!h1) this.lru.put(k);
+      const h2=this.slru.get(k); if(!h2) this.slru.put(k);
+      this.ringL.push(h1?1:0); if(this.ringL.length>1200) this.ringL.shift();
+      this.ringS.push(h2?1:0); if(this.ringS.length>1200) this.ringS.shift();
+    }
+    const hr=r=>r.length>200? 100*r.reduce((a,b)=>a+b,0)/r.length : NaN;
+    const hl=hr(this.ringL), hs=hr(this.ringS);
+    if(this.t>=this.histT){
+      this.histT=this.t+0.25;
+      this.hist.push({l:hl, s:hs, scan:this.scanLeft>0});
+      if(this.hist.length>240) this.hist.shift();
+      if(!isNaN(hl)){
+        if(this.t<10) this.base=Math.max(this.base,hl);
+        else if(this.scans>0) this.dipL=Math.min(this.dipL,hl);
+      }
+    }
+    setM('e1.lru', isNaN(hl)?'–':hl.toFixed(0)+'%');
+    setM('e1.slru', isNaN(hs)?'–':hs.toFixed(0)+'%');
+    setM('e1.dip', this.scans>0&&this.dipL<100? this.base.toFixed(0)+'% → '+this.dipL.toFixed(0)+'% (PLAIN LRU)':'–');
+    setM('e1.scans', ''+this.scans);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const x0=46, x1=W-16, y0=40, y1=H-52;
+    const Y=v=>y1-(y1-y0)*(v/100);
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(x0,y0,x1-x0,y1-y0);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+    [0,25,50,75,100].forEach(v=>ctx.fillText(v+'%', x0-6, Y(v)+3));
+    ctx.textAlign='left';
+    ctx.fillText('HIT RATE OF THE REAL WORKLOAD — SCAN WINDOWS SHADED', x0+6, y0-8);
+    const n=this.hist.length;
+    const X=i=>x0+(x1-x0)*(i/239);
+    for(let i=0;i<n;i++) if(this.hist[i].scan){
+      ctx.fillStyle='rgba(228,96,78,0.12)';
+      ctx.fillRect(X(i), y0, (x1-x0)/239+1, y1-y0);
+    }
+    const line=(f,col)=>{
+      ctx.strokeStyle=col; ctx.beginPath();
+      let started=false;
+      for(let i=0;i<n;i++){
+        const v=f(this.hist[i]);
+        if(isNaN(v)) continue;
+        const x=X(i), y=Y(v);
+        started? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+        started=true;
+      }
+      ctx.stroke();
+    };
+    line(h=>h.l, CSS.fault);
+    line(h=>h.s, CSS.traffic);
+    ctx.textAlign='left';
+    ctx.fillStyle=CSS.fault;   ctx.fillText('— PLAIN LRU', x0+8, y0+14);
+    ctx.fillStyle=CSS.traffic; ctx.fillText('— SEGMENTED (PROBATION 200 + PROTECTED 800)', x0+100, y0+14);
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME TRAFFIC, SAME SCANS — ONLY THE ADMISSION POLICY DIFFERS', W/2, H-14);
+  },
+};
+e1.reset();
+
+/* ================= EXP-02: the policy tournament ================= */
+const TCAT=8000, TCAP=800;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){
+    this.t=0; this.rng=mulberry32(41);
+    this.drift=document.getElementById('t-drift').checked;
+    this.shift=0; this.nextShift=6;
+    this.lru=makeLRU(TCAP);
+    this.fifoSet=new Set(); this.fifoQ=[];
+    this.rset=new Set(); this.rarr=[];
+    this.lfu=new Map();       // key -> access count (in-cache members only)
+    this.rings={fifo:[],rand:[],lru:[],lfu:[]};
+  },
+  access(k){
+    const R=this.rings;
+    // FIFO
+    if(this.fifoSet.has(k)) R.fifo.push(1);
+    else {
+      R.fifo.push(0);
+      this.fifoQ.push(k); this.fifoSet.add(k);
+      if(this.fifoQ.length>TCAP) this.fifoSet.delete(this.fifoQ.shift());
+    }
+    // RANDOM
+    if(this.rset.has(k)) R.rand.push(1);
+    else {
+      R.rand.push(0);
+      if(this.rarr.length>=TCAP){ const j=(this.rng()*this.rarr.length)|0; this.rset.delete(this.rarr[j]); this.rarr[j]=k; }
+      else this.rarr.push(k);
+      this.rset.add(k);
+    }
+    // LRU
+    if(this.lru.get(k)) R.lru.push(1); else { R.lru.push(0); this.lru.put(k); }
+    // LFU (counts live only while cached; evict the least-counted)
+    if(this.lfu.has(k)){ this.lfu.set(k,this.lfu.get(k)+1); R.lfu.push(1); }
+    else {
+      R.lfu.push(0);
+      if(this.lfu.size>=TCAP){
+        let mk=null,mv=Infinity;
+        this.lfu.forEach((v,kk)=>{ if(v<mv){mv=v;mk=kk;} });
+        this.lfu.delete(mk);
+      }
+      this.lfu.set(k,1);
+    }
+    for(const key in R) if(R[key].length>1500) R[key].shift();
+  },
+  update(dt){
+    this.t+=dt;
+    const drift=document.getElementById('t-drift').checked;
+    if(drift!==this.drift){ this.reset(); return; }
+    if(this.drift && this.t>=this.nextShift){
+      this.nextShift+=6;
+      this.shift=(this.shift+700)%TCAT;   // the popular set moves
+    }
+    let n=0;
+    while(n<50){ // ~1500 ops/s
+      n++;
+      const rank=zipf(this.rng,TCAT);
+      this.access((rank+this.shift)%TCAT);
+    }
+    const hr=r=>r.length>300? Math.round(100*r.reduce((a,b)=>a+b,0)/r.length):NaN;
+    setM('e2.fifo', isNaN(hr(this.rings.fifo))?'–':hr(this.rings.fifo)+'%');
+    setM('e2.rand', isNaN(hr(this.rings.rand))?'–':hr(this.rings.rand)+'%');
+    setM('e2.lru', isNaN(hr(this.rings.lru))?'–':hr(this.rings.lru)+'%');
+    setM('e2.lfu', isNaN(hr(this.rings.lfu))?'–':hr(this.rings.lfu)+'%');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const hr=r=>r.length>300? 100*r.reduce((a,b)=>a+b,0)/r.length : 0;
+    const rows=[
+      ['FIFO — OLDEST OUT, NO QUESTIONS', hr(this.rings.fifo), CSS.line],
+      ['RANDOM — EVICT ANYONE', hr(this.rings.rand), CSS.b],
+      ['LRU — RECENCY', hr(this.rings.lru), CSS.traffic],
+      ['LFU — FREQUENCY', hr(this.rings.lfu), CSS.a],
+    ];
+    const best=Math.max(...rows.map(r=>r[1]));
+    const bx=250, bw=W-380;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText(this.drift? 'POPULARITY DRIFTS EVERY 6s — THE POPULAR SET MOVES':'POPULARITY IS FROZEN — A PURE ZIPF TABLE', 16, 26);
+    rows.forEach((r,i)=>{
+      const y=48+i*40;
+      ctx.textAlign='left'; ctx.fillStyle=CSS.muted; ctx.fillText(r[0], 16, y+11);
+      ctx.strokeStyle=CSS.line; ctx.strokeRect(bx, y, bw, 15);
+      ctx.fillStyle=r[2];
+      ctx.fillRect(bx+1, y+1, (bw-2)*(r[1]/100), 13);
+      ctx.fillStyle= r[1]===best&&r[1]>0? CSS.traffic : CSS.ink;
+      ctx.textAlign='left';
+      ctx.fillText(r[1].toFixed(0)+'%'+(r[1]===best&&r[1]>0?' ← LEADS':''), bx+10+(bw-2)*(r[1]/100), y+11);
+    });
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('ONE STREAM, FOUR BETS — FREQUENCY IS MEMORY, RECENCY IS ADAPTATION', W/2, H-14);
+  },
+};
+e2.reset();
+
+/* ---------- wiring ---------- */
+const sims={hero,rep,e1,e2}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('rep','p-rep'); register('e1','p-e1'); register('e2','p-e2');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','rep','e1','e2']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

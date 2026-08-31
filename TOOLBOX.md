@@ -120,7 +120,7 @@ ResizeObserver. Set `ctx.textAlign` explicitly before every `fillText` group
 
 ---
 
-## The coverage plan — eleven pieces
+## The coverage plan — eleven pieces · ALL SHIPPED ✅
 
 Built in waves; order below is sidebar order. Each row fixes the piece's hero,
 REP question, production anchors, and pocket line before build starts.
@@ -136,8 +136,8 @@ REP question, production anchors, and pocket line before build starts.
 | **The Counter** (HyperLogLog) ✅ | 12KB counting millions of distinct items | Error at 2^14 registers? | unique viewers/visitors (The Front Page, The Upload) | error ≈ 1.04 ⁄ √m |
 | **The Sketch** (Count-Min) ✅ | Heavy hitters surfacing from a stream | Overestimate bound for a cold key? | hot-key detection (The Guild raid); trending (The Front Page) | never undercounts; over by at most εn |
 | **The B-Tree** ✅ | The duel: same workload vs the LSM, page I/O counted | Which engine wins at 90% reads? | MySQL under The Calendar, The Drop, The Board | three or four levels hold a billion keys |
-| **The Eviction** (LRU & co) | Hashmap + linked list really evicting under Zipf | Hit rate at cache = 10% of catalog? | one-hit wonders (The Edge, The Filter); Open Connect (Press Play); parser cache (The Encyclopedia) | under Zipf, recency is a free prophet |
-| **The Queue** (capstone) | ρ/(1−ρ) — the law behind every collapse in the series | Wait time at 95% utilization? | every episode; the universal knee | the knee lives at ~80% utilization |
+| **The Eviction** (LRU & co) ✅ | Hashmap + linked list really evicting under Zipf | Hit rate at cache = 10% of catalog? | one-hit wonders (The Edge, The Filter); Open Connect (Press Play); parser cache (The Encyclopedia) | under Zipf, recency is a free prophet |
+| **The Queue** (capstone) ✅ | ρ/(1−ρ) — the law behind every collapse in the series | Wait time at 95% utilization? | every episode; the universal knee | the knee lives at ~80% utilization |
 
 Atlas-only topics (already taught by full episodes, cross-indexed rather than
 rebuilt): consistent hashing, Raft, the inverted index, random walks, Wilson

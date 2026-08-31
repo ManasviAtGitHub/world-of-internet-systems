@@ -70,8 +70,10 @@ episode backlinks, and a revision card. Format contract: `TOOLBOX.md`.
 | The Counter | HyperLogLog | call the error of 12 KB counting a million distinct |
 | The Sketch | count-min sketch | call what a 100-count key reads after 1M events |
 | The B-Tree | page-sized nodes | call the page reads for 2M keys at fanout 64 |
+| The Eviction | LRU (map + linked list) | call the hit rate of a 10% cache under Zipf |
+| The Queue | M/M/1 and friends | call the slowdown at 95% utilization |
 
-Planned: LRU eviction, and the queue as capstone.
+THE TOOLBOX IS COMPLETE — eleven instruments, all honestly simulated.
 
 ## The rules of the series
 

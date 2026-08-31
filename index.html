@@ -224,8 +224,8 @@
       <li><a class="ep" href="#/counter" data-ep="counter">The Counter · HyperLogLog</a></li>
       <li><a class="ep" href="#/sketch" data-ep="sketch">The Sketch · Count-Min</a></li>
       <li><a class="ep" href="#/b-tree" data-ep="b-tree">The B-Tree</a></li>
-      <li><span class="soon">The Eviction · LRU<i>IDEA</i></span></li>
-      <li><span class="soon">The Queue<i>IDEA</i></span></li>
+      <li><a class="ep" href="#/eviction" data-ep="eviction">The Eviction · LRU</a></li>
+      <li><a class="ep" href="#/queue" data-ep="queue">The Queue · the capstone</a></li>
     </ul>
   </details>
 
@@ -490,9 +490,10 @@
       </div>
 
       <h2>The toolbox — DSA, under fire</h2>
-      <p>The revision tier: one classic data structure per piece, honestly simulated,
-      with a prediction to commit to before anything runs — and backlinks to every
-      episode where you already met the structure working.</p>
+      <p>The revision tier, complete at eleven instruments: one classic data structure
+      per piece, honestly simulated, with a prediction to commit to before anything
+      runs — and backlinks to every episode where you already met the structure
+      working. It closes where the series began: with the queue.</p>
       <div class="cards">
         <a class="card" href="#/bloom">
           <span class="k">The toolbox</span>
@@ -572,6 +573,23 @@
           wrong base); duel it against the LSM with the read/write dial in your hand;
           and watch UUID keys buy a third more pages than sequential ones, forever.</span>
         </a>
+        <a class="card" href="#/eviction">
+          <span class="k">The toolbox</span>
+          <span class="t">The Eviction — LRU</span>
+          <span class="d">Every cache is a bet, and eviction places it. A real
+          map-plus-list LRU; call the hit rate of a 10% cache under Zipf (a psychic
+          oracle only beats it by ten points); the scan that flushes everything and
+          the probation segment that shrugs it off; then FIFO, random, LRU and LFU
+          race — until popularity drifts.</span>
+        </a>
+        <a class="card" href="#/queue">
+          <span class="k">The toolbox · the capstone</span>
+          <span class="t">The Queue</span>
+          <span class="d">One law under all thirty systems: wait ∝ 1/(1−ρ). Watch the
+          same server at 50% and 90%; call the cost of 95% utilization before 1.6
+          million simulated requests trace the whole hyperbola; see variance multiply
+          the bill; and derive the load balancer — the series ends where it began.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -638,6 +656,8 @@ const EPISODES = {
   'counter':           {title:'The Counter · HyperLogLog', file:'episodes/counter.html'},
   'sketch':            {title:'The Sketch · Count-Min', file:'episodes/sketch.html'},
   'b-tree':            {title:'The B-Tree', file:'episodes/b-tree.html'},
+  'eviction':          {title:'The Eviction · LRU', file:'episodes/eviction.html'},
+  'queue':             {title:'The Queue · The Capstone', file:'episodes/queue.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');
