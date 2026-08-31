@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The B-Tree — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  /* toolbox cards: the interview card + the revision card */
+  .tbx{border:1px solid var(--rule);background:var(--card);border-radius:6px;
+    padding:18px 20px 15px;margin:26px 0;font-size:15px}
+  .tbx .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-text);
+    text-transform:uppercase;display:block;margin-bottom:10px}
+  .tbx ul{list-style:none;margin:0 0 14px;padding:0}
+  .tbx li{margin:.5em 0;padding-left:20px;position:relative}
+  .tbx li::before{content:"→";position:absolute;left:0;top:1px;
+    font-family:var(--mono);font-size:12px;color:var(--accent-text)}
+  .tbx .met{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .tbx dl{display:grid;grid-template-columns:max-content 1fr;gap:7px 16px;
+    margin:0;border-top:1px solid var(--rule);padding-top:12px}
+  .tbx dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-text);padding-top:2px;white-space:nowrap}
+  .tbx dd{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .btn.picked{border-color:var(--traffic);color:var(--traffic)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .exp-note a{color:var(--series-b)}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Toolbox</p>
+  <h1>The B-Tree</h1>
+  <p class="dek">The structure that has answered more queries than any other object in
+  computing. Since 1972 it has organized nearly every relational database on earth —
+  the MySQL under Airbnb's calendar, Shopify's checkouts, Pinterest's boards — on one
+  insight: if a disk hands you a whole page anyway, make every node a page and every
+  page a hundred-way decision. The tree gets shallower than seems possible, it grows
+  <em>upward</em> instead of down, and a billion keys sit three or four page-reads
+  deep. Predict first, then run it. That's the rep.</p>
+  <p class="marginal">Everything below computes for real: real nodes splitting under
+  real inserts, the every-leaf-at-one-depth invariant re-walked every frame, and the
+  duel against the LSM tree runs both storage engines on the same operation stream with
+  every page I/O counted.</p>
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <div class="tbx">
+    <span class="k">The interview card — where you've ground this before</span>
+    <ul>
+      <li>"Why do databases use B-trees instead of binary search trees?"</li>
+      <li>"How many disk reads to find one row among a billion?"</li>
+      <li>"What's a page split — and why did random UUID primary keys hurt so much?"</li>
+    </ul>
+    <dl>
+      <dt>Pattern</dt><dd>sorted keys in fat page-sized nodes · one page per level · splits push upward</dd>
+      <dt>Space</dt><dd>~n/B pages; ~69% full under random inserts, near-full under sequential</dd>
+      <dt>Time</dt><dd>search/insert O(log_B n) <em>page reads</em> — the log's base is the branching factor, not 2</dd>
+      <dt>The catch</dt><dd>every write dirties a random page in place — the write-heavy world eventually built the LSM tree to escape exactly this</dd>
+    </dl>
+  </div>
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">Pages splitting, a tree growing upward — a real B-tree working</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:280px" role="img" aria-label="A live B-tree drawn as rows of page boxes with fill bars; inserts stream in, full pages split with a flash and push a separator key upward, and occasionally the root itself splits and the whole tree gains a level"></canvas>
+  <div class="exp-metrics">
+    <span>KEYS<b data-m="hero.n">0</b></span>
+    <span>PAGES<b data-m="hero.pages">1</b></span>
+    <span>DEPTH<b data-m="hero.depth">1</b></span>
+    <span>SPLITS<b data-m="hero.splits">0</b></span>
+    <span>LEAVES LEVEL<b data-m="hero.inv">CHECKED EVERY FRAME · VIOLATIONS 0</b></span>
+  </div>
+  <figcaption class="exp-note">Watch a split: a full page breaks in two and hands its
+  middle key <em>up</em> to the parent — and when the root itself splits, the whole
+  tree gains a level. That's the B-tree's quiet miracle: it only ever deepens from the
+  top, so every leaf is always at exactly the same depth — no luck, no rotations, a
+  perfectly level floor re-verified here sixty times a second.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The base of the logarithm</h2>
+  <p>A binary tree makes one yes/no decision per node — and pays one memory (or disk)
+  access for it. A B-tree page holds dozens of sorted keys, so one page read buys a
+  <em>64-way</em> decision. Same log, different base: log₂ costs you 21 levels for two
+  million keys; log₆₄ collapses that to a handful. So price it: <strong>two million
+  keys, pages holding up to 63 — how many page reads does one lookup cost?</strong>
+  Commit; then a real two-million-key B-tree builds itself and two thousand real
+  lookups count their pages.</p>
+</div>
+
+<figure class="exp" id="p-rep">
+  <figcaption class="exp-head">
+    <span class="exp-id">REP-01</span>
+    <span class="exp-title">Two million keys, 64-way pages — call the page reads per lookup</span>
+    <span class="exp-run">
+      <button class="btn" data-act="p0">~4</button>
+      <button class="btn" data-act="p1">~21</button>
+      <button class="btn" data-act="p2">~64</button>
+      <button class="btn" data-act="p3">~2,000</button>
+      <button class="btn danger" data-reset="rep">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-rep" style="height:290px" role="img" aria-label="After you commit, a real B-tree of two million keys builds level by level; the finished pyramid shows page counts per level and a log ruler compares your call against the measured page reads per lookup"></canvas>
+  <div class="exp-metrics">
+    <span>YOUR CALL<b data-m="rep.call">–</b></span>
+    <span>BUILT<b data-m="rep.built">0 / 2M</b></span>
+    <span>MEASURED READS<b data-m="rep.reads">–</b></span>
+    <span>DEPTH<b data-m="rep.depth">–</b></span>
+    <span>VERDICT<b data-m="rep.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">Twenty-one is the binary-tree answer — right log, wrong
+  base. The pyramid tells the real story: each level multiplies reach by the branching
+  factor, so two million keys need only four floors. Scale the same arithmetic up:
+  pages holding 1,000 keys reach 1,000³ = <em>a billion</em> keys in three levels —
+  plus a root that never leaves RAM. The pocket line: <em>the base of the log is the
+  branching factor — fat pages put a billion keys three or four reads deep.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The duel</h2>
+  <p>This series has now built both of the great storage engines: the B-tree, which
+  <em>edits pages in place</em>, and <a href="../index.html#/lsm-tree" target="_top">the
+  LSM tree</a>, which refuses to edit anything and pays compaction instead. Neither is
+  "better" — they've split the database world between them (MySQL and Postgres on one
+  side; Cassandra, RocksDB and friends on the other), and the dividing line is the
+  read/write mix. Below, both engines are real, both eat the same operation stream,
+  and every page of I/O is counted. You hold the mix dial. Find the crossover
+  yourself.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">B-tree vs LSM — one workload, two engines, every page counted</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button>
+    <button class="btn danger" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-reads">Read share</label>
+      <input type="range" id="r-reads" min="0" max="100" value="90" step="10">
+      <output id="o-reads">90</output>%</div>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:270px" role="img" aria-label="Two storage engines process an identical operation stream at an adjustable read-write mix; page I/O meters show the B-tree's steady in-place cost against the LSM's cheap writes and pricier multi-file reads, with a verdict for the current mix"></canvas>
+  <div class="exp-metrics">
+    <span>B-TREE<b data-m="e1.btree">–</b> pages/op</span>
+    <span>LSM<b data-m="e1.lsm">–</b> pages/op</span>
+    <span>MIX<b data-m="e1.mix">–</b></span>
+    <span>VERDICT<b data-m="e1.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">Drag toward writes and watch the B-tree bleed — every
+  update walks the tree and dirties a page in place, while the LSM's writes cost
+  fractions of a page (append now, compact later). Drag toward reads and the tables
+  turn: the B-tree answers in one clean path while the LSM rummages through level
+  files. (No Bloom filters fitted here — <a href="../index.html#/bloom"
+  target="_top">The Filter</a> is exactly what production LSMs bolt on to shave that
+  read bill.) The crossover you find with the dial is the actual fork in database
+  history.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The insert order you chose is a performance decision</h2>
+  <p>Two identical B-trees, two key styles. One receives sequential keys — timestamps,
+  auto-increment IDs — and only ever splits its rightmost page, which real engines
+  optimize into near-full packing. The other receives random keys (UUIDs), splits
+  everywhere, and settles at the textbook ~69% fill — a third more pages for the same
+  data, forever. This is the folklore behind "don't use random UUIDs as primary keys,"
+  measured — and it's why <a href="../index.html#/instagram" target="_top">the Feed
+  episode</a>'s ID scheme went to such lengths to keep IDs time-sorted: their databases
+  were B-trees, and the ID <em>format</em> was a storage-layout decision.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Sequential vs UUID keys — the same tree, a third more pages</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button>
+    <button class="btn danger" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-e2" style="height:270px" role="img" aria-label="Two B-trees ingest the same number of keys, one sequential and one random; fill-level histograms show the sequential tree's pages packed near full while the random tree's pages cluster around sixty-nine percent, with page counts compared"></canvas>
+  <div class="exp-metrics">
+    <span>SEQUENTIAL<b data-m="e2.seq">–</b></span>
+    <span>RANDOM (UUID-STYLE)<b data-m="e2.rand">–</b></span>
+    <span>EXTRA PAGES<b data-m="e2.extra">–</b></span>
+    <span>KEYS EACH<b data-m="e2.n">0</b></span>
+  </div>
+  <figcaption class="exp-note">Same keys-per-tree, same page size — read the fill
+  histograms. Sequential inserts ride the rightmost edge and pack pages nearly full;
+  random inserts split in the middle everywhere, and ln 2 ≈ 69% is the fill factor
+  they converge to. More pages means more cache misses, bigger indexes, more I/O —
+  paid on every query, forever after. <em>Key design is storage design.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The keeper</h2>
+  <p>The keeper: <strong>the B-tree makes the disk's page size the tree's branching
+  factor — log-base-B lookups that put a billion keys three or four reads deep, a
+  perfectly level floor maintained by splitting upward, ~69% fill under random keys
+  and near-full under sequential ones — and its in-place page writes are the exact
+  cost the LSM tree was invented to escape.</strong> Between this page and the LSM
+  duel, you've now run both halves of the storage world's great fork.</p>
+
+  <div class="tbx">
+    <span class="k">The revision card — for the you that comes back in three months</span>
+    <ul>
+      <li>Why base-B instead of base-2? <span class="met">(a page read buys a B-way decision — you watched 2M keys answer in 4 pages)</span></li>
+      <li>Which way does a B-tree grow, and why are all leaves level? <span class="met">(splits push up; only a root split adds depth — verified every frame)</span></li>
+      <li>Why did UUID primary keys hurt? <span class="met">(random inserts split everywhere → ~69% fill vs ~97% sequential — a third more pages forever)</span></li>
+      <li>When does the LSM beat it? <span class="met">(write-heavy mixes — in-place page dirtying loses to append-and-compact; you found the crossover with a dial)</span></li>
+    </ul>
+    <dl>
+      <dt>Seen under fire</dt><dd><a href="../index.html#/airbnb" target="_top">The Calendar · Airbnb</a> ·
+      <a href="../index.html#/shopify" target="_top">The Drop · Shopify</a> ·
+      <a href="../index.html#/instagram" target="_top">The Feed · Instagram</a> ·
+      <a href="../index.html#/lsm-tree" target="_top">The LSM Tree · the other fork</a></dd>
+    </dl>
+  </div>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Rudolf Bayer, Edward McCreight — "Organization and Maintenance of Large Ordered Indices", <em>Acta Informatica</em>, 1972 (the original paper).</li>
+    <li>Douglas Comer — <a href="https://dl.acm.org/doi/10.1145/356770.356776">"The Ubiquitous B-Tree"</a>, <em>ACM Computing Surveys</em>, 1979 (including the ln 2 fill-factor analysis).</li>
+    <li>MySQL 8.4 Reference Manual — <a href="https://dev.mysql.com/doc/refman/8.4/en/innodb-physical-structure.html">InnoDB index physical structure</a> (B+trees, page splits, and the sequential-insert optimization).</li>
+    <li>Percona — <a href="https://www.percona.com/blog/uuids-are-popular-but-bad-for-performance-lets-discuss/">"UUIDs are Popular, but Bad for Performance"</a> (the random-key fill and buffer-pool cost, measured in production).</li>
+    <li>Martin Kleppmann — <em>Designing Data-Intensive Applications</em>, ch. 3 (the B-tree/LSM comparison this duel runs).</li>
+  </ul>
+</div>
+
+<footer class="col">
+  <hr class="foot-rule">
+    <p class="next">World of Internet Systems · The Toolbox — next instruments on the bench: <b>the eviction, then the queue closes the case</b> · <a href="../index.html" target="_top">back to the index</a></p>
+</footer>
+</main>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const fmtN=n=> n>=1e6?(n/1e6).toFixed(2)+'M' : n>=1e4?Math.round(n/1000)+'K' : n>=1000?(n/1000).toFixed(1)+'K' : ''+Math.round(n);
+
+/* ---------- a real B-tree (CLRS proactive splits + rightmost append split) ---------- */
+function makeBT(t){
+  const MAX=2*t-1;
+  const bt={
+    t, MAX, root:{leaf:true, keys:[]},
+    pages:1, splits:0, depth:1, n:0,
+    splitChild(x,i,hint){
+      const y=x.kids[i];
+      let med, z;
+      if(y.leaf && i===x.kids.length-1 && hint!==undefined && hint>y.keys[y.keys.length-1]){
+        // the rightmost append split real engines use: old page stays packed
+        med=y.keys.pop();
+        z={leaf:true, keys:[]};
+      } else {
+        z={leaf:y.leaf, keys:y.keys.splice(t)};
+        med=y.keys.splice(t-1,1)[0];
+        if(!y.leaf) z.kids=y.kids.splice(t);
+      }
+      x.keys.splice(i,0,med);
+      x.kids.splice(i+1,0,z);
+      this.pages++; this.splits++;
+      return z;
+    },
+    bisect(keys,k){ let lo=0,hi=keys.length; while(lo<hi){ const m=(lo+hi)>>1; if(keys[m]<k) lo=m+1; else hi=m; } return lo; },
+    insert(k){
+      if(this.root.keys.length===MAX){
+        const s={leaf:false, keys:[], kids:[this.root]};
+        this.root=s; this.pages++; this.depth++;
+        this.splitChild(s,0,k);
+        this.lastGrow={n:this.n, t:performance.now()};
+      }
+      let x=this.root;
+      while(!x.leaf){
+        let i=this.bisect(x.keys,k);
+        if(x.kids[i].keys.length===MAX){
+          this.splitChild(x,i,k);
+          if(k>x.keys[i]) i++;
+        }
+        x=x.kids[i];
+      }
+      x.keys.splice(this.bisect(x.keys,k),0,k);
+      this.n++;
+    },
+    search(k){ // returns pages touched
+      let x=this.root, p=1, path=[x];
+      while(!x.leaf){
+        let i=this.bisect(x.keys,k);
+        if(i<x.keys.length && x.keys[i]===k) return {pages:p, path};
+        x=x.kids[i]; p++; path.push(x);
+      }
+      return {pages:p, path};
+    },
+    validate(){ // every leaf at one depth; keys sorted within pages
+      let leafDepth=-1, ok=true;
+      const walk=(x,d)=>{
+        for(let i=1;i<x.keys.length;i++) if(x.keys[i]<x.keys[i-1]) ok=false;
+        if(x.leaf){
+          if(leafDepth<0) leafDepth=d;
+          else if(d!==leafDepth) ok=false;
+        } else x.kids.forEach(kid=>walk(kid,d+1));
+      };
+      walk(this.root,1);
+      return ok;
+    },
+    stats(){ // pages + fill across all pages
+      let pages=0, cap=0, used=0;
+      const walk=x=>{ pages++; cap+=MAX; used+=x.keys.length; if(!x.leaf) x.kids.forEach(walk); };
+      walk(this.root);
+      return {pages, fill:used/cap};
+    },
+    leafFills(){
+      const f=[];
+      const walk=x=>{ if(x.leaf) f.push(x.keys.length/MAX); else x.kids.forEach(walk); };
+      walk(this.root);
+      return f;
+    },
+  };
+  return bt;
+}
+
+/* ---------- the LSM machinery, for the duel (as in The LSM Tree) ---------- */
+function mergeTwo(a,b){
+  const out=new Int32Array(a.length+b.length);
+  let i=0,j=0,k=0,last=NaN;
+  while(i<a.length||j<b.length){
+    let v;
+    if(j>=b.length || (i<a.length && a[i]<=b[j])) v=a[i++]; else v=b[j++];
+    if(v!==last){ out[k++]=v; last=v; }
+  }
+  return out.subarray(0,k);
+}
+const mergeAll = runs => runs.reduce((acc,r)=>acc?mergeTwo(acc,r):r, null) || new Int32Array(0);
+function partition(arr, size){
+  const files=[];
+  for(let i=0;i<arr.length;i+=size) files.push(arr.slice(i, Math.min(arr.length,i+size)));
+  return files;
+}
+const lo=f=>f[0], hi=f=>f[f.length-1];
+function makeLeveled(cfg){
+  return {
+    mem:[], L0:[], L:cfg.caps.map(()=>[]).concat([[]]),
+    user:0, disk:0, rrs:cfg.caps.map(()=>0),
+    write(k){ this.mem.push(k); this.user++; if(this.mem.length>=cfg.mem) this.flush(); },
+    flush(){
+      this.mem.sort((a,b)=>a-b);
+      const run=mergeTwo(Int32Array.from(this.mem), new Int32Array(0));
+      this.mem=[];
+      this.L0.push(run); this.disk+=run.length;
+      if(this.L0.length>=cfg.l0max) this.compactL0();
+    },
+    compactL0(){
+      const merged=mergeAll([...this.L0, ...this.L[0]]);
+      this.L0=[];
+      this.L[0]=partition(merged, cfg.file);
+      this.disk+=merged.length;
+      this.spill(0);
+    },
+    spill(li){
+      while(this.L[li].reduce((s,f)=>s+f.length,0) > cfg.caps[li]){
+        const f=this.L[li].splice(this.rrs[li]++ % this.L[li].length, 1)[0];
+        const nxt=this.L[li+1], keep=[], over=[];
+        for(const g of nxt){ (hi(g)>=lo(f) && lo(g)<=hi(f)) ? over.push(g) : keep.push(g); }
+        const merged=mergeAll([f,...over]);
+        this.L[li+1]=keep.concat(partition(merged, cfg.file)).sort((x,y)=>lo(x)-lo(y));
+        this.disk+=merged.length;
+        if(li+1<cfg.caps.length) this.spill(li+1);
+      }
+    },
+    probeFiles(key){ // candidate files a point read must consider (no blooms fitted)
+      let nf=1; // memtable
+      for(const r of this.L0) if(key>=lo(r)&&key<=hi(r)) nf++;
+      for(const lev of this.L) for(const f of lev) if(key>=lo(f)&&key<=hi(f)) nf++;
+      return nf;
+    },
+  };
+}
+
+/* ================= HERO: splits, growing upward ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  reset(){
+    this.t=0; this.rng=mulberry32(3);
+    this.bt=makeBT(4);            // pages hold up to 7 keys — legible
+    this.viol=0; this.checks=0;
+    this.acc=0; this.flash=0; this.growFlash=0;
+    for(let i=0;i<9;i++) this.bt.insert((this.rng()*1e6)|0);
+  },
+  update(dt){
+    this.t+=dt;
+    this.acc+=dt*7;
+    while(this.acc>=1){
+      this.acc--;
+      const s0=this.bt.splits, d0=this.bt.depth;
+      this.bt.insert((this.rng()*1e6)|0);
+      if(this.bt.splits>s0) this.flash=this.t;
+      if(this.bt.depth>d0) this.growFlash=this.t;
+    }
+    if(this.bt.n>380) this.reset();
+    this.checks++;
+    if(!this.bt.validate()) this.viol++;
+    setM('hero.n', ''+this.bt.n);
+    setM('hero.pages', ''+this.bt.pages);
+    setM('hero.depth', this.bt.depth+' — ALL LEAVES LEVEL');
+    setM('hero.splits', ''+this.bt.splits);
+    setM('hero.inv', 'CHECKED EVERY FRAME ('+this.checks+') · VIOLATIONS '+this.viol);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    // collect nodes per level
+    const levels=[];
+    const walk=(x,d)=>{
+      (levels[d]=levels[d]||[]).push(x);
+      if(!x.leaf) x.kids.forEach(k=>walk(k,d+1));
+    };
+    walk(this.bt.root,0);
+    const rowY=d=>52+d*64;
+    const flash=this.t-this.flash<0.45;
+    levels.forEach((nodes,d)=>{
+      const y=rowY(d);
+      const slot=(W-80)/nodes.length;
+      const gap=slot>14?6:1;
+      const bw=Math.max(2, Math.min(84, slot-gap));
+      const total=nodes.length*(bw+gap)-gap;
+      let x=(W-total)/2;
+      ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+      ctx.fillText(d===0?'ROOT':(nodes[0].leaf?'LEAVES':'LEVEL '+d), 16, y+13);
+      nodes.forEach(nd=>{
+        const fill=nd.keys.length/7;
+        const full=nd.keys.length===7;
+        ctx.strokeStyle= full&&flash? CSS.traffic : CSS.line;
+        ctx.strokeRect(x, y, bw, 20);
+        ctx.fillStyle= nd.leaf? CSS.b : CSS.a;
+        ctx.globalAlpha=0.7;
+        ctx.fillRect(x+1, y+1, Math.max(0,(bw-2)*fill), 18);
+        ctx.globalAlpha=1;
+        x+=bw+gap;
+      });
+    });
+    if(this.t-this.growFlash<1.6){
+      ctx.fillStyle=CSS.traffic; ctx.textAlign='left';
+      ctx.fillText('ROOT SPLIT — THE WHOLE TREE JUST GAINED A LEVEL', 16, 28);
+    } else {
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('PAGES HOLD UP TO 7 KEYS — BAR = FILL', 16, 28);
+    }
+    ctx.textAlign='right'; ctx.fillStyle=CSS.muted;
+    ctx.fillText(this.bt.pages+' PAGES · DEPTH '+this.bt.depth, W-16, 28);
+    ctx.textAlign='center';
+    ctx.fillText('SPLITS PUSH THE MIDDLE KEY UP — DEPTH ONLY CHANGES WHEN THE ROOT ITSELF SPLITS', W/2, H-14);
+  },
+};
+hero.reset();
+
+/* ================= REP-01: two million keys ================= */
+const RN=2000000;
+const BOPTS=[4,21,64,2000], BOPTL=['~4','~21','~64','~2,000'];
+const rep = {
+  cv: document.getElementById('c-rep'),
+  reset(){
+    this.t=0; this.picked=null; this.phase='idle';
+    this.rng=mulberry32(17);
+    this.bt=makeBT(32);           // pages hold up to 63 keys
+    this.reads=NaN; this.verdict='–';
+    document.querySelectorAll('[data-act^="p"]').forEach(b=>b.classList.remove('picked'));
+    this.pushMetrics();
+  },
+  choose(i){
+    if(this.picked!==null) return;
+    this.picked=i; this.phase='run';
+    document.querySelectorAll('[data-act^="p"]')[i]?.classList?.add('picked');
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.phase==='run'){
+      let n=0;
+      while(n<50000 && this.bt.n<RN){ this.bt.insert((this.rng()*2147483647)|0); n++; }
+      if(this.bt.n>=RN && isNaN(this.reads)){
+        let s=0; const S=2000;
+        for(let i=0;i<S;i++) s+=this.bt.search((this.rng()*2147483647)|0).pages;
+        this.reads=s/S;
+        this.phase='done';
+        const call=BOPTS[this.picked];
+        const ratio=Math.max(call,this.reads)/Math.min(call,this.reads);
+        this.verdict = ratio<1.8 ? 'CALLED IT — THE LOG\'S BASE IS THE BRANCHING FACTOR'
+          : this.picked===1 ? 'THAT\'S log₂ — RIGHT LOG, WRONG BASE. ONE PAGE BUYS A 64-WAY DECISION'
+          : call>this.reads ? 'HIGH ×'+ratio.toFixed(0)+' — FAT PAGES FLATTEN THE TREE'
+          : 'LOW — EVEN B-TREES NEED A FLOOR PER LEVEL';
+      }
+    }
+    this.pushMetrics();
+  },
+  pushMetrics(){
+    setM('rep.call', this.picked===null?'–':BOPTL[this.picked]);
+    setM('rep.built', this.bt.n>=RN? '2M / 2M · DONE' : fmtN(this.bt.n)+' / 2M');
+    setM('rep.reads', isNaN(this.reads)?'–':this.reads.toFixed(1)+' AVG (2,000 LOOKUPS)');
+    setM('rep.depth', this.bt.n? this.bt.depth+' LEVELS · '+fmtN(this.bt.pages)+' PAGES':'–');
+    setM('rep.verdict', this.verdict);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    if(this.phase==='idle'){
+      ctx.textAlign='center';
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('COMMIT FIRST — TWO MILLION KEYS BUILD WHEN YOU CALL THE BILL', W/2, H/2-16);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('PAGES HOLD UP TO 63 KEYS · A BINARY TREE WOULD NEED ~21 LEVELS', W/2, H/2+4);
+      ctx.fillText('HOW MANY PAGE READS DOES ONE LOOKUP COST?', W/2, H/2+22);
+      return;
+    }
+    // level pyramid: count pages per level
+    const counts=[];
+    const walk=(x,d)=>{ counts[d]=(counts[d]||0)+1; if(!x.leaf) x.kids.forEach(k=>walk(k,d+1)); };
+    // walking 45K nodes per frame is fine only when done; sample during build
+    if(this.phase==='done' || this.bt.n<400000) walk(this.bt.root,0);
+    else { counts[0]=1; }
+    const bx=150, bw=W-330;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('PAGES PER LEVEL — EACH FLOOR MULTIPLIES REACH ×~45', 16, 24);
+    const maxC=Math.max(1,...counts.filter(Boolean));
+    counts.forEach((c,d)=>{
+      const y=40+d*26;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText(d===0?'ROOT':'L'+d, 16, y+10);
+      ctx.fillStyle= d===counts.length-1? CSS.b : CSS.a;
+      ctx.fillRect(bx, y, Math.max(2, bw*c/maxC), 12);
+      ctx.fillStyle=CSS.ink;
+      ctx.fillText(fmtN(c)+' PAGES', bx+10+bw*c/maxC, y+10);
+    });
+    if(this.phase==='run'){
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('BUILDING — '+fmtN(this.bt.n)+' KEYS, '+fmtN(this.bt.pages)+' PAGES, DEPTH '+this.bt.depth, 16, 40+5*26);
+    }
+    // ruler
+    const ry=H-48, x0=60, x1=W-30;
+    const X=v=>x0+(x1-x0)*(Math.log10(v)-Math.log10(2))/(Math.log10(5000)-Math.log10(2));
+    ctx.strokeStyle=CSS.line; ctx.beginPath(); ctx.moveTo(x0,ry); ctx.lineTo(x1,ry); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    [[4,'4'],[21,'21'],[64,'64'],[500,'500'],[2000,'2K']].forEach(([v,l])=>{
+      ctx.beginPath(); ctx.moveTo(X(v),ry-4); ctx.lineTo(X(v),ry+4); ctx.stroke();
+      ctx.fillText(l, X(v), ry+16);
+    });
+    ctx.textAlign='right'; ctx.fillText('PAGE READS PER LOOKUP (LOG)', x1, ry-34);
+    const dot=(v,col,label,dy)=>{
+      const x=Math.max(x0,Math.min(x1,X(v)));
+      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x, ry, 4, 0, 7); ctx.fill();
+      ctx.textAlign= x>W-160?'right':'left';
+      ctx.fillText(label, x+(x>W-160?-8:8), ry+dy);
+    };
+    if(this.picked!==null) dot(BOPTS[this.picked], CSS.fault, 'YOUR CALL '+BOPTL[this.picked], -10);
+    if(!isNaN(this.reads)) dot(this.reads, CSS.traffic, 'MEASURED '+this.reads.toFixed(1), -22);
+    ctx.textAlign='center'; ctx.fillStyle= this.phase==='done'? CSS.traffic : CSS.muted;
+    ctx.fillText(this.phase==='done'
+      ? 'AT B=1,000: THREE FLOORS REACH A BILLION — AND THE ROOT NEVER LEAVES RAM'
+      : 'EVERY INSERT REALLY SPLITS REAL PAGES', W/2, H-12);
+  },
+};
+rep.reset();
+[0,1,2,3].forEach(i=>{
+  document.querySelector('[data-act="p'+i+'"]').addEventListener('click',()=>rep.choose(i));
+});
+
+/* ================= EXP-01: the duel ================= */
+const E1N=150000, PAGE_KEYS=500;
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){
+    this.t=0; this.rng=mulberry32(29);
+    this.bt=makeBT(16);
+    this.db=makeLeveled({mem:500, l0max:4, file:500, caps:[5000, 50000]});
+    this.warm=0; this.phase='warm';
+    this.ring=[]; this.acc=0;
+  },
+  update(dt){
+    this.t+=dt;
+    const mix=+document.getElementById('r-reads').value;
+    document.getElementById('o-reads').textContent=mix;
+    if(this.phase==='warm'){
+      let n=0;
+      while(n<12000 && this.warm<E1N){
+        const k=(this.warm*2654435761)%16777216;  // spread keys over the space
+        this.bt.insert(k); this.db.write(k);
+        this.warm++; n++;
+      }
+      if(this.warm>=E1N) this.phase='live';
+      return;
+    }
+    this.acc+=dt*700;
+    let ops=0, rB=0, wB=0, rL=0, writes=0;
+    const diskBefore=this.db.disk;
+    while(this.acc>=1){
+      this.acc--; ops++;
+      const isRead=this.rng()*100<mix;
+      const k=(this.rng()*16777216)|0;
+      if(isRead){
+        rB+=this.bt.search(k).pages;
+        rL+=this.db.probeFiles(k);
+      } else {
+        wB+=this.bt.search(k).pages+1;     // read the path, dirty one page in place
+        this.db.write(k); writes++;         // append; compaction pays later, counted below
+      }
+    }
+    if(ops>0){
+      this.ring.push({ops, rB, wB, rL, writes, lsmDisk:this.db.disk-diskBefore});
+      if(this.ring.length>120) this.ring.shift();
+    }
+    const S=this.ring.reduce((a,x)=>({ops:a.ops+x.ops, rB:a.rB+x.rB, wB:a.wB+x.wB, rL:a.rL+x.rL, lsmDisk:a.lsmDisk+x.lsmDisk}),{ops:0,rB:0,wB:0,rL:0,lsmDisk:0});
+    if(S.ops>50){
+      const bPer=(S.rB+S.wB)/S.ops;
+      const lPer=(S.rL+S.lsmDisk/PAGE_KEYS)/S.ops;
+      this.bPer=bPer; this.lPer=lPer;
+      setM('e1.btree', bPer.toFixed(2));
+      setM('e1.lsm', lPer.toFixed(2));
+      setM('e1.mix', mix+'% READS / '+(100-mix)+'% WRITES');
+      const margin=Math.abs(bPer-lPer)/Math.max(bPer,lPer);
+      setM('e1.verdict', margin<0.12? 'NEAR THE CROSSOVER — THE ACTUAL FORK IN DATABASE HISTORY'
+        : bPer<lPer? 'B-TREE WINS THIS MIX — CLEAN PATHS BEAT FILE RUMMAGING'
+        : 'LSM WINS THIS MIX — APPENDS BEAT IN-PLACE PAGE WRITES');
+    } else if(this.phase==='live'){
+      setM('e1.mix', mix+'% READS');
+    }
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    if(this.phase==='warm'){
+      ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+      ctx.fillText('WARMING BOTH ENGINES — '+fmtN(this.warm)+' / '+fmtN(E1N)+' KEYS INTO EACH', W/2, H/2);
+      return;
+    }
+    // silhouettes
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('B-TREE — '+fmtN(this.bt.pages)+' PAGES, DEPTH '+this.bt.depth, 16, 26);
+    const triY=40;
+    [1, 8, 40].forEach((w,i)=>{
+      ctx.fillStyle=CSS.a; ctx.globalAlpha=0.75;
+      ctx.fillRect(60-w*0.75, triY+i*18, w*7, 12);
+      ctx.globalAlpha=1;
+    });
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('EDITS PAGES IN PLACE', 16, triY+64);
+    const lx=W/2+16;
+    ctx.fillText('LSM — L0:'+this.db.L0.length+' RUNS · L1:'+this.db.L[0].length+' · L2:'+this.db.L[1].length+' FILES', lx, 26);
+    [this.db.L0.length, this.db.L[0].length, Math.min(40,this.db.L[1].length)].forEach((c,i)=>{
+      ctx.fillStyle=CSS.b; ctx.globalAlpha=0.75;
+      ctx.fillRect(lx+44, triY+i*18, Math.max(3,c*4), 12);
+      ctx.globalAlpha=1;
+    });
+    ctx.fillStyle=CSS.muted;
+    ctx.fillText('APPENDS, THEN COMPACTS', lx, triY+64);
+    // meters
+    const my=H-96, bx=170, bw=W-360;
+    const meter=(y,label,val,col)=>{
+      ctx.textAlign='left'; ctx.fillStyle=CSS.muted; ctx.fillText(label, 16, y+11);
+      ctx.strokeStyle=CSS.line; ctx.strokeRect(bx, y, bw, 15);
+      ctx.fillStyle=col;
+      ctx.fillRect(bx+1, y+1, (bw-2)*Math.min(1,(val||0)/8), 13);
+      ctx.fillStyle=CSS.ink;
+      ctx.fillText((val||0).toFixed(2)+' PAGES/OP', bx+10+(bw-2)*Math.min(1,(val||0)/8), y+11);
+    };
+    meter(my, 'B-TREE I/O', this.bPer, CSS.a);
+    meter(my+26, 'LSM I/O', this.lPer, CSS.b);
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME OPS, SAME DICE — READS FAVOR THE CLEAN PATH, WRITES FAVOR THE APPEND', W/2, H-14);
+  },
+};
+e1.reset();
+
+/* ================= EXP-02: sequential vs UUID keys ================= */
+const E2CAP=60000;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){
+    this.t=0; this.rng=mulberry32(41);
+    this.seq=makeBT(16); this.rand=makeBT(16);
+    this.k=0; this.acc=0; this.done=false;
+  },
+  update(dt){
+    this.t+=dt;
+    if(!this.done){
+      this.acc+=dt*4000;
+      let n=0;
+      while(this.acc>=1 && n<400 && this.k<E2CAP){
+        this.acc--; n++;
+        this.k++;
+        this.seq.insert(this.k);                    // auto-increment
+        this.rand.insert((this.rng()*2147483647)|0); // uuid-style
+      }
+      if(this.k>=E2CAP){ this.done=true; this.doneAt=this.t; }
+    } else if(this.t-this.doneAt>6) this.reset();   // watch it fill again
+    const ss=this.seq.stats(), rs=this.rand.stats();
+    setM('e2.seq', fmtN(ss.pages)+' PAGES · '+Math.round(ss.fill*100)+'% FULL');
+    setM('e2.rand', fmtN(rs.pages)+' PAGES · '+Math.round(rs.fill*100)+'% FULL');
+    setM('e2.extra', '+'+Math.max(0,Math.round(100*(rs.pages/Math.max(1,ss.pages)-1)))+'% MORE PAGES, SAME DATA');
+    setM('e2.n', fmtN(this.k)+(this.done?' · FULL':''));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const histo=(x0, title, fills, col, note)=>{
+      ctx.textAlign='left'; ctx.fillStyle=col;
+      ctx.fillText(title, x0, 26);
+      // 10 fill buckets
+      const buckets=new Array(10).fill(0);
+      fills.forEach(f=>buckets[Math.min(9, Math.floor(f*10))]++);
+      const maxB=Math.max(1,...buckets);
+      const bw=(W/2-70)/10;
+      for(let i=0;i<10;i++){
+        const h=Math.max(1, 120*buckets[i]/maxB);
+        ctx.fillStyle=col; ctx.globalAlpha=0.75;
+        ctx.fillRect(x0+i*bw, 170-h, bw-3, h);
+        ctx.globalAlpha=1;
+      }
+      ctx.fillStyle=CSS.muted;
+      [0,5,9].forEach(i=>{ ctx.textAlign='center'; ctx.fillText((i+1)*10+'%', x0+i*bw+bw/2, 184); });
+      ctx.textAlign='left';
+      ctx.fillText(note, x0, 206);
+    };
+    histo(30, 'SEQUENTIAL KEYS — PAGE-FILL HISTOGRAM', this.seq.leafFills(), CSS.b,
+      'RIDES THE RIGHT EDGE — PACKS NEAR FULL');
+    histo(W/2+30, 'RANDOM (UUID) KEYS', this.rand.leafFills(), CSS.fault,
+      'SPLITS EVERYWHERE — SETTLES AT ln 2 ≈ 69%');
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME KEY COUNT INTO BOTH TREES — THE KEY FORMAT DECIDED THE PAGE BILL', W/2, H-14);
+  },
+};
+e2.reset();
+
+/* ---------- wiring ---------- */
+const sims={hero,rep,e1,e2}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('rep','p-rep'); register('e1','p-e1'); register('e2','p-e2');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','rep','e1','e2']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

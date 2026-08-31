@@ -134,8 +134,8 @@ REP question, production anchors, and pocket line before build starts.
 | **The Trie** ✅ | Character-edge walk; longest-prefix match live | Nodes shared by 1,000 words vs flat storage? | longest-prefix routing (The Border runs one already); autocomplete | cost = key length, not table size |
 | **The Skip List** ✅ | Coin-flipped express lanes thinning geometrically | Expected levels at 1M entries? | Redis sorted sets / leaderboards (The Front Page) | a linked list with log n express lanes |
 | **The Counter** (HyperLogLog) ✅ | 12KB counting millions of distinct items | Error at 2^14 registers? | unique viewers/visitors (The Front Page, The Upload) | error ≈ 1.04 ⁄ √m |
-| **The Sketch** (Count-Min) | Heavy hitters surfacing from a stream | Overestimate bound for a cold key? | hot-key detection (The Guild raid); trending (The Front Page) | never undercounts; over by at most εn |
-| **The B-Tree** | The duel: same workload vs the LSM, page I/O counted | Which engine wins at 90% reads? | MySQL under The Calendar, The Drop, The Board | three or four levels hold a billion keys |
+| **The Sketch** (Count-Min) ✅ | Heavy hitters surfacing from a stream | Overestimate bound for a cold key? | hot-key detection (The Guild raid); trending (The Front Page) | never undercounts; over by at most εn |
+| **The B-Tree** ✅ | The duel: same workload vs the LSM, page I/O counted | Which engine wins at 90% reads? | MySQL under The Calendar, The Drop, The Board | three or four levels hold a billion keys |
 | **The Eviction** (LRU & co) | Hashmap + linked list really evicting under Zipf | Hit rate at cache = 10% of catalog? | one-hit wonders (The Edge, The Filter); Open Connect (Press Play); parser cache (The Encyclopedia) | under Zipf, recency is a free prophet |
 | **The Queue** (capstone) | ρ/(1−ρ) — the law behind every collapse in the series | Wait time at 95% utilization? | every episode; the universal knee | the knee lives at ~80% utilization |
 

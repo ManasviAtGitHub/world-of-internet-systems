@@ -89,8 +89,8 @@ The episode says so explicitly; never re-introduce a "cost minimum" framing for 
 
 ## The toolbox pieces
 
-`bloom.html`, `heap.html`, `lsm-tree.html`, `hash-table.html`, `trie.html`, `skip-list.html`, `counter.html` follow the same design system plus the
+`bloom.html`, `heap.html`, `lsm-tree.html`, `hash-table.html`, `trie.html`, `skip-list.html`, `counter.html`, `sketch.html`, `b-tree.html` follow the same design system plus the
 `.tbx` card component (interview + revision cards with a label/value facts grid)
 and the REP mechanic: the experiment refuses to measure until the reader commits
 to a prediction, then grades the call against the measured value. Verified with
-the same pipeline (harness32-37 in the scratchpad follow the harness31 pattern).
+the same pipeline (harness32-39 in the scratchpad follow the harness31 pattern).

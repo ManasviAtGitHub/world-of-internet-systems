@@ -222,8 +222,8 @@
       <li><a class="ep" href="#/trie" data-ep="trie">The Trie</a></li>
       <li><a class="ep" href="#/skip-list" data-ep="skip-list">The Skip List</a></li>
       <li><a class="ep" href="#/counter" data-ep="counter">The Counter · HyperLogLog</a></li>
-      <li><span class="soon">The Sketch · Count-Min<i>IDEA</i></span></li>
-      <li><span class="soon">The B-Tree<i>IDEA</i></span></li>
+      <li><a class="ep" href="#/sketch" data-ep="sketch">The Sketch · Count-Min</a></li>
+      <li><a class="ep" href="#/b-tree" data-ep="b-tree">The B-Tree</a></li>
       <li><span class="soon">The Eviction · LRU<i>IDEA</i></span></li>
       <li><span class="soon">The Queue<i>IDEA</i></span></li>
     </ul>
@@ -556,6 +556,22 @@
           to move the estimate — by construction; then the merge that computes a
           fleet-wide union without shipping a single ID.</span>
         </a>
+        <a class="card" href="#/sketch">
+          <span class="k">The toolbox</span>
+          <span class="t">The Sketch — Count-Min</span>
+          <span class="d">Heavy hitters from a stream too big to remember — and a
+          promise no exact system can make: it never undercounts, ever. Call what a
+          100-count key reads after a million events; catch a raid in eight kilobytes;
+          then teach the trending list to forget with a periodic halving.</span>
+        </a>
+        <a class="card" href="#/b-tree">
+          <span class="k">The toolbox</span>
+          <span class="t">The B-Tree</span>
+          <span class="d">The structure that has answered more queries than any other
+          object in computing. Call the page reads for two million keys (log₂ is the
+          wrong base); duel it against the LSM with the read/write dial in your hand;
+          and watch UUID keys buy a third more pages than sequential ones, forever.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -620,6 +636,8 @@ const EPISODES = {
   'trie':              {title:'The Trie', file:'episodes/trie.html'},
   'skip-list':         {title:'The Skip List', file:'episodes/skip-list.html'},
   'counter':           {title:'The Counter · HyperLogLog', file:'episodes/counter.html'},
+  'sketch':            {title:'The Sketch · Count-Min', file:'episodes/sketch.html'},
+  'b-tree':            {title:'The B-Tree', file:'episodes/b-tree.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');

@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Sketch — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  /* toolbox cards: the interview card + the revision card */
+  .tbx{border:1px solid var(--rule);background:var(--card);border-radius:6px;
+    padding:18px 20px 15px;margin:26px 0;font-size:15px}
+  .tbx .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-text);
+    text-transform:uppercase;display:block;margin-bottom:10px}
+  .tbx ul{list-style:none;margin:0 0 14px;padding:0}
+  .tbx li{margin:.5em 0;padding-left:20px;position:relative}
+  .tbx li::before{content:"→";position:absolute;left:0;top:1px;
+    font-family:var(--mono);font-size:12px;color:var(--accent-text)}
+  .tbx .met{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .tbx dl{display:grid;grid-template-columns:max-content 1fr;gap:7px 16px;
+    margin:0;border-top:1px solid var(--rule);padding-top:12px}
+  .tbx dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-text);padding-top:2px;white-space:nowrap}
+  .tbx dd{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .btn.picked{border-color:var(--traffic);color:var(--traffic)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .exp-note a{color:var(--series-b)}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Toolbox</p>
+  <h1>The Sketch</h1>
+  <p class="dek">Find what's hot in a stream too big to remember. The count-min sketch
+  keeps a few thousand counters for a universe of billions of keys — every event bumps
+  d counters, every query reads their minimum — and it makes a one-sided promise no
+  exact system at this size can: <em>it never undercounts, ever.</em> Collisions can
+  only inflate. That asymmetry (the mirror image of the Filter's) is why it guards
+  caches against hot keys, powers trending lists, and rate-limits firehoses. Predict
+  first, then run it. That's the rep.</p>
+  <p class="marginal">Everything below computes for real: real hash rows, an exact
+  shadow count running alongside every sketch, and the never-undercounts guarantee is
+  re-checked against the shadow on live samples — the violation counter is the proof
+  it's mathematics, not luck.</p>
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <div class="tbx">
+    <span class="k">The interview card — where you've ground this before</span>
+    <ul>
+      <li>"Find the trending topics / heavy hitters in a stream you can't store."</li>
+      <li>"Rate-limit by key across a firehose — without a counter per key."</li>
+      <li>"Why can this structure never undercount, and what does it trade away?"</li>
+    </ul>
+    <dl>
+      <dt>Pattern</dt><dd>d hash rows · increment them all · read the minimum</dd>
+      <dt>Space</dt><dd>d × w counters — a few KB regardless of how many distinct keys exist</dd>
+      <dt>Time</dt><dd>O(d) per add and per query · merge = add the grids cell-wise</dd>
+      <dt>The catch</dt><dd>collisions only inflate — cold keys can look warmer than they are (≤ εn with ε = e/w), never colder</dd>
+    </dl>
+  </div>
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">Heavy hitters from four rows of counters — checked against exact truth</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:290px" role="img" aria-label="A heat grid of four hash rows brightens under a skewed event stream; the sketch's top-five heavy hitters are listed beside the exact top five from a shadow map, and a sampled invariant check confirms the sketch never undercounts"></canvas>
+  <div class="exp-metrics">
+    <span>EVENTS<b data-m="hero.events">0</b></span>
+    <span>TOP-5 vs EXACT<b data-m="hero.hot">–</b></span>
+    <span>UNDERCOUNTS<b data-m="hero.under">0 — IMPOSSIBLE BY CONSTRUCTION</b></span>
+    <span>MEMORY<b data-m="hero.mem">–</b></span>
+  </div>
+  <figcaption class="exp-note">Each event bumps one counter in every row; a query takes
+  the <em>minimum</em> across rows, so one unlucky collision can't lie to you — all d
+  of them would have to collide on the same key. The top-five list on the right is
+  computed purely from the sketch, then graded against an exact map it never saw.
+  Every half-second, sampled keys re-prove the one-sided promise: estimate ≥ truth,
+  no exceptions.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The price of a few kilobytes</h2>
+  <p>The guarantee has a published price: with w columns, the overestimate on any key
+  is at most <strong>εn</strong> where ε = e/w and n is the whole stream's length —
+  with high probability (1 − e⁻ᵈ). But the bound is a worst case; the typical noise is
+  what an engineer budgets for. So price it: <strong>one million events flow through a
+  sketch of 2,000 × 5 counters (40 KB). A key that appeared exactly 100 times — what
+  does the sketch report?</strong> Never less than 100; that much is theorem. Commit to
+  how much more, then twelve independent trials measure it.</p>
+</div>
+
+<figure class="exp" id="p-rep">
+  <figcaption class="exp-head">
+    <span class="exp-id">REP-01</span>
+    <span class="exp-title">A 100-count key in a million-event stream — call the sketch's answer</span>
+    <span class="exp-run">
+      <button class="btn" data-act="p0">100 — exact</button>
+      <button class="btn" data-act="p1">~250</button>
+      <button class="btn" data-act="p2">~2,500</button>
+      <button class="btn" data-act="p3">~25,000</button>
+      <button class="btn danger" data-reset="rep">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-rep" style="height:280px" role="img" aria-label="After you commit, twelve independent sketches each digest a million Zipf-distributed events containing a planted key seen exactly one hundred times; each trial's estimate lands as a dot on a log axis against the truth line, the epsilon-n bound, and your call"></canvas>
+  <div class="exp-metrics">
+    <span>YOUR CALL<b data-m="rep.call">–</b></span>
+    <span>TRIALS<b data-m="rep.trials">0 / 12</b></span>
+    <span>MEAN ESTIMATE<b data-m="rep.mean">–</b></span>
+    <span>GUARANTEED BOUND<b data-m="rep.bound">–</b></span>
+    <span>VERDICT<b data-m="rep.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">Read the dots: never one pixel below the truth line —
+  that's the theorem — and typically a hundred-something above it, well inside the εn
+  ceiling. The min-over-rows is doing the real work: any single row carries ~n/w ≈ 500
+  of collision noise, but a key only gets hurt by the <em>quietest</em> of its five
+  cells. The pocket line: <em>the count-min sketch never undercounts, and overcounts
+  by at most εn — pick w = e/ε and the stream can be any size it likes.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The raid alarm</h2>
+  <p><a href="../index.html#/discord" target="_top">The Guild episode</a> watched a raid
+  hammer one channel until request coalescing saved the cluster — but coalescing only
+  helps once you <em>know</em> which key is hot. At a million requests a second you
+  can't keep a counter per key to find out; the counter table would be the new hot
+  spot. A count-min sketch with decay answers "is any key above X% of recent traffic?"
+  in constant memory, and because it never undercounts, <em>it can't miss a real hot
+  key</em> — the only possible failure is a false alarm. For an alarm, that's exactly
+  the side you want to fail on.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">Hot-key detection — the exact table vs eight kilobytes, same raid</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button>
+    <button class="btn danger" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-raid">Raid share of traffic</label>
+      <input type="range" id="r-raid" min="5" max="50" value="30" step="5">
+      <output id="o-raid">30</output>%</div>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:270px" role="img" aria-label="A traffic band shows a raid key surging to a share of all requests; an exact per-key table and a small decayed sketch both raise hot-key flags, with detection times and memory footprints compared"></canvas>
+  <div class="exp-metrics">
+    <span>EXACT TABLE<b data-m="e1.exact">–</b></span>
+    <span>SKETCH (8 KB)<b data-m="e1.sketch">–</b></span>
+    <span>FALSE ALARMS<b data-m="e1.fp">0</b></span>
+    <span>RAID<b data-m="e1.raid">–</b></span>
+  </div>
+  <figcaption class="exp-note">Both detectors run the same rule — flag any key
+  estimated above 12% of the recent window — and both catch the raid within a couple
+  of seconds of onset. The difference is the bill: the exact table grows a counter per
+  key seen and keeps growing; the sketch is eight kilobytes at any scale, forever.
+  Watch the false-alarm counter: overestimates could theoretically cry wolf, and the
+  meter shows how often that actually happens at this width.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>Trending needs to forget</h2>
+  <p>"Trending now" is a heavy-hitters query with a clock. A raw sketch never forgets —
+  yesterday's mega-topic sits on its counters forever, and this morning's surge can't
+  outrank it. The standard cure is beautifully blunt: <strong>halve every counter every
+  few seconds</strong>. Recent events keep their weight; history decays geometrically;
+  the sketch becomes a sliding spotlight instead of an archive.
+  <a href="../index.html#/reddit" target="_top">The Front Page episode</a>'s rankings
+  fight exactly this fight with their time-decay scoring — same law, different
+  structure. Below, one stream of rotating topics, two sketches: one that forgets, one
+  that can't.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">The trending list — a sketch that halves vs a sketch that hoards</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button>
+    <button class="btn danger" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-e2" style="height:280px" role="img" aria-label="Topics rise and fade in a rotating schedule; a decayed sketch's top-three tracks the true recent top-three while an undecayed sketch stays stuck on all-time totals"></canvas>
+  <div class="exp-metrics">
+    <span>DECAYED TOP-3<b data-m="e2.decay">–</b></span>
+    <span>NO-DECAY TOP-3<b data-m="e2.stale">–</b></span>
+    <span>HALVINGS<b data-m="e2.halves">0</b></span>
+    <span>TRUTH WINDOW<b data-m="e2.window">LAST 40s (EXACT)</b></span>
+  </div>
+  <figcaption class="exp-note">The exact recent truth comes from a ring buffer of the
+  last forty seconds — an audit the sketches never see. The halving sketch keeps pace
+  with it as topics rotate; the hoarding sketch crowns whichever topic peaked first
+  and never lets go. <em>Decay is the sketch's clock: geometric forgetting turns an
+  all-time census into a "now".</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The keeper</h2>
+  <p>The keeper: <strong>the count-min sketch answers "how often?" for any key in a
+  boundless stream using d rows of w counters — never undercounting, overcounting by
+  at most εn, finding heavy hitters an exact table couldn't afford to look for, and
+  learning to forget with a periodic halving.</strong> It completes the sketch family:
+  the Filter answers "have we seen it?", the Counter answers "how many distinct?",
+  and the Sketch answers "how often?" — all three in kilobytes, all three one-sided
+  about how they're allowed to be wrong.</p>
+
+  <div class="tbx">
+    <span class="k">The revision card — for the you that comes back in three months</span>
+    <ul>
+      <li>Why can it never undercount? <span class="met">(counters only increment; the min of inflated cells is still ≥ the truth — you watched 0 violations)</span></li>
+      <li>What's the error law, and what does w buy? <span class="met">(overestimate ≤ εn, ε = e/w — the planted 100 read a few hundred, under a 1,459 ceiling)</span></li>
+      <li>Why is min-over-rows the whole trick? <span class="met">(each row carries ~n/w of noise, but a key is only hurt by its quietest cell)</span></li>
+      <li>How does "trending" forget? <span class="met">(halve everything every few seconds — geometric decay is the clock)</span></li>
+    </ul>
+    <dl>
+      <dt>Seen under fire</dt><dd><a href="../index.html#/discord" target="_top">The Guild · Discord</a> ·
+      <a href="../index.html#/reddit" target="_top">The Front Page · Reddit</a> ·
+      <a href="../index.html#/bloom" target="_top">The Filter · Bloom</a> ·
+      <a href="../index.html#/counter" target="_top">The Counter · HyperLogLog</a></dd>
+    </dl>
+  </div>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Graham Cormode, S. Muthukrishnan — <a href="http://dimacs.rutgers.edu/~graham/pubs/papers/cm-full.pdf">"An Improved Data Stream Summary: The Count-Min Sketch and its Applications"</a>, <em>Journal of Algorithms</em>, 2005 (the structure, the εn bound, the applications list).</li>
+    <li>RedisBloom — <a href="https://redis.io/docs/latest/develop/data-types/probabilistic/count-min-sketch/">Count-Min Sketch commands</a> (CMS.INCRBY / CMS.QUERY in production Redis).</li>
+    <li>Twitter — <a href="https://github.com/twitter/algebird">Algebird</a>'s CountMinSketch (the mergeable-sketch algebra behind Twitter's streaming analytics).</li>
+    <li>Graham Cormode — <a href="https://dimacs.rutgers.edu/~graham/cmsketch.html">the count-min sketch page</a> (variants, decay tricks, and the deployment folklore).</li>
+  </ul>
+</div>
+
+<footer class="col">
+  <hr class="foot-rule">
+    <p class="next">World of Internet Systems · NEXT IN THE TOOLBOX → <a href="../index.html#/b-tree" target="_top">The B-Tree</a> · <b>a billion keys, three or four page reads — and the duel with the LSM</b></p>
+</footer>
+</main>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const mix=(k,s)=>{ let a=(k^s)>>>0; a^=a>>>15; a=Math.imul(a,0x85EBCA6B)>>>0; a^=a>>>13; a=Math.imul(a,0xC2B2AE35)>>>0; a^=a>>>16; return a>>>0; };
+const fmtN=n=> n>=1e6?(n/1e6).toFixed(2)+'M' : n>=1e4?Math.round(n/1000)+'K' : n>=1000?(n/1000).toFixed(1)+'K' : ''+Math.round(n);
+
+/* ---------- a real count-min sketch ---------- */
+function makeCMS(d,w,seed){
+  const rows=[]; for(let i=0;i<d;i++) rows.push(new Int32Array(w));
+  const seeds=[]; for(let i=0;i<d;i++) seeds.push((seed+i*0x9E3779B9)>>>0);
+  return {
+    d,w,rows,n:0,
+    add(x,c){ c=c||1; this.n+=c; for(let i=0;i<d;i++) rows[i][mix(x,seeds[i])%w]+=c; },
+    est(x){ let m=Infinity; for(let i=0;i<d;i++){ const v=rows[i][mix(x,seeds[i])%w]; if(v<m)m=v; } return m; },
+    halve(){ for(let i=0;i<d;i++) for(let j=0;j<w;j++) rows[i][j]>>=1; this.n>>=1; },
+  };
+}
+
+/* ================= HERO: heavy hitters vs exact truth ================= */
+const TOPICS=['payday','eclipse','derby','patch-day','finale','heatwave','longweekend','transfer','launch','blackout','recount','playoffs'];
+const hero = {
+  cv: document.getElementById('c-hero'),
+  reset(){
+    this.t=0; this.rng=mulberry32(11);
+    this.cms=makeCMS(4,64,77);
+    this.exact=new Map(); this.under=0; this.samples=0;
+    this.candidates=new Map();  // heavy-hitter candidates, sketch-estimated
+    this.match=0; this.nextChk=0.6; this.trace=null; this.nextTrace=0;
+    for(let i=0;i<300;i++) this.step();  // alive at first paint
+  },
+  pick(){
+    // 12 named topics on a zipf-ish ladder + 2,000 background keys
+    if(this.rng()<0.55){
+      const r=this.rng();
+      const i=Math.min(11, Math.floor(-Math.log(1-r)/0.55));
+      return 1000+i;
+    }
+    return 10000+((this.rng()*2000)|0);
+  },
+  step(){
+    const k=this.pick();
+    this.cms.add(k);
+    this.exact.set(k,(this.exact.get(k)||0)+1);
+    const e=this.cms.est(k);
+    if(e>this.cms.n/60){ // candidate heavy hitter, sketch's own opinion
+      this.candidates.set(k,e);
+      if(this.candidates.size>32){ // evict the coldest candidate
+        let mk=null,mv=Infinity;
+        this.candidates.forEach((v,kk)=>{ if(v<mv){mv=v;mk=kk;} });
+        this.candidates.delete(mk);
+      }
+    }
+    return k;
+  },
+  update(dt){
+    this.t+=dt;
+    let n=0;
+    while(n<40){
+      const k=this.step();
+      if(n===0 && this.t>=this.nextTrace){ this.trace=k; this.nextTrace=this.t+1.1; } // a calm showcase, not a flicker
+      n++;
+    }
+    if(this.t>=this.nextChk){
+      this.nextChk=this.t+0.5;
+      // the one-sided promise, sampled against the shadow
+      const keys=[...this.exact.keys()];
+      for(let i=0;i<30;i++){
+        const k=keys[(this.rng()*keys.length)|0];
+        this.samples++;
+        if(this.cms.est(k)<this.exact.get(k)) this.under++;
+      }
+      // grade the sketch's top-5 against exact truth
+      this.candidates.forEach((v,k)=>this.candidates.set(k,this.cms.est(k)));
+      const top=[...this.candidates.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>e[0]);
+      const tru=[...this.exact.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).map(e=>e[0]);
+      this.match=top.filter(k=>tru.includes(k)).length;
+      this.top=top; this.tru=tru;
+    }
+    setM('hero.events', fmtN(this.cms.n));
+    setM('hero.hot', this.match+'/5 MATCH EXACT');
+    setM('hero.under', this.under+' — IMPOSSIBLE BY CONSTRUCTION ('+this.samples+' SAMPLED)');
+    setM('hero.mem', '4×64 COUNTERS = 1 KB vs MAP OF '+fmtN(this.exact.size)+' KEYS');
+    if(this.cms.n>400000) this.reset();
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    // heat rows
+    const gw=W-260, cw=gw/64;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('4 HASH ROWS × 64 COUNTERS — HEAT = COUNT', 16, 24);
+    let maxv=1;
+    for(let i=0;i<4;i++) for(let j=0;j<64;j++) if(this.cms.rows[i][j]>maxv) maxv=this.cms.rows[i][j];
+    for(let i=0;i<4;i++){
+      const y=38+i*30;
+      for(let j=0;j<64;j++){
+        const v=this.cms.rows[i][j];
+        if(v===0) continue;
+        ctx.fillStyle=CSS.traffic;
+        ctx.globalAlpha=0.08+0.9*Math.sqrt(v/maxv);
+        ctx.fillRect(16+j*cw, y, cw-1, 24);
+      }
+      ctx.globalAlpha=1;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('h'+(i+1), 16+gw+6, y+15);
+    }
+    // trace
+    if(this.trace!==null){
+      const isTopic=this.trace>=1000&&this.trace<1012;
+      ctx.fillStyle=CSS.muted; ctx.textAlign='left';
+      ctx.fillText('LAST EVENT: "'+(isTopic?TOPICS[this.trace-1000]:'key-'+this.trace)+'" → +1 IN ALL 4 ROWS · READ = MIN', 16, 172);
+    }
+    // top-5 lists
+    const lx=16, rx=W/2+20, ly=200;
+    ctx.fillStyle=CSS.traffic; ctx.textAlign='left';
+    ctx.fillText('SKETCH SAYS (FROM 1 KB)', lx, ly-8);
+    (this.top||[]).forEach((k,i)=>{
+      const name= k>=1000&&k<1012? TOPICS[k-1000] : 'key-'+k;
+      ctx.fillStyle= (this.tru||[]).includes(k)? CSS.ink : CSS.fault;
+      ctx.fillText((i+1)+'. '+name+' ~'+fmtN(this.cms.est(k)), lx, ly+8+i*14);
+    });
+    ctx.fillStyle=CSS.b; ctx.textAlign='left';
+    ctx.fillText('EXACT TRUTH ('+fmtN(this.exact.size)+'-KEY MAP)', rx, ly-8);
+    (this.tru||[]).forEach((k,i)=>{
+      const name= k>=1000&&k<1012? TOPICS[k-1000] : 'key-'+k;
+      ctx.fillStyle=CSS.ink;
+      ctx.fillText((i+1)+'. '+name+' '+fmtN(this.exact.get(k)), rx, ly+8+i*14);
+    });
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('THE SKETCH NEVER SAW A KEY NAME STORED — ONLY COUNTERS, YET THE PODIUM MATCHES', W/2, H-12);
+  },
+};
+hero.reset();
+
+/* ================= REP-01: the planted key ================= */
+const RTRIALS=12, RN=1000000, RW=2000, RD=5, PLANT=999999, TRUEC=100;
+const COPTS=[100,250,2500,25000], COPTL=['100 — EXACT','~250','~2,500','~25,000'];
+const rep = {
+  cv: document.getElementById('c-rep'),
+  reset(){
+    this.t=0; this.picked=null; this.phase='idle';
+    this.ests=[]; this.trial=0; this.cur=null; this.fed=0;
+    this.verdict='–';
+    document.querySelectorAll('[data-act^="p"]').forEach(b=>b.classList.remove('picked'));
+    this.pushMetrics();
+  },
+  choose(i){
+    if(this.picked!==null) return;
+    this.picked=i; this.phase='run';
+    document.querySelectorAll('[data-act^="p"]')[i]?.classList?.add('picked');
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.phase==='run'){
+      let budget=500000;
+      while(budget>0 && this.trial<RTRIALS){
+        if(!this.cur){
+          this.cur=makeCMS(RD,RW,1000+this.trial*7919);
+          this.rng=mulberry32(500+this.trial);
+          this.fed=0;
+        }
+        const feed=Math.min(budget, RN-this.fed);
+        for(let i=0;i<feed;i++){
+          const idx=this.fed+i;
+          if(idx%10000===5000) this.cur.add(PLANT);          // the planted 100
+          else this.cur.add(Math.floor(Math.exp(this.rng()*10.82))); // zipf over ~50K keys
+        }
+        this.fed+=feed; budget-=feed;
+        if(this.fed>=RN){
+          this.ests.push(this.cur.est(PLANT));
+          this.cur=null; this.trial++;
+        }
+      }
+      if(this.trial>=RTRIALS && this.phase==='run'){
+        this.phase='done';
+        const mean=this.ests.reduce((a,b)=>a+b,0)/this.ests.length;
+        const call=COPTS[this.picked];
+        const ratio=Math.max(call,mean)/Math.min(call,mean);
+        this.verdict = this.picked===0 ? 'NEVER BELOW 100 — THAT PART IS THEOREM. BUT COLLISIONS ONLY INFLATE'
+          : ratio<2.5 ? 'CALLED IT — A FEW HUNDRED OF COLLISION NOISE, UNDER THE εn CEILING'
+          : call>mean ? 'HIGH ×'+ratio.toFixed(0)+' — MIN-OVER-ROWS DODGES THE HOT CELLS'
+          : 'LOW ×'+ratio.toFixed(0)+' — EACH ROW CARRIES ~n/w OF NOISE';
+      }
+    }
+    this.pushMetrics();
+  },
+  pushMetrics(){
+    const mean=this.ests.length? this.ests.reduce((a,b)=>a+b,0)/this.ests.length:NaN;
+    setM('rep.call', this.picked===null?'–':COPTL[this.picked]);
+    setM('rep.trials', this.trial+' / '+RTRIALS+(this.phase==='done'?' · DONE':''));
+    setM('rep.mean', isNaN(mean)?'–':Math.round(mean)+' (TRUE 100)');
+    setM('rep.bound', '≤ '+Math.round(TRUEC+Math.E/RW*RN)+' W.P. 99.3%');
+    setM('rep.verdict', this.verdict);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    if(this.phase==='idle'){
+      ctx.textAlign='center';
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('COMMIT FIRST — TWELVE MILLION EVENTS RUN WHEN YOU CALL THE ANSWER', W/2, H/2-16);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('w=2,000 × d=5 (40 KB) · 1,000,000 ZIPF EVENTS PER TRIAL · ONE KEY PLANTED EXACTLY 100 TIMES', W/2, H/2+4);
+      ctx.fillText('WHAT DOES THE SKETCH REPORT FOR THAT KEY?', W/2, H/2+22);
+      return;
+    }
+    // log axis 50 .. 100000
+    const x0=60, x1=W-30, ay=H/2+8;
+    const X=v=>x0+(x1-x0)*(Math.log10(Math.max(50,v))-Math.log10(50))/(Math.log10(100000)-Math.log10(50));
+    ctx.strokeStyle=CSS.line; ctx.beginPath(); ctx.moveTo(x0,ay); ctx.lineTo(x1,ay); ctx.stroke();
+    ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+    [[100,'100'],[250,'250'],[1459,'εn CEIL'],[2500,'2.5K'],[25000,'25K']].forEach(([v,l])=>{
+      ctx.beginPath(); ctx.moveTo(X(v),ay-4); ctx.lineTo(X(v),ay+4); ctx.stroke();
+      ctx.fillText(l, X(v), ay+18);
+    });
+    // truth line
+    ctx.strokeStyle=CSS.b; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(X(100), ay-58); ctx.lineTo(X(100), ay+4); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=CSS.b; ctx.textAlign='left'; ctx.fillText('TRUTH = 100 — NO DOT MAY LAND LEFT OF THIS', X(100)+6, ay-48);
+    // bound
+    ctx.strokeStyle=CSS.line; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(X(1459), ay-58); ctx.lineTo(X(1459), ay+4); ctx.stroke(); ctx.setLineDash([]);
+    // trial dots
+    this.ests.forEach((e,i)=>{
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(X(e), ay-12-(i%4)*8, 3, 0, 7); ctx.fill();
+    });
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('EACH DOT = ONE TRIAL\'S ESTIMATE FOR THE PLANTED KEY', x0, 26);
+    if(this.phase==='run') ctx.fillText('TRIAL '+(this.trial+1)+' — '+fmtN(this.fed)+' / 1M EVENTS', x0, 42);
+    const dot=(v,col,label,dy)=>{
+      const x=Math.max(x0,Math.min(x1,X(v)));
+      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x, ay+34, 4, 0, 7); ctx.fill();
+      ctx.textAlign= x>W-170?'right':'left';
+      ctx.fillText(label, x+(x>W-170?-8:8), ay+38+dy);
+    };
+    if(this.picked!==null) dot(COPTS[this.picked], CSS.fault, 'YOUR CALL '+COPTL[this.picked], 0);
+    if(this.phase==='done'){
+      const mean=this.ests.reduce((a,b)=>a+b,0)/this.ests.length;
+      dot(mean, CSS.traffic, 'MEAN '+Math.round(mean), 16);
+    }
+    ctx.textAlign='center'; ctx.fillStyle= this.phase==='done'? CSS.traffic : CSS.muted;
+    ctx.fillText(this.phase==='done'
+      ? 'NEVER UNDER, MODESTLY OVER — THE ONE-SIDED ERROR, MEASURED'
+      : 'EVERY EVENT REALLY HASHES INTO FIVE ROWS', W/2, H-12);
+  },
+};
+rep.reset();
+[0,1,2,3].forEach(i=>{
+  document.querySelector('[data-act="p'+i+'"]').addEventListener('click',()=>rep.choose(i));
+});
+
+/* ================= EXP-01: the raid alarm ================= */
+const E1_THRESH=0.12;
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){
+    this.t=0; this.rng=mulberry32(23);
+    this.cms=makeCMS(4,512,55);
+    this.exact=new Map(); this.exactN=0;
+    this.raidOn=false; this.raidStart=0; this.nextPhase=6;
+    this.detS=null; this.detE=null; this.lastDetS=null; this.lastDetE=null;
+    this.fp=0; this.nextHalve=6; this.flags=new Set();
+    this.hist=[];
+  },
+  update(dt){
+    this.t+=dt;
+    const share=+document.getElementById('r-raid').value/100;
+    document.getElementById('o-raid').textContent=Math.round(share*100);
+    if(this.t>=this.nextPhase){
+      if(!this.raidOn){ this.raidOn=true; this.raidStart=this.t; this.detS=null; this.detE=null; this.nextPhase=this.t+11; }
+      else { this.raidOn=false; this.nextPhase=this.t+10; }
+    }
+    let n=0;
+    while(n<30){ // ~900 events/s
+      n++;
+      let k;
+      if(this.raidOn && this.rng()<share) k=777;                    // the raid key
+      else k=Math.floor(Math.exp(this.rng()*8.5));                  // zipf pool ~5K keys
+      this.cms.add(k);
+      this.exact.set(k,(this.exact.get(k)||0)+1); this.exactN++;
+    }
+    if(this.t>=this.nextHalve){ // both worlds share the same decay clock
+      this.nextHalve+=8;
+      this.cms.halve();
+      this.exact.forEach((v,k)=>{ const h=v>>1; h? this.exact.set(k,h):this.exact.delete(k); });
+      this.exactN>>=1;
+    }
+    // detection rule, both worlds: any key above 12% of the recent window
+    const sketchHot=this.cms.est(777)>this.cms.n*E1_THRESH;
+    const exactHot=(this.exact.get(777)||0)>this.exactN*E1_THRESH;
+    if(this.raidOn){
+      if(sketchHot && this.detS===null){ this.detS=this.t-this.raidStart; this.lastDetS=this.detS; }
+      if(exactHot && this.detE===null){ this.detE=this.t-this.raidStart; this.lastDetE=this.detE; }
+    } else if(sketchHot && !exactHot) this.fp++;   // crying wolf — count it honestly
+    this.hist.push({t:this.t, raid:this.raidOn, s:sketchHot, e:exactHot});
+    if(this.hist.length>400) this.hist.shift();
+    setM('e1.exact', 'MAP OF '+fmtN(this.exact.size)+' KEYS · '+(this.lastDetE!==null?'FLAGGED IN '+this.lastDetE.toFixed(1)+'s':'WATCHING'));
+    setM('e1.sketch', '4×512 CELLS · '+(this.lastDetS!==null?'FLAGGED IN '+this.lastDetS.toFixed(1)+'s':'WATCHING'));
+    setM('e1.fp', ''+this.fp);
+    setM('e1.raid', this.raidOn? 'ACTIVE — '+Math.round(share*100)+'% OF TRAFFIC' : 'QUIET');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    // timeline band
+    const x0=16, x1=W-16, y0=44, bh=26;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('TRAFFIC — RAID SHARE SHADED, DETECTOR FLAGS BELOW', x0, 28);
+    const n=this.hist.length;
+    for(let i=0;i<n;i++){
+      const h=this.hist[i], x=x0+(x1-x0)*(i/399);
+      if(h.raid){ ctx.fillStyle='rgba(228,96,78,0.35)'; ctx.fillRect(x, y0, (x1-x0)/399+1, bh); }
+      if(h.e){ ctx.fillStyle=CSS.b; ctx.fillRect(x, y0+bh+12, (x1-x0)/399+1, 8); }
+      if(h.s){ ctx.fillStyle=CSS.traffic; ctx.fillRect(x, y0+bh+28, (x1-x0)/399+1, 8); }
+    }
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(x0, y0, x1-x0, bh);
+    ctx.fillStyle=CSS.b; ctx.textAlign='left';
+    ctx.fillText('EXACT TABLE FLAG', x0, y0+bh+10);
+    ctx.fillStyle=CSS.traffic;
+    ctx.fillText('SKETCH FLAG (8 KB)', x0, y0+bh+26+18);
+    // memory bars
+    const my=H-84, bx=170, bw=W-350;
+    const mapBytes=this.exact.size*40, cmsBytes=4*512*4;
+    ctx.fillStyle=CSS.muted; ctx.textAlign='left'; ctx.fillText('EXACT MEMORY', 16, my+10);
+    ctx.fillStyle=CSS.b; ctx.fillRect(bx, my, bw*Math.min(1,mapBytes/300000), 12);
+    ctx.fillStyle=CSS.ink; ctx.fillText(fmtN(mapBytes)+' B — GROWS WITH KEYS', bx+8+bw*Math.min(1,mapBytes/300000), my+10);
+    ctx.fillStyle=CSS.muted; ctx.fillText('SKETCH MEMORY', 16, my+32);
+    ctx.fillStyle=CSS.traffic; ctx.fillRect(bx, my+22, bw*Math.min(1,cmsBytes/300000), 12);
+    ctx.fillStyle=CSS.ink; ctx.fillText('8 KB — FOREVER', bx+8+bw*Math.min(1,cmsBytes/300000), my+32);
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME RULE, SAME DECAY CLOCK — ONLY THE MEMORY BILL DIFFERS, AND ONLY ONE SIDE CAN MISS', W/2, H-14);
+  },
+};
+e1.reset();
+
+/* ================= EXP-02: trending needs to forget ================= */
+const NTOP=12; // 0-9 rotate; 10-11 are one-shot mega-events, never again
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){
+    this.t=0; this.rng=mulberry32(31);
+    this.dec=makeCMS(4,256,91);
+    this.hoard=makeCMS(4,256,91);
+    this.ring=new Uint8Array(45000); this.ri=0; this.rn=0;  // last-30s exact audit
+    this.halves=0; this.nextHalve=14; this.nextGrade=2;
+    this.decRing=[]; this.hoardRing=[];
+    for(let i=0;i<500;i++) this.step();
+  },
+  weight(k){
+    if(k>=10){ // the one-time mega-events — yesterday's news, never repeated
+      return 1 + 160*Math.exp(-(this.t-12)*(this.t-12)/(2*9*9));
+    }
+    // rotating bumps: topic k peaks at t = 8 + k*11 (mod 110), sigma 7
+    const period=110, tc=(8+k*11)%period;
+    let dtc=Math.abs((this.t%period)-tc);
+    dtc=Math.min(dtc, period-dtc);
+    return 1 + 30*Math.exp(-dtc*dtc/(2*7*7));
+  },
+  step(){
+    // sample a topic by current weights
+    let tot=0; const ws=[];
+    for(let k=0;k<NTOP;k++){ const w=this.weight(k); ws.push(w); tot+=w; }
+    let r=this.rng()*tot, k=0;
+    while(r>ws[k] && k<NTOP-1){ r-=ws[k]; k++; }
+    this.dec.add(k); this.hoard.add(k);
+    this.ring[this.ri]=k; this.ri=(this.ri+1)%this.ring.length;
+    if(this.rn<this.ring.length) this.rn++;
+  },
+  top3(counts){
+    return [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]);
+  },
+  update(dt){
+    this.t+=dt;
+    let n=0; while(n<50){ this.step(); n++; }   // ~1500/s
+    if(this.t>=this.nextHalve){ this.nextHalve+=14; this.dec.halve(); this.halves++; }
+    // exact recent truth from the ring (audit only)
+    const cnt=new Map();
+    for(let i=0;i<this.rn;i++){ const k=this.ring[i]; cnt.set(k,(cnt.get(k)||0)+1); }
+    this.truth=this.top3(cnt);
+    const est=cms=>{ const m=new Map(); for(let k=0;k<NTOP;k++) m.set(k,cms.est(k)); return this.top3(m); };
+    this.decTop=est(this.dec); this.hoardTop=est(this.hoard);
+    const grade=lst=>lst.filter(k=>this.truth.includes(k)).length;
+    if(this.t>=this.nextGrade){
+      this.nextGrade+=1;
+      this.decRing.push(grade(this.decTop)); if(this.decRing.length>90) this.decRing.shift();
+      this.hoardRing.push(grade(this.hoardTop)); if(this.hoardRing.length>90) this.hoardRing.shift();
+    }
+    const avg=a=>a.length? (a.reduce((x,y)=>x+y,0)/a.length):0;
+    setM('e2.decay', this.decTop.map(k=>'T'+k).join(' · ')+' — AVG '+avg(this.decRing).toFixed(1)+'/3 MATCH RECENT');
+    setM('e2.stale', this.hoardTop.map(k=>'T'+k).join(' · ')+' — AVG '+avg(this.hoardRing).toFixed(1)+'/3');
+    setM('e2.halves', ''+this.halves);
+    setM('e2.window', 'LAST '+Math.round(this.rn/1500)+'s (EXACT AUDIT)');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    // topic popularity bars (current true weights)
+    const bx=16, bw=(W-32)/NTOP;
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('TOPIC POPULARITY RIGHT NOW — THE SCHEDULE ROTATES', bx, 24);
+    for(let k=0;k<NTOP;k++){
+      const w=this.weight(k), h=Math.min(70, 70*w/31);
+      const x=bx+k*bw;
+      ctx.fillStyle= (this.truth||[]).includes(k)? CSS.traffic : CSS.line;
+      ctx.fillRect(x, 106-h, bw-6, h);
+      ctx.fillStyle=CSS.muted; ctx.textAlign='center';
+      ctx.fillText(k>=10?'M'+(k-10):'T'+k, x+(bw-6)/2, 120);
+    }
+    // three columns
+    const col=(x,title,list,colr)=>{
+      ctx.textAlign='left'; ctx.fillStyle=colr;
+      ctx.fillText(title, x, 152);
+      (list||[]).forEach((k,i)=>{
+        ctx.fillStyle= (this.truth||[]).includes(k)? CSS.ink : CSS.fault;
+        ctx.fillText((i+1)+'. TOPIC '+k, x, 168+i*15);
+      });
+    };
+    col(16, 'TRUE RECENT TOP-3', this.truth, CSS.b);
+    col(W*0.37, 'HALVING SKETCH', this.decTop, CSS.traffic);
+    col(W*0.7, 'HOARDING SKETCH', this.hoardTop, CSS.fault);
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('ONE STREAM, TWO SKETCHES — ONLY THE ONE THAT FORGETS CAN SEE "NOW"', W/2, H-12);
+  },
+};
+e2.reset();
+
+/* ---------- wiring ---------- */
+const sims={hero,rep,e1,e2}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('rep','p-rep'); register('e1','p-e1'); register('e2','p-e2');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','rep','e1','e2']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

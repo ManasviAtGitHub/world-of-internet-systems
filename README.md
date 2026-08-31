@@ -68,8 +68,10 @@ episode backlinks, and a revision card. Format contract: `TOOLBOX.md`.
 | The Trie | prefix tree / radix | call how many nodes English actually needs |
 | The Skip List | randomized express lanes | call one search's bill in a million entries |
 | The Counter | HyperLogLog | call the error of 12 KB counting a million distinct |
+| The Sketch | count-min sketch | call what a 100-count key reads after 1M events |
+| The B-Tree | page-sized nodes | call the page reads for 2M keys at fanout 64 |
 
-Planned: Count-Min, the B-tree, LRU eviction, and the queue as capstone.
+Planned: LRU eviction, and the queue as capstone.
 
 ## The rules of the series
 
