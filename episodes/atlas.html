@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Atlas — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:720px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.2em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  /* reading paths */
+  .path{border:1px solid var(--rule);background:var(--card);border-radius:6px;
+    padding:15px 20px 13px;margin:18px 0}
+  .path .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-text);
+    text-transform:uppercase;display:block;margin-bottom:9px}
+  .path .steps{font-family:var(--mono);font-size:13px;line-height:2.1}
+  .path .steps a{color:var(--link);text-decoration:none;white-space:nowrap}
+  .path .steps a:hover{text-decoration:underline}
+  .path .steps i{color:var(--ink-3);font-style:normal;margin:0 7px}
+  .sprint{margin:8px 0 2px;padding-left:0;counter-reset:stop;list-style:none}
+  .sprint li{margin:.55em 0;padding-left:34px;position:relative;font-size:15px}
+  .sprint li::before{counter-increment:stop;content:counter(stop,decimal-leading-zero);
+    position:absolute;left:0;top:2px;font-family:var(--mono);font-size:11px;color:var(--accent-text)}
+  .sprint a{text-decoration:none;font-weight:600}
+  .sprint .why{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+
+  /* the two indexes */
+  .legend{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin:6px 0 14px}
+  .idx{margin:10px 0 8px}
+  .idx .row{display:flex;flex-wrap:wrap;gap:5px 12px;align-items:baseline;
+    padding:10px 0;border-bottom:1px solid var(--rule)}
+  .idx .who{flex:1 0 205px;max-width:245px;font-weight:600;font-size:16px}
+  .idx .who a{text-decoration:none}
+  .idx .chips{flex:3 1 300px}
+  .chip{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;
+    border:1px solid var(--rule);border-radius:3px;padding:2px 8px;margin:2px 5px 2px 0;
+    color:var(--link);text-decoration:none;white-space:nowrap}
+  .chip:hover{border-color:var(--link)}
+  a.chip.teach, span.chip.teach{color:var(--accent-text);border-color:var(--accent-text)}
+  .idx h3{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-3);margin:26px 0 2px;font-weight:400}
+
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Atlas</p>
+  <h1>The Atlas</h1>
+  <p class="dek">The map of the world: thirty systems, eleven instruments, and every road
+  between them. Look up a structure and find the systems where it runs under fire; look
+  up a system and see the working parts inside it; or follow one of the marked paths —
+  including the sprint for the week before an interview. Nothing here is decoration:
+  every link below is a page where the thing actually computes.</p>
+  <p class="marginal">Every mapping on this page was verified against the episodes'
+  actual contents — if a chip says a structure runs somewhere, that page really runs
+  it.</p>
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <h2>The paths</h2>
+  <p>There is no required order — every page stands alone — but these routes are the
+  ones the material was built to support.</p>
+
+  <div class="path">
+    <span class="k">The plumbing path — how a request crosses the world</span>
+    <div class="steps">
+      <a href="../index.html#/url-to-page" target="_top">The Page</a><i>→</i>
+      <a href="../index.html#/dns" target="_top">The Name</a><i>→</i>
+      <a href="../index.html#/bgp" target="_top">The Border</a><i>→</i>
+      <a href="../index.html#/cdn-edge" target="_top">The Edge</a><i>→</i>
+      <a href="../index.html#/load-balancing" target="_top">The Load Balancer</a><i>→</i>
+      <a href="../index.html#/consistent-hashing" target="_top">The Hash Ring</a><i>→</i>
+      <a href="../index.html#/the-log-kafka" target="_top">The Log</a><i>→</i>
+      <a href="../index.html#/databases" target="_top">The Ladder</a>
+    </div>
+  </div>
+
+  <div class="path">
+    <span class="k">The flagship stories — eight products at planet scale</span>
+    <div class="steps">
+      <a href="../index.html#/twitter-timeline" target="_top">The Timeline</a><i>→</i>
+      <a href="../index.html#/netflix" target="_top">Press Play</a><i>→</i>
+      <a href="../index.html#/whatsapp" target="_top">The Message</a><i>→</i>
+      <a href="../index.html#/uber" target="_top">The Match</a><i>→</i>
+      <a href="../index.html#/google-search" target="_top">The Index</a><i>→</i>
+      <a href="../index.html#/dynamo" target="_top">The Quorum</a><i>→</i>
+      <a href="../index.html#/youtube" target="_top">The Upload</a><i>→</i>
+      <a href="../index.html#/instagram" target="_top">The Feed</a>
+    </div>
+  </div>
+
+  <div class="path">
+    <span class="k">The scale wars — fourteen companies, fourteen fights</span>
+    <div class="steps">
+      <a href="../index.html#/discord" target="_top">The Guild</a><i>→</i>
+      <a href="../index.html#/slack" target="_top">The Workspace</a><i>→</i>
+      <a href="../index.html#/spotify" target="_top">The Playlist</a><i>→</i>
+      <a href="../index.html#/zoom" target="_top">The Meeting</a><i>→</i>
+      <a href="../index.html#/dropbox" target="_top">The Folder</a><i>→</i>
+      <a href="../index.html#/airbnb" target="_top">The Calendar</a><i>→</i>
+      <a href="../index.html#/stripe" target="_top">The Charge</a><i>→</i>
+      <a href="../index.html#/shopify" target="_top">The Drop</a><i>→</i>
+      <a href="../index.html#/ticketmaster" target="_top">The Onsale</a><i>→</i>
+      <a href="../index.html#/reddit" target="_top">The Front Page</a><i>→</i>
+      <a href="../index.html#/pinterest" target="_top">The Board</a><i>→</i>
+      <a href="../index.html#/linkedin" target="_top">The Graph</a><i>→</i>
+      <a href="../index.html#/tinder" target="_top">The Swipe</a><i>→</i>
+      <a href="../index.html#/wikipedia" target="_top">The Encyclopedia</a>
+    </div>
+  </div>
+
+  <div class="path">
+    <span class="k">The toolbox path — DSA revision, in its built order</span>
+    <div class="steps">
+      <a href="../index.html#/bloom" target="_top">The Filter</a><i>→</i>
+      <a href="../index.html#/heap" target="_top">The Heap</a><i>→</i>
+      <a href="../index.html#/lsm-tree" target="_top">The LSM Tree</a><i>→</i>
+      <a href="../index.html#/hash-table" target="_top">The Hash Table</a><i>→</i>
+      <a href="../index.html#/trie" target="_top">The Trie</a><i>→</i>
+      <a href="../index.html#/skip-list" target="_top">The Skip List</a><i>→</i>
+      <a href="../index.html#/counter" target="_top">The Counter</a><i>→</i>
+      <a href="../index.html#/sketch" target="_top">The Sketch</a><i>→</i>
+      <a href="../index.html#/b-tree" target="_top">The B-Tree</a><i>→</i>
+      <a href="../index.html#/eviction" target="_top">The Eviction</a><i>→</i>
+      <a href="../index.html#/queue" target="_top">The Queue</a>
+    </div>
+  </div>
+
+  <div class="path">
+    <span class="k">The interview sprint — twelve stops for the week before</span>
+    <ol class="sprint">
+      <li><a href="../index.html#/queue" target="_top">The Queue</a> <span class="why">— the law behind every "why did it fall over" question</span></li>
+      <li><a href="../index.html#/hash-table" target="_top">The Hash Table</a> <span class="why">— O(1) and its two asterisks; the most-used answer</span></li>
+      <li><a href="../index.html#/eviction" target="_top">The Eviction</a> <span class="why">— the most-asked structure design (LRU) plus cache theory</span></li>
+      <li><a href="../index.html#/heap" target="_top">The Heap</a> <span class="why">— top-K, merge-K, soonest-deadline: the shape of many answers</span></li>
+      <li><a href="../index.html#/b-tree" target="_top">The B-Tree</a> <span class="why">— why databases; the base of the log</span></li>
+      <li><a href="../index.html#/lsm-tree" target="_top">The LSM Tree</a> <span class="why">— the other storage fork, and write amplification</span></li>
+      <li><a href="../index.html#/bloom" target="_top">The Filter</a> <span class="why">— the sketch family's opening move</span></li>
+      <li><a href="../index.html#/counter" target="_top">The Counter</a> <span class="why">— count distinct at scale, and the merge that doesn't lie</span></li>
+      <li><a href="../index.html#/consistent-hashing" target="_top">The Hash Ring</a> <span class="why">— "how would you shard a cache," answered properly</span></li>
+      <li><a href="../index.html#/twitter-timeline" target="_top">The Timeline</a> <span class="why">— push vs pull, the classic feed-design question</span></li>
+      <li><a href="../index.html#/databases" target="_top">The Ladder</a> <span class="why">— replication, consensus, and a real Raft election</span></li>
+      <li><a href="../index.html#/airbnb" target="_top">The Calendar</a> <span class="why">— races, locks, and double-booking under contention</span></li>
+    </ol>
+  </div>
+</div>
+
+<div class="col">
+  <h2>The structures</h2>
+  <p class="legend">AMBER CHIP = the page that teaches it · GREY CHIPS = episodes where it runs under fire</p>
+
+  <div class="idx">
+    <h3>Taught in the toolbox</h3>
+    <div class="row"><span class="who">Bloom filter</span><span class="chips"><a class="chip teach" href="../index.html#/bloom" target="_top">The Filter</a><a class="chip" href="../index.html#/discord" target="_top">The Guild</a><a class="chip" href="../index.html#/linkedin" target="_top">The Graph</a><a class="chip" href="../index.html#/cdn-edge" target="_top">The Edge</a></span></div>
+    <div class="row"><span class="who">Binary heap</span><span class="chips"><a class="chip teach" href="../index.html#/heap" target="_top">The Heap</a><a class="chip" href="../index.html#/linkedin" target="_top">The Graph</a><a class="chip" href="../index.html#/twitter-timeline" target="_top">The Timeline</a><a class="chip" href="../index.html#/reddit" target="_top">The Front Page</a><a class="chip" href="../index.html#/slack" target="_top">The Workspace</a></span></div>
+    <div class="row"><span class="who">LSM tree</span><span class="chips"><a class="chip teach" href="../index.html#/lsm-tree" target="_top">The LSM Tree</a><a class="chip" href="../index.html#/discord" target="_top">The Guild</a><a class="chip" href="../index.html#/linkedin" target="_top">The Graph</a><a class="chip" href="../index.html#/the-log-kafka" target="_top">The Log</a></span></div>
+    <div class="row"><span class="who">Hash table</span><span class="chips"><a class="chip teach" href="../index.html#/hash-table" target="_top">The Hash Table</a><a class="chip" href="../index.html#/pinterest" target="_top">The Board</a><a class="chip" href="../index.html#/tinder" target="_top">The Swipe</a><a class="chip" href="../index.html#/consistent-hashing" target="_top">The Hash Ring</a></span></div>
+    <div class="row"><span class="who">Trie &amp; radix tree</span><span class="chips"><a class="chip teach" href="../index.html#/trie" target="_top">The Trie</a><a class="chip" href="../index.html#/bgp" target="_top">The Border</a><a class="chip" href="../index.html#/google-search" target="_top">The Index</a><a class="chip" href="../index.html#/dns" target="_top">The Name</a></span></div>
+    <div class="row"><span class="who">Skip list</span><span class="chips"><a class="chip teach" href="../index.html#/skip-list" target="_top">The Skip List</a><a class="chip" href="../index.html#/reddit" target="_top">The Front Page</a><a class="chip" href="../index.html#/lsm-tree" target="_top">The LSM Tree · memtables</a></span></div>
+    <div class="row"><span class="who">HyperLogLog</span><span class="chips"><a class="chip teach" href="../index.html#/counter" target="_top">The Counter</a><a class="chip" href="../index.html#/reddit" target="_top">The Front Page</a><a class="chip" href="../index.html#/youtube" target="_top">The Upload</a></span></div>
+    <div class="row"><span class="who">Count-min sketch</span><span class="chips"><a class="chip teach" href="../index.html#/sketch" target="_top">The Sketch</a><a class="chip" href="../index.html#/discord" target="_top">The Guild</a><a class="chip" href="../index.html#/reddit" target="_top">The Front Page</a></span></div>
+    <div class="row"><span class="who">B-tree</span><span class="chips"><a class="chip teach" href="../index.html#/b-tree" target="_top">The B-Tree</a><a class="chip" href="../index.html#/airbnb" target="_top">The Calendar</a><a class="chip" href="../index.html#/shopify" target="_top">The Drop</a><a class="chip" href="../index.html#/instagram" target="_top">The Feed</a></span></div>
+    <div class="row"><span class="who">LRU cache</span><span class="chips"><a class="chip teach" href="../index.html#/eviction" target="_top">The Eviction</a><a class="chip" href="../index.html#/cdn-edge" target="_top">The Edge</a><a class="chip" href="../index.html#/netflix" target="_top">Press Play</a><a class="chip" href="../index.html#/wikipedia" target="_top">The Encyclopedia</a></span></div>
+    <div class="row"><span class="who">Queueing theory</span><span class="chips"><a class="chip teach" href="../index.html#/queue" target="_top">The Queue</a><a class="chip" href="../index.html#/load-balancing" target="_top">The Load Balancer</a><a class="chip" href="../index.html#/shopify" target="_top">The Drop</a><a class="chip" href="../index.html#/ticketmaster" target="_top">The Onsale</a></span></div>
+  </div>
+
+  <div class="idx">
+    <h3>Taught by the episodes themselves</h3>
+    <div class="row"><span class="who">Consistent hashing</span><span class="chips"><a class="chip teach" href="../index.html#/consistent-hashing" target="_top">The Hash Ring</a><a class="chip" href="../index.html#/discord" target="_top">The Guild</a><a class="chip" href="../index.html#/slack" target="_top">The Workspace</a></span></div>
+    <div class="row"><span class="who">Raft consensus</span><span class="chips"><a class="chip teach" href="../index.html#/databases" target="_top">The Ladder</a></span></div>
+    <div class="row"><span class="who">The append-only log</span><span class="chips"><a class="chip teach" href="../index.html#/the-log-kafka" target="_top">The Log</a><a class="chip" href="../index.html#/lsm-tree" target="_top">The LSM Tree</a><a class="chip" href="../index.html#/databases" target="_top">The Ladder</a></span></div>
+    <div class="row"><span class="who">The inverted index</span><span class="chips"><a class="chip teach" href="../index.html#/google-search" target="_top">The Index</a></span></div>
+    <div class="row"><span class="who">Random walks &amp; PageRank</span><span class="chips"><a class="chip teach" href="../index.html#/google-search" target="_top">The Index</a><a class="chip" href="../index.html#/pinterest" target="_top">The Board · Pixie</a></span></div>
+    <div class="row"><span class="who">Wilson score ranking</span><span class="chips"><a class="chip teach" href="../index.html#/reddit" target="_top">The Front Page</a></span></div>
+    <div class="row"><span class="who">Quadtrees &amp; geoshards</span><span class="chips"><a class="chip teach" href="../index.html#/tinder" target="_top">The Swipe</a><a class="chip" href="../index.html#/uber" target="_top">The Match · hexagons</a></span></div>
+    <div class="row"><span class="who">The bitfield</span><span class="chips"><a class="chip teach" href="../index.html#/reddit" target="_top">The Front Page · r/place</a></span></div>
+    <div class="row"><span class="who">Token buckets</span><span class="chips"><a class="chip teach" href="../index.html#/stripe" target="_top">The Charge</a></span></div>
+    <div class="row"><span class="who">Idempotency keys</span><span class="chips"><a class="chip teach" href="../index.html#/stripe" target="_top">The Charge</a><a class="chip" href="../index.html#/wikipedia" target="_top">The Encyclopedia</a></span></div>
+    <div class="row"><span class="who">Fisher–Yates shuffle</span><span class="chips"><a class="chip teach" href="../index.html#/ticketmaster" target="_top">The Onsale · the lottery</a></span></div>
+    <div class="row"><span class="who">Interval booking</span><span class="chips"><a class="chip teach" href="../index.html#/airbnb" target="_top">The Calendar</a></span></div>
+    <div class="row"><span class="who">DAGs &amp; blast radius</span><span class="chips"><a class="chip teach" href="../index.html#/wikipedia" target="_top">The Encyclopedia · templates</a></span></div>
+    <div class="row"><span class="who">Regex automata</span><span class="chips"><a class="chip teach" href="../index.html#/cdn-edge" target="_top">The Edge</a></span></div>
+    <div class="row"><span class="who">Bit-packed IDs</span><span class="chips"><a class="chip teach" href="../index.html#/instagram" target="_top">The Feed</a><a class="chip" href="../index.html#/pinterest" target="_top">The Board</a><a class="chip" href="../index.html#/twitter-timeline" target="_top">The Timeline · snowflake</a></span></div>
+    <div class="row"><span class="who">Vector clocks</span><span class="chips"><a class="chip teach" href="../index.html#/dynamo" target="_top">The Quorum</a></span></div>
+    <div class="row"><span class="who">Power of two choices</span><span class="chips"><a class="chip teach" href="../index.html#/load-balancing" target="_top">The Load Balancer</a></span></div>
+  </div>
+</div>
+
+<div class="col">
+  <h2>The systems</h2>
+  <p class="legend">EACH ROW: a system, and the working parts inside it — every chip links to the page that teaches that part</p>
+
+  <div class="idx">
+    <h3>Internet plumbing</h3>
+    <div class="row"><span class="who"><a href="../index.html#/load-balancing" target="_top">The Load Balancer</a></span><span class="chips"><a class="chip" href="../index.html#/queue" target="_top">queueing &amp; the knee</a><span class="chip teach">★ power of two choices</span><a class="chip" href="../index.html#/queue" target="_top">pooling</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/consistent-hashing" target="_top">The Hash Ring</a></span><span class="chips"><span class="chip teach">★ consistent hashing</span><a class="chip" href="../index.html#/hash-table" target="_top">hash table</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/the-log-kafka" target="_top">The Log</a></span><span class="chips"><span class="chip teach">★ the append-only log</span><a class="chip" href="../index.html#/lsm-tree" target="_top">LSM heritage</a><a class="chip" href="../index.html#/queue" target="_top">queueing</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/dns" target="_top">The Name</a></span><span class="chips"><a class="chip" href="../index.html#/trie" target="_top">hierarchy = a trie</a><a class="chip" href="../index.html#/eviction" target="_top">caching &amp; TTLs</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/bgp" target="_top">The Border</a></span><span class="chips"><a class="chip" href="../index.html#/trie" target="_top">longest-prefix trie</a><a class="chip" href="../index.html#/queue" target="_top">convergence storms</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/url-to-page" target="_top">The Page</a></span><span class="chips"><a class="chip" href="../index.html#/trie" target="_top">the DNS walk</a><a class="chip" href="../index.html#/queue" target="_top">the render pipeline</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/cdn-edge" target="_top">The Edge</a></span><span class="chips"><span class="chip teach">★ regex automata</span><a class="chip" href="../index.html#/eviction" target="_top">LRU &amp; one-hit wonders</a><a class="chip" href="../index.html#/bloom" target="_top">Bloom admission</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/databases" target="_top">The Ladder</a></span><span class="chips"><span class="chip teach">★ Raft consensus</span><a class="chip" href="../index.html#/b-tree" target="_top">B-tree indexes</a><a class="chip" href="../index.html#/consistent-hashing" target="_top">sharding</a></span></div>
+  </div>
+
+  <div class="idx">
+    <h3>The flagships</h3>
+    <div class="row"><span class="who"><a href="../index.html#/twitter-timeline" target="_top">The Timeline</a></span><span class="chips"><a class="chip" href="../index.html#/heap" target="_top">k-way merge</a><a class="chip" href="../index.html#/instagram" target="_top">snowflake IDs</a><a class="chip" href="../index.html#/queue" target="_top">the fanout queue</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/netflix" target="_top">Press Play</a></span><span class="chips"><a class="chip" href="../index.html#/eviction" target="_top">popularity caching</a><a class="chip" href="../index.html#/queue" target="_top">capacity math</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/whatsapp" target="_top">The Message</a></span><span class="chips"><a class="chip" href="../index.html#/queue" target="_top">store &amp; forward</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/uber" target="_top">The Match</a></span><span class="chips"><span class="chip teach">★ hexagon geosharding</span><a class="chip" href="../index.html#/queue" target="_top">surge = the knee</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/google-search" target="_top">The Index</a></span><span class="chips"><span class="chip teach">★ inverted index</span><span class="chip teach">★ random walks</span><a class="chip" href="../index.html#/heap" target="_top">top-k merge</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/dynamo" target="_top">The Quorum</a></span><span class="chips"><span class="chip teach">★ vector clocks</span><a class="chip" href="../index.html#/consistent-hashing" target="_top">the ring</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/youtube" target="_top">The Upload</a></span><span class="chips"><a class="chip" href="../index.html#/counter" target="_top">counting views</a><a class="chip" href="../index.html#/queue" target="_top">transcode queues</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/instagram" target="_top">The Feed</a></span><span class="chips"><span class="chip teach">★ bit-packed sorted IDs</span><a class="chip" href="../index.html#/b-tree" target="_top">B-tree locality</a></span></div>
+  </div>
+
+  <div class="idx">
+    <h3>The wider world</h3>
+    <div class="row"><span class="who"><a href="../index.html#/discord" target="_top">The Guild</a></span><span class="chips"><a class="chip" href="../index.html#/lsm-tree" target="_top">LSM tree · ScyllaDB</a><a class="chip" href="../index.html#/bloom" target="_top">Bloom filters</a><a class="chip" href="../index.html#/sketch" target="_top">hot-key detection</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/slack" target="_top">The Workspace</a></span><span class="chips"><a class="chip" href="../index.html#/queue" target="_top">the job queue wedge</a><a class="chip" href="../index.html#/consistent-hashing" target="_top">channel rings</a><a class="chip" href="../index.html#/heap" target="_top">deadline scheduling</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/spotify" target="_top">The Playlist</a></span><span class="chips"><a class="chip" href="../index.html#/queue" target="_top">start-time budgets</a><a class="chip" href="../index.html#/eviction" target="_top">cache tiers</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/zoom" target="_top">The Meeting</a></span><span class="chips"><a class="chip" href="../index.html#/queue" target="_top">SFU capacity</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/dropbox" target="_top">The Folder</a></span><span class="chips"><a class="chip" href="../index.html#/hash-table" target="_top">content hashing</a><a class="chip" href="../index.html#/queue" target="_top">sync backlog</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/airbnb" target="_top">The Calendar</a></span><span class="chips"><span class="chip teach">★ interval booking</span><a class="chip" href="../index.html#/b-tree" target="_top">MySQL B-trees</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/stripe" target="_top">The Charge</a></span><span class="chips"><span class="chip teach">★ idempotency keys</span><span class="chip teach">★ token buckets</span><a class="chip" href="../index.html#/queue" target="_top">load shedding</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/shopify" target="_top">The Drop</a></span><span class="chips"><a class="chip" href="../index.html#/b-tree" target="_top">MySQL pods</a><a class="chip" href="../index.html#/queue" target="_top">burst arithmetic</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/ticketmaster" target="_top">The Onsale</a></span><span class="chips"><span class="chip teach">★ the lottery shuffle</span><a class="chip" href="../index.html#/queue" target="_top">the waiting room</a><a class="chip" href="../index.html#/eviction" target="_top">the cache wall</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/reddit" target="_top">The Front Page</a></span><span class="chips"><span class="chip teach">★ Wilson score</span><span class="chip teach">★ the bitfield</span><a class="chip" href="../index.html#/heap" target="_top">rankings</a><a class="chip" href="../index.html#/counter" target="_top">uniques</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/pinterest" target="_top">The Board</a></span><span class="chips"><span class="chip teach">★ Pixie random walks</span><a class="chip" href="../index.html#/hash-table" target="_top">the memcached wall</a><a class="chip" href="../index.html#/instagram" target="_top">routing IDs</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/linkedin" target="_top">The Graph</a></span><span class="chips"><a class="chip" href="../index.html#/heap" target="_top">scatter-gather merge</a><a class="chip" href="../index.html#/lsm-tree" target="_top">RocksDB</a><a class="chip" href="../index.html#/bloom" target="_top">Bloom filters</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/tinder" target="_top">The Swipe</a></span><span class="chips"><span class="chip teach">★ quadtree geoshards</span><a class="chip" href="../index.html#/hash-table" target="_top">O(1) likes</a></span></div>
+    <div class="row"><span class="who"><a href="../index.html#/wikipedia" target="_top">The Encyclopedia</a></span><span class="chips"><span class="chip teach">★ template DAGs</span><a class="chip" href="../index.html#/eviction" target="_top">the parser cache</a><a class="chip" href="../index.html#/stripe" target="_top">idempotent purges</a></span></div>
+  </div>
+</div>
+
+<footer class="col">
+  <hr class="foot-rule">
+    <p class="next">World of Internet Systems · <b>THE ATLAS</b> — 30 systems · 11 instruments · every road between them · <a href="../index.html" target="_top">back to the index</a></p>
+</footer>
+</main>
+</body>
+</html>

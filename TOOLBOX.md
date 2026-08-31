@@ -151,5 +151,8 @@ vector clocks, power-of-two-choices.
   planned pieces are `IDEA` rows in build order.
 - Landing page: once three pieces exist, add a Toolbox card section beneath
   the thirty.
-- The Atlas (separate future build) cross-indexes structure ↔ episode both ways
-  and carries the reading paths.
+- The Atlas (`episodes/atlas.html`, shipped) cross-indexes structure ↔ episode
+  both ways and carries the reading paths — five routes including the interview
+  sprint, a structures index (11 toolbox rows + 16 episode-taught rows), and a
+  30-row systems index. Every mapping grep-verified against episode contents;
+  link integrity checked both directions (all 41 pages reachable, none broken).

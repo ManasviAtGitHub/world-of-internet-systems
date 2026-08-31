@@ -75,6 +75,13 @@ episode backlinks, and a revision card. Format contract: `TOOLBOX.md`.
 
 THE TOOLBOX IS COMPLETE — eleven instruments, all honestly simulated.
 
+## The atlas
+
+`episodes/atlas.html` is the map of the world: five reading paths (including an
+interview sprint), a structures index (where each is taught, where it runs under
+fire), and a systems index of every episode's working parts. All mappings are
+verified against episode contents; all 41 pages are reachable from it.
+
 ## The rules of the series
 
 1. **Simulations are honest** — queueing behavior emerges from real arithmetic
