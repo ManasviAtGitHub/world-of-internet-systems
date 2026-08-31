@@ -64,9 +64,11 @@ episode backlinks, and a revision card. Format contract: `TOOLBOX.md`.
 | The Filter | Bloom filters | call the false-positive rate at 8 bits/key |
 | The Heap | binary heap | call the comparison bill for top-100 of 1M |
 | The LSM Tree | log-structured merge tree | call the write amplification, fanout 10, 3 levels |
+| The Hash Table | open addressing + chaining | call the load factor where probes hit 10x |
+| The Trie | prefix tree / radix | call how many nodes English actually needs |
 
-Planned: the hash table, the trie, the skip list, HyperLogLog, Count-Min, the
-B-tree, LRU eviction, and the queue as capstone.
+Planned: the skip list, HyperLogLog, Count-Min, the B-tree, LRU eviction, and
+the queue as capstone.
 
 ## The rules of the series
 

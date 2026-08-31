@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Hash Table — World of Internet Systems</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --bg-dot:#D7DDE4;
+    --ink:#18222E;
+    --ink-2:#46566A;
+    --ink-3:#66788C;
+    --rule:#C9D2DC;
+    --card:#F7F9FB;
+    --accent-text:#96660F;
+    --link:#2E6E8E;
+
+    --panel:#0C1622;
+    --panel-2:#121F30;
+    --panel-line:#24384F;
+    --panel-ink:#D8E2EE;
+    --panel-muted:#7E93AB;
+    --traffic:#F2A93B;
+    --series-a:#C48224;
+    --series-b:#3B9EBD;
+    --fault:#E4604E;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+      --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1018; --bg-dot:#1A2530; --ink:#D9E2EC; --ink-2:#9AAABC; --ink-3:#74869A;
+    --rule:#243244; --card:#101823; --accent-text:#E0A23E; --link:#6FB5D6;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg);
+    background-image:radial-gradient(var(--bg-dot) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink); font-family:var(--serif); font-size:17px; line-height:1.62;
+  }
+  main{max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .col{max-width:660px;margin:0 auto}
+  h1,h2,h3{text-wrap:balance;line-height:1.15}
+  h1{font-size:clamp(34px,6vw,54px);font-weight:700;margin:.4em 0 .35em;letter-spacing:-.01em}
+  h2{font-size:26px;margin:2.4em 0 .5em}
+  p{margin:.9em 0}
+  a{color:var(--link)}
+  code{font-family:var(--mono);font-size:.85em}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent-text);text-transform:uppercase;margin-top:64px}
+  .dek{font-size:20px;color:var(--ink-2);margin-top:0}
+  .marginal{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em}
+  .cite{font-size:14px;color:var(--ink-3)}
+  header .rule,.foot-rule{border:0;border-top:1px solid var(--rule);margin:26px 0}
+
+  /* toolbox cards: the interview card + the revision card */
+  .tbx{border:1px solid var(--rule);background:var(--card);border-radius:6px;
+    padding:18px 20px 15px;margin:26px 0;font-size:15px}
+  .tbx .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--accent-text);
+    text-transform:uppercase;display:block;margin-bottom:10px}
+  .tbx ul{list-style:none;margin:0 0 14px;padding:0}
+  .tbx li{margin:.5em 0;padding-left:20px;position:relative}
+  .tbx li::before{content:"→";position:absolute;left:0;top:1px;
+    font-family:var(--mono);font-size:12px;color:var(--accent-text)}
+  .tbx .met{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .tbx dl{display:grid;grid-template-columns:max-content 1fr;gap:7px 16px;
+    margin:0;border-top:1px solid var(--rule);padding-top:12px}
+  .tbx dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-text);padding-top:2px;white-space:nowrap}
+  .tbx dd{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+  .exp{margin:34px 0 40px;background:var(--panel);border:1px solid var(--panel-line);border-radius:6px;color:var(--panel-ink);font-family:var(--mono);overflow:hidden}
+  .exp-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--panel-line)}
+  .exp-id{font-size:11px;letter-spacing:.16em;color:var(--traffic);border:1px solid var(--panel-line);border-radius:3px;padding:3px 7px}
+  .exp-title{font-size:13px;letter-spacing:.04em;color:var(--panel-ink);flex:1;min-width:200px}
+  .exp-run{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;background:transparent;color:var(--panel-ink);border:1px solid var(--panel-line);border-radius:3px;padding:5px 12px;cursor:pointer}
+  .btn:hover{border-color:var(--panel-muted)}
+  .btn:focus-visible,input[type=range]:focus-visible,.toggle input:focus-visible{outline:2px solid var(--traffic);outline-offset:2px}
+  .btn.primary{background:var(--traffic);border-color:var(--traffic);color:#0C1622;font-weight:700}
+  .btn.danger{color:var(--fault);border-color:#5A3230}
+  .btn.danger:hover{border-color:var(--fault)}
+  .btn.picked{border-color:var(--traffic);color:var(--traffic)}
+  .exp-controls{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--panel-line);background:var(--panel-2);font-size:11.5px;color:var(--panel-muted)}
+  .ctl{display:flex;align-items:center;gap:9px}
+  .ctl label{letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .ctl output{color:var(--panel-ink);font-variant-numeric:tabular-nums;min-width:44px}
+  input[type=range]{accent-color:var(--traffic);width:150px}
+  .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .toggle input{accent-color:var(--traffic);width:15px;height:15px;cursor:pointer}
+  canvas.sim{display:block;width:100%;background:var(--panel)}
+  .exp-metrics{display:flex;gap:22px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--panel-line);font-size:11px;color:var(--panel-muted);letter-spacing:.06em}
+  .exp-metrics b{color:var(--panel-ink);font-weight:400;font-variant-numeric:tabular-nums;margin-left:6px}
+  .exp-metrics b.bad{color:var(--fault)}
+  .exp-note{padding:11px 16px;border-top:1px solid var(--panel-line);font-size:12px;color:var(--panel-muted);line-height:1.55}
+  .exp-note em{color:var(--traffic);font-style:normal}
+  .exp-note a{color:var(--series-b)}
+
+  .sources{font-size:14.5px;color:var(--ink-2)}
+  .sources li{margin:.45em 0}
+  footer{margin-top:70px}
+  .next{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .next b{color:var(--accent-text);font-weight:400}
+</style>
+</head>
+<body>
+<main>
+<div class="col">
+  <p class="eyebrow">World of Internet Systems · The Toolbox</p>
+  <h1>The Hash Table</h1>
+  <p class="dek">The most-used data structure on earth, and the most-misquoted promise in
+  interviews: "O(1)". The truth has two asterisks this page makes you watch. First, the
+  speed is a function of <em>emptiness</em> — probes cost about 1/(1−α), so the last 10%
+  of a table's space costs more than the first 90%. Second, that "expected" in expected
+  O(1) is doing legal work: it's an expectation over the hash's randomness, and an
+  adversary who can predict your hash gets to repeal it. Predict first, then run it.
+  That's the rep.</p>
+  <p class="marginal">Everything below computes for real: the hero is an actual
+  linear-probing table cross-checked against a shadow map on every sample, the probe
+  curve is measured off a real 8,192-slot table sweeping to α = 0.98, and the flooding
+  attack really does grow one chain and starve a real work queue.</p>
+  <hr class="rule">
+</div>
+
+<div class="col">
+  <div class="tbx">
+    <span class="k">The interview card — where you've ground this before</span>
+    <ul>
+      <li>"Two Sum." · "Group anagrams." · "First non-repeating character." (The answer is always a hash map.)</li>
+      <li>"What happens when a hash table fills up? What does <em>amortized</em> O(1) hide?"</li>
+      <li>"How would you shard a cache across servers?" (That one grew into <a href="../index.html#/consistent-hashing" target="_top">the Hash Ring episode</a>.)</li>
+    </ul>
+    <dl>
+      <dt>Pattern</dt><dd>hashing · buckets or probing · amortized doubling</dd>
+      <dt>Space</dt><dd>O(n) plus deliberate slack — the table is fastest when partly empty</dd>
+      <dt>Time</dt><dd>O(1) expected lookup/insert · O(n) worst case · resize O(n), amortized away</dd>
+      <dt>The catch</dt><dd>speed is a function of load factor α — and "expected" assumes the hash's randomness, which an adversary can take away</dd>
+    </dl>
+  </div>
+</div>
+
+<figure class="exp" id="p-hero">
+  <figcaption class="exp-head">
+    <span class="exp-id">LIVE</span>
+    <span class="exp-title">A real table filling up — collisions, probe chains, and the resize</span>
+    <span class="exp-run"><button class="btn" data-run="hero">PAUSE</button></span>
+  </figcaption>
+  <canvas class="sim" id="c-hero" style="height:280px" role="img" aria-label="A grid of hash-table slots fills as keys stream in; colliding inserts walk highlighted probe chains to the next free slot, and when the load factor crosses the threshold the whole table doubles and rehashes"></canvas>
+  <div class="exp-metrics">
+    <span>KEYS<b data-m="hero.n">0</b></span>
+    <span>LOAD FACTOR α<b data-m="hero.alpha">0%</b></span>
+    <span>AVG PROBES (LAST 48 OPS)<b data-m="hero.probes">–</b></span>
+    <span>RESIZES<b data-m="hero.resizes">0</b></span>
+    <span>SHADOW MAP AGREES<b data-m="hero.check">MISMATCHES 0</b></span>
+  </div>
+  <figcaption class="exp-note">Each insert hashes to a home slot; when the home is taken,
+  it <em>probes</em> — walks to the next free cell (linear probing, cache-friendly and
+  cluster-prone; watch the amber chains lengthen as α climbs). At α = 0.72 the table
+  doubles and every key rehashes: the flash you see is the O(n) everyone amortizes away.
+  Honesty check: every half second a sample of lookups is verified against a shadow map —
+  the mismatch counter is the proof this is a real table, not an animation.</figcaption>
+</figure>
+
+<div class="col">
+  <h2>The number that runs the show</h2>
+  <p>One symbol governs everything you just watched: <strong>α = n/m</strong>, keys over
+  slots. Collisions aren't a malfunction — with random hashing they're guaranteed (that's
+  the birthday paradox: 23 keys in 365 slots already collide more often than not). What
+  matters is how <em>often</em>, and the classic analysis gives the pocket law: an
+  absent-key lookup in an open-addressed table expects about <strong>1/(1−α)</strong>
+  probes. At half full, 2 probes. So here is the prediction: <strong>at what load factor
+  does an absent-key lookup cost ~10 probes — five times worse than half-full?</strong>
+  Intuition says performance degrades gently. Commit to a button, then a real 8,192-slot
+  table sweeps its α upward and measures.</p>
+</div>
+
+<figure class="exp" id="p-rep">
+  <figcaption class="exp-head">
+    <span class="exp-id">REP-01</span>
+    <span class="exp-title">Call the load factor where probing hits 10× — then measure the curve</span>
+    <span class="exp-run">
+      <button class="btn" data-act="p0">~60%</button>
+      <button class="btn" data-act="p1">~75%</button>
+      <button class="btn" data-act="p2">~90%</button>
+      <button class="btn" data-act="p3">~99%</button>
+      <button class="btn danger" data-reset="rep">RESET</button>
+    </span>
+  </figcaption>
+  <canvas class="sim" id="c-rep" style="height:300px" role="img" aria-label="After you commit to a load factor, a real table fills step by step while measured probe counts trace the 1 over 1 minus alpha curve; a horizontal line marks ten probes and dots mark your call against the measured crossing"></canvas>
+  <div class="exp-metrics">
+    <span>YOUR CALL<b data-m="rep.call">–</b></span>
+    <span>SWEEP<b data-m="rep.sweep">–</b></span>
+    <span>PROBES HIT 10 AT<b data-m="rep.cross">–</b></span>
+    <span>VERDICT<b data-m="rep.verdict">–</b></span>
+  </div>
+  <figcaption class="exp-note">The curve is a hyperbola, not a slope — flat for ages,
+  then a wall. That's why real tables resize at 70–75% (Java's HashMap at 0.75, Go and
+  Rust in the same neighborhood): not because 75% hurts, but because the wall right
+  behind it does. The pocket line: <em>probes ≈ 1/(1−α) — a 90%-full table is a 10×
+  slower table, and the last 10% of space costs everything.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>What "amortized" feels like in production</h2>
+  <p>The resize you watched in the hero was cute at 48 slots. Now scale it: a session
+  store holding a few hundred thousand entries doubles, and every key must rehash
+  <em>right now</em> — while requests keep arriving. The stalls get rarer as the table
+  grows, but each one is twice as big: amortized analysis averages the pain, production
+  feels the spikes. This is a real disease with a famous cure: <strong>Redis rehashes
+  incrementally</strong> — it keeps both tables during migration and moves a bucket or
+  two per operation, so no single request ever pays for the whole move.
+  <a href="../index.html#/pinterest" target="_top">The Board episode</a>'s memcached wall
+  lives on the same principle: the cache tier can't afford stop-the-world anything.</p>
+</div>
+
+<figure class="exp" id="p-e1">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-01</span>
+    <span class="exp-title">The resize storm — amortized on paper, spikes in production</span>
+    <span class="exp-run"><button class="btn" data-run="e1">PAUSE</button>
+    <button class="btn danger" data-reset="e1">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-rate">Insert rate</label>
+      <input type="range" id="r-rate" min="1000" max="10000" value="3000" step="500">
+      <output id="o-rate">3000</output>/s</div>
+    <label class="toggle"><input type="checkbox" id="t-inc"> Incremental rehash (Redis-style)</label>
+  </div>
+  <canvas class="sim" id="c-e1" style="height:270px" role="img" aria-label="A log-scale latency timeline: with stop-the-world rehashing, request latency spikes at every table doubling and the spikes grow with table size; with incremental rehashing the timeline stays flat"></canvas>
+  <div class="exp-metrics">
+    <span>TABLE<b data-m="e1.n">–</b></span>
+    <span>RESIZES<b data-m="e1.stalls">0</b></span>
+    <span>LAST STALL<b data-m="e1.last">–</b></span>
+    <span>WORST REQUEST (5s)<b data-m="e1.worst">–</b></span>
+  </div>
+  <figcaption class="exp-note">Watch the rhythm: stalls arrive half as often but hit
+  twice as hard — the doubling schedule in the flesh. Flip the switch and the same
+  workload runs Redis's way: both tables live during migration, a couple of buckets move
+  per operation, and the worst request barely notices. <em>Amortized cost is a batting
+  average; tail latency is struck by individual pitches.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>Whose expectation is "expected O(1)"?</h2>
+  <p>The textbook promise averages over the hash function's randomness. But if an
+  attacker knows your hash, the average is irrelevant — they can manufacture thousands
+  of keys that all land in <em>one</em> bucket, turning your O(1) table into an O(n)
+  list and your CPU into their weapon. This actually happened: in 2011, researchers
+  demonstrated hash-flooding denial-of-service against PHP, Java, Python and friends —
+  a few hundred kilobytes of crafted POST data could pin a server for minutes. The fix
+  the world adopted (SipHash, now inside Python, Rust, Redis and more) is a
+  <em>keyed</em> hash: a secret seed the attacker can't predict, which restores the
+  randomness the proof needed. Below, both worlds — same server budget, same legitimate
+  traffic, a real chain growing in a real bucket array.</p>
+</div>
+
+<figure class="exp" id="p-e2">
+  <figcaption class="exp-head">
+    <span class="exp-id">EXP-02</span>
+    <span class="exp-title">Hash flooding — the adversary repeals your average, the keyed hash reinstates it</span>
+    <span class="exp-run"><button class="btn" data-run="e2">PAUSE</button>
+    <button class="btn danger" data-reset="e2">RESET</button></span>
+  </figcaption>
+  <div class="exp-controls">
+    <div class="ctl"><label for="r-atk">Attack traffic</label>
+      <input type="range" id="r-atk" min="0" max="2000" value="800" step="100">
+      <output id="o-atk">800</output>/s</div>
+    <label class="toggle"><input type="checkbox" id="t-key"> Keyed hash (SipHash-style secret seed)</label>
+  </div>
+  <canvas class="sim" id="c-e2" style="height:270px" role="img" aria-label="A bucket histogram where crafted keys pile one bucket into a red tower while legitimate throughput collapses; enabling the keyed hash spreads the attack flat and service recovers"></canvas>
+  <div class="exp-metrics">
+    <span>LEGIT SERVED<b data-m="e2.served">0</b>/s of 1500/s</span>
+    <span>LONGEST CHAIN<b data-m="e2.chain">0</b></span>
+    <span>AVG STEPS/OP<b data-m="e2.steps">–</b></span>
+    <span>REQUESTS DROPPED<b data-m="e2.drops">0</b></span>
+  </div>
+  <figcaption class="exp-note">The attacker sends keys that are all ≡ 0 mod m — with a
+  predictable hash they stack into one chain, and every operation touching it walks the
+  whole thing. The server's step budget drains, the queue backs up, and legitimate
+  traffic starves — O(n²) bought for pennies. Flip the seed on: the same attack keys now
+  scatter uniformly and the tower collapses into the lawn. <em>"Expected O(1)" is a
+  theorem about randomness the attacker couldn't see; keep it that way.</em></figcaption>
+</figure>
+
+<div class="col">
+  <h2>The keeper</h2>
+  <p>The keeper: <strong>a hash table trades order for speed, and its speed is a
+  function of emptiness and unpredictability — probes ≈ 1/(1−α), resizes are the
+  amortized bill arriving all at once, and "expected O(1)" survives only while the hash
+  stays secret from your adversary.</strong> When an interview asks for O(1) anything,
+  this is the shape; when it asks what could go wrong, this page was the answer.</p>
+
+  <div class="tbx">
+    <span class="k">The revision card — for the you that comes back in three months</span>
+    <ul>
+      <li>Why is a hash table fastest when partly empty? <span class="met">(probes ≈ 1/(1−α) — you watched 90% full cost 10×)</span></li>
+      <li>What does "amortized O(1)" hide, and what's the production fix? <span class="met">(the growing resize stall — Redis migrates a bucket at a time, both tables live)</span></li>
+      <li>Whose expectation is "expected O(1)"? <span class="met">(the hash's randomness — a predictable hash let one bucket become the whole table)</span></li>
+      <li>When is a hash table the wrong answer? <span class="met">(ranges, prefixes, ordering — hashing destroys order by design; the trie and B-tree pick up that work)</span></li>
+    </ul>
+    <dl>
+      <dt>Seen under fire</dt><dd><a href="../index.html#/consistent-hashing" target="_top">The Hash Ring · consistent hashing</a> ·
+      <a href="../index.html#/pinterest" target="_top">The Board · Pinterest</a> ·
+      <a href="../index.html#/tinder" target="_top">The Swipe · Tinder</a> ·
+      <a href="../index.html#/discord" target="_top">The Guild · Discord</a></dd>
+    </dl>
+  </div>
+
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>Donald Knuth — <em>The Art of Computer Programming</em>, vol. 3 §6.4 (the probe-count analyses; linear probing was Knuth's first published algorithm analysis, 1962).</li>
+    <li>Cormen, Leiserson, Rivest, Stein — <em>Introduction to Algorithms</em>, ch. 11 (open addressing and the 1/(1−α) bounds).</li>
+    <li>Redis — <a href="https://github.com/redis/redis/blob/unstable/src/dict.c">dict.c</a> (incremental rehashing: two tables, a bucket per step).</li>
+    <li>Alexander Klink, Julian Wälde — <a href="https://events.ccc.de/congress/2011/Fahrplan/events/4680.en.html">"Efficient Denial of Service Attacks on Web Application Platforms"</a>, 28C3, 2011 (the hash-flooding disclosures).</li>
+    <li>Jean-Philippe Aumasson, Daniel J. Bernstein — <a href="https://131002.net/siphash/siphash.pdf">"SipHash: a fast short-input PRF"</a> (the keyed hash that Python, Rust and Redis adopted).</li>
+  </ul>
+</div>
+
+<footer class="col">
+  <hr class="foot-rule">
+    <p class="next">World of Internet Systems · NEXT IN THE TOOLBOX → <a href="../index.html#/trie" target="_top">The Trie</a> · <b>lookup that costs the key's length, not the table's size</b></p>
+</footer>
+</main>
+
+<script>
+'use strict';
+(() => {
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const expRand=(rng,rate)=>-Math.log(1-rng())/rate;
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+  if(cv.width !== Math.round(r.width*d) || cv.height !== Math.round(r.height*d)){
+    cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d);
+  }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d,0,0,d,0,0);
+  return {ctx, W:r.width, H:r.height};
+}
+const CSS = { panel:'#0C1622', line:'#24384F', ink:'#D8E2EE', muted:'#7E93AB',
+  traffic:'#F2A93B', a:'#C48224', b:'#3B9EBD', fault:'#E4604E' };
+const M = {};
+document.querySelectorAll('[data-m]').forEach(el => M[el.dataset.m] = el);
+function setM(k,v){ if(M[k]) M[k].textContent = v; }
+const mix=k=>{ let a=k*2654435761>>>0; a^=a>>>15; a=Math.imul(a,0x85EBCA6B)>>>0; a^=a>>>13; return a>>>0; };
+
+/* ================= HERO: a real linear-probing table ================= */
+const hero = {
+  cv: document.getElementById('c-hero'),
+  reset(){
+    this.t=0; this.rng=mulberry32(3);
+    this.m=48; this.tab=new Int32Array(this.m); this.n=0;
+    this.shadow=new Set(); this.mism=0; this.checks=0;
+    this.resizes=0; this.cycles=0;
+    this.nextIns=0.2; this.nextChk=0.5;
+    this.ring=[]; this.path=null; this.flash=0;
+    for(let i=0;i<7;i++) this.insert(1+((this.rng()*1e6)|0)); // never a blank first paint
+  },
+  probePath(key){ // slots examined until key or empty found
+    const path=[]; let i=mix(key)%this.m;
+    for(let s=0;s<this.m;s++){
+      path.push(i);
+      if(this.tab[i]===0 || this.tab[i]===key) return path;
+      i=(i+1)%this.m;
+    }
+    return path;
+  },
+  insert(key){
+    const path=this.probePath(key);
+    const last=path[path.length-1];
+    if(this.tab[last]===key) return path;   // already present
+    this.tab[last]=key; this.n++; this.shadow.add(key);
+    return path;
+  },
+  lookup(key){
+    const path=this.probePath(key);
+    return this.tab[path[path.length-1]]===key;
+  },
+  resize(){
+    const old=this.tab;
+    this.m*=2; this.tab=new Int32Array(this.m); this.n=0;
+    const keep=this.shadow; this.shadow=new Set();
+    for(const k of keep) this.insert(k);
+    this.resizes++; this.flash=this.t;
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.t>=this.nextIns){
+      this.nextIns=this.t+0.12;
+      if(this.n/this.m>=0.72){
+        if(this.m>=192){ // cycle back to a small table, keeping the cumulative honesty counters
+          const keep={r:this.resizes, c:this.checks, mi:this.mism, cy:this.cycles+1};
+          this.reset();
+          this.resizes=keep.r; this.checks=keep.c; this.mism=keep.mi; this.cycles=keep.cy;
+        }
+        else this.resize();
+      } else {
+        const key=1+((this.rng()*1e6)|0);
+        const path=this.insert(key);
+        this.path={idxs:path, at:this.t};
+        this.ring.push(path.length); if(this.ring.length>48) this.ring.shift();
+      }
+    }
+    if(this.t>=this.nextChk){ // the shadow-map honesty check
+      this.nextChk=this.t+0.5;
+      const keys=[...this.shadow];
+      for(let i=0;i<20 && keys.length;i++){
+        const k=keys[(this.rng()*keys.length)|0];
+        this.checks++; if(!this.lookup(k)) this.mism++;
+      }
+      for(let i=0;i<5;i++){
+        const k=2000000+((this.rng()*1e6)|0);
+        this.checks++; if(this.lookup(k) !== this.shadow.has(k)) this.mism++;
+      }
+    }
+    const avgP=this.ring.length? this.ring.reduce((a,b)=>a+b,0)/this.ring.length : NaN;
+    setM('hero.n', this.n+' / m='+this.m);
+    setM('hero.alpha', Math.round(100*this.n/this.m)+'%');
+    setM('hero.probes', isNaN(avgP)?'–':avgP.toFixed(1));
+    setM('hero.resizes', ''+this.resizes);
+    setM('hero.check', 'MISMATCHES '+this.mism+' ('+this.checks+' CHECKED)');
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const cols=Math.min(this.m, Math.floor((W-32)/13));
+    const rows=Math.ceil(this.m/cols);
+    const cw=13, x0=16, y0=44;
+    const hot=new Set(); const age=this.path? this.t-this.path.at : 99;
+    if(this.path && age<0.8) this.path.idxs.forEach(i=>hot.add(i));
+    const resizing=this.t-this.flash<0.6;
+    for(let i=0;i<this.m;i++){
+      const x=x0+(i%cols)*cw, y=y0+Math.floor(i/cols)*cw;
+      const occ=this.tab[i]!==0;
+      if(occ){
+        ctx.fillStyle= hot.has(i)? CSS.traffic : resizing? CSS.b : CSS.b;
+        ctx.globalAlpha= hot.has(i)?1 : resizing?0.9:0.45;
+        ctx.fillRect(x, y, 11, 11); ctx.globalAlpha=1;
+      } else {
+        ctx.strokeStyle= hot.has(i)? CSS.traffic : CSS.line;
+        ctx.strokeRect(x+0.5, y+0.5, 10, 10);
+      }
+    }
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('α = '+(this.n/this.m).toFixed(2)+' — RESIZE AT 0.72', 16, 24);
+    ctx.textAlign='right';
+    ctx.fillText(resizing? 'REHASHING EVERY KEY — THE AMORTIZED BILL, ARRIVING':'AMBER = THIS INSERT\'S PROBE CHAIN', W-16, 24);
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('LINEAR PROBING — COLLIDING KEYS WALK RIGHT UNTIL AN EMPTY CELL · CLUSTERS ARE THE PRICE', W/2, H-14);
+  },
+};
+hero.reset();
+
+/* ================= REP-01: the 1/(1−α) wall ================= */
+const RM=8192;
+const AOPTS=[0.60,0.75,0.90,0.99], AOPTL=['~60%','~75%','~90%','~99%'];
+const rep = {
+  cv: document.getElementById('c-rep'),
+  reset(){
+    this.t=0; this.picked=null; this.phase='idle';
+    this.rng=mulberry32(13);
+    this.tab=new Int32Array(RM); this.n=0; this.keyseq=1;
+    this.alpha=0; this.pts=[]; this.cross=null; this.verdict='–';
+    document.querySelectorAll('[data-act^="p"]').forEach(b=>b.classList.remove('picked'));
+    this.pushMetrics();
+  },
+  choose(i){
+    if(this.picked!==null) return;
+    this.picked=i; this.phase='run';
+    document.querySelectorAll('[data-act^="p"]')[i]?.classList?.add('picked');
+  },
+  h2(key){ let b=key*40503+2166136261>>>0; b^=b>>>16; b=Math.imul(b,0xC2B2AE35)>>>0; b^=b>>>16; return (b|1)>>>0; },
+  insertKey(key){ // double hashing — the textbook curve's home turf
+    let i=mix(key)%RM; const step=this.h2(key)%RM || 1;
+    while(this.tab[i]!==0) i=(i+step)%RM;
+    this.tab[i]=key; this.n++;
+  },
+  probeAbsent(key){ // slots examined before an empty proves absence
+    let i=mix(key)%RM; const step=this.h2(key)%RM || 1;
+    let c=1;
+    while(this.tab[i]!==0 && c<RM){ i=(i+step)%RM; c++; }
+    return c;
+  },
+  update(dt){
+    this.t+=dt;
+    if(this.phase==='run'){
+      const target=this.alpha+0.02;
+      if(target<=0.98){
+        while(this.n<Math.floor(target*RM)) this.insertKey(this.keyseq++);
+        this.alpha=target;
+        let s=0; const PR=300;
+        for(let i=0;i<PR;i++) s+=this.probeAbsent(3000000+((this.rng()*1e7)|0));
+        const avg=s/PR;
+        this.pts.push({a:this.alpha, p:avg});
+        if(this.cross===null && avg>=10){
+          const prev=this.pts[this.pts.length-2];
+          this.cross= prev? prev.a+(10-prev.p)/(avg-prev.p)*0.02 : this.alpha;
+        }
+      } else {
+        this.phase='done';
+        const call=AOPTS[this.picked], meas=this.cross??0.99;
+        this.verdict = Math.abs(call-meas)<=0.045 ? 'CALLED IT — THE LAST 10% COSTS EVERYTHING'
+          : this.picked===1 ? 'AT 75% PROBES ≈ 4 — THAT\'S WHERE JAVA RESIZES, NOT WHERE TABLES DIE'
+          : this.picked===0 ? 'AT 60% PROBES ≈ 2.5 — THE WALL IS MUCH LATER, AND MUCH STEEPER'
+          : 'AT 99% YOU\'D PAY ~100 PROBES — 10× ARRIVED WELL BEFORE THAT';
+      }
+    }
+    this.pushMetrics();
+  },
+  pushMetrics(){
+    const lastP=this.pts.length? this.pts[this.pts.length-1] : null;
+    setM('rep.call', this.picked===null?'–':AOPTL[this.picked]);
+    setM('rep.sweep', lastP? 'α '+lastP.a.toFixed(2)+' · '+lastP.p.toFixed(1)+' PROBES'+(this.phase==='done'?' · DONE':'') : '–');
+    setM('rep.cross', this.cross? 'α ≈ '+this.cross.toFixed(2)+' (FORMULA: 0.90)' : '–');
+    setM('rep.verdict', this.verdict);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    if(this.phase==='idle'){
+      ctx.textAlign='center';
+      ctx.fillStyle=CSS.traffic;
+      ctx.fillText('COMMIT FIRST — THE SWEEP RUNS WHEN YOU CALL THE LOAD FACTOR', W/2, H/2-16);
+      ctx.fillStyle=CSS.muted;
+      ctx.fillText('A REAL 8,192-SLOT TABLE FILLS FROM EMPTY TO α = 0.98', W/2, H/2+4);
+      ctx.fillText('AT HALF FULL, ABSENT LOOKUPS COST ~2 PROBES — WHERE DO THEY COST 10?', W/2, H/2+22);
+      return;
+    }
+    const x0=52, x1=W-24, y0=26, y1=H-56;
+    const X=a=>x0+(x1-x0)*a;
+    const Y=p=>y1-(y1-y0)*Math.min(1,p/25);
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(x0, y0, x1-x0, y1-y0);
+    ctx.fillStyle=CSS.muted;
+    ctx.textAlign='right';
+    [0,5,10,15,20,25].forEach(p=>ctx.fillText(''+p, x0-6, Y(p)+3));
+    ctx.textAlign='center';
+    [0,0.25,0.5,0.75,1].forEach(a=>ctx.fillText(Math.round(a*100)+'%', X(a), y1+16));
+    ctx.textAlign='left';
+    ctx.fillText('PROBES', x0+6, y0+12);
+    ctx.textAlign='right';
+    ctx.fillText('LOAD FACTOR α', x1, y1+30);
+    // theory curve 1/(1-a)
+    ctx.strokeStyle=CSS.b; ctx.setLineDash([3,3]); ctx.beginPath();
+    for(let a=0;a<=0.96;a+=0.01){
+      const p=1/(1-a); const x=X(a), y=Y(p);
+      a===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=CSS.b; ctx.textAlign='left'; ctx.fillText('1/(1−α)', X(0.79), Y(6.4));
+    // the p=10 line
+    ctx.strokeStyle=CSS.line; ctx.setLineDash([5,4]); ctx.beginPath();
+    ctx.moveTo(x0, Y(10)); ctx.lineTo(x1, Y(10)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=CSS.muted; ctx.fillText('10 PROBES', x0+6, Y(10)-5);
+    // measured dots
+    ctx.fillStyle=CSS.traffic;
+    this.pts.forEach(pt=>{ ctx.beginPath(); ctx.arc(X(pt.a), Y(pt.p), 2.4, 0, 7); ctx.fill(); });
+    // your call
+    if(this.picked!==null){
+      const cx=X(AOPTS[this.picked]);
+      ctx.strokeStyle=CSS.fault; ctx.beginPath(); ctx.moveTo(cx, y0); ctx.lineTo(cx, y1); ctx.stroke();
+      ctx.fillStyle=CSS.fault; ctx.textAlign= AOPTS[this.picked]>0.8?'right':'left';
+      ctx.fillText('YOUR CALL '+AOPTL[this.picked], cx+(AOPTS[this.picked]>0.8?-6:6), y0+14);
+    }
+    if(this.cross){
+      ctx.fillStyle=CSS.traffic;
+      ctx.beginPath(); ctx.arc(X(this.cross), Y(10), 5, 0, 7); ctx.fill();
+      ctx.textAlign='right';
+      ctx.fillText('MEASURED α ≈ '+this.cross.toFixed(2), X(this.cross)-8, Y(10)+16);
+    }
+    ctx.textAlign='center'; ctx.fillStyle= this.phase==='done'? CSS.traffic : CSS.muted;
+    ctx.fillText(this.phase==='done'
+      ? 'A HYPERBOLA, NOT A SLOPE — FLAT FOR AGES, THEN A WALL'
+      : 'MEASURING — 300 REAL ABSENT-KEY PROBES PER STEP', W/2, H-8);
+  },
+};
+rep.reset();
+[0,1,2,3].forEach(i=>{
+  document.querySelector('[data-act="p'+i+'"]').addEventListener('click',()=>rep.choose(i));
+});
+
+/* ================= EXP-01: the resize storm ================= */
+const REHASH_RATE=5e6; // keys/s a stop-the-world rehash can move
+const e1 = {
+  cv: document.getElementById('c-e1'),
+  reset(){
+    this.t=0; this.rng=mulberry32(17);
+    this.inc=document.getElementById('t-inc').checked;
+    this.rate=+document.getElementById('r-rate').value;
+    this.n=1000; this.m=8192;
+    this.stallUntil=0; this.stalls=0; this.lastStall=0; this.migrating=0;
+    this.buckets=[]; this.bucketT=0; this.events=[];
+    this.worstRing=[];
+  },
+  update(dt){
+    this.t+=dt;
+    const inc=document.getElementById('t-inc').checked;
+    const rate=+document.getElementById('r-rate').value;
+    document.getElementById('o-rate').textContent=rate;
+    if(inc!==this.inc || rate!==this.rate){ this.reset(); return; }
+    this.n+=dt*this.rate;
+    if(this.n/this.m>=0.72){
+      const moving=Math.floor(this.n);
+      this.m*=2; this.stalls++;
+      if(this.inc){
+        this.migrating=this.t + moving/(this.rate+2000)/2; // 2 buckets migrated per op
+        this.lastStall=0;
+      } else {
+        const stall=moving/REHASH_RATE;
+        this.stallUntil=this.t+stall; this.lastStall=stall;
+        this.spike=stall*1000;    // a stall shorter than the sampling tick must still land on the chart
+        this.events.push({t:this.t, n:moving, ms:stall*1000});
+        if(this.events.length>12) this.events.shift();
+      }
+    }
+    // lookups arriving at 2000/s sample latency; during a stall they wait
+    const lat=Math.max(0.05, (this.stallUntil-this.t)*1000, this.spike||0);
+    if(this.t>=this.bucketT){
+      this.bucketT=this.t+0.1;
+      this.spike=0;
+      this.buckets.push(lat);
+      if(this.buckets.length>170) this.buckets.shift();
+      this.worstRing.push(lat); if(this.worstRing.length>50) this.worstRing.shift();
+    }
+    const fmt=v=>v>=1000?(v/1000).toFixed(1)+'s':v>=1?v.toFixed(1)+'ms':(v*1000).toFixed(0)+'µs';
+    setM('e1.n', 'n='+Math.round(this.n/1000)+'K · m='+Math.round(this.m/1000)+'K');
+    setM('e1.stalls', ''+this.stalls);
+    setM('e1.last', this.inc? '~0 (SPREAD OVER OPS)' : this.lastStall? fmt(this.lastStall*1000):'–');
+    setM('e1.worst', fmt(Math.max(...this.worstRing, 0.05)));
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const x0=56, x1=W-16, y0=34, y1=H-46;
+    // log scale 0.05ms .. 500ms
+    const Y=ms=>y1-(y1-y0)*Math.min(1,(Math.log10(Math.max(0.05,ms))-Math.log10(0.05))/4);
+    ctx.strokeStyle=CSS.line; ctx.strokeRect(x0,y0,x1-x0,y1-y0);
+    ctx.fillStyle=CSS.muted; ctx.textAlign='right';
+    [[0.05,'50µs'],[1,'1ms'],[10,'10ms'],[100,'100ms']].forEach(([v,l])=>ctx.fillText(l, x0-6, Y(v)+3));
+    ctx.textAlign='left';
+    ctx.fillText('REQUEST LATENCY (LOG) — LAST 17s', x0+6, y0-8);
+    const n=this.buckets.length;
+    for(let i=0;i<n;i++){
+      const ms=this.buckets[i];
+      const x=x0+(x1-x0)*(i/169);
+      const bad=ms>1;
+      ctx.fillStyle= bad? CSS.fault : CSS.b;
+      ctx.globalAlpha= bad?0.95:0.55;
+      ctx.fillRect(x, Y(ms), Math.max(2,(x1-x0)/170), y1-Y(ms));
+      ctx.globalAlpha=1;
+    }
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    const mode=this.inc? 'INCREMENTAL — BOTH TABLES LIVE, A COUPLE OF BUCKETS MOVE PER OP'
+      : 'STOP-THE-WORLD — EVERY DOUBLING REHASHES ALL n KEYS AT ONCE';
+    ctx.fillText(mode, 16, H-30);
+    if(this.inc && this.t<this.migrating){
+      ctx.textAlign='right'; ctx.fillStyle=CSS.traffic;
+      ctx.fillText('▒ MIGRATING', W-16, H-30);
+    }
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('STALLS ARRIVE HALF AS OFTEN, TWICE AS BIG — AMORTIZED IS AN AVERAGE, TAILS ARE EVENTS', W/2, H-12);
+  },
+};
+e1.reset();
+
+/* ================= EXP-02: hash flooding ================= */
+const FM=4096, BUDGET_STEPS=400000, LEGIT=1500, QCAP=4000, ROTATE=25;
+const e2 = {
+  cv: document.getElementById('c-e2'),
+  reset(){
+    this.t=0; this.rng=mulberry32(23);
+    this.keyed=document.getElementById('t-key').checked;
+    this.seed=(this.rng()*1e9)|0;
+    this.sizes=new Int32Array(FM);
+    this.q=[]; this.drops=0;
+    this.nextLeg=0.05; this.nextAtk=0.1; this.atkSeq=1;
+    this.servedRing=[]; this.stepRing=[]; this.bucketT=0; this.served2=0;
+    this.rotT=ROTATE;
+  },
+  bucketOf(key){
+    return this.keyed ? mix((key^this.seed)>>>0)%FM : key%FM;
+  },
+  update(dt){
+    this.t+=dt;
+    const keyed=document.getElementById('t-key').checked;
+    const atkRate=+document.getElementById('r-atk').value;
+    document.getElementById('o-atk').textContent=atkRate;
+    if(keyed!==this.keyed){ this.reset(); return; }
+    if(this.t>=this.rotT){ this.rotT+=ROTATE; this.sizes.fill(0); this.q.length=0; }
+    while(this.t>=this.nextLeg){
+      this.nextLeg+=expRand(this.rng, LEGIT);
+      if(this.q.length<QCAP) this.q.push({kind:'leg', key:1+((this.rng()*1e6)|0)}); else this.drops++;
+    }
+    if(atkRate>0){
+      if(this.nextAtk<this.t-1) this.nextAtk=this.t; // slider left 0 — no catch-up burst
+      while(this.t>=this.nextAtk){
+        this.nextAtk+=expRand(this.rng, atkRate);
+        // crafted: multiples of FM — all land in bucket 0 under the unkeyed hash
+        if(this.q.length<QCAP) this.q.push({kind:'atk', key:FM*(this.atkSeq++)}); else this.drops++;
+      }
+    }
+    let budget=dt*BUDGET_STEPS;
+    while(this.q.length && budget>0){
+      const op=this.q[0];
+      const b=this.bucketOf(op.key);
+      const cost=this.sizes[b]+1;   // walk the chain
+      const left=cost-(this.headSpent||0);
+      if(left>budget){ this.headSpent=(this.headSpent||0)+budget; budget=0; break; } // a huge op spans frames
+      budget-=left; this.headSpent=0; this.q.shift();
+      this.stepRing.push(cost); if(this.stepRing.length>200) this.stepRing.shift();
+      if(op.kind==='atk') this.sizes[b]++;   // attacker inserts pile the chain
+      else this.served2++;
+    }
+    if(this.t>=this.bucketT){
+      this.bucketT=this.t+0.5;
+      this.servedRing.push(this.served2*2); this.served2=0;
+      if(this.servedRing.length>4) this.servedRing.shift();
+    }
+    let maxc=0; for(let i=0;i<FM;i++) if(this.sizes[i]>maxc) maxc=this.sizes[i];
+    const served=this.servedRing.length? Math.round(this.servedRing.reduce((a,b)=>a+b,0)/this.servedRing.length):0;
+    const steps=this.stepRing.length? this.stepRing.reduce((a,b)=>a+b,0)/this.stepRing.length:0;
+    setM('e2.served', ''+served);
+    setM('e2.chain', ''+maxc);
+    setM('e2.steps', steps>=100?Math.round(steps)+'':steps.toFixed(1));
+    setM('e2.drops', ''+this.drops);
+  },
+  draw(){
+    const {ctx,W,H}=fitCanvas(this.cv);
+    ctx.fillStyle=CSS.panel; ctx.fillRect(0,0,W,H);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    const gx0=16, gx1=W-200, gy1=H-52, gh=H-110;
+    const groups=128, per=FM/groups;
+    let maxc=1; for(let i=0;i<FM;i++) if(this.sizes[i]>maxc) maxc=this.sizes[i];
+    ctx.textAlign='left'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('CHAIN LENGTH PER BUCKET GROUP ('+FM+' BUCKETS) — LOG HEIGHT', gx0, 24);
+    const bw=(gx1-gx0)/groups;
+    for(let g=0;g<groups;g++){
+      let m=0;
+      for(let i=g*per;i<(g+1)*per;i++) if(this.sizes[i]>m) m=this.sizes[i];
+      if(m===0) continue;
+      const h=gh*Math.log10(1+m)/Math.log10(1+Math.max(10,maxc));
+      ctx.fillStyle= m>50? CSS.fault : CSS.b;
+      ctx.fillRect(gx0+g*bw, gy1-h, Math.max(2,bw-1), h);
+    }
+    ctx.strokeStyle=CSS.line;
+    ctx.beginPath(); ctx.moveTo(gx0, gy1); ctx.lineTo(gx1, gy1); ctx.stroke();
+    // right: served meter + queue
+    const served=this.servedRing.length? Math.round(this.servedRing.reduce((a,b)=>a+b,0)/this.servedRing.length):0;
+    const bad=served<LEGIT*0.6;
+    ctx.textAlign='right'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('LEGIT SERVED', W-16, 46);
+    ctx.font='17px ui-monospace,Menlo,monospace';
+    ctx.fillStyle= bad? CSS.fault : CSS.b;
+    ctx.fillText(served+'/s', W-16, 66);
+    ctx.font='10px ui-monospace,Menlo,monospace';
+    ctx.fillStyle=CSS.muted; ctx.fillText('OFFERED '+LEGIT+'/s', W-16, 82);
+    ctx.fillText('QUEUE '+this.q.length+(this.q.length>=QCAP?' — FULL, DROPPING':''), W-16, 106);
+    ctx.fillText(this.keyed? 'SEED: SECRET — ATTACK SCATTERS':'HASH: key mod m — PREDICTABLE', W-16, 130);
+    ctx.textAlign='center'; ctx.fillStyle=CSS.muted;
+    ctx.fillText('SAME CRAFTED KEYS, SAME BUDGET — ONLY THE ATTACKER\'S ABILITY TO PREDICT THE HASH DIFFERS', W/2, H-14);
+  },
+};
+e2.reset();
+
+/* ---------- wiring ---------- */
+const sims={hero,rep,e1,e2}, running={}, visible={};
+function register(name, panelId){
+  running[name]=!REDUCED; visible[name]=false;
+  new IntersectionObserver(es=>es.forEach(x=>visible[name]=x.isIntersecting),{rootMargin:'80px'})
+    .observe(document.getElementById(panelId));
+  const btn=document.querySelector(`[data-run="${name}"]`);
+  if(REDUCED && btn) btn.textContent='RUN';
+  if(btn) btn.addEventListener('click',()=>{ running[name]=!running[name]; btn.textContent=running[name]?'PAUSE':'RUN'; });
+  const rst=document.querySelector(`[data-reset="${name}"]`);
+  if(rst) rst.addEventListener('click',()=>sims[name].reset());
+}
+register('hero','p-hero'); register('rep','p-rep'); register('e1','p-e1'); register('e2','p-e2');
+
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  for(const k of ['hero','rep','e1','e2']){
+    if(!visible[k]||!running[k]) continue;
+    sims[k].update(dt); sims[k].draw();
+  }
+  requestAnimationFrame(frame);
+}
+function relayout(){ for(const k in sims){ sims[k].update(0.01); sims[k].draw(); } }
+relayout();
+requestAnimationFrame(frame);
+addEventListener('resize', relayout);
+new ResizeObserver(relayout).observe(document.body);
+})();
+</script>
+</body>
+</html>

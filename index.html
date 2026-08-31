@@ -218,8 +218,8 @@
       <li><a class="ep" href="#/bloom" data-ep="bloom">The Filter · Bloom</a></li>
       <li><a class="ep" href="#/heap" data-ep="heap">The Heap</a></li>
       <li><a class="ep" href="#/lsm-tree" data-ep="lsm-tree">The LSM Tree</a></li>
-      <li><span class="soon">The Hash Table<i>IDEA</i></span></li>
-      <li><span class="soon">The Trie<i>IDEA</i></span></li>
+      <li><a class="ep" href="#/hash-table" data-ep="hash-table">The Hash Table</a></li>
+      <li><a class="ep" href="#/trie" data-ep="trie">The Trie</a></li>
       <li><span class="soon">The Skip List<i>IDEA</i></span></li>
       <li><span class="soon">The Counter · HyperLogLog<i>IDEA</i></span></li>
       <li><span class="soon">The Sketch · Count-Min<i>IDEA</i></span></li>
@@ -520,6 +520,24 @@
           vs leveled on one stream; and the write stall that caps ingest at
           budget ÷ WA.</span>
         </a>
+        <a class="card" href="#/hash-table">
+          <span class="k">The toolbox</span>
+          <span class="t">The Hash Table</span>
+          <span class="d">O(1) with two asterisks you get to watch. A real probing table
+          with a shadow-map alibi; call the load factor where lookups cost 10× and meet
+          the 1/(1−α) wall; the resize storm vs Redis's incremental cure; and hash
+          flooding — the adversary who repeals your average until a secret seed
+          reinstates it.</span>
+        </a>
+        <a class="card" href="#/trie">
+          <span class="k">The toolbox</span>
+          <span class="t">The Trie</span>
+          <span class="d">The structure where the key is the path. Watch prefix sharing
+          caught in the act on a real word list; call how many nodes English actually
+          needs (gibberish pays more than you think); walk 32 bits to route a packet
+          while the scan pays per table entry; then radix compression — nodes for
+          decisions, bytes for spelling.</span>
+        </a>
       </div>
 
       <h2>The rules of the series</h2>
@@ -580,6 +598,8 @@ const EPISODES = {
   'bloom':             {title:'The Filter · Bloom Filters', file:'episodes/bloom.html'},
   'heap':              {title:'The Heap', file:'episodes/heap.html'},
   'lsm-tree':          {title:'The LSM Tree', file:'episodes/lsm-tree.html'},
+  'hash-table':        {title:'The Hash Table', file:'episodes/hash-table.html'},
+  'trie':              {title:'The Trie', file:'episodes/trie.html'},
 };
 const nav = document.getElementById('nav');
 const frame = document.getElementById('frame');
